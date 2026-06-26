@@ -5,6 +5,8 @@ import eventsImg from "@/assets/events.jpg";
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
 import aboutImg from "@/assets/about.jpg";
+import { MotionImage } from "@/components/site/MotionImage";
+
 
 export const Route = createFileRoute("/events")({
   head: () => ({
@@ -54,16 +56,18 @@ function Events() {
     <>
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
-          <img
+          <MotionImage
             src={eventsImg}
             alt="Stage performance"
-            loading="lazy"
             width={1400}
             height={1000}
-            className="h-full w-full object-cover opacity-40"
+            parallax={18}
+            imgClassName="opacity-40"
+            className="h-full w-full"
+            overlay={<div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/50" />}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/50" />
         </div>
+
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-24 pb-32">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -116,20 +120,22 @@ function Events() {
           {gallery.map((src, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: (i % 3) * 0.08 }}
-              className={`overflow-hidden rounded-2xl border border-border group ${i % 5 === 0 ? "aspect-[4/5]" : "aspect-square"}`}
+              transition={{ delay: (i % 3) * 0.08, duration: 0.6 }}
+              whileHover={{ y: -6 }}
+              className={`overflow-hidden rounded-2xl border border-border ${i % 5 === 0 ? "aspect-[4/5]" : "aspect-square"}`}
             >
-              <img
+              <MotionImage
                 src={src}
                 alt={`Team Tej gallery ${i + 1}`}
-                loading="lazy"
-                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
+                parallax={8}
+                className="h-full w-full"
               />
             </motion.div>
           ))}
+
         </div>
       </section>
     </>

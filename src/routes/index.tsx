@@ -5,6 +5,8 @@ import { ArrowUpRight, Sparkles, Calendar } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
 import aboutImg from "@/assets/about.jpg";
+import { MotionImage } from "@/components/site/MotionImage";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -190,23 +192,23 @@ function Index() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            whileHover={{ scale: 1.02 }}
-            className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-border"
+            className="relative aspect-[4/5] rounded-2xl border border-border overflow-hidden"
           >
-            <img
+            <MotionImage
               src={classesImg}
               alt="Studio rehearsal"
-              loading="lazy"
               width={1400}
               height={1000}
-              className="h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-            <div className="absolute bottom-6 left-6">
-              <p className="text-xs uppercase tracking-widest text-primary">Studio</p>
-              <p className="font-display text-2xl font-bold">Where it begins</p>
-            </div>
+              className="absolute inset-0 h-full w-full"
+              overlay={<div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />}
+            >
+              <div className="absolute bottom-6 left-6 z-10">
+                <p className="text-xs uppercase tracking-widest text-primary">Studio</p>
+                <p className="font-display text-2xl font-bold">Where it begins</p>
+              </div>
+            </MotionImage>
           </motion.div>
+
         </div>
       </section>
 
@@ -257,27 +259,28 @@ function Index() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="relative aspect-[5/4] overflow-hidden rounded-2xl border border-border order-2 lg:order-1"
+            className="relative aspect-[5/4] rounded-2xl border border-border overflow-hidden order-2 lg:order-1"
           >
-            <img
+            <MotionImage
               src={aboutImg}
               alt="Workshop"
-              loading="lazy"
               width={1200}
               height={1400}
-              className="h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-primary">Next up</p>
-                <p className="font-display text-2xl font-bold">Crosswinds Intensive</p>
+              className="absolute inset-0 h-full w-full"
+              overlay={<div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />}
+            >
+              <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between z-10">
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-primary">Next up</p>
+                  <p className="font-display text-2xl font-bold">Crosswinds Intensive</p>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-medium">
+                  24 seats
+                </span>
               </div>
-              <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-medium">
-                24 seats
-              </span>
-            </div>
+            </MotionImage>
           </motion.div>
+
 
           <motion.div
             initial={{ opacity: 0, x: 30 }}
