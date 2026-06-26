@@ -87,6 +87,44 @@ export function MotionImage({
           className={`h-full w-full object-cover ${imgClassName}`}
         />
       </motion.div>
+
+      {/* AI-style animated sheen sweep */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 mix-blend-overlay"
+        style={{
+          background:
+            "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)",
+          backgroundSize: "250% 250%",
+        }}
+        animate={{ backgroundPosition: ["120% 0%", "-20% 100%"] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* AI-style color-shift gradient */}
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60"
+        animate={{
+          background: [
+            "radial-gradient(60% 60% at 20% 30%, hsl(var(--primary)/0.35), transparent 60%)",
+            "radial-gradient(60% 60% at 80% 70%, hsl(var(--primary)/0.35), transparent 60%)",
+            "radial-gradient(60% 60% at 30% 80%, hsl(var(--primary)/0.35), transparent 60%)",
+            "radial-gradient(60% 60% at 20% 30%, hsl(var(--primary)/0.35), transparent 60%)",
+          ],
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* Subtle grain */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.7'/></svg>\")",
+        }}
+      />
       {overlay}
       {children}
     </motion.div>
