@@ -161,12 +161,13 @@ Show this ticket at the studio on your first day.`;
               </p>
 
               <div className="mt-5 space-y-3">
-                <Field label="Full name" field="name" placeholder="Tej Sharma" />
-                <Field label="Email" field="email" type="email" placeholder="you@email.com" />
+                <Field label="Full name" field="name" placeholder="Tej Sharma" details={details} setDetails={setDetails} errors={errors} />
+                <Field label="Email" field="email" type="email" placeholder="you@email.com" details={details} setDetails={setDetails} errors={errors} />
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Phone" field="phone" placeholder="98xxxxxxxx" />
-                  <Field label="Age" field="age" type="number" placeholder="22" />
+                  <Field label="Phone" field="phone" placeholder="98xxxxxxxx" details={details} setDetails={setDetails} errors={errors} />
+                  <Field label="Age" field="age" type="number" placeholder="22" details={details} setDetails={setDetails} errors={errors} />
                 </div>
+
                 <label className="block">
                   <span className="text-xs uppercase tracking-wider text-muted-foreground">
                     Experience
