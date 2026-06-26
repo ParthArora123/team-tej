@@ -35,7 +35,7 @@ const values = [
   { title: "Stage-first", body: "We train for performance, not just for class. Every batch performs." },
 ];
 
-export default function _() { return null; } // unused
+
 
 function About() {
   return (
