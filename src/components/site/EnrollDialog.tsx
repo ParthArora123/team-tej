@@ -104,35 +104,8 @@ Show this ticket at the studio on your first day.`;
     URL.revokeObjectURL(url);
   };
 
-  const Field = ({
-    label,
-    field,
-    type = "text",
-    placeholder,
-  }: {
-    label: string;
-    field: keyof StudentDetails;
-    type?: string;
-    placeholder?: string;
-  }) => (
-    <label className="block">
-      <span className="text-xs uppercase tracking-wider text-muted-foreground">
-        {label}
-      </span>
-      <input
-        type={type}
-        value={details[field]}
-        placeholder={placeholder}
-        onChange={(e) => setDetails({ ...details, [field]: e.target.value })}
-        className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border focus:border-primary outline-none text-sm"
-      />
-      {errors[field] && (
-        <span className="text-xs text-destructive mt-1 block">{errors[field]}</span>
-      )}
-    </label>
-  );
-
   return (
+
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
