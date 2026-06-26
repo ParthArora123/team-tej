@@ -35,7 +35,44 @@ const empty: StudentDetails = {
   experience: "Beginner",
 };
 
+function Field({
+  label,
+  field,
+  type = "text",
+  placeholder,
+  details,
+  setDetails,
+  errors,
+}: {
+  label: string;
+  field: keyof StudentDetails;
+  type?: string;
+  placeholder?: string;
+  details: StudentDetails;
+  setDetails: (d: StudentDetails) => void;
+  errors: Partial<Record<keyof StudentDetails, string>>;
+}) {
+  return (
+    <label className="block">
+      <span className="text-xs uppercase tracking-wider text-muted-foreground">
+        {label}
+      </span>
+      <input
+        type={type}
+        value={details[field]}
+        placeholder={placeholder}
+        onChange={(e) => setDetails({ ...details, [field]: e.target.value })}
+        className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border focus:border-primary outline-none text-sm"
+      />
+      {errors[field] && (
+        <span className="text-xs text-destructive mt-1 block">{errors[field]}</span>
+      )}
+    </label>
+  );
+}
+
 export function EnrollDialog({ klass, onClose }: Props) {
+
   const [step, setStep] = useState<Step>("details");
   const [details, setDetails] = useState<StudentDetails>(empty);
   const [copied, setCopied] = useState(false);
@@ -104,35 +141,8 @@ Show this ticket at the studio on your first day.`;
     URL.revokeObjectURL(url);
   };
 
-  const Field = ({
-    label,
-    field,
-    type = "text",
-    placeholder,
-  }: {
-    label: string;
-    field: keyof StudentDetails;
-    type?: string;
-    placeholder?: string;
-  }) => (
-    <label className="block">
-      <span className="text-xs uppercase tracking-wider text-muted-foreground">
-        {label}
-      </span>
-      <input
-        type={type}
-        value={details[field]}
-        placeholder={placeholder}
-        onChange={(e) => setDetails({ ...details, [field]: e.target.value })}
-        className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border focus:border-primary outline-none text-sm"
-      />
-      {errors[field] && (
-        <span className="text-xs text-destructive mt-1 block">{errors[field]}</span>
-      )}
-    </label>
-  );
-
   return (
+
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
@@ -188,12 +198,13 @@ Show this ticket at the studio on your first day.`;
               </p>
 
               <div className="mt-5 space-y-3">
-                <Field label="Full name" field="name" placeholder="Tej Sharma" />
-                <Field label="Email" field="email" type="email" placeholder="you@email.com" />
+                <Field label="Full name" field="name" placeholder="Tej Sharma" details={details} setDetails={setDetails} errors={errors} />
+                <Field label="Email" field="email" type="email" placeholder="you@email.com" details={details} setDetails={setDetails} errors={errors} />
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Phone" field="phone" placeholder="98xxxxxxxx" />
-                  <Field label="Age" field="age" type="number" placeholder="22" />
+                  <Field label="Phone" field="phone" placeholder="98xxxxxxxx" details={details} setDetails={setDetails} errors={errors} />
+                  <Field label="Age" field="age" type="number" placeholder="22" details={details} setDetails={setDetails} errors={errors} />
                 </div>
+
                 <label className="block">
                   <span className="text-xs uppercase tracking-wider text-muted-foreground">
                     Experience
