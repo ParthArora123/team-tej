@@ -374,20 +374,31 @@ Show this ticket (or the QR code) at the studio on your first day.
                 </dl>
               </div>
 
-              <div className="mt-4 flex gap-2">
+              <p className="mt-3 text-[11px] text-muted-foreground text-center">
+                Scan the QR to view all registrant details. A copy will be emailed to{" "}
+                <span className="text-primary">{details.email}</span>.
+              </p>
+
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <button
+                  onClick={emailTicket}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition text-sm"
+                >
+                  <Mail size={16} /> Email ticket
+                </button>
                 <button
                   onClick={downloadTicket}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition text-sm"
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-muted hover:bg-secondary text-sm"
                 >
                   <Download size={16} /> Download
                 </button>
-                <button
-                  onClick={reset}
-                  className="px-4 py-3 rounded-lg bg-muted hover:bg-secondary text-sm"
-                >
-                  Done
-                </button>
               </div>
+              <button
+                onClick={reset}
+                className="mt-2 w-full px-4 py-2.5 rounded-lg text-xs text-muted-foreground hover:text-foreground"
+              >
+                Done
+              </button>
             </motion.div>
           )}
         </motion.div>
