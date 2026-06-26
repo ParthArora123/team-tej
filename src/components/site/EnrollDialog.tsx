@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
-import { X, Check, Copy, Ticket, Download } from "lucide-react";
+import { X, Check, Copy, Ticket, Download, Mail } from "lucide-react";
 
 export interface EnrollClass {
   name: string;
