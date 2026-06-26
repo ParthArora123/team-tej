@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import aboutImg from "@/assets/about.jpg";
+import { MotionImage } from "@/components/site/MotionImage";
+
 
 export const Route = createFileRoute("/about")({
   head: () => ({
