@@ -5,6 +5,8 @@ import { ArrowUpRight, Sparkles, Calendar } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
 import aboutImg from "@/assets/about.jpg";
+import { MotionImage } from "@/components/site/MotionImage";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({

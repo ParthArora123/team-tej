@@ -58,17 +58,17 @@ function About() {
           initial={{ opacity: 0, scale: 0.96 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="lg:col-span-2 aspect-[4/5] overflow-hidden rounded-2xl border border-border"
+          className="lg:col-span-2 aspect-[4/5] rounded-2xl border border-border overflow-hidden"
         >
-          <img
+          <MotionImage
             src={aboutImg}
             alt="Founder of Team Tej"
-            loading="lazy"
             width={1200}
             height={1400}
-            className="h-full w-full object-cover"
+            className="h-full w-full"
           />
         </motion.div>
+
 
         <div className="lg:col-span-3 space-y-6 text-lg leading-relaxed text-muted-foreground">
           <p>
