@@ -35,7 +35,44 @@ const empty: StudentDetails = {
   experience: "Beginner",
 };
 
+function Field({
+  label,
+  field,
+  type = "text",
+  placeholder,
+  details,
+  setDetails,
+  errors,
+}: {
+  label: string;
+  field: keyof StudentDetails;
+  type?: string;
+  placeholder?: string;
+  details: StudentDetails;
+  setDetails: (d: StudentDetails) => void;
+  errors: Partial<Record<keyof StudentDetails, string>>;
+}) {
+  return (
+    <label className="block">
+      <span className="text-xs uppercase tracking-wider text-muted-foreground">
+        {label}
+      </span>
+      <input
+        type={type}
+        value={details[field]}
+        placeholder={placeholder}
+        onChange={(e) => setDetails({ ...details, [field]: e.target.value })}
+        className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border focus:border-primary outline-none text-sm"
+      />
+      {errors[field] && (
+        <span className="text-xs text-destructive mt-1 block">{errors[field]}</span>
+      )}
+    </label>
+  );
+}
+
 export function EnrollDialog({ klass, onClose }: Props) {
+
   const [step, setStep] = useState<Step>("details");
   const [details, setDetails] = useState<StudentDetails>(empty);
   const [copied, setCopied] = useState(false);
