@@ -156,6 +156,33 @@ Show this ticket at the studio on your first day.`;
     URL.revokeObjectURL(url);
   };
 
+  const emailTicket = () => {
+    const subject = `Team Tej · Ticket ${ticketId} — ${klass.name}`;
+    const body = `Hi ${details.name || "there"},
+
+Your enrollment for "${klass.name}" is confirmed.
+
+Ticket ID : ${ticketId}
+Class     : ${klass.name}
+Duration  : ${klass.duration}
+Amount    : ₹${klass.price.toLocaleString("en-IN")}
+
+Student   : ${details.name}
+Phone     : ${details.phone}
+Age       : ${details.age}
+Level     : ${details.experience}
+
+Status    : PAID
+Issued    : ${new Date().toLocaleString("en-IN")}
+
+Show this ticket (or the QR code) at the studio on your first day.
+
+— Team Tej Dance Co`;
+    window.location.href = `mailto:${encodeURIComponent(
+      details.email,
+    )}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
   return (
 
     <AnimatePresence>
