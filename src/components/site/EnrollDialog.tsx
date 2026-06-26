@@ -85,6 +85,21 @@ export function EnrollDialog({ klass, onClose }: Props) {
 
   if (!klass) return null;
 
+  const ticketPayload = JSON.stringify({
+    id: ticketId,
+    class: klass.name,
+    duration: klass.duration,
+    amount: klass.price,
+    student: details.name,
+    email: details.email,
+    phone: details.phone,
+    age: details.age,
+    level: details.experience,
+    issuer: "Team Tej Dance Co",
+    issued: new Date().toISOString(),
+    status: "PAID",
+  });
+
   const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(
     PAYEE,
   )}&am=${klass.price}&cu=INR&tn=${encodeURIComponent(
