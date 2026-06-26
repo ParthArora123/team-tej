@@ -1,0 +1,94 @@
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "motion/react";
+import { useRef, type MouseEvent } from "react";
+
+type Props = {
+  src: string;
+  alt: string;
+  className?: string;
+  imgClassName?: string;
+  /** strength of vertical parallax in % of container height */
+  parallax?: number;
+  /** enable subtle continuous ken-burns zoom + drift */
+  kenBurns?: boolean;
+  /** enable mouse tilt */
+  tilt?: boolean;
+  width?: number;
+  height?: number;
+  loading?: "lazy" | "eager";
+  children?: React.ReactNode;
+  overlay?: React.ReactNode;
+};
+
+export function MotionImage({
+  src,
+  alt,
+  className = "",
+  imgClassName = "",
+  parallax = 12,
+  kenBurns = true,
+  tilt = true,
+  width,
+  height,
+  loading = "lazy",
+  children,
+  overlay,
+}: Props) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [`-${parallax}%`, `${parallax}%`]);
+  const scaleScroll = useTransform(scrollYProgress, [0, 0.5, 1], [1.05, 1.12, 1.05]);
+
+  // tilt
+  const rx = useSpring(useMotionValue(0), { stiffness: 120, damping: 14 });
+  const ry = useSpring(useMotionValue(0), { stiffness: 120, damping: 14 });
+
+  const onMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!tilt || !ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    ry.set(px * 8);
+    rx.set(-py * 8);
+  };
+  const onLeave = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={{ rotateX: rx, rotateY: ry, transformPerspective: 1000 }}
+      className={`relative overflow-hidden ${className}`}
+    >
+      <motion.div style={{ y, scale: scaleScroll }} className="absolute inset-0 will-change-transform">
+        <motion.img
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          loading={loading}
+          animate={
+            kenBurns
+              ? { scale: [1, 1.08, 1.04, 1], x: ["0%", "-1.5%", "1%", "0%"], y: ["0%", "1%", "-1%", "0%"] }
+              : undefined
+          }
+          transition={
+            kenBurns
+              ? { duration: 18, repeat: Infinity, ease: "easeInOut" }
+              : undefined
+          }
+          className={`h-full w-full object-cover ${imgClassName}`}
+        />
+      </motion.div>
+      {overlay}
+      {children}
+    </motion.div>
+  );
+}
