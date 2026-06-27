@@ -5,7 +5,18 @@ import { ArrowUpRight, Sparkles, Calendar } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
 import aboutImg from "@/assets/about.jpg";
+import styleFusion from "@/assets/style-fusion.jpg";
+import styleHipHop from "@/assets/style-hiphop.jpg";
+import styleKathak from "@/assets/style-kathak.jpg";
+import styleBollywood from "@/assets/style-bollywood.jpg";
 import { MotionImage } from "@/components/site/MotionImage";
+
+const styles = [
+  { name: "Fusion", tagline: "Our signature blend.", img: styleFusion },
+  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", img: styleHipHop },
+  { name: "Kathak", tagline: "Tatkar and storytelling.", img: styleKathak },
+  { name: "Bollywood", tagline: "Built for the camera.", img: styleBollywood },
+];
 
 
 export const Route = createFileRoute("/")({
@@ -226,12 +237,37 @@ function Index() {
           </Link>
         </div>
 
+        {/* Mobile: horizontal snap carousel */}
         <motion.div
           variants={stagger}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
-          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {team.map((m) => (
+            <motion.div
+              key={m.name}
+              variants={item}
+              className="snap-start shrink-0 w-[78%] p-6 rounded-2xl border border-border bg-card"
+            >
+              <div className="aspect-[4/5] rounded-xl bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-7xl font-display font-bold text-primary">
+                {m.initial}
+              </div>
+              <p className="mt-5 font-display text-xl font-bold">{m.name}</p>
+              <p className="text-xs uppercase tracking-widest text-primary mt-1">{m.role}</p>
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.bio}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Desktop: grid */}
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          className="hidden md:grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {team.map((m) => (
             <motion.div
@@ -247,6 +283,75 @@ function Index() {
               <p className="text-xs uppercase tracking-widest text-primary mt-1">{m.role}</p>
               <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.bio}</p>
             </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+      {/* DANCE STYLES */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+        <div className="mb-12">
+          <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
+          <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance max-w-2xl">
+            Styles on the floor.
+          </h2>
+          <p className="mt-4 text-muted-foreground max-w-xl">
+            Four core vocabularies. They cross, collide, and become the Team Tej fusion.
+          </p>
+        </div>
+
+        {/* Mobile: snap carousel */}
+        <div className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {styles.map((s) => (
+            <article
+              key={s.name}
+              className="snap-start shrink-0 w-[78%] relative aspect-[4/5] rounded-2xl overflow-hidden border border-border group"
+            >
+              <img
+                src={s.img}
+                alt={s.name}
+                loading="lazy"
+                width={800}
+                height={1024}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+              <div className="absolute bottom-5 left-5 right-5 z-10">
+                <p className="font-display text-2xl font-bold">{s.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">{s.tagline}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Desktop: grid */}
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          className="hidden md:grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          {styles.map((s) => (
+            <motion.article
+              key={s.name}
+              variants={item}
+              whileHover={{ y: -6 }}
+              className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-border hover:border-primary transition-colors"
+            >
+              <img
+                src={s.img}
+                alt={s.name}
+                loading="lazy"
+                width={800}
+                height={1024}
+                className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+              <div className="absolute bottom-5 left-5 right-5 z-10">
+                <p className="font-display text-2xl font-bold">{s.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">{s.tagline}</p>
+              </div>
+            </motion.article>
           ))}
         </motion.div>
       </section>
