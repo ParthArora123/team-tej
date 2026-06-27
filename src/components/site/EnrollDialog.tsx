@@ -100,6 +100,17 @@ export function EnrollDialog({ klass, onClose }: Props) {
     status: "PAID",
   });
 
+  // URL-safe base64 so scanning the QR opens the verify page in any camera
+  const b64 =
+    typeof btoa !== "undefined"
+      ? btoa(unescape(encodeURIComponent(ticketPayload)))
+      : Buffer.from(ticketPayload, "utf-8").toString("base64");
+  const b64url = b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const verifyUrl =
+    (typeof window !== "undefined" ? window.location.origin : "https://team-tej.lovable.app") +
+    "/verify?d=" +
+    b64url;
+
   const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(
     PAYEE,
   )}&am=${klass.price}&cu=INR&tn=${encodeURIComponent(
