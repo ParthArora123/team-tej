@@ -365,7 +365,7 @@ Show this ticket (or the QR code) at the studio on your first day.
                     <p className="text-xs text-muted-foreground">{klass.duration}</p>
                   </div>
                   <div className="bg-white p-1.5 rounded" title="Scan to see all student details">
-                    <QRCodeSVG value={ticketPayload} size={72} level="M" />
+                    <QRCodeSVG value={verifyUrl} size={72} level="M" />
                   </div>
                 </div>
 
