@@ -123,13 +123,36 @@ function Workshops() {
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6, delay: i * 0.05 }}
             whileHover={{ y: -4 }}
-            className="group relative grid lg:grid-cols-12 gap-6 lg:gap-10 p-7 lg:p-10 rounded-2xl border border-border bg-card hover:border-primary transition-colors"
+            className="group relative grid lg:grid-cols-12 gap-6 lg:gap-10 p-7 lg:p-10 rounded-2xl border border-border bg-card hover:border-primary transition-colors overflow-hidden"
           >
             <div className="lg:col-span-2">
-              <p className="font-display text-3xl lg:text-4xl font-bold text-primary leading-none">
-                {String(i + 1).padStart(2, "0")}
-              </p>
-              <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">
+              <div className="relative h-40 lg:h-32 rounded-xl overflow-hidden mb-3">
+                <video
+                  src={media[w.style].video}
+                  poster={media[w.style].poster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 mix-blend-overlay"
+                  style={{
+                    background:
+                      "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)",
+                    backgroundSize: "250% 250%",
+                  }}
+                  animate={{ backgroundPosition: ["120% 0%", "-20% 100%"] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <div className="absolute bottom-2 left-2 font-display text-2xl font-bold text-white drop-shadow">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+              </div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
                 {w.spots} seats
               </p>
             </div>
