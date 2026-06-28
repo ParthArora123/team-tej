@@ -145,6 +145,31 @@ function Classes() {
               transition={{ delay: i * 0.06, duration: 0.5 }}
               className="group relative flex flex-col p-7 rounded-2xl border border-border bg-card hover:border-primary transition-colors"
             >
+              <div className="relative -mx-7 -mt-7 mb-5 h-44 overflow-hidden rounded-t-2xl">
+                <video
+                  src={media[c.style].video}
+                  poster={media[c.style].poster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 mix-blend-overlay"
+                  style={{
+                    background:
+                      "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)",
+                    backgroundSize: "250% 250%",
+                  }}
+                  animate={{ backgroundPosition: ["120% 0%", "-20% 100%"] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                />
+              </div>
+
               <div className="flex items-center justify-between">
                 <span
                   className={`text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full ${levelColor[c.level]}`}
