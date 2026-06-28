@@ -44,6 +44,7 @@ const workshops: (EnrollClass & {
   spots: number;
   guest: string;
   tagline: string;
+  style: keyof typeof media;
 })[] = [
   {
     name: "Crosswinds · Contemporary Intensive",
@@ -54,6 +55,7 @@ const workshops: (EnrollClass & {
     guest: "Guest: Maya D'Souza (Berlin)",
     duration: "2 days · 6 hrs / day",
     price: 3500,
+    style: "fusion",
   },
   {
     name: "Reels & Rhythm · Bollywood Camera Class",
@@ -64,6 +66,7 @@ const workshops: (EnrollClass & {
     guest: "Led by Aman Verma",
     duration: "1 day · 5 hrs",
     price: 1800,
+    style: "bollywood",
   },
   {
     name: "Footwork Lab · Kathak × Hip-Hop",
@@ -74,6 +77,7 @@ const workshops: (EnrollClass & {
     guest: "Niharika Das & Aman Verma",
     duration: "2 days · 4 hrs / day",
     price: 2800,
+    style: "kathak",
   },
   {
     name: "Stage Lab · Performance Weekend",
@@ -84,6 +88,7 @@ const workshops: (EnrollClass & {
     guest: "Direction: Tej Sharma",
     duration: "3 days · 6 hrs / day",
     price: 4800,
+    style: "bollywood",
   },
 ];
 
