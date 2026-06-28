@@ -9,13 +9,17 @@ import styleFusion from "@/assets/style-fusion.jpg";
 import styleHipHop from "@/assets/style-hiphop.jpg";
 import styleKathak from "@/assets/style-kathak.jpg";
 import styleBollywood from "@/assets/style-bollywood.jpg";
+import styleFusionVid from "@/assets/style-fusion.mp4.asset.json";
+import styleHipHopVid from "@/assets/style-hiphop.mp4.asset.json";
+import styleKathakVid from "@/assets/style-kathak.mp4.asset.json";
+import styleBollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
 import { MotionImage } from "@/components/site/MotionImage";
 
 const styles = [
-  { name: "Fusion", tagline: "Our signature blend.", img: styleFusion },
-  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", img: styleHipHop },
-  { name: "Kathak", tagline: "Tatkar and storytelling.", img: styleKathak },
-  { name: "Bollywood", tagline: "Built for the camera.", img: styleBollywood },
+  { name: "Fusion", tagline: "Our signature blend.", img: styleFusion, video: styleFusionVid.url },
+  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", img: styleHipHop, video: styleHipHopVid.url },
+  { name: "Kathak", tagline: "Tatkar and storytelling.", img: styleKathak, video: styleKathakVid.url },
+  { name: "Bollywood", tagline: "Built for the camera.", img: styleBollywood, video: styleBollywoodVid.url },
 ];
 
 
@@ -306,14 +310,18 @@ function Index() {
               key={s.name}
               className="snap-start shrink-0 w-[78%] relative aspect-[4/5] rounded-2xl overflow-hidden border border-border group"
             >
-              <img
-                src={s.img}
-                alt={s.name}
-                loading="lazy"
-                width={800}
-                height={1024}
+              <video
+                src={s.video}
+                poster={s.img}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
                 className="absolute inset-0 h-full w-full object-cover"
               />
+              <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
+              <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_18s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 z-10">
                 <p className="font-display text-2xl font-bold">{s.name}</p>
@@ -338,14 +346,18 @@ function Index() {
               whileHover={{ y: -6 }}
               className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-border hover:border-primary transition-colors"
             >
-              <img
-                src={s.img}
-                alt={s.name}
-                loading="lazy"
-                width={800}
-                height={1024}
-                className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-700"
+              <video
+                src={s.video}
+                poster={s.img}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
+              <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
+              <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_22s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 z-10">
                 <p className="font-display text-2xl font-bold">{s.name}</p>
