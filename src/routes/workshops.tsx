@@ -3,6 +3,21 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { Calendar, MapPin, Users, Sparkles } from "lucide-react";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import fusionVid from "@/assets/style-fusion.mp4.asset.json";
+import hiphopVid from "@/assets/style-hiphop.mp4.asset.json";
+import kathakVid from "@/assets/style-kathak.mp4.asset.json";
+import bollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
+import fusionImg from "@/assets/style-fusion.jpg";
+import hiphopImg from "@/assets/style-hiphop.jpg";
+import kathakImg from "@/assets/style-kathak.jpg";
+import bollywoodImg from "@/assets/style-bollywood.jpg";
+
+const media = {
+  fusion: { video: fusionVid.url, poster: fusionImg },
+  hiphop: { video: hiphopVid.url, poster: hiphopImg },
+  kathak: { video: kathakVid.url, poster: kathakImg },
+  bollywood: { video: bollywoodVid.url, poster: bollywoodImg },
+} as const;
 
 export const Route = createFileRoute("/workshops")({
   head: () => ({
@@ -29,6 +44,7 @@ const workshops: (EnrollClass & {
   spots: number;
   guest: string;
   tagline: string;
+  style: keyof typeof media;
 })[] = [
   {
     name: "Crosswinds · Contemporary Intensive",
@@ -39,6 +55,7 @@ const workshops: (EnrollClass & {
     guest: "Guest: Maya D'Souza (Berlin)",
     duration: "2 days · 6 hrs / day",
     price: 3500,
+    style: "fusion",
   },
   {
     name: "Reels & Rhythm · Bollywood Camera Class",
@@ -49,6 +66,7 @@ const workshops: (EnrollClass & {
     guest: "Led by Aman Verma",
     duration: "1 day · 5 hrs",
     price: 1800,
+    style: "bollywood",
   },
   {
     name: "Footwork Lab · Kathak × Hip-Hop",
@@ -59,6 +77,7 @@ const workshops: (EnrollClass & {
     guest: "Niharika Das & Aman Verma",
     duration: "2 days · 4 hrs / day",
     price: 2800,
+    style: "kathak",
   },
   {
     name: "Stage Lab · Performance Weekend",
@@ -69,6 +88,7 @@ const workshops: (EnrollClass & {
     guest: "Direction: Tej Sharma",
     duration: "3 days · 6 hrs / day",
     price: 4800,
+    style: "bollywood",
   },
 ];
 
@@ -103,13 +123,36 @@ function Workshops() {
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6, delay: i * 0.05 }}
             whileHover={{ y: -4 }}
-            className="group relative grid lg:grid-cols-12 gap-6 lg:gap-10 p-7 lg:p-10 rounded-2xl border border-border bg-card hover:border-primary transition-colors"
+            className="group relative grid lg:grid-cols-12 gap-6 lg:gap-10 p-7 lg:p-10 rounded-2xl border border-border bg-card hover:border-primary transition-colors overflow-hidden"
           >
             <div className="lg:col-span-2">
-              <p className="font-display text-3xl lg:text-4xl font-bold text-primary leading-none">
-                {String(i + 1).padStart(2, "0")}
-              </p>
-              <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">
+              <div className="relative h-40 lg:h-32 rounded-xl overflow-hidden mb-3">
+                <video
+                  src={media[w.style].video}
+                  poster={media[w.style].poster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 mix-blend-overlay"
+                  style={{
+                    background:
+                      "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)",
+                    backgroundSize: "250% 250%",
+                  }}
+                  animate={{ backgroundPosition: ["120% 0%", "-20% 100%"] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                />
+                <div className="absolute bottom-2 left-2 font-display text-2xl font-bold text-white drop-shadow">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+              </div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">
                 {w.spots} seats
               </p>
             </div>

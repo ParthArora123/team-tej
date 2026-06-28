@@ -3,6 +3,21 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { Clock, Users, Zap } from "lucide-react";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import fusionVid from "@/assets/style-fusion.mp4.asset.json";
+import hiphopVid from "@/assets/style-hiphop.mp4.asset.json";
+import kathakVid from "@/assets/style-kathak.mp4.asset.json";
+import bollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
+import fusionImg from "@/assets/style-fusion.jpg";
+import hiphopImg from "@/assets/style-hiphop.jpg";
+import kathakImg from "@/assets/style-kathak.jpg";
+import bollywoodImg from "@/assets/style-bollywood.jpg";
+
+const media = {
+  fusion: { video: fusionVid.url, poster: fusionImg },
+  hiphop: { video: hiphopVid.url, poster: hiphopImg },
+  kathak: { video: kathakVid.url, poster: kathakImg },
+  bollywood: { video: bollywoodVid.url, poster: bollywoodImg },
+} as const;
 
 export const Route = createFileRoute("/classes")({
   head: () => ({
@@ -27,6 +42,7 @@ const classes: (EnrollClass & {
   level: "Beginner" | "Intermediate" | "Advanced";
   schedule: string;
   description: string;
+  style: keyof typeof media;
 })[] = [
   {
     name: "Fusion Foundation",
@@ -36,6 +52,7 @@ const classes: (EnrollClass & {
     description:
       "Build core fusion vocabulary — Kathak footwork, contemporary release and grooves.",
     price: 4500,
+    style: "fusion",
   },
   {
     name: "Bollywood Stage",
@@ -45,6 +62,7 @@ const classes: (EnrollClass & {
     description:
       "High-energy choreographies built for the stage. Expect performance-ready combos every week.",
     price: 3800,
+    style: "bollywood",
   },
   {
     name: "Hip-Hop Intensive",
@@ -54,6 +72,7 @@ const classes: (EnrollClass & {
     description:
       "Bounce, isolation, freestyle — taught by working choreographers from the industry.",
     price: 4200,
+    style: "hiphop",
   },
   {
     name: "Contemporary Lab",
@@ -63,6 +82,7 @@ const classes: (EnrollClass & {
     description:
       "An exploration-led batch for dancers ready to develop original movement.",
     price: 6000,
+    style: "fusion",
   },
   {
     name: "Kathak × Modern",
@@ -72,6 +92,7 @@ const classes: (EnrollClass & {
     description:
       "Classical structure meets contemporary phrasing. Build expressive, hybrid pieces.",
     price: 5200,
+    style: "kathak",
   },
   {
     name: "Weekend Workshop",
@@ -81,6 +102,7 @@ const classes: (EnrollClass & {
     description:
       "A guest-led intensive built for first-time dancers and returning movers.",
     price: 1500,
+    style: "fusion",
   },
 ];
 
@@ -123,6 +145,31 @@ function Classes() {
               transition={{ delay: i * 0.06, duration: 0.5 }}
               className="group relative flex flex-col p-7 rounded-2xl border border-border bg-card hover:border-primary transition-colors"
             >
+              <div className="relative -mx-7 -mt-7 mb-5 h-44 overflow-hidden rounded-t-2xl">
+                <video
+                  src={media[c.style].video}
+                  poster={media[c.style].poster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/30 to-transparent" />
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 mix-blend-overlay"
+                  style={{
+                    background:
+                      "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)",
+                    backgroundSize: "250% 250%",
+                  }}
+                  animate={{ backgroundPosition: ["120% 0%", "-20% 100%"] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                />
+              </div>
+
               <div className="flex items-center justify-between">
                 <span
                   className={`text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full ${levelColor[c.level]}`}
