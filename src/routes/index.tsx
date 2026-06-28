@@ -310,14 +310,18 @@ function Index() {
               key={s.name}
               className="snap-start shrink-0 w-[78%] relative aspect-[4/5] rounded-2xl overflow-hidden border border-border group"
             >
-              <img
-                src={s.img}
-                alt={s.name}
-                loading="lazy"
-                width={800}
-                height={1024}
+              <video
+                src={s.video}
+                poster={s.img}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
                 className="absolute inset-0 h-full w-full object-cover"
               />
+              <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
+              <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_18s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 z-10">
                 <p className="font-display text-2xl font-bold">{s.name}</p>
