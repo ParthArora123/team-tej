@@ -9,6 +9,10 @@ import styleFusion from "@/assets/style-fusion.jpg";
 import styleHipHop from "@/assets/style-hiphop.jpg";
 import styleKathak from "@/assets/style-kathak.jpg";
 import styleBollywood from "@/assets/style-bollywood.jpg";
+import styleFusionVid from "@/assets/style-fusion.mp4.asset.json";
+import styleHipHopVid from "@/assets/style-hiphop.mp4.asset.json";
+import styleKathakVid from "@/assets/style-kathak.mp4.asset.json";
+import styleBollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
 import { MotionImage } from "@/components/site/MotionImage";
 
 const styles = [
