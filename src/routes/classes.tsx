@@ -42,6 +42,7 @@ const classes: (EnrollClass & {
   level: "Beginner" | "Intermediate" | "Advanced";
   schedule: string;
   description: string;
+  style: keyof typeof media;
 })[] = [
   {
     name: "Fusion Foundation",
@@ -51,6 +52,7 @@ const classes: (EnrollClass & {
     description:
       "Build core fusion vocabulary — Kathak footwork, contemporary release and grooves.",
     price: 4500,
+    style: "fusion",
   },
   {
     name: "Bollywood Stage",
@@ -60,6 +62,7 @@ const classes: (EnrollClass & {
     description:
       "High-energy choreographies built for the stage. Expect performance-ready combos every week.",
     price: 3800,
+    style: "bollywood",
   },
   {
     name: "Hip-Hop Intensive",
@@ -69,6 +72,7 @@ const classes: (EnrollClass & {
     description:
       "Bounce, isolation, freestyle — taught by working choreographers from the industry.",
     price: 4200,
+    style: "hiphop",
   },
   {
     name: "Contemporary Lab",
@@ -78,6 +82,7 @@ const classes: (EnrollClass & {
     description:
       "An exploration-led batch for dancers ready to develop original movement.",
     price: 6000,
+    style: "fusion",
   },
   {
     name: "Kathak × Modern",
@@ -87,6 +92,7 @@ const classes: (EnrollClass & {
     description:
       "Classical structure meets contemporary phrasing. Build expressive, hybrid pieces.",
     price: 5200,
+    style: "kathak",
   },
   {
     name: "Weekend Workshop",
@@ -96,6 +102,7 @@ const classes: (EnrollClass & {
     description:
       "A guest-led intensive built for first-time dancers and returning movers.",
     price: 1500,
+    style: "fusion",
   },
 ];
 
