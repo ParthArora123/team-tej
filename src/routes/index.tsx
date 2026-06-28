@@ -16,10 +16,10 @@ import styleBollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
 import { MotionImage } from "@/components/site/MotionImage";
 
 const styles = [
-  { name: "Fusion", tagline: "Our signature blend.", img: styleFusion },
-  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", img: styleHipHop },
-  { name: "Kathak", tagline: "Tatkar and storytelling.", img: styleKathak },
-  { name: "Bollywood", tagline: "Built for the camera.", img: styleBollywood },
+  { name: "Fusion", tagline: "Our signature blend.", img: styleFusion, video: styleFusionVid.url },
+  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", img: styleHipHop, video: styleHipHopVid.url },
+  { name: "Kathak", tagline: "Tatkar and storytelling.", img: styleKathak, video: styleKathakVid.url },
+  { name: "Bollywood", tagline: "Built for the camera.", img: styleBollywood, video: styleBollywoodVid.url },
 ];
 
 
