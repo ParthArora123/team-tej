@@ -3,6 +3,21 @@ import { motion } from "motion/react";
 import { useState } from "react";
 import { Calendar, MapPin, Users, Sparkles } from "lucide-react";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import fusionVid from "@/assets/style-fusion.mp4.asset.json";
+import hiphopVid from "@/assets/style-hiphop.mp4.asset.json";
+import kathakVid from "@/assets/style-kathak.mp4.asset.json";
+import bollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
+import fusionImg from "@/assets/style-fusion.jpg";
+import hiphopImg from "@/assets/style-hiphop.jpg";
+import kathakImg from "@/assets/style-kathak.jpg";
+import bollywoodImg from "@/assets/style-bollywood.jpg";
+
+const media = {
+  fusion: { video: fusionVid.url, poster: fusionImg },
+  hiphop: { video: hiphopVid.url, poster: hiphopImg },
+  kathak: { video: kathakVid.url, poster: kathakImg },
+  bollywood: { video: bollywoodVid.url, poster: bollywoodImg },
+} as const;
 
 export const Route = createFileRoute("/workshops")({
   head: () => ({
