@@ -120,7 +120,7 @@ function Index() {
 
             <motion.div variants={item} className="mt-10 flex flex-wrap gap-4">
               <Link
-                to="/classes"
+                to="/nritya-sadhana"
                 className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
               >
                 Explore classes
@@ -449,7 +449,7 @@ function Index() {
           </p>
           <div className="relative mt-8 flex flex-wrap gap-3 justify-center">
             <Link
-              to="/classes"
+              to="/nritya-sadhana"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-background text-foreground font-medium hover:scale-105 transition"
             >
               Browse classes <ArrowUpRight size={18} />

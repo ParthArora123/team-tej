@@ -21,9 +21,9 @@ export function Footer() {
             Explore
           </p>
           <ul className="space-y-2 text-sm">
-            <li><Link to="/classes" className="hover:text-primary transition">Classes</Link></li>
+            <li><Link to="/nritya-sadhana" className="hover:text-primary transition">Classes</Link></li>
             <li><Link to="/workshops" className="hover:text-primary transition">Workshops</Link></li>
-            <li><Link to="/events" className="hover:text-primary transition">Events</Link></li>
+            <li><Link to="/workshops" className="hover:text-primary transition">Events</Link></li>
             <li><Link to="/about" className="hover:text-primary transition">About</Link></li>
             <li><Link to="/contact" className="hover:text-primary transition">Contact</Link></li>
           </ul>
