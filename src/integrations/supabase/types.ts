@@ -14,16 +14,255 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_settings: {
+        Row: {
+          key: string
+          value: string
+        }
+        Insert: {
+          key: string
+          value: string
+        }
+        Update: {
+          key?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      enrollments: {
+        Row: {
+          amount_inr: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          id: string
+          payment_note: string | null
+          program_id: string
+          status: Database["public"]["Enums"]["enrollment_status"]
+          ticket_code: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_inr: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          payment_note?: string | null
+          program_id: string
+          status?: Database["public"]["Enums"]["enrollment_status"]
+          ticket_code?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_inr?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          payment_note?: string | null
+          program_id?: string
+          status?: Database["public"]["Enums"]["enrollment_status"]
+          ticket_code?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollments_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          event_date: string
+          id: string
+          title: string
+          venue: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          event_date: string
+          id?: string
+          title: string
+          venue?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          id?: string
+          title?: string
+          venue?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age: number | null
+          created_at: string
+          email: string | null
+          experience: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          age?: number | null
+          created_at?: string
+          email?: string | null
+          experience?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age?: number | null
+          created_at?: string
+          email?: string | null
+          experience?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      programs: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          duration: string | null
+          id: string
+          kind: Database["public"]["Enums"]["program_kind"]
+          name: string
+          price_inr: number
+          seats: number | null
+          starts_on: string | null
+          style: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["program_kind"]
+          name: string
+          price_inr: number
+          seats?: number | null
+          starts_on?: string | null
+          style?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          duration?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["program_kind"]
+          name?: string
+          price_inr?: number
+          seats?: number | null
+          starts_on?: string | null
+          style?: string | null
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          approved: boolean
+          created_at: string
+          id: string
+          name: string
+          role: string | null
+          story: string | null
+          user_id: string | null
+          video_url: string | null
+        }
+        Insert: {
+          approved?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          role?: string | null
+          story?: string | null
+          user_id?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          approved?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          role?: string | null
+          story?: string | null
+          user_id?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      enrollment_status:
+        | "awaiting_payment"
+        | "payment_submitted"
+        | "confirmed"
+        | "rejected"
+      program_kind:
+        | "workshop"
+        | "nritya_sadhana"
+        | "zero_to_hero"
+        | "online_training"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +389,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      enrollment_status: [
+        "awaiting_payment",
+        "payment_submitted",
+        "confirmed",
+        "rejected",
+      ],
+      program_kind: [
+        "workshop",
+        "nritya_sadhana",
+        "zero_to_hero",
+        "online_training",
+      ],
+    },
   },
 } as const

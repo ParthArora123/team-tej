@@ -120,7 +120,7 @@ function Index() {
 
             <motion.div variants={item} className="mt-10 flex flex-wrap gap-4">
               <Link
-                to="/classes"
+                to="/nritya-sadhana"
                 className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
               >
                 Explore classes
@@ -449,7 +449,7 @@ function Index() {
           </p>
           <div className="relative mt-8 flex flex-wrap gap-3 justify-center">
             <Link
-              to="/classes"
+              to="/nritya-sadhana"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-background text-foreground font-medium hover:scale-105 transition"
             >
               Browse classes <ArrowUpRight size={18} />
@@ -462,6 +462,44 @@ function Index() {
             </Link>
           </div>
         </motion.div>
+      </section>
+
+      {/* Celebrities · Brands · India to the Globe */}
+      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-24 space-y-20">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
+          <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {["Shahid K.","Madhuri D.","Hrithik R.","Tiger S.","Nora F.","Prabhu D."].map((n) => (
+              <div key={n} className="aspect-square rounded-2xl bg-card border border-border flex items-center justify-center text-center p-3 text-sm font-display hover:border-primary transition">
+                {n}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
+          <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">Trusted partners</h2>
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            {["Nike","Puma","Red Bull","Myntra","Spotify","Vogue"].map((n) => (
+              <div key={n} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition">
+                {n}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
+          <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
+          <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
+          <p className="mt-4 text-muted-foreground max-w-2xl">From Mumbai to Dubai, London to New York — Team Tej has performed and taught on stages across 14 countries.</p>
+          <div className="mt-8 flex flex-wrap gap-2">
+            {["Mumbai","Delhi","Dubai","London","New York","Toronto","Singapore","Sydney","Berlin","Paris","Tokyo","Bangkok","Doha","Cape Town"].map((c) => (
+              <span key={c} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{c}</span>
+            ))}
+          </div>
+        </div>
       </section>
     </>
   );
