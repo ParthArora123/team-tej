@@ -9,9 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ZeroToHeroRouteImport } from './routes/zero-to-hero'
 import { Route as WorkshopsRouteImport } from './routes/workshops'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
+import { Route as OnlineTrainingsRouteImport } from './routes/online-trainings'
+import { Route as NrityaSadhanaRouteImport } from './routes/nritya-sadhana'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
@@ -20,6 +23,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
+const ZeroToHeroRoute = ZeroToHeroRouteImport.update({
+  id: '/zero-to-hero',
+  path: '/zero-to-hero',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkshopsRoute = WorkshopsRouteImport.update({
   id: '/workshops',
   path: '/workshops',
@@ -33,6 +41,16 @@ const VerifyRoute = VerifyRouteImport.update({
 const TestimonialsRoute = TestimonialsRouteImport.update({
   id: '/testimonials',
   path: '/testimonials',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnlineTrainingsRoute = OnlineTrainingsRouteImport.update({
+  id: '/online-trainings',
+  path: '/online-trainings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NrityaSadhanaRoute = NrityaSadhanaRouteImport.update({
+  id: '/nritya-sadhana',
+  path: '/nritya-sadhana',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -75,9 +93,12 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/nritya-sadhana': typeof NrityaSadhanaRoute
+  '/online-trainings': typeof OnlineTrainingsRoute
   '/testimonials': typeof TestimonialsRoute
   '/verify': typeof VerifyRoute
   '/workshops': typeof WorkshopsRoute
+  '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
 }
@@ -86,9 +107,12 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/nritya-sadhana': typeof NrityaSadhanaRoute
+  '/online-trainings': typeof OnlineTrainingsRoute
   '/testimonials': typeof TestimonialsRoute
   '/verify': typeof VerifyRoute
   '/workshops': typeof WorkshopsRoute
+  '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
 }
@@ -99,9 +123,12 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/nritya-sadhana': typeof NrityaSadhanaRoute
+  '/online-trainings': typeof OnlineTrainingsRoute
   '/testimonials': typeof TestimonialsRoute
   '/verify': typeof VerifyRoute
   '/workshops': typeof WorkshopsRoute
+  '/zero-to-hero': typeof ZeroToHeroRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
 }
@@ -112,9 +139,12 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/nritya-sadhana'
+    | '/online-trainings'
     | '/testimonials'
     | '/verify'
     | '/workshops'
+    | '/zero-to-hero'
     | '/admin'
     | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
@@ -123,9 +153,12 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/nritya-sadhana'
+    | '/online-trainings'
     | '/testimonials'
     | '/verify'
     | '/workshops'
+    | '/zero-to-hero'
     | '/admin'
     | '/dashboard'
   id:
@@ -135,9 +168,12 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/nritya-sadhana'
+    | '/online-trainings'
     | '/testimonials'
     | '/verify'
     | '/workshops'
+    | '/zero-to-hero'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
   fileRoutesById: FileRoutesById
@@ -148,13 +184,23 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
+  NrityaSadhanaRoute: typeof NrityaSadhanaRoute
+  OnlineTrainingsRoute: typeof OnlineTrainingsRoute
   TestimonialsRoute: typeof TestimonialsRoute
   VerifyRoute: typeof VerifyRoute
   WorkshopsRoute: typeof WorkshopsRoute
+  ZeroToHeroRoute: typeof ZeroToHeroRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/zero-to-hero': {
+      id: '/zero-to-hero'
+      path: '/zero-to-hero'
+      fullPath: '/zero-to-hero'
+      preLoaderRoute: typeof ZeroToHeroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workshops': {
       id: '/workshops'
       path: '/workshops'
@@ -174,6 +220,20 @@ declare module '@tanstack/react-router' {
       path: '/testimonials'
       fullPath: '/testimonials'
       preLoaderRoute: typeof TestimonialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/online-trainings': {
+      id: '/online-trainings'
+      path: '/online-trainings'
+      fullPath: '/online-trainings'
+      preLoaderRoute: typeof OnlineTrainingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nritya-sadhana': {
+      id: '/nritya-sadhana'
+      path: '/nritya-sadhana'
+      fullPath: '/nritya-sadhana'
+      preLoaderRoute: typeof NrityaSadhanaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -247,9 +307,12 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
+  NrityaSadhanaRoute: NrityaSadhanaRoute,
+  OnlineTrainingsRoute: OnlineTrainingsRoute,
   TestimonialsRoute: TestimonialsRoute,
   VerifyRoute: VerifyRoute,
   WorkshopsRoute: WorkshopsRoute,
+  ZeroToHeroRoute: ZeroToHeroRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
