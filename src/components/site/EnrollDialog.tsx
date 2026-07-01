@@ -18,35 +18,42 @@ interface Props {
   onClose: () => void;
 }
 
+const initial = {
+  fullName: "", email: "", phone: "", age: "", gender: "Female",
+  address: "", city: "", state: "", emergencyContact: "", medicalInfo: "",
+};
+
 export function EnrollDialog({ klass, onClose }: Props) {
   const navigate = useNavigate();
   const create = useServerFn(createEnrollment);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
-  const [details, setDetails] = useState({ fullName: "", phone: "", age: "", experience: "Beginner" });
+  const [d, setD] = useState(initial);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+    supabase.auth.getUser().then(({ data }) => {
+      setSignedIn(!!data.user);
+      if (data.user?.email) setD((s) => ({ ...s, email: data.user!.email! }));
+    });
   }, [klass]);
 
   if (!klass) return null;
 
-  const submit = async () => {
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setErr(""); setBusy(true);
     try {
       await create({ data: {
-        programId: klass.id,
-        fullName: details.fullName,
-        phone: details.phone,
-        age: Number(details.age),
-        experience: details.experience,
+        programId: klass.id, fullName: d.fullName, email: d.email, phone: d.phone,
+        age: Number(d.age), gender: d.gender, address: d.address, city: d.city,
+        state: d.state, emergencyContact: d.emergencyContact,
+        medicalInfo: d.medicalInfo || null,
       }});
       setDone(true);
-    } catch (e: any) {
-      setErr(e.message ?? "Failed");
-    } finally { setBusy(false); }
+    } catch (e: any) { setErr(e.message ?? "Failed"); }
+    finally { setBusy(false); }
   };
 
   return (
@@ -56,49 +63,53 @@ export function EnrollDialog({ klass, onClose }: Props) {
         onClick={onClose}>
         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-md bg-card border border-border rounded-2xl p-6 sm:p-8">
-          <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-muted">
-            <X size={18} />
-          </button>
+          className="relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-card border border-border rounded-2xl p-6 sm:p-8">
+          <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-muted"><X size={18} /></button>
 
           {signedIn === false && (
             <div>
               <p className="text-xs uppercase tracking-widest text-primary">Sign in required</p>
               <h3 className="mt-2 text-2xl font-display font-bold">{klass.name}</h3>
-              <p className="text-sm text-muted-foreground mt-2">Create an account to enroll. You can pay and track your ticket from your dashboard.</p>
+              <p className="text-sm text-muted-foreground mt-2">Create an account to register.</p>
               <button onClick={() => navigate({ to: "/auth" })}
-                className="mt-5 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground">
-                Sign in / Sign up
-              </button>
+                className="mt-5 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground">Sign in / Sign up</button>
             </div>
           )}
 
           {signedIn && !done && (
-            <>
-              <p className="text-xs uppercase tracking-widest text-primary">Enroll</p>
+            <form onSubmit={submit}>
+              <p className="text-xs uppercase tracking-widest text-primary">Registration</p>
               <h3 className="mt-2 text-2xl font-display font-bold">{klass.name}</h3>
               <p className="text-sm text-muted-foreground mt-1">{klass.duration} · ₹{klass.price.toLocaleString("en-IN")}</p>
 
-              <div className="mt-5 space-y-3">
-                <Field label="Full name" v={details.fullName} on={(v) => setDetails({...details, fullName: v})} />
-                <Field label="Phone" v={details.phone} on={(v) => setDetails({...details, phone: v})} />
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Age" type="number" v={details.age} on={(v) => setDetails({...details, age: v})} />
-                  <label className="block">
-                    <span className="text-xs uppercase tracking-wider text-muted-foreground">Experience</span>
-                    <select value={details.experience} onChange={(e) => setDetails({...details, experience: e.target.value})}
-                      className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm">
-                      <option>Beginner</option><option>Intermediate</option><option>Advanced</option>
-                    </select>
-                  </label>
-                </div>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <Field label="Full name" v={d.fullName} on={(v) => setD({...d, fullName: v})} span2 />
+                <Field label="Email" type="email" v={d.email} on={(v) => setD({...d, email: v})} />
+                <Field label="Mobile" v={d.phone} on={(v) => setD({...d, phone: v})} />
+                <Field label="Age" type="number" v={d.age} on={(v) => setD({...d, age: v})} />
+                <label className="block">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground">Gender</span>
+                  <select value={d.gender} onChange={(e) => setD({...d, gender: e.target.value})}
+                    className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+                    <option>Female</option><option>Male</option><option>Other</option>
+                  </select>
+                </label>
+                <Field label="Address" v={d.address} on={(v) => setD({...d, address: v})} span2 />
+                <Field label="City" v={d.city} on={(v) => setD({...d, city: v})} />
+                <Field label="State" v={d.state} on={(v) => setD({...d, state: v})} />
+                <Field label="Emergency contact" v={d.emergencyContact} on={(v) => setD({...d, emergencyContact: v})} span2 />
+                <label className="block col-span-2">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground">Medical info (optional)</span>
+                  <textarea value={d.medicalInfo} onChange={(e) => setD({...d, medicalInfo: e.target.value})} rows={2}
+                    className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
+                </label>
               </div>
               {err && <p className="mt-3 text-xs text-destructive">{err}</p>}
-              <button disabled={busy} onClick={submit}
+              <button disabled={busy} type="submit"
                 className="mt-6 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium">
-                {busy ? "Creating…" : "Continue to payment"}
+                {busy ? "Submitting…" : "Continue to payment"}
               </button>
-            </>
+            </form>
           )}
 
           {done && (
@@ -106,14 +117,12 @@ export function EnrollDialog({ klass, onClose }: Props) {
               <div className="mx-auto h-14 w-14 rounded-full bg-primary/15 flex items-center justify-center">
                 <Check className="text-primary" size={28} />
               </div>
-              <h3 className="mt-3 text-xl font-display font-bold">Enrollment created</h3>
+              <h3 className="mt-3 text-xl font-display font-bold">Registered</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Head to your dashboard to scan the UPI QR, pay, and confirm. Once admin verifies, your ticket appears there.
+                Head to your dashboard to scan the UPI QR, pay, and confirm. Your ticket appears there after admin approval.
               </p>
               <button onClick={() => { onClose(); navigate({ to: "/dashboard" }); }}
-                className="mt-5 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground">
-                Go to dashboard
-              </button>
+                className="mt-5 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground">Go to payment</button>
             </div>
           )}
         </motion.div>
@@ -122,9 +131,9 @@ export function EnrollDialog({ klass, onClose }: Props) {
   );
 }
 
-function Field({ label, v, on, type="text" }: { label: string; v: string; on: (v: string) => void; type?: string }) {
+function Field({ label, v, on, type = "text", span2 }: { label: string; v: string; on: (v: string) => void; type?: string; span2?: boolean }) {
   return (
-    <label className="block">
+    <label className={`block ${span2 ? "col-span-2" : ""}`}>
       <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
       <input type={type} value={v} onChange={(e) => on(e.target.value)}
         className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" required />
