@@ -31,39 +31,69 @@ export type Database = {
       }
       enrollments: {
         Row: {
+          address: string | null
+          age: number | null
           amount_inr: number
           approved_at: string | null
           approved_by: string | null
+          city: string | null
           created_at: string
+          email: string | null
+          emergency_contact: string | null
+          full_name: string | null
+          gender: string | null
           id: string
+          medical_info: string | null
           payment_note: string | null
+          phone: string | null
           program_id: string
+          state: string | null
           status: Database["public"]["Enums"]["enrollment_status"]
           ticket_code: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address?: string | null
+          age?: number | null
           amount_inr: number
           approved_at?: string | null
           approved_by?: string | null
+          city?: string | null
           created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          full_name?: string | null
+          gender?: string | null
           id?: string
+          medical_info?: string | null
           payment_note?: string | null
+          phone?: string | null
           program_id: string
+          state?: string | null
           status?: Database["public"]["Enums"]["enrollment_status"]
           ticket_code?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address?: string | null
+          age?: number | null
           amount_inr?: number
           approved_at?: string | null
           approved_by?: string | null
+          city?: string | null
           created_at?: string
+          email?: string | null
+          emergency_contact?: string | null
+          full_name?: string | null
+          gender?: string | null
           id?: string
+          medical_info?: string | null
           payment_note?: string | null
+          phone?: string | null
           program_id?: string
+          state?: string | null
           status?: Database["public"]["Enums"]["enrollment_status"]
           ticket_code?: string | null
           updated_at?: string
@@ -145,42 +175,72 @@ export type Database = {
       programs: {
         Row: {
           active: boolean
+          banner_url: string | null
+          capacity: number | null
+          category: string | null
           created_at: string
           description: string | null
           duration: string | null
+          event_date: string | null
+          event_time: string | null
           id: string
+          instructor: string | null
           kind: Database["public"]["Enums"]["program_kind"]
           name: string
           price_inr: number
+          published: boolean
+          registration_closes_on: string | null
           seats: number | null
+          seats_taken: number
           starts_on: string | null
           style: string | null
+          venue: string | null
         }
         Insert: {
           active?: boolean
+          banner_url?: string | null
+          capacity?: number | null
+          category?: string | null
           created_at?: string
           description?: string | null
           duration?: string | null
+          event_date?: string | null
+          event_time?: string | null
           id?: string
+          instructor?: string | null
           kind: Database["public"]["Enums"]["program_kind"]
           name: string
           price_inr: number
+          published?: boolean
+          registration_closes_on?: string | null
           seats?: number | null
+          seats_taken?: number
           starts_on?: string | null
           style?: string | null
+          venue?: string | null
         }
         Update: {
           active?: boolean
+          banner_url?: string | null
+          capacity?: number | null
+          category?: string | null
           created_at?: string
           description?: string | null
           duration?: string | null
+          event_date?: string | null
+          event_time?: string | null
           id?: string
+          instructor?: string | null
           kind?: Database["public"]["Enums"]["program_kind"]
           name?: string
           price_inr?: number
+          published?: boolean
+          registration_closes_on?: string | null
           seats?: number | null
+          seats_taken?: number
           starts_on?: string | null
           style?: string | null
+          venue?: string | null
         }
         Relationships: []
       }
