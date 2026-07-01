@@ -14,11 +14,19 @@ function pub() {
 export const listPrograms = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ kind: z.string().optional() }).parse(input ?? {}))
   .handler(async ({ data }) => {
-    let q = pub().from("programs").select("*").eq("active", true).order("created_at", { ascending: true });
+    let q = pub().from("programs").select("*").eq("published", true).order("event_date", { ascending: true, nullsFirst: false });
     if (data.kind) q = q.eq("kind", data.kind as never);
     const { data: rows, error } = await q;
     if (error) throw error;
     return rows ?? [];
+  });
+
+export const getProgram = createServerFn({ method: "GET" })
+  .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    const { data: row, error } = await pub().from("programs").select("*").eq("id", data.id).eq("published", true).maybeSingle();
+    if (error) throw error;
+    return row;
   });
 
 export const listEvents = createServerFn({ method: "GET" }).handler(async () => {
