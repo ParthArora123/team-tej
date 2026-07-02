@@ -194,6 +194,7 @@ export type Database = {
           seats_taken: number
           starts_on: string | null
           style: string | null
+          upi_id_encrypted: string | null
           venue: string | null
         }
         Insert: {
@@ -217,6 +218,7 @@ export type Database = {
           seats_taken?: number
           starts_on?: string | null
           style?: string | null
+          upi_id_encrypted?: string | null
           venue?: string | null
         }
         Update: {
@@ -240,6 +242,7 @@ export type Database = {
           seats_taken?: number
           starts_on?: string | null
           style?: string | null
+          upi_id_encrypted?: string | null
           venue?: string | null
         }
         Relationships: []
