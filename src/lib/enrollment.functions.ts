@@ -92,16 +92,35 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       throw new Error("Please upload a valid payment screenshot.");
     }
 
+    const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+    let ticket = existing.ticket_code || genCode();
+    if (!existing.ticket_code) {
+      for (let i = 0; i < 5; i++) {
+        const { data: dup } = await supabaseAdmin
+          .from("enrollments").select("id").eq("ticket_code", ticket).maybeSingle();
+        if (!dup) break;
+        ticket = genCode();
+      }
+    }
+    const now = new Date().toISOString();
     const { error: upErr } = await supabaseAdmin
       .from("enrollments").update({
-        status: "payment_submitted",
+        status: "confirmed",
+        ticket_code: ticket,
         payment_proof_path: data.proofPath,
-        payment_confirmed_at: new Date().toISOString(),
+        payment_confirmed_at: now,
+        ticket_generated_at: now,
+        approved_at: now,
       })
       .eq("id", existing.id);
     if (upErr) throw upErr;
 
-    return { ok: true, pending: true };
+    if (existing.program_id) {
+      const { data: p } = await supabaseAdmin.from("programs").select("seats_taken").eq("id", existing.program_id).single();
+      await supabaseAdmin.from("programs").update({ seats_taken: (p?.seats_taken ?? 0) + 1 }).eq("id", existing.program_id);
+    }
+
+    return { ok: true, confirmed: true, ticket };
   });
 
 async function verifyPaymentScreenshot(dataUrl: string, amountInr: number) {
