@@ -344,7 +344,7 @@ function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (v: b
 
 function In({ v, on, ...p }: { v: string; on: (v: string) => void; [k: string]: any }) {
   return <input value={v} onChange={(e) => on(e.target.value)} {...p}
-    className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />;
+    className="w-full min-w-0 px-3 py-2 rounded-lg bg-muted border border-border text-sm" />;
 }
 
 function StudentsTab({ rows }: { rows: any[] }) {
