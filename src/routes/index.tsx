@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { listPublicTeamProfiles } from "@/lib/team.functions";
+
 import { ArrowUpRight, Sparkles, Calendar } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
