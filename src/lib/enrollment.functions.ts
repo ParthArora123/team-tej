@@ -45,8 +45,9 @@ export const createEnrollment = createServerFn({ method: "POST" })
 
 // After a student uploads a payment screenshot to the `payment-proofs` storage
 // bucket, this validates the image with the Lovable AI vision model to make
-// sure it actually looks like a UPI payment success screen (not a random
-// image), then generates the ticket.
+// sure it actually looks like a UPI/bank payment screenshot (not a random
+// image), then marks the enrollment as pending admin verification. A ticket
+// is only generated when an admin approves the payment.
 export const markPaymentSubmitted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({
@@ -56,7 +57,6 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // The uploaded file must live under the user's own folder.
     if (!data.proofPath.startsWith(`${context.userId}/`)) {
       throw new Error("Invalid upload path.");
     }
@@ -70,19 +70,16 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     if (exErr) throw exErr;
     if (!existing) throw new Error("Registration not found");
 
-    // Idempotent — if the ticket is already generated, return it as-is.
     if (existing.status === "confirmed" && existing.ticket_code) {
-      return { ok: true, already: true, ticket_code: existing.ticket_code };
+      return { ok: true, already: true };
     }
 
-    // Fetch the uploaded screenshot from storage and hand it to the vision
-    // model as base64. Only images and reasonable sizes are accepted.
     const dl = await supabaseAdmin.storage.from("payment-proofs").download(data.proofPath);
     if (dl.error || !dl.data) throw new Error("Could not read the uploaded screenshot.");
     const blob = dl.data;
     const contentType = (blob.type || "").toLowerCase();
-    if (!contentType.startsWith("image/")) {
-      throw new Error("Please upload an image file (JPG or PNG).");
+    if (!/^image\/(png|jpe?g|webp)$/.test(contentType)) {
+      throw new Error("Please upload a valid payment screenshot.");
     }
     if (blob.size > 8 * 1024 * 1024) {
       throw new Error("Screenshot is too large. Max 8 MB.");
@@ -92,52 +89,19 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
 
     const verification = await verifyPaymentScreenshot(dataUrl, existing.amount_inr);
     if (!verification.accepted) {
-      throw new Error(verification.reason);
+      throw new Error("Please upload a valid payment screenshot.");
     }
 
-
-    // Generate a unique ticket code (retry on rare collision).
-    const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-    let ticket = genCode();
-    for (let i = 0; i < 5; i++) {
-      const { data: dup } = await supabaseAdmin
-        .from("enrollments").select("id").eq("ticket_code", ticket).maybeSingle();
-      if (!dup) break;
-      ticket = genCode();
-    }
-
-    const now = new Date().toISOString();
     const { error: upErr } = await supabaseAdmin
       .from("enrollments").update({
-        status: "confirmed",
-        ticket_code: ticket,
-        payment_confirmed_at: now,
-        ticket_generated_at: now,
-        approved_at: now,
-        approved_by: context.userId,
+        status: "payment_submitted",
         payment_proof_path: data.proofPath,
+        payment_confirmed_at: new Date().toISOString(),
       })
-      .eq("id", existing.id)
-      // Only issue a ticket once — guards against duplicate generation on
-      // concurrent clicks; if another request already confirmed, this is a no-op.
-      .is("ticket_code", null);
+      .eq("id", existing.id);
     if (upErr) throw upErr;
 
-
-    // Bump seats_taken (best-effort; ignore if already at capacity).
-    if (existing.program_id) {
-      const { data: p } = await supabaseAdmin
-        .from("programs").select("seats_taken").eq("id", existing.program_id).single();
-      await supabaseAdmin.from("programs")
-        .update({ seats_taken: (p?.seats_taken ?? 0) + 1 })
-        .eq("id", existing.program_id);
-    }
-
-    // Email confirmation is intentionally skipped for now. The workflow is
-    // structured so a call to sendConfirmationEmail(...) can be added here
-    // later without changing anything else.
-
-    return { ok: true, ticket_code: ticket };
+    return { ok: true, pending: true };
   });
 
 async function verifyPaymentScreenshot(dataUrl: string, amountInr: number) {
