@@ -103,7 +103,7 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
         const origin = process.env.PUBLIC_SITE_URL
           ?? process.env.SITE_URL
           ?? "https://team-tej.lovable.app";
-        await sendConfirmation({
+        const report = await sendConfirmation({
           studentName: existing.full_name ?? "Student",
           workshopName: p?.name ?? "Team Tej Workshop",
           eventDate: p?.event_date ? new Date(p.event_date).toDateString() : null,
@@ -114,8 +114,26 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
           verifyUrl: `${origin}/verify?code=${encodeURIComponent(ticket)}`,
           phone: existing.phone ?? "",
         });
+        await supabaseAdmin.from("enrollments").update({
+          notification_provider: report.provider,
+          sms_status: report.sms.status,
+          sms_message_id: report.sms.messageId ?? null,
+          sms_error: report.sms.error ?? null,
+          sms_sent_at: report.sms.sentAt ?? null,
+          whatsapp_status: report.whatsapp.status,
+          whatsapp_message_id: report.whatsapp.messageId ?? null,
+          whatsapp_error: report.whatsapp.error ?? null,
+          whatsapp_sent_at: report.whatsapp.sentAt ?? null,
+        }).eq("id", existing.id);
       } catch (e) {
         console.error("[markPaymentSubmitted] notify failed:", e);
+        await supabaseAdmin.from("enrollments").update({
+          notification_provider: "msg91",
+          sms_status: "failed",
+          sms_error: String((e as any)?.message ?? e).slice(0, 500),
+          whatsapp_status: "failed",
+          whatsapp_error: String((e as any)?.message ?? e).slice(0, 500),
+        }).eq("id", existing.id);
       }
     }
 

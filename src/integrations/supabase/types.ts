@@ -44,16 +44,25 @@ export type Database = {
           gender: string | null
           id: string
           medical_info: string | null
+          notification_provider: string | null
           payment_confirmed_at: string | null
           payment_note: string | null
           phone: string | null
           program_id: string
+          sms_error: string | null
+          sms_message_id: string | null
+          sms_sent_at: string | null
+          sms_status: string | null
           state: string | null
           status: Database["public"]["Enums"]["enrollment_status"]
           ticket_code: string | null
           ticket_generated_at: string | null
           updated_at: string
           user_id: string
+          whatsapp_error: string | null
+          whatsapp_message_id: string | null
+          whatsapp_sent_at: string | null
+          whatsapp_status: string | null
         }
         Insert: {
           address?: string | null
@@ -69,16 +78,25 @@ export type Database = {
           gender?: string | null
           id?: string
           medical_info?: string | null
+          notification_provider?: string | null
           payment_confirmed_at?: string | null
           payment_note?: string | null
           phone?: string | null
           program_id: string
+          sms_error?: string | null
+          sms_message_id?: string | null
+          sms_sent_at?: string | null
+          sms_status?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["enrollment_status"]
           ticket_code?: string | null
           ticket_generated_at?: string | null
           updated_at?: string
           user_id: string
+          whatsapp_error?: string | null
+          whatsapp_message_id?: string | null
+          whatsapp_sent_at?: string | null
+          whatsapp_status?: string | null
         }
         Update: {
           address?: string | null
@@ -94,16 +112,25 @@ export type Database = {
           gender?: string | null
           id?: string
           medical_info?: string | null
+          notification_provider?: string | null
           payment_confirmed_at?: string | null
           payment_note?: string | null
           phone?: string | null
           program_id?: string
+          sms_error?: string | null
+          sms_message_id?: string | null
+          sms_sent_at?: string | null
+          sms_status?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["enrollment_status"]
           ticket_code?: string | null
           ticket_generated_at?: string | null
           updated_at?: string
           user_id?: string
+          whatsapp_error?: string | null
+          whatsapp_message_id?: string | null
+          whatsapp_sent_at?: string | null
+          whatsapp_status?: string | null
         }
         Relationships: [
           {
