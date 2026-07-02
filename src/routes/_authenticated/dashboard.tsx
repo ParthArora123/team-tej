@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
-import { Check, Clock, X as XIcon, Ticket, LogOut, Shield } from "lucide-react";
+import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Upload } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, markPaymentSubmitted, checkIsAdmin } from "@/lib/enrollment.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -118,8 +118,13 @@ function Dashboard() {
                               setFile(f);
                               setPreview(f ? URL.createObjectURL(f) : "");
                             }}
-                            className="mt-1 w-full text-xs file:mr-3 file:px-3 file:py-2 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground file:text-xs file:font-medium"
+                            id={`payment-proof-${r.id}`}
+                            className="sr-only"
                           />
+                          <span className="mt-2 flex items-center justify-center gap-2 rounded-lg border border-dashed border-primary/50 bg-primary/10 px-4 py-4 text-sm font-medium text-primary cursor-pointer active:scale-[0.99]">
+                            <Upload size={16} /> {file ? "Change payment screenshot" : "Choose payment screenshot"}
+                          </span>
+                          {file && <span className="mt-2 block truncate text-xs text-foreground">{file.name}</span>}
                           <span className="mt-1 block text-[11px] text-muted-foreground">
                             Upload the success receipt from your UPI app (GPay, PhonePe, Paytm, BHIM, bank app). We auto-verify it.
                           </span>
