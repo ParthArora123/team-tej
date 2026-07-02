@@ -1,16 +1,20 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { QRCodeSVG } from "qrcode.react";
+import { toast, Toaster } from "sonner";
+import { CalendarDays, Clock, ImageUp, Sparkles, Upload, X } from "lucide-react";
 import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
   adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, adminGetProofUrl,
+  adminUploadWorkshopImage,
 } from "@/lib/enrollment.functions";
 import {
   adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
   adminSetTeamProfilePublished, adminReorderTeamProfile, adminUploadTeamPhoto,
 } from "@/lib/team.functions";
+
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
