@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Check } from "lucide-react";
+import { X, Check, Sparkles } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ export interface EnrollClass {
   name: string;
   price: number;
   duration: string;
+  silverSeatEnabled?: boolean;
 }
 
 interface Props {
@@ -23,16 +24,20 @@ const initial = {
   address: "", city: "", state: "", emergencyContact: "", medicalInfo: "",
 };
 
+const SILVER_ADDON = 1000;
+
 export function EnrollDialog({ klass, onClose }: Props) {
   const navigate = useNavigate();
   const create = useServerFn(createEnrollment);
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [d, setD] = useState(initial);
+  const [silver, setSilver] = useState(false);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
+    setSilver(false);
     supabase.auth.getUser().then(({ data }) => {
       setSignedIn(!!data.user);
       if (data.user?.email) setD((s) => ({ ...s, email: data.user!.email! }));
@@ -40,6 +45,8 @@ export function EnrollDialog({ klass, onClose }: Props) {
   }, [klass]);
 
   if (!klass) return null;
+
+  const total = klass.price + (klass.silverSeatEnabled && silver ? SILVER_ADDON : 0);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +57,7 @@ export function EnrollDialog({ klass, onClose }: Props) {
         age: Number(d.age), gender: d.gender, address: d.address, city: d.city,
         state: d.state, emergencyContact: d.emergencyContact,
         medicalInfo: d.medicalInfo || null,
+        silverSeat: !!(klass.silverSeatEnabled && silver),
       }});
       setDone(true);
     } catch (e: any) { setErr(e.message ?? "Failed"); }
@@ -80,7 +88,7 @@ export function EnrollDialog({ klass, onClose }: Props) {
             <form onSubmit={submit}>
               <p className="text-xs uppercase tracking-widest text-primary">Registration</p>
               <h3 className="mt-2 text-2xl font-display font-bold">{klass.name}</h3>
-              <p className="text-sm text-muted-foreground mt-1">{klass.duration} · ₹{klass.price.toLocaleString("en-IN")}</p>
+              <p className="text-sm text-muted-foreground mt-1">{klass.duration} · ₹{total.toLocaleString("en-IN")}</p>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <Field label="Full name" v={d.fullName} on={(v) => setD({...d, fullName: v})} span2 />
@@ -103,11 +111,24 @@ export function EnrollDialog({ klass, onClose }: Props) {
                   <textarea value={d.medicalInfo} onChange={(e) => setD({...d, medicalInfo: e.target.value})} rows={2}
                     className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
                 </label>
+
+                {klass.silverSeatEnabled && (
+                  <label className="col-span-2 flex items-start gap-3 rounded-xl border border-primary/40 bg-primary/5 p-3 cursor-pointer">
+                    <input type="checkbox" checked={silver} onChange={(e) => setSilver(e.target.checked)} className="mt-1" />
+                    <span className="flex-1">
+                      <span className="flex items-center gap-1.5 font-medium text-sm">
+                        <Sparkles size={14} className="text-primary" /> Silver Seat
+                      </span>
+                      <span className="block text-xs text-muted-foreground mt-0.5">Premium seating · adds ₹1,000 to your fee.</span>
+                    </span>
+                    <span className="text-sm font-medium">+₹1,000</span>
+                  </label>
+                )}
               </div>
               {err && <p className="mt-3 text-xs text-destructive">{err}</p>}
               <button disabled={busy} type="submit"
                 className="mt-6 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium">
-                {busy ? "Submitting…" : "Continue to payment"}
+                {busy ? "Submitting…" : `Continue to payment · ₹${total.toLocaleString("en-IN")}`}
               </button>
             </form>
           )}
@@ -119,7 +140,7 @@ export function EnrollDialog({ klass, onClose }: Props) {
               </div>
               <h3 className="mt-3 text-xl font-display font-bold">Registered</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Head to your dashboard to scan the UPI QR and pay. Your ticket and QR are issued instantly after payment, and a confirmation is sent to your mobile.
+                Head to your dashboard to scan the UPI QR and pay. Your ticket and QR are issued instantly after payment.
               </p>
               <button onClick={() => { onClose(); navigate({ to: "/dashboard" }); }}
                 className="mt-5 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground">Go to payment</button>

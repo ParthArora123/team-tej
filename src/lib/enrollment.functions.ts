@@ -14,6 +14,7 @@ const detailsSchema = z.object({
   state: z.string().min(1).max(80),
   emergencyContact: z.string().min(5).max(60),
   medicalInfo: z.string().max(500).optional().nullable(),
+  silverSeat: z.boolean().optional(),
 });
 
 export const createEnrollment = createServerFn({ method: "POST" })
@@ -32,16 +33,19 @@ export const createEnrollment = createServerFn({ method: "POST" })
       throw new Error("Sorry, this workshop is full.");
     }
 
+    const wantSilver = !!data.silverSeat && !!(program as any).silver_seat_enabled;
     const { data: enr, error } = await supabase.from("enrollments").insert({
       user_id: userId, program_id: program.id, amount_inr: program.price_inr,
       status: "awaiting_payment",
       full_name: data.fullName, email: data.email, phone: data.phone, age: data.age,
       gender: data.gender, address: data.address, city: data.city, state: data.state,
       emergency_contact: data.emergencyContact, medical_info: data.medicalInfo ?? null,
-    }).select("*").single();
+      silver_seat: wantSilver,
+    } as any).select("*").single();
     if (error) throw error;
     return enr;
   });
+
 
 // After a student uploads a payment screenshot to the `payment-proofs` storage
 // bucket, this validates the image with the Lovable AI vision model to make
@@ -286,6 +290,7 @@ const workshopSchema = z.object({
   name: z.string().min(2),
   description: z.string().optional(),
   banner_url: z.string().url().optional().or(z.literal("")),
+  banner_path: z.string().max(500).optional().or(z.literal("")),
   event_date: z.string().optional(),
   event_time: z.string().optional(),
   venue: z.string().optional(),
@@ -294,9 +299,11 @@ const workshopSchema = z.object({
   capacity: z.number().int().optional(),
   price_inr: z.number().int().min(0),
   registration_closes_on: z.string().optional(),
+  registration_open_on: z.string().optional(),
   category: z.string().optional(),
   style: z.string().optional(),
   published: z.boolean().default(false),
+  silver_seat_enabled: z.boolean().optional(),
   upi_id: z.string().max(120).optional().or(z.literal("")),
   clear_upi: z.boolean().optional(),
 });
@@ -311,8 +318,11 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
     const clean: any = {
       ...rest,
       banner_url: rest.banner_url || null,
+      banner_path: rest.banner_path || null,
       event_date: rest.event_date || null,
       registration_closes_on: rest.registration_closes_on || null,
+      registration_open_on: rest.registration_open_on || null,
+      silver_seat_enabled: !!rest.silver_seat_enabled,
     };
     if (clear_upi) {
       clean.upi_id_encrypted = null;
@@ -329,6 +339,32 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true, id: row.id };
   });
+
+export const adminUploadWorkshopImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({
+    filename: z.string().min(1).max(200),
+    contentType: z.string().min(1).max(100),
+    dataBase64: z.string().min(1),
+  }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (!/^image\/(png|jpe?g|webp)$/.test(data.contentType)) {
+      throw new Error("Only JPG, PNG or WebP images are allowed.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const bytes = Uint8Array.from(atob(data.dataBase64), (c) => c.charCodeAt(0));
+    if (bytes.byteLength > 8 * 1024 * 1024) throw new Error("Image is too large. Max 8 MB.");
+    const ext = (data.filename.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const key = `workshops/${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabaseAdmin.storage.from("workshop-images").upload(key, bytes, {
+      contentType: data.contentType, upsert: false,
+    });
+    if (upErr) throw upErr;
+    const { data: signed } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(key, 60 * 60 * 24 * 7);
+    return { path: key, url: signed?.signedUrl ?? null };
+  });
+
 
 export const adminSetPublished = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -360,10 +396,16 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin.from("programs").select("*").order("created_at", { ascending: false });
     if (error) throw error;
     // Never expose ciphertext; expose a boolean flag so admins can see UPI status.
-    return (data ?? []).map((r: any) => {
+    // Also decorate banner_path with a signed URL for preview in admin.
+    return Promise.all((data ?? []).map(async (r: any) => {
       const { upi_id_encrypted, ...rest } = r;
-      return { ...rest, has_upi: !!upi_id_encrypted };
-    });
+      let banner_signed_url: string | null = null;
+      if (rest.banner_path) {
+        const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_path, 60 * 60 * 24 * 7);
+        banner_signed_url = s?.signedUrl ?? null;
+      }
+      return { ...rest, has_upi: !!upi_id_encrypted, banner_signed_url };
+    }));
   });
 
 
