@@ -43,9 +43,8 @@ export const createEnrollment = createServerFn({ method: "POST" })
     return enr;
   });
 
-// Auto-confirms the enrollment: marks payment successful, generates a unique
-// ticket code, increments seats taken. Email confirmation is enqueued once
-// the project's email domain is configured.
+// Marks the enrollment as awaiting admin verification. The ticket is only
+// issued after an admin approves the payment from the Control Room.
 export const markPaymentSubmitted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ enrollmentId: z.string().uuid() }).parse(input))
@@ -54,76 +53,31 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
 
     const { data: existing, error: exErr } = await supabaseAdmin
       .from("enrollments")
-      .select("id, user_id, status, ticket_code, program_id, full_name, email, amount_inr")
+      .select("id, user_id, status, ticket_code")
       .eq("id", data.enrollmentId)
       .eq("user_id", context.userId)
       .maybeSingle();
     if (exErr) throw exErr;
     if (!existing) throw new Error("Registration not found");
 
-    // Idempotent — never re-issue for an already-confirmed ticket.
-    if (existing.status === "confirmed" && existing.ticket_code) {
-      return { ok: true, ticket: existing.ticket_code, already: true };
+    // Idempotent — don't downgrade a confirmed ticket.
+    if (existing.status === "confirmed") {
+      return { ok: true, already: true };
+    }
+    if (existing.status === "payment_submitted") {
+      return { ok: true, already: true };
     }
 
-    // Cryptographically-random, unique ticket code.
-    const { randomBytes } = await import("crypto");
-    let ticket = "";
-    for (let i = 0; i < 5; i++) {
-      const candidate = "TTJ-" + randomBytes(6).toString("base64url")
-        .toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
-      const { data: clash } = await supabaseAdmin
-        .from("enrollments").select("id").eq("ticket_code", candidate).maybeSingle();
-      if (!clash) { ticket = candidate; break; }
-    }
-    if (!ticket) throw new Error("Could not allocate ticket code, please retry.");
-
-    const now = new Date().toISOString();
     const { error: upErr } = await supabaseAdmin
       .from("enrollments").update({
-        status: "confirmed",
-        ticket_code: ticket,
-        approved_at: now,
-        approved_by: context.userId,
-        payment_confirmed_at: now,
-        ticket_generated_at: now,
+        status: "payment_submitted",
+        payment_confirmed_at: new Date().toISOString(),
       }).eq("id", existing.id);
     if (upErr) throw upErr;
 
-    let program: any = null;
-    if (existing.program_id) {
-      const { data: p } = await supabaseAdmin
-        .from("programs").select("seats_taken, name, event_date, event_time, venue")
-        .eq("id", existing.program_id).single();
-      program = p;
-      await supabaseAdmin.from("programs")
-        .update({ seats_taken: (p?.seats_taken ?? 0) + 1 })
-        .eq("id", existing.program_id);
-    }
-
-    // Fire-and-forget email confirmation via the project's email queue.
-    try {
-      const { sendConfirmationEmail } = await import("./email-confirmation.server");
-      const origin = process.env.PUBLIC_SITE_URL
-        ?? process.env.SITE_URL
-        ?? "https://team-tej.lovable.app";
-      await sendConfirmationEmail({
-        to: existing.email ?? "",
-        studentName: existing.full_name ?? "Student",
-        workshopName: program?.name ?? "Team Tej Workshop",
-        eventDate: program?.event_date ? new Date(program.event_date).toDateString() : null,
-        eventTime: program?.event_time ?? null,
-        venue: program?.venue ?? null,
-        ticketCode: ticket,
-        amount: existing.amount_inr ?? 0,
-        verifyUrl: `${origin}/verify?code=${encodeURIComponent(ticket)}`,
-      });
-    } catch (e) {
-      console.error("[markPaymentSubmitted] email failed:", e);
-    }
-
-    return { ok: true, ticket };
+    return { ok: true };
   });
+
 
 
 export const listMyEnrollments = createServerFn({ method: "GET" })
