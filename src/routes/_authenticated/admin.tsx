@@ -9,7 +9,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "approvals" | "scan";
+type Tab = "overview" | "workshops" | "approvals" | "students" | "scan";
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ function AdminPage() {
       <h1 className="font-display text-4xl font-bold mt-1">Control room</h1>
 
       <div className="mt-6 flex gap-2 flex-wrap">
-        {(["overview","workshops","approvals","scan"] as Tab[]).map((t) => (
+        {(["overview","workshops","approvals","students","scan"] as Tab[]).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-full text-sm capitalize ${tab===t?"bg-primary text-primary-foreground":"bg-muted"}`}>
             {t}
@@ -98,6 +98,8 @@ function AdminPage() {
           ))}
         </div>
       )}
+
+      {tab === "students" && <StudentsTab rows={enrs} />}
 
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
@@ -237,6 +239,108 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 function In({ v, on, ...p }: { v: string; on: (v: string) => void; [k: string]: any }) {
   return <input value={v} onChange={(e) => on(e.target.value)} {...p}
     className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />;
+}
+
+function StudentsTab({ rows }: { rows: any[] }) {
+  const [q, setQ] = useState("");
+  const [status, setStatus] = useState<string>("all");
+  const [prog, setProg] = useState<string>("all");
+
+  const programs = Array.from(new Set(rows.map((r) => r.program?.name).filter(Boolean))) as string[];
+
+  const filtered = rows.filter((r) => {
+    if (status !== "all" && r.status !== status) return false;
+    if (prog !== "all" && r.program?.name !== prog) return false;
+    if (!q.trim()) return true;
+    const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${r.city ?? ""} ${r.state ?? ""}`.toLowerCase();
+    return hay.includes(q.trim().toLowerCase());
+  });
+
+  const cols = [
+    ["Registered", (r: any) => new Date(r.created_at).toLocaleString("en-IN")],
+    ["Full name", (r: any) => r.full_name ?? ""],
+    ["Email", (r: any) => r.email ?? ""],
+    ["Phone", (r: any) => r.phone ?? ""],
+    ["Age", (r: any) => r.age ?? ""],
+    ["Gender", (r: any) => r.gender ?? ""],
+    ["City", (r: any) => r.city ?? ""],
+    ["State", (r: any) => r.state ?? ""],
+    ["Address", (r: any) => r.address ?? ""],
+    ["Emergency contact", (r: any) => r.emergency_contact ?? ""],
+    ["Medical info", (r: any) => r.medical_info ?? ""],
+    ["Workshop", (r: any) => r.program?.name ?? ""],
+    ["Workshop date", (r: any) => r.program?.event_date ?? ""],
+    ["Amount (INR)", (r: any) => r.amount_inr ?? 0],
+    ["Status", (r: any) => r.status ?? ""],
+    ["Ticket code", (r: any) => r.ticket_code ?? ""],
+  ] as const;
+
+  const exportCsv = () => {
+    const esc = (v: any) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header = cols.map(([h]) => esc(h)).join(",");
+    const body = filtered.map((r) => cols.map(([, get]) => esc(get(r))).join(",")).join("\n");
+    // BOM so Excel picks up UTF-8 (₹, é, etc.)
+    const csv = "\ufeff" + header + "\n" + body;
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `team-tej-students-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="mt-8">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone, ticket…"
+          className="flex-1 min-w-[220px] px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
+        <select value={status} onChange={(e) => setStatus(e.target.value)}
+          className="px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+          <option value="all">All statuses</option>
+          <option value="awaiting_payment">Awaiting payment</option>
+          <option value="payment_submitted">Payment submitted</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <select value={prog} onChange={(e) => setProg(e.target.value)}
+          className="px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+          <option value="all">All workshops</option>
+          {programs.map((p) => <option key={p} value={p}>{p}</option>)}
+        </select>
+        <button onClick={exportCsv} disabled={filtered.length === 0}
+          className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
+          Export to Excel ({filtered.length})
+        </button>
+      </div>
+
+      <div className="overflow-x-auto rounded-xl border border-border bg-card">
+        <table className="w-full text-sm">
+          <thead className="text-xs uppercase tracking-wider text-muted-foreground bg-muted/40">
+            <tr>
+              {cols.map(([h]) => <th key={h} className="text-left px-3 py-2 whitespace-nowrap">{h}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r) => (
+              <tr key={r.id} className="border-t border-border/60 hover:bg-muted/30">
+                {cols.map(([h, get]) => (
+                  <td key={h} className="px-3 py-2 whitespace-nowrap">{String(get(r) ?? "")}</td>
+                ))}
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr><td colSpan={cols.length} className="px-3 py-6 text-center text-muted-foreground">No students match.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-[11px] text-muted-foreground mt-2">Export downloads a UTF-8 CSV that opens directly in Excel or Google Sheets.</p>
+    </div>
+  );
 }
 
 function ScanTab({ onScan }: { onScan: any }) {
