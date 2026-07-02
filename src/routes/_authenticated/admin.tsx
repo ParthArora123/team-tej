@@ -32,7 +32,7 @@ function AdminPage() {
   const navigate = useNavigate();
   const fetchStats = useServerFn(adminStats);
   const fetchAll = useServerFn(listAllEnrollments);
-  // Payments now auto-confirm — no manual approve step.
+  const approve = useServerFn(approveEnrollment);
   const fetchWorkshops = useServerFn(adminListWorkshops);
   const saveWorkshop = useServerFn(adminSaveWorkshop);
   const setPublished = useServerFn(adminSetPublished);
