@@ -11,7 +11,13 @@ export function ProgramListPage({ kind, eyebrow, title, blurb }: {
   const [rows, setRows] = useState<any[]>([]);
   const [sel, setSel] = useState<EnrollClass | null>(null);
 
-  useEffect(() => { fetchPrograms({ data: { kind } }).then(setRows); }, [kind]);
+  useEffect(() => {
+    const load = () => fetchPrograms({ data: { kind } }).then(setRows);
+    load();
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [kind]);
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-6xl mx-auto">

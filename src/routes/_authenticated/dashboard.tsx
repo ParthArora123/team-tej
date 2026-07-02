@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({ component: Dashboard });
 
-const UPI_ID = "teamtej@upi";
+const DEFAULT_UPI_ID = "teamtej@upi";
 
 function StatusPill({ s }: { s: string }) {
   const map: Record<string, { label: string; cls: string; Icon: any }> = {
@@ -66,7 +66,8 @@ function Dashboard() {
 
       <div className="mt-8 grid gap-4">
         {rows.map((r) => {
-          const upiUrl = `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent("Team Tej")}&am=${r.amount_inr}&cu=INR&tn=${encodeURIComponent(r.program?.name ?? "Enrollment")}`;
+          const upiId = r.program?.upi_id || DEFAULT_UPI_ID;
+          const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("Team Tej")}&am=${r.amount_inr}&cu=INR&tn=${encodeURIComponent(r.program?.name ?? "Enrollment")}`;
           const verifyUrl = typeof window !== "undefined"
             ? `${window.location.origin}/verify?d=${btoa(unescape(encodeURIComponent(JSON.stringify({
                 id: r.ticket_code, class: r.program?.name, amount: r.amount_inr, status: r.status,
@@ -92,7 +93,8 @@ function Dashboard() {
                   {open === r.id && (
                     <div className="mt-4 flex flex-col items-center bg-muted/40 rounded-xl p-5">
                       <div className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} /></div>
-                      <p className="mt-3 text-xs text-muted-foreground">Scan with any UPI app · {UPI_ID}</p>
+                      <p className="mt-3 text-xs text-muted-foreground">Scan with any UPI app</p>
+                      <p className="text-sm font-mono select-all text-foreground">{upiId}</p>
                       <button onClick={async () => { await submitPay({ data: { enrollmentId: r.id } }); reload(); }}
                         className="mt-4 px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium">
                         I've completed the payment

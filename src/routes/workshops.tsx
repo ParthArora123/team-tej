@@ -13,7 +13,13 @@ function WorkshopsPage() {
   const [rows, setRows] = useState<any[]>([]);
   const [sel, setSel] = useState<EnrollClass | null>(null);
 
-  useEffect(() => { fetchPrograms({ data: { kind: "workshop" } }).then(setRows); }, []);
+  const load = () => fetchPrograms({ data: { kind: "workshop" } }).then(setRows);
+  useEffect(() => {
+    load();
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, []);
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-6xl mx-auto">

@@ -119,6 +119,7 @@ const emptyWs = {
   event_date: "", event_time: "", venue: "", instructor: "",
   duration: "", capacity: "", price_inr: "", registration_closes_on: "",
   category: "", style: "", published: false,
+  upi_id: "", clear_upi: false, has_upi: false,
 };
 
 function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
@@ -132,6 +133,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
     capacity: r.capacity ?? "", price_inr: r.price_inr ?? "",
     registration_closes_on: r.registration_closes_on ?? "", category: r.category ?? "",
     style: r.style ?? "", published: !!r.published,
+    upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
   });
 
   const save = async (e: React.FormEvent) => {
@@ -140,6 +142,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       await onSave({ data: {
         ...f, price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
+        upi_id: f.upi_id?.trim() || undefined,
+        clear_upi: !!f.clear_upi,
       }});
       setMsg("Saved."); setF(emptyWs); reload();
     } catch (e: any) { setMsg(e.message); }
@@ -171,6 +175,18 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
             <option value="online_training">Online Training</option>
           </select>
         </div>
+        <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
+          <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "UPI ID (e.g. tejas@upi)"}
+            v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
+          <p className="text-[11px] text-muted-foreground">Stored encrypted at rest. Shown only on the payment page.</p>
+          {f.has_upi && (
+            <label className="flex items-center gap-2 text-xs">
+              <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
+              Remove saved UPI and fall back to default
+            </label>
+          )}
+        </div>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} />
           Publish (visible to customers)
@@ -193,9 +209,12 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 <p className="text-xs text-muted-foreground">
                   {r.event_date ?? "—"} · {r.venue ?? "—"} · ₹{r.price_inr} · {r.seats_taken ?? 0}/{r.capacity ?? "∞"} seats
                 </p>
-                <p className="text-[11px] mt-1">
+                <p className="text-[11px] mt-1 flex flex-wrap gap-2">
                   <span className={r.published ? "text-emerald-400" : "text-amber-400"}>
                     {r.published ? "Published" : "Draft"}
+                  </span>
+                  <span className={r.has_upi ? "text-emerald-400" : "text-muted-foreground"}>
+                    {r.has_upi ? "UPI set 🔒" : "No UPI"}
                   </span>
                 </p>
               </div>

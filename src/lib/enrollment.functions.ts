@@ -61,7 +61,17 @@ export const listMyEnrollments = createServerFn({ method: "GET" })
       .from("enrollments").select("*, program:programs(*)")
       .eq("user_id", context.userId).order("created_at", { ascending: false });
     if (error) throw error;
-    return data ?? [];
+    const { decryptSecret } = await import("./crypto.server");
+    // Decrypt the workshop's UPI ID for the enrollee to display on the payment
+    // page only. The ciphertext column is never returned to the client.
+    return (data ?? []).map((r: any) => {
+      if (r.program) {
+        const upi = decryptSecret(r.program.upi_id_encrypted);
+        const { upi_id_encrypted, ...rest } = r.program;
+        r.program = { ...rest, upi_id: upi };
+      }
+      return r;
+    });
   });
 
 async function assertAdmin(context: any) {
@@ -126,6 +136,8 @@ const workshopSchema = z.object({
   category: z.string().optional(),
   style: z.string().optional(),
   published: z.boolean().default(false),
+  upi_id: z.string().max(120).optional().or(z.literal("")),
+  clear_upi: z.boolean().optional(),
 });
 
 export const adminSaveWorkshop = createServerFn({ method: "POST" })
@@ -134,18 +146,25 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const clean = {
-      ...data,
-      banner_url: data.banner_url || null,
-      event_date: data.event_date || null,
-      registration_closes_on: data.registration_closes_on || null,
+    const { upi_id, clear_upi, ...rest } = data;
+    const clean: any = {
+      ...rest,
+      banner_url: rest.banner_url || null,
+      event_date: rest.event_date || null,
+      registration_closes_on: rest.registration_closes_on || null,
     };
+    if (clear_upi) {
+      clean.upi_id_encrypted = null;
+    } else if (upi_id && upi_id.trim()) {
+      const { encryptSecret, sanitizeUpiId } = await import("./crypto.server");
+      clean.upi_id_encrypted = encryptSecret(sanitizeUpiId(upi_id));
+    }
     if (data.id) {
       const { error } = await supabaseAdmin.from("programs").update(clean).eq("id", data.id);
       if (error) throw error;
       return { ok: true, id: data.id };
     }
-    const { data: row, error } = await supabaseAdmin.from("programs").insert(clean as any).select("id").single();
+    const { data: row, error } = await supabaseAdmin.from("programs").insert(clean).select("id").single();
     if (error) throw error;
     return { ok: true, id: row.id };
   });
@@ -179,8 +198,13 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin.from("programs").select("*").order("created_at", { ascending: false });
     if (error) throw error;
-    return data ?? [];
+    // Never expose ciphertext; expose a boolean flag so admins can see UPI status.
+    return (data ?? []).map((r: any) => {
+      const { upi_id_encrypted, ...rest } = r;
+      return { ...rest, has_upi: !!upi_id_encrypted };
+    });
   });
+
 
 export const adminStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
