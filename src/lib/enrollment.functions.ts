@@ -198,8 +198,11 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin.from("programs").select("*").order("created_at", { ascending: false });
     if (error) throw error;
-    return data ?? [];
-  });
+    // Never expose ciphertext; expose a boolean flag so admins can see UPI status.
+    return (data ?? []).map((r: any) => {
+      const { upi_id_encrypted, ...rest } = r;
+      return { ...rest, has_upi: !!upi_id_encrypted };
+    });
 
 export const adminStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
