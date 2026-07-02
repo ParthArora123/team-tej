@@ -209,9 +209,12 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 <p className="text-xs text-muted-foreground">
                   {r.event_date ?? "—"} · {r.venue ?? "—"} · ₹{r.price_inr} · {r.seats_taken ?? 0}/{r.capacity ?? "∞"} seats
                 </p>
-                <p className="text-[11px] mt-1">
+                <p className="text-[11px] mt-1 flex flex-wrap gap-2">
                   <span className={r.published ? "text-emerald-400" : "text-amber-400"}>
                     {r.published ? "Published" : "Draft"}
+                  </span>
+                  <span className={r.has_upi ? "text-emerald-400" : "text-muted-foreground"}>
+                    {r.has_upi ? "UPI set 🔒" : "No UPI"}
                   </span>
                 </p>
               </div>
