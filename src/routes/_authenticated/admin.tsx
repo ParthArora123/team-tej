@@ -102,6 +102,8 @@ function AdminPage() {
 
       {tab === "students" && <StudentsTab rows={enrs} />}
 
+      {tab === "team" && <TeamTab />}
+
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
   );
