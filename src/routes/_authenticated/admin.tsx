@@ -9,7 +9,7 @@ import {
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "approvals" | "scan";
+type Tab = "overview" | "workshops" | "approvals" | "students" | "scan";
 
 function AdminPage() {
   const navigate = useNavigate();
