@@ -90,7 +90,7 @@ export const listAllEnrollments = createServerFn({ method: "GET" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(*), profile:profiles(*)")
+      .from("enrollments").select("*, program:programs(*)")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return data ?? [];
