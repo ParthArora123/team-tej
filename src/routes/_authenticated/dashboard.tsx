@@ -2,9 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
-import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Upload } from "lucide-react";
+import { Check, Clock, X as XIcon, Ticket, LogOut, Shield } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { listMyEnrollments, markPaymentSubmitted, checkIsAdmin } from "@/lib/enrollment.functions";
+import { listMyEnrollments, checkIsAdmin } from "@/lib/enrollment.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({ component: Dashboard });
@@ -25,20 +25,13 @@ function StatusPill({ s }: { s: string }) {
 function Dashboard() {
   const navigate = useNavigate();
   const fetchEnrollments = useServerFn(listMyEnrollments);
-  const submitPay = useServerFn(markPaymentSubmitted);
   const adminCheck = useServerFn(checkIsAdmin);
   const [rows, setRows] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string>("");
-  const [payErr, setPayErr] = useState("");
-  const [paying, setPaying] = useState(false);
 
   const reload = async () => setRows(await fetchEnrollments());
   useEffect(() => { reload(); adminCheck().then((r) => setIsAdmin(r.isAdmin)); }, []);
-
-
 
   const signOut = async () => { await supabase.auth.signOut(); navigate({ to: "/" }); };
 
@@ -72,7 +65,7 @@ function Dashboard() {
 
       <div className="mt-8 grid gap-4">
         {rows.map((r) => {
-          const upiId = r.program?.upi_id || DEFAULT_UPI_ID;
+          const upiId = r.program?.upi_id || "teamtej@upi";
           const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("Team Tej")}&am=${r.amount_inr}&cu=INR&tn=${encodeURIComponent(r.program?.name ?? "Enrollment")}`;
           const verifyUrl = typeof window !== "undefined" && r.ticket_code
             ? `${window.location.origin}/verify?code=${encodeURIComponent(r.ticket_code)}`
@@ -97,77 +90,18 @@ function Dashboard() {
                   {open === r.id && (
                     <div className="mt-4 flex flex-col items-center bg-muted/40 rounded-xl p-5">
                       <div className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} /></div>
-                      <p className="mt-3 text-xs text-muted-foreground">Scan with any UPI app</p>
-                      <p className="text-sm font-mono select-all text-foreground">{upiId}</p>
-
-                      <div className="mt-5 w-full max-w-sm space-y-3">
-                        <div className="block">
-                          <label htmlFor={`payment-proof-${r.id}`} className="text-xs uppercase tracking-wider text-muted-foreground">
-                            Upload your payment screenshot
-                          </label>
-                          <div className="mt-2 rounded-lg border border-dashed border-primary/50 bg-primary/10 px-4 py-4">
-                            <div className="mb-2 flex items-center justify-center gap-2 text-sm font-medium text-primary">
-                              <Upload size={16} /> {file ? "Change payment screenshot" : "Choose payment screenshot"}
-                            </div>
-                            <input
-                              type="file"
-                              accept="image/png,image/jpeg,image/webp"
-                              onChange={(e) => {
-                                const f = e.target.files?.[0] ?? null;
-                                setPayErr("");
-                                if (f && !f.type.startsWith("image/")) {
-                                  setPayErr("Only image files are allowed."); return;
-                                }
-                                if (f && f.size > 8 * 1024 * 1024) {
-                                  setPayErr("Screenshot must be under 8 MB."); return;
-                                }
-                                setFile(f);
-                                setPreview(f ? URL.createObjectURL(f) : "");
-                              }}
-                              id={`payment-proof-${r.id}`}
-                              className="block w-full cursor-pointer rounded-md border border-border bg-background text-sm text-foreground file:mr-3 file:cursor-pointer file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-foreground"
-                            />
-                          </div>
-                          {file && <span className="mt-2 block truncate text-xs text-foreground">{file.name}</span>}
-                          <span className="mt-1 block text-[11px] text-muted-foreground">
-                            Upload the success receipt from your UPI app (GPay, PhonePe, Paytm, BHIM, bank app). We auto-verify it.
-                          </span>
-                        </div>
-                        {preview && (
-                          <img src={preview} alt="Payment proof preview" className="max-h-56 rounded-md border border-border mx-auto" />
-                        )}
-                        {payErr && <p className="text-xs text-destructive">{payErr}</p>}
-                        <button
-                          disabled={paying || !file}
-                          onClick={async () => {
-                            if (!file) return;
-                            setPayErr(""); setPaying(true);
-                            try {
-                              const { data: userData } = await supabase.auth.getUser();
-                              const uid = userData.user?.id;
-                              if (!uid) throw new Error("Please sign in again.");
-                              const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-                              const path = `${uid}/${r.id}-${Date.now()}.${ext || "jpg"}`;
-                              const up = await supabase.storage.from("payment-proofs").upload(path, file, {
-                                contentType: file.type, upsert: false,
-                              });
-                              if (up.error) throw up.error;
-                              await submitPay({ data: { enrollmentId: r.id, proofPath: path } });
-                              setFile(null); setPreview(""); setOpen(null);
-                              await reload();
-                            } catch (e: any) {
-                              setPayErr(e?.message ?? "Verification failed");
-                            } finally { setPaying(false); }
-                          }}
-                          className="w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60">
-                          {paying ? "Verifying payment…" : "I've completed the payment"}
-                        </button>
-                      </div>
-
+                      <p className="mt-3 text-xs text-muted-foreground">Scan with any UPI app and pay ₹{r.amount_inr.toLocaleString("en-IN")}</p>
+                      <Link
+                        to="/pay/$enrollmentId"
+                        params={{ enrollmentId: r.id }}
+                        className="mt-5 w-full max-w-sm text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium">
+                        I have completed the payment
+                      </Link>
                     </div>
                   )}
                 </div>
               )}
+
 
 
               {r.status === "payment_submitted" && (
