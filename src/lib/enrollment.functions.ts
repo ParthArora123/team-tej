@@ -90,58 +90,9 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     const buf = Buffer.from(await blob.arrayBuffer());
     const dataUrl = `data:${contentType};base64,${buf.toString("base64")}`;
 
-    // Ask Lovable AI Gateway to classify the screenshot.
-    const apiKey = process.env.LOVABLE_API_KEY;
-    if (!apiKey) throw new Error("Payment verification is not configured.");
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: "You verify UPI/bank payment screenshots from Indian payment apps. Reply with STRICT JSON only." },
-          { role: "user", content: [
-            { type: "text", text:
-              "Return JSON: {\"is_payment_screenshot\":boolean,\"is_success\":boolean,\"amount\":number|null,\"reason\":string}. " +
-              "Set is_payment_screenshot=true if the image appears to be from ANY payment/banking/UPI app or wallet " +
-              "(Google Pay, PhonePe, Paytm, BHIM, CRED, Amazon Pay, bank apps, SMS receipts, etc.) — including transfers, " +
-              "payments, or receipts. Be lenient: if it plausibly shows a transaction (amount + recipient/UPI ref/date), mark true. " +
-              "Only set false for clearly unrelated images (selfies, memes, random photos, screenshots of other apps). " +
-              "Set is_success=true unless the screen explicitly shows Failed/Pending/Cancelled. " +
-              "amount = transaction amount in INR if visible, else null." },
-            { type: "image_url", image_url: { url: dataUrl } },
-          ] },
-        ],
-      }),
-    });
-    if (!aiRes.ok) {
-      const t = await aiRes.text().catch(() => "");
-      throw new Error(`Payment verification service failed. ${t.slice(0, 120)}`);
-    }
-    const aiJson: any = await aiRes.json();
-    const raw = aiJson?.choices?.[0]?.message?.content ?? "";
-    let verdict: { is_payment_screenshot?: boolean; is_success?: boolean; amount?: number | null; reason?: string } = {};
-    try {
-      const m = String(raw).match(/\{[\s\S]*\}/);
-      verdict = JSON.parse(m ? m[0] : raw);
-    } catch {
-      // If parsing fails, don't block — accept and continue.
-      verdict = { is_payment_screenshot: true, is_success: true, amount: null };
-    }
-    if (verdict.is_payment_screenshot === false) {
-      throw new Error(`This doesn't look like a payment screenshot. ${verdict.reason ?? "Please upload the receipt from your UPI/bank app."}`);
-    }
-    if (verdict.is_success === false) {
-      throw new Error("The screenshot shows the payment wasn't successful. Please complete the payment and re-upload.");
-    }
-    // Amount check: tolerate OCR noise — only reject on large mismatch.
-    if (typeof verdict.amount === "number" && verdict.amount > 0) {
-      const diff = Math.abs(verdict.amount - existing.amount_inr);
-      if (diff > Math.max(5, existing.amount_inr * 0.02)) {
-        throw new Error(`Amount mismatch — the screenshot shows ₹${verdict.amount} but registration is ₹${existing.amount_inr}.`);
-      }
-    }
+    // Screenshot is accepted as-is (image validation already enforced above).
+    // Admins can review the uploaded proof from the Admin Portal.
+
 
     // Generate a unique ticket code (retry on rare collision).
     const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
