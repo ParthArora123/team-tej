@@ -137,24 +137,31 @@ const emptyWs = () => ({
 function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   const uploadImage = useServerFn(adminUploadWorkshopImage);
   const [f, setF] = useState<any>(emptyWs());
+  const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  const edit = (r: any) => setF({
-    id: r.id, kind: r.kind, name: r.name ?? "", description: r.description ?? "",
-    banner_url: r.banner_url ?? "", banner_path: r.banner_path ?? "",
-    banner_preview: r.banner_signed_url ?? r.banner_url ?? "",
-    event_date: r.event_date ?? "", event_time: r.event_time ?? "",
-    venue: r.venue ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
-    capacity: r.capacity ?? "", price_inr: r.price_inr ?? "",
-    registration_closes_on: r.registration_closes_on ?? "",
-    registration_open_on: r.registration_open_on ?? todayISO(),
-    category: r.category ?? "",
-    style: r.style ?? "", published: !!r.published,
-    silver_seat_enabled: !!r.silver_seat_enabled,
-    upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
-  });
+  const openAdd = () => { setF(emptyWs()); setOpen(true); };
+  const closeDialog = () => { setOpen(false); setF(emptyWs()); };
+
+  const edit = (r: any) => {
+    setF({
+      id: r.id, kind: r.kind, name: r.name ?? "", description: r.description ?? "",
+      banner_url: r.banner_url ?? "", banner_path: r.banner_path ?? "",
+      banner_preview: r.banner_signed_url ?? r.banner_url ?? "",
+      event_date: r.event_date ?? "", event_time: r.event_time ?? "",
+      venue: r.venue ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
+      capacity: r.capacity ?? "", price_inr: r.price_inr ?? "",
+      registration_closes_on: r.registration_closes_on ?? "",
+      registration_open_on: r.registration_open_on ?? todayISO(),
+      category: r.category ?? "",
+      style: r.style ?? "", published: !!r.published,
+      silver_seat_enabled: !!r.silver_seat_enabled,
+      upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
+    });
+    setOpen(true);
+  };
 
   const handleFile = async (file: File) => {
     if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
@@ -197,98 +204,104 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         banner_path: f.banner_path || undefined,
         registration_open_on: f.registration_open_on || undefined,
       }});
-      toast.success(f.id ? "Workshop updated successfully!" : "Workshop published successfully!", { duration: 3500 });
-      setF(emptyWs()); reload();
+      toast.success(f.id ? "Workshop updated successfully!" : "Workshop added successfully!", { duration: 3500 });
+      closeDialog();
+      reload();
     } catch (e: any) {
       toast.error(e.message ?? "Failed to save workshop");
     } finally { setBusy(false); }
   };
 
   return (
-    <div className="mt-6 grid lg:grid-cols-[1fr_1fr] gap-4 lg:gap-6 min-w-0">
-      <details open={!!f.id} className="bg-card border border-border rounded-2xl group lg:!open min-w-0 overflow-hidden">
-        <summary className="lg:hidden list-none cursor-pointer px-3 py-2.5 flex items-center justify-between text-sm font-medium">
-          <span className="truncate">{f.id ? "Edit workshop" : "Add workshop"}</span>
-          <span className="text-muted-foreground text-xs group-open:hidden shrink-0 ml-2">Tap to open</span>
-          <span className="text-muted-foreground text-xs hidden group-open:inline shrink-0 ml-2">Close</span>
-        </summary>
-      <form onSubmit={save} className="p-3 lg:p-5 space-y-3 border-t border-border lg:border-t-0 min-w-0">
-        <p className="hidden lg:block font-display text-lg font-bold">{f.id ? "Edit workshop" : "Add workshop"}</p>
-        <In placeholder="Workshop name *" v={f.name} on={(v) => setF({ ...f, name: v })} required />
-        <textarea placeholder="Description" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" rows={3} />
+    <div className="mt-6 min-w-0">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <p className="font-display text-lg font-bold">Workshops</p>
+        <button onClick={openAdd} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium shrink-0">
+          + Add Workshop
+        </button>
+      </div>
 
-        {/* Image upload */}
-        <div
-          onClick={() => fileRef.current?.click()}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => { e.preventDefault(); const f0 = e.dataTransfer.files?.[0]; if (f0) handleFile(f0); }}
-          className="flex items-center gap-3 rounded-lg border border-dashed border-border bg-muted/40 p-2 cursor-pointer"
-        >
-          <div className="h-14 w-20 rounded bg-muted overflow-hidden flex items-center justify-center shrink-0">
-            {f.banner_preview ? <img src={f.banner_preview} alt="" className="h-full w-full object-cover" /> : <ImageUp size={18} className="text-muted-foreground" />}
-          </div>
-          <div className="flex-1 text-xs">
-            <p className="font-medium">{uploading ? "Uploading…" : f.banner_preview ? "Replace image" : "Upload workshop image"}</p>
-            <p className="text-muted-foreground">JPG, PNG, WebP · up to 8 MB</p>
-          </div>
-          {f.banner_preview && (
-            <button type="button" onClick={(e) => { e.stopPropagation(); setF({ ...f, banner_path: "", banner_url: "", banner_preview: "" }); }}
-              className="p-1 rounded bg-background border border-border"><X size={12} /></button>
-          )}
-          <input ref={fileRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
-            onChange={(e) => { const f0 = e.target.files?.[0]; if (f0) handleFile(f0); e.currentTarget.value = ""; }} />
-        </div>
+      <Dialog open={open} onOpenChange={(v) => (v ? setOpen(true) : closeDialog())}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{f.id ? "Edit Workshop" : "Add Workshop"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={save} className="space-y-3 min-w-0">
+            <In placeholder="Workshop name *" v={f.name} on={(v) => setF({ ...f, name: v })} required />
+            <textarea placeholder="Description" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
+              className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" rows={3} />
 
-        <div className="grid grid-cols-2 gap-2">
-          <In type="date" placeholder="Event date" v={f.event_date} on={(v) => setF({ ...f, event_date: v })} />
-          <In type="time" placeholder="Time" v={f.event_time} on={(v) => setF({ ...f, event_time: v })} />
-          <In placeholder="Venue" v={f.venue} on={(v) => setF({ ...f, venue: v })} />
-          <In placeholder="Instructor" v={f.instructor} on={(v) => setF({ ...f, instructor: v })} />
-          <In placeholder="Duration (e.g. 2 hrs)" v={f.duration} on={(v) => setF({ ...f, duration: v })} />
-          <In placeholder="Category (e.g. Hip-Hop)" v={f.category} on={(v) => setF({ ...f, category: v })} />
-          <In type="number" placeholder="Capacity" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
-          <In type="number" placeholder="Fee (₹) *" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
-          <In type="date" placeholder="Registration opens" v={f.registration_open_on} on={(v) => setF({ ...f, registration_open_on: v })} />
-          <In type="date" placeholder="Registration closes" v={f.registration_closes_on} on={(v) => setF({ ...f, registration_closes_on: v })} />
-          <select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}
-            className="px-3 py-2 rounded-lg bg-muted border border-border text-sm col-span-2">
-            <option value="workshop">Workshop</option>
-            <option value="nritya_sadhana">Nritya Sadhana</option>
-            <option value="zero_to_hero">Zero to Hero</option>
-            <option value="online_training">Online Training</option>
-          </select>
-        </div>
+            <div
+              onClick={() => fileRef.current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => { e.preventDefault(); const f0 = e.dataTransfer.files?.[0]; if (f0) handleFile(f0); }}
+              className="flex items-center gap-3 rounded-lg border border-dashed border-border bg-muted/40 p-2 cursor-pointer"
+            >
+              <div className="h-14 w-20 rounded bg-muted overflow-hidden flex items-center justify-center shrink-0">
+                {f.banner_preview ? <img src={f.banner_preview} alt="" className="h-full w-full object-cover" /> : <ImageUp size={18} className="text-muted-foreground" />}
+              </div>
+              <div className="flex-1 text-xs">
+                <p className="font-medium">{uploading ? "Uploading…" : f.banner_preview ? "Replace image" : "Upload workshop image"}</p>
+                <p className="text-muted-foreground">JPG, PNG, WebP · up to 8 MB</p>
+              </div>
+              {f.banner_preview && (
+                <button type="button" onClick={(e) => { e.stopPropagation(); setF({ ...f, banner_path: "", banner_url: "", banner_preview: "" }); }}
+                  className="p-1 rounded bg-background border border-border"><X size={12} /></button>
+              )}
+              <input ref={fileRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                onChange={(e) => { const f0 = e.target.files?.[0]; if (f0) handleFile(f0); e.currentTarget.value = ""; }} />
+            </div>
 
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={!!f.silver_seat_enabled} onChange={(e) => setF({ ...f, silver_seat_enabled: e.target.checked })} />
-          Enable Silver Seat (+₹1,000 option at registration)
-        </label>
+            <div className="grid grid-cols-2 gap-2">
+              <In type="date" placeholder="Event date" v={f.event_date} on={(v) => setF({ ...f, event_date: v })} />
+              <In type="time" placeholder="Time" v={f.event_time} on={(v) => setF({ ...f, event_time: v })} />
+              <In placeholder="Venue" v={f.venue} on={(v) => setF({ ...f, venue: v })} />
+              <In placeholder="Instructor" v={f.instructor} on={(v) => setF({ ...f, instructor: v })} />
+              <In placeholder="Duration (e.g. 2 hrs)" v={f.duration} on={(v) => setF({ ...f, duration: v })} />
+              <In placeholder="Category (e.g. Hip-Hop)" v={f.category} on={(v) => setF({ ...f, category: v })} />
+              <In type="number" placeholder="Capacity" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
+              <In type="number" placeholder="Fee (₹) *" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
+              <In type="date" placeholder="Registration opens" v={f.registration_open_on} on={(v) => setF({ ...f, registration_open_on: v })} />
+              <In type="date" placeholder="Registration closes" v={f.registration_closes_on} on={(v) => setF({ ...f, registration_closes_on: v })} />
+              <select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}
+                className="px-3 py-2 rounded-lg bg-muted border border-border text-sm col-span-2">
+                <option value="workshop">Workshop</option>
+                <option value="nritya_sadhana">Nritya Sadhana</option>
+                <option value="zero_to_hero">Zero to Hero</option>
+                <option value="online_training">Online Training</option>
+              </select>
+            </div>
 
-        <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
-          <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "UPI ID (e.g. tejas@upi)"}
-            v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
-          <p className="text-[11px] text-muted-foreground">Stored encrypted at rest. Shown only on the payment page.</p>
-          {f.has_upi && (
-            <label className="flex items-center gap-2 text-xs">
-              <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
-              Remove saved UPI and fall back to default
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={!!f.silver_seat_enabled} onChange={(e) => setF({ ...f, silver_seat_enabled: e.target.checked })} />
+              Enable Silver Seat (+₹1,000 option at registration)
             </label>
-          )}
-        </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} />
-          Publish (visible to customers)
-        </label>
-        <div className="flex gap-2">
-          <button type="submit" disabled={busy || uploading} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-60">
-            {busy ? "Saving…" : f.id ? "Update" : "Save"}
-          </button>
-          {f.id && <button type="button" onClick={() => setF(emptyWs())} className="px-4 py-2 rounded-lg bg-muted text-sm">Cancel</button>}
-        </div>
-      </form>
-      </details>
+
+            <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
+              <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "UPI ID (e.g. tejas@upi)"}
+                v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
+              <p className="text-[11px] text-muted-foreground">Stored encrypted at rest. Shown only on the payment page.</p>
+              {f.has_upi && (
+                <label className="flex items-center gap-2 text-xs">
+                  <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
+                  Remove saved UPI and fall back to default
+                </label>
+              )}
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} />
+              Publish (visible to customers)
+            </label>
+            <div className="flex gap-2 justify-end pt-3 border-t border-border">
+              <button type="button" onClick={closeDialog} className="px-4 py-2 rounded-lg bg-muted text-sm">Cancel</button>
+              <button type="submit" disabled={busy || uploading} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-60">
+                {busy ? "Saving…" : f.id ? "Update Workshop" : "Create Workshop"}
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <div className="space-y-3">
         {rows.map((r: any) => (
