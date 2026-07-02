@@ -102,44 +102,59 @@ function Dashboard() {
 
                       <div className="mt-5 w-full max-w-sm space-y-3">
                         <label className="block">
-                          <span className="text-xs uppercase tracking-wider text-muted-foreground">Your UPI ID (payer VPA)</span>
-                          <input value={payUpi} onChange={(e) => setPayUpi(e.target.value.trim())}
-                            placeholder="yourname@okhdfcbank"
-                            className="mt-1 w-full px-3 py-2 rounded-lg bg-background border border-border text-sm" />
-                        </label>
-                        <label className="block">
-                          <span className="text-xs uppercase tracking-wider text-muted-foreground">12-digit UPI reference (UTR)</span>
-                          <input value={utr} onChange={(e) => setUtr(e.target.value.replace(/\D/g, "").slice(0, 12))}
-                            inputMode="numeric" placeholder="e.g. 412834561290"
-                            className="mt-1 w-full px-3 py-2 rounded-lg bg-background border border-border text-sm font-mono tracking-widest" />
+                          <span className="text-xs uppercase tracking-wider text-muted-foreground">Upload your payment screenshot</span>
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0] ?? null;
+                              setPayErr("");
+                              if (f && !f.type.startsWith("image/")) {
+                                setPayErr("Only image files are allowed."); return;
+                              }
+                              if (f && f.size > 8 * 1024 * 1024) {
+                                setPayErr("Screenshot must be under 8 MB."); return;
+                              }
+                              setFile(f);
+                              setPreview(f ? URL.createObjectURL(f) : "");
+                            }}
+                            className="mt-1 w-full text-xs file:mr-3 file:px-3 file:py-2 file:rounded-md file:border-0 file:bg-primary file:text-primary-foreground file:text-xs file:font-medium"
+                          />
                           <span className="mt-1 block text-[11px] text-muted-foreground">
-                            Find it in your UPI app under the payment receipt as "UPI transaction ID" / "UTR".
+                            Upload the success receipt from your UPI app (GPay, PhonePe, Paytm, BHIM, bank app). We auto-verify it.
                           </span>
                         </label>
+                        {preview && (
+                          <img src={preview} alt="Payment proof preview" className="max-h-56 rounded-md border border-border mx-auto" />
+                        )}
                         {payErr && <p className="text-xs text-destructive">{payErr}</p>}
                         <button
-                          disabled={paying}
+                          disabled={paying || !file}
                           onClick={async () => {
-                            setPayErr("");
-                            if (!/^[a-zA-Z0-9._-]{2,64}@[a-zA-Z]{2,32}$/.test(payUpi)) {
-                              setPayErr("Enter a valid UPI ID like name@bank"); return;
-                            }
-                            if (!/^[0-9]{12}$/.test(utr)) {
-                              setPayErr("UTR must be exactly 12 digits from your UPI receipt"); return;
-                            }
-                            setPaying(true);
+                            if (!file) return;
+                            setPayErr(""); setPaying(true);
                             try {
-                              await submitPay({ data: { enrollmentId: r.id, payerUpiId: payUpi, utr } });
-                              setPayUpi(""); setUtr(""); setOpen(null);
+                              const { data: userData } = await supabase.auth.getUser();
+                              const uid = userData.user?.id;
+                              if (!uid) throw new Error("Please sign in again.");
+                              const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+                              const path = `${uid}/${r.id}-${Date.now()}.${ext || "jpg"}`;
+                              const up = await supabase.storage.from("payment-proofs").upload(path, file, {
+                                contentType: file.type, upsert: false,
+                              });
+                              if (up.error) throw up.error;
+                              await submitPay({ data: { enrollmentId: r.id, proofPath: path } });
+                              setFile(null); setPreview(""); setOpen(null);
                               await reload();
                             } catch (e: any) {
                               setPayErr(e?.message ?? "Verification failed");
                             } finally { setPaying(false); }
                           }}
                           className="w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60">
-                          {paying ? "Verifying payment…" : "Verify & generate ticket"}
+                          {paying ? "Verifying payment…" : "I've completed the payment"}
                         </button>
                       </div>
+
                     </div>
                   )}
                 </div>
