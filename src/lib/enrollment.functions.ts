@@ -222,15 +222,22 @@ export const approveEnrollment = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.approve) {
-      const ticket = "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+      const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+      let ticket = genCode();
+      for (let i = 0; i < 5; i++) {
+        const { data: dup } = await supabaseAdmin
+          .from("enrollments").select("id").eq("ticket_code", ticket).maybeSingle();
+        if (!dup) break;
+        ticket = genCode();
+      }
+      const now = new Date().toISOString();
       const { data: enr, error } = await supabaseAdmin.from("enrollments").update({
         status: "confirmed", ticket_code: ticket,
-        approved_by: context.userId, approved_at: new Date().toISOString(),
+        approved_by: context.userId, approved_at: now,
+        ticket_generated_at: now,
       }).eq("id", data.enrollmentId).select("program_id").single();
       if (error) throw error;
       if (enr?.program_id) {
-        await supabaseAdmin.rpc as any;
-        // increment seats_taken
         const { data: p } = await supabaseAdmin.from("programs").select("seats_taken").eq("id", enr.program_id).single();
         await supabaseAdmin.from("programs").update({ seats_taken: (p?.seats_taken ?? 0) + 1 }).eq("id", enr.program_id);
       }
@@ -241,6 +248,18 @@ export const approveEnrollment = createServerFn({ method: "POST" })
       if (error) throw error;
     }
     return { ok: true };
+  });
+
+export const adminGetProofUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ path: z.string().min(3).max(300) }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: signed, error } = await supabaseAdmin
+      .storage.from("payment-proofs").createSignedUrl(data.path, 300);
+    if (error) throw error;
+    return { url: signed.signedUrl };
   });
 
 const workshopSchema = z.object({
