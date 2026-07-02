@@ -50,6 +50,7 @@ export type Database = {
           payment_proof_path: string | null
           phone: string | null
           program_id: string
+          silver_seat: boolean
           sms_error: string | null
           sms_message_id: string | null
           sms_sent_at: string | null
@@ -85,6 +86,7 @@ export type Database = {
           payment_proof_path?: string | null
           phone?: string | null
           program_id: string
+          silver_seat?: boolean
           sms_error?: string | null
           sms_message_id?: string | null
           sms_sent_at?: string | null
@@ -120,6 +122,7 @@ export type Database = {
           payment_proof_path?: string | null
           phone?: string | null
           program_id?: string
+          silver_seat?: boolean
           sms_error?: string | null
           sms_message_id?: string | null
           sms_sent_at?: string | null
@@ -218,6 +221,7 @@ export type Database = {
       programs: {
         Row: {
           active: boolean
+          banner_path: string | null
           banner_url: string | null
           capacity: number | null
           category: string | null
@@ -233,8 +237,10 @@ export type Database = {
           price_inr: number
           published: boolean
           registration_closes_on: string | null
+          registration_open_on: string | null
           seats: number | null
           seats_taken: number
+          silver_seat_enabled: boolean
           starts_on: string | null
           style: string | null
           upi_id_encrypted: string | null
@@ -242,6 +248,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          banner_path?: string | null
           banner_url?: string | null
           capacity?: number | null
           category?: string | null
@@ -257,8 +264,10 @@ export type Database = {
           price_inr: number
           published?: boolean
           registration_closes_on?: string | null
+          registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
+          silver_seat_enabled?: boolean
           starts_on?: string | null
           style?: string | null
           upi_id_encrypted?: string | null
@@ -266,6 +275,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          banner_path?: string | null
           banner_url?: string | null
           capacity?: number | null
           category?: string | null
@@ -281,8 +291,10 @@ export type Database = {
           price_inr?: number
           published?: boolean
           registration_closes_on?: string | null
+          registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
+          silver_seat_enabled?: boolean
           starts_on?: string | null
           style?: string | null
           upi_id_encrypted?: string | null
@@ -402,6 +414,7 @@ export type Database = {
     Views: {
       programs_public: {
         Row: {
+          banner_path: string | null
           banner_url: string | null
           capacity: number | null
           category: string | null
@@ -417,11 +430,14 @@ export type Database = {
           price_inr: number | null
           published: boolean | null
           registration_closes_on: string | null
+          registration_open_on: string | null
           seats_taken: number | null
+          silver_seat_enabled: boolean | null
           style: string | null
           venue: string | null
         }
         Insert: {
+          banner_path?: string | null
           banner_url?: string | null
           capacity?: number | null
           category?: string | null
@@ -437,11 +453,14 @@ export type Database = {
           price_inr?: number | null
           published?: boolean | null
           registration_closes_on?: string | null
+          registration_open_on?: string | null
           seats_taken?: number | null
+          silver_seat_enabled?: boolean | null
           style?: string | null
           venue?: string | null
         }
         Update: {
+          banner_path?: string | null
           banner_url?: string | null
           capacity?: number | null
           category?: string | null
@@ -457,7 +476,9 @@ export type Database = {
           price_inr?: number | null
           published?: boolean | null
           registration_closes_on?: string | null
+          registration_open_on?: string | null
           seats_taken?: number | null
+          silver_seat_enabled?: boolean | null
           style?: string | null
           venue?: string | null
         }
