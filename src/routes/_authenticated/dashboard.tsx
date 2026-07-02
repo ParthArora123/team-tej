@@ -2,9 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
-import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Upload } from "lucide-react";
+import { Check, Clock, X as XIcon, Ticket, LogOut, Shield } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { listMyEnrollments, markPaymentSubmitted, checkIsAdmin } from "@/lib/enrollment.functions";
+import { listMyEnrollments, checkIsAdmin } from "@/lib/enrollment.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({ component: Dashboard });
