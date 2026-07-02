@@ -55,7 +55,12 @@ function WorkshopsPage() {
                 </div>
 
                 <div className="mt-5 flex items-end justify-between">
-                  <p className="font-display text-2xl">₹{r.price_inr.toLocaleString("en-IN")}</p>
+                  <div>
+                    <p className="font-display text-2xl">₹{r.price_inr.toLocaleString("en-IN")}</p>
+                    {r.silver_seat_enabled && (
+                      <p className="text-[11px] text-primary mt-0.5">+ ₹1,000 for Silver Seat</p>
+                    )}
+                  </div>
                   <button
                     disabled={full}
                     onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled })}
