@@ -288,6 +288,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           {f.id && <button type="button" onClick={() => setF(emptyWs())} className="px-4 py-2 rounded-lg bg-muted text-sm">Cancel</button>}
         </div>
       </form>
+      </details>
 
       <div className="space-y-3">
         {rows.map((r: any) => (
