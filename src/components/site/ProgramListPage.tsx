@@ -33,7 +33,12 @@ export function ProgramListPage({ kind, eyebrow, title, blurb }: {
             <p className="text-xs text-muted-foreground mt-1">{r.duration}</p>
             <p className="mt-3 text-sm text-muted-foreground">{r.description}</p>
             <div className="mt-5 flex items-end justify-between">
-              <p className="font-display text-2xl">₹{r.price_inr.toLocaleString("en-IN")}</p>
+              <div>
+                <p className="font-display text-2xl">₹{r.price_inr.toLocaleString("en-IN")}</p>
+                {r.silver_seat_enabled && (
+                  <p className="text-[11px] text-primary mt-0.5">+ ₹1,000 for Silver Seat</p>
+                )}
+              </div>
               <button onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled })}
                 className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">Enroll</button>
             </div>
