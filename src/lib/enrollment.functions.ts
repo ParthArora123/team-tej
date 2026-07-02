@@ -14,6 +14,7 @@ const detailsSchema = z.object({
   state: z.string().min(1).max(80),
   emergencyContact: z.string().min(5).max(60),
   medicalInfo: z.string().max(500).optional().nullable(),
+  silverSeat: z.boolean().optional(),
 });
 
 export const createEnrollment = createServerFn({ method: "POST" })
@@ -32,16 +33,19 @@ export const createEnrollment = createServerFn({ method: "POST" })
       throw new Error("Sorry, this workshop is full.");
     }
 
+    const wantSilver = !!data.silverSeat && !!(program as any).silver_seat_enabled;
     const { data: enr, error } = await supabase.from("enrollments").insert({
       user_id: userId, program_id: program.id, amount_inr: program.price_inr,
       status: "awaiting_payment",
       full_name: data.fullName, email: data.email, phone: data.phone, age: data.age,
       gender: data.gender, address: data.address, city: data.city, state: data.state,
       emergency_contact: data.emergencyContact, medical_info: data.medicalInfo ?? null,
-    }).select("*").single();
+      silver_seat: wantSilver,
+    } as any).select("*").single();
     if (error) throw error;
     return enr;
   });
+
 
 // After a student uploads a payment screenshot to the `payment-proofs` storage
 // bucket, this validates the image with the Lovable AI vision model to make
