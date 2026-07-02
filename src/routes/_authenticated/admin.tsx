@@ -119,6 +119,7 @@ const emptyWs = {
   event_date: "", event_time: "", venue: "", instructor: "",
   duration: "", capacity: "", price_inr: "", registration_closes_on: "",
   category: "", style: "", published: false,
+  upi_id: "", clear_upi: false, has_upi: false,
 };
 
 function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
