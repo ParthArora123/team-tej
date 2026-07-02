@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({ component: Dashboard });
 
-const UPI_ID = "teamtej@upi";
+const DEFAULT_UPI_ID = "teamtej@upi";
 
 function StatusPill({ s }: { s: string }) {
   const map: Record<string, { label: string; cls: string; Icon: any }> = {
