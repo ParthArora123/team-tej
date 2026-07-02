@@ -7,19 +7,25 @@ import {
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
   adminListTeam, adminSetUserAdmin, adminAddTeamByEmail,
 } from "@/lib/enrollment.functions";
+import {
+  adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
+  adminSetTeamProfilePublished, adminReorderTeamProfile, adminUploadTeamPhoto,
+} from "@/lib/team.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "approvals" | "students" | "team" | "scan";
+type Tab = "overview" | "workshops" | "profiles" | "approvals" | "students" | "team" | "scan";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
   { id: "team", label: "Team roles", emphasis: true },
+  { id: "profiles", label: "Home profiles", emphasis: true },
   { id: "workshops", label: "Workshops" },
   { id: "approvals", label: "Approvals" },
   { id: "students", label: "Students" },
   { id: "scan", label: "Scan" },
 ];
+
 
 function AdminPage() {
   const navigate = useNavigate();
