@@ -128,10 +128,13 @@ function AdminPage() {
 
       {tab === "team" && <TeamTab />}
 
+      {tab === "profiles" && <ProfilesTab />}
+
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
   );
 }
+
 
 function StatCard({ label, value, accent }: { label: string; value: any; accent?: boolean }) {
   return (
