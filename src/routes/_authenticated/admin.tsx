@@ -411,38 +411,44 @@ function ScanTab({ onScan }: { onScan: any }) {
 function TeamTab() {
   const list = useServerFn(adminListTeam);
   const setRole = useServerFn(adminSetUserAdmin);
+  const addByEmail = useServerFn(adminAddTeamByEmail);
   const [rows, setRows] = useState<any[]>([]);
   const [me, setMe] = useState<string>("");
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState<string>("");
   const [err, setErr] = useState("");
+  const [msg, setMsg] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
 
   const load = async () => {
     setErr("");
     setLoading(true);
     try {
-      const [team] = await Promise.all([list()]);
+      const team = await list();
       setRows(team);
     } catch (e: any) { setErr(e.message); }
     finally { setLoading(false); }
   };
   useEffect(() => { load(); }, []);
   useEffect(() => {
-    // Track self so we can disable the toggle on our own row
     import("@/integrations/supabase/client").then(({ supabase }) =>
       supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? ""))
     );
   }, []);
 
-  const filtered = rows.filter((r) => {
+  // Team = admin users only. Toggle to show every signed-up user when granting new admin.
+  const scoped = showAll ? rows : rows.filter((r) => r.is_admin);
+  const filtered = scoped.filter((r) => {
     if (!q.trim()) return true;
     const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""}`.toLowerCase();
     return hay.includes(q.trim().toLowerCase());
   });
 
   const toggle = async (r: any) => {
-    setErr(""); setBusy(r.id);
+    setErr(""); setMsg(""); setBusy(r.id);
     try {
       await setRole({ data: { userId: r.id, makeAdmin: !r.is_admin } });
       await load();
@@ -450,17 +456,56 @@ function TeamTab() {
     finally { setBusy(""); }
   };
 
+  const invite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr(""); setMsg(""); setInviting(true);
+    try {
+      await addByEmail({ data: { email: inviteEmail } });
+      setMsg(`${inviteEmail} is now an admin.`);
+      setInviteEmail("");
+      await load();
+    } catch (e: any) { setErr(e.message); }
+    finally { setInviting(false); }
+  };
+
+  const adminCount = rows.filter((r) => r.is_admin).length;
+
   return (
-    <div className="mt-8">
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone…"
+    <div className="mt-8 space-y-6">
+      <form onSubmit={invite} className="rounded-xl border border-border bg-card p-4">
+        <label className="block text-sm font-medium mb-2">Add team member by email</label>
+        <div className="flex flex-wrap gap-2">
+          <input
+            type="email" required value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+            placeholder="teammate@example.com"
+            className="flex-1 min-w-[240px] px-3 py-2 rounded-lg bg-muted border border-border text-sm"
+          />
+          <button type="submit" disabled={inviting}
+            className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
+            {inviting ? "Adding…" : "Grant admin"}
+          </button>
+        </div>
+        <p className="text-[11px] text-muted-foreground mt-2">
+          The person must sign in once before you can grant them admin.
+        </p>
+      </form>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search team…"
           className="flex-1 min-w-[240px] px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
+        <button type="button" onClick={() => setShowAll((v) => !v)}
+          className="px-3 py-2 rounded-lg border border-border text-xs">
+          {showAll ? "Show team only" : "Show all users"}
+        </button>
         <p className="text-xs text-muted-foreground">
-          {rows.filter((r) => r.is_admin).length} admin · {rows.length} total
+          {adminCount} team · {rows.length} signed-up
         </p>
       </div>
-      {err && <p className="text-xs text-destructive mb-3">{err}</p>}
-      {loading && <p className="text-sm text-muted-foreground mb-3">Loading team members…</p>}
+
+      {err && <p className="text-xs text-destructive">{err}</p>}
+      {msg && <p className="text-xs text-primary">{msg}</p>}
+      {loading && <p className="text-sm text-muted-foreground">Loading team…</p>}
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-sm">
@@ -502,14 +547,17 @@ function TeamTab() {
               );
             })}
             {filtered.length === 0 && (
-              <tr><td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">No team members match.</td></tr>
+              <tr><td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">
+                {showAll ? "No users match." : "No team members yet. Add one by email above."}
+              </td></tr>
             )}
           </tbody>
         </table>
       </div>
-      <p className="text-[11px] text-muted-foreground mt-2">
-        Only signed-up users appear here. Ask a teammate to sign in once, then grant them admin.
+      <p className="text-[11px] text-muted-foreground">
+        Registered students appear in the Students tab — not here.
       </p>
     </div>
   );
 }
+
