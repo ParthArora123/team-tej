@@ -14,11 +14,10 @@ import {
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "approvals" | "profiles" | "students" | "team" | "scan";
+type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
-  { id: "approvals", label: "Payment approvals", emphasis: true },
   { id: "team", label: "Team roles" },
   { id: "profiles", label: "Home profiles" },
   { id: "workshops", label: "Workshops" },
