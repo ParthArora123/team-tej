@@ -68,10 +68,8 @@ function Dashboard() {
         {rows.map((r) => {
           const upiId = r.program?.upi_id || DEFAULT_UPI_ID;
           const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("Team Tej")}&am=${r.amount_inr}&cu=INR&tn=${encodeURIComponent(r.program?.name ?? "Enrollment")}`;
-          const verifyUrl = typeof window !== "undefined"
-            ? `${window.location.origin}/verify?d=${btoa(unescape(encodeURIComponent(JSON.stringify({
-                id: r.ticket_code, class: r.program?.name, amount: r.amount_inr, status: r.status,
-              })))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}`
+          const verifyUrl = typeof window !== "undefined" && r.ticket_code
+            ? `${window.location.origin}/verify?code=${encodeURIComponent(r.ticket_code)}`
             : "";
           return (
             <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
