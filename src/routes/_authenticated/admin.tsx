@@ -5,7 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
-  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail,
+  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment,
 } from "@/lib/enrollment.functions";
 import {
   adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
@@ -14,23 +14,25 @@ import {
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan";
+type Tab = "overview" | "workshops" | "approvals" | "profiles" | "students" | "team" | "scan";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
-  { id: "team", label: "Team roles", emphasis: true },
-  { id: "profiles", label: "Home profiles", emphasis: true },
+  { id: "approvals", label: "Payment approvals", emphasis: true },
+  { id: "team", label: "Team roles" },
+  { id: "profiles", label: "Home profiles" },
   { id: "workshops", label: "Workshops" },
   { id: "students", label: "Students" },
   { id: "scan", label: "Scan" },
 ];
 
 
+
 function AdminPage() {
   const navigate = useNavigate();
   const fetchStats = useServerFn(adminStats);
   const fetchAll = useServerFn(listAllEnrollments);
-  // Payments now auto-confirm — no manual approve step.
+  const approve = useServerFn(approveEnrollment);
   const fetchWorkshops = useServerFn(adminListWorkshops);
   const saveWorkshop = useServerFn(adminSaveWorkshop);
   const setPublished = useServerFn(adminSetPublished);
@@ -90,7 +92,7 @@ function AdminPage() {
         <WorkshopsTab rows={workshops} onSave={saveWorkshop} onDel={delWorkshop} onPub={setPublished} reload={reload} />
       )}
 
-      {/* Approvals tab removed — payments auto-confirm and tickets issue instantly. */}
+      {tab === "approvals" && <ApprovalsTab rows={enrs} onApprove={approve} reload={reload} />}
 
 
       {tab === "students" && <StudentsTab rows={enrs} />}
@@ -742,3 +744,53 @@ function ProfilesTab() {
   );
 }
 
+
+function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any; reload: () => void }) {
+  const pending = rows.filter((r) => r.status === "payment_submitted");
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const act = async (id: string, approve: boolean) => {
+    setBusy(id);
+    try {
+      await onApprove({ data: { enrollmentId: id, approve } });
+      await reload();
+    } catch (e: any) {
+      alert(e.message ?? "Failed");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  return (
+    <div className="mt-8 space-y-3">
+      <p className="text-sm text-muted-foreground">
+        Verify the payment in your UPI app, then approve — this issues the ticket and increments seats.
+      </p>
+      {pending.length === 0 && (
+        <div className="bg-card border border-border rounded-2xl p-8 text-center text-sm text-muted-foreground">
+          No payments awaiting verification.
+        </div>
+      )}
+      {pending.map((r) => (
+        <div key={r.id} className="bg-card border border-border rounded-2xl p-5 flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="font-display text-lg font-semibold">{r.full_name ?? "—"}</p>
+            <p className="text-xs text-muted-foreground">{r.email} · {r.phone}</p>
+            <p className="text-sm mt-2">{r.program?.name ?? "Workshop"} · ₹{(r.amount_inr ?? 0).toLocaleString("en-IN")}</p>
+            <p className="text-[11px] text-muted-foreground mt-1">Submitted {r.payment_confirmed_at ? new Date(r.payment_confirmed_at).toLocaleString() : "—"}</p>
+          </div>
+          <div className="flex gap-2">
+            <button disabled={busy === r.id} onClick={() => act(r.id, true)}
+              className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-50">
+              Approve & issue ticket
+            </button>
+            <button disabled={busy === r.id} onClick={() => act(r.id, false)}
+              className="px-4 py-2 rounded-lg bg-destructive text-white text-sm font-medium disabled:opacity-50">
+              Reject
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
