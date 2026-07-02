@@ -58,7 +58,7 @@ function WorkshopsPage() {
                   <p className="font-display text-2xl">₹{r.price_inr.toLocaleString("en-IN")}</p>
                   <button
                     disabled={full}
-                    onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "" })}
+                    onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled })}
                     className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50">
                     {full ? "Full" : "Register"}
                   </button>
