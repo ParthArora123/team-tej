@@ -98,14 +98,52 @@ function Dashboard() {
                       <div className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} /></div>
                       <p className="mt-3 text-xs text-muted-foreground">Scan with any UPI app</p>
                       <p className="text-sm font-mono select-all text-foreground">{upiId}</p>
-                      <button onClick={async () => { await submitPay({ data: { enrollmentId: r.id } }); reload(); }}
-                        className="mt-4 px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium">
-                        I've completed the payment
-                      </button>
+
+                      <div className="mt-5 w-full max-w-sm space-y-3">
+                        <label className="block">
+                          <span className="text-xs uppercase tracking-wider text-muted-foreground">Your UPI ID (payer VPA)</span>
+                          <input value={payUpi} onChange={(e) => setPayUpi(e.target.value.trim())}
+                            placeholder="yourname@okhdfcbank"
+                            className="mt-1 w-full px-3 py-2 rounded-lg bg-background border border-border text-sm" />
+                        </label>
+                        <label className="block">
+                          <span className="text-xs uppercase tracking-wider text-muted-foreground">12-digit UPI reference (UTR)</span>
+                          <input value={utr} onChange={(e) => setUtr(e.target.value.replace(/\D/g, "").slice(0, 12))}
+                            inputMode="numeric" placeholder="e.g. 412834561290"
+                            className="mt-1 w-full px-3 py-2 rounded-lg bg-background border border-border text-sm font-mono tracking-widest" />
+                          <span className="mt-1 block text-[11px] text-muted-foreground">
+                            Find it in your UPI app under the payment receipt as "UPI transaction ID" / "UTR".
+                          </span>
+                        </label>
+                        {payErr && <p className="text-xs text-destructive">{payErr}</p>}
+                        <button
+                          disabled={paying}
+                          onClick={async () => {
+                            setPayErr("");
+                            if (!/^[a-zA-Z0-9._-]{2,64}@[a-zA-Z]{2,32}$/.test(payUpi)) {
+                              setPayErr("Enter a valid UPI ID like name@bank"); return;
+                            }
+                            if (!/^[0-9]{12}$/.test(utr)) {
+                              setPayErr("UTR must be exactly 12 digits from your UPI receipt"); return;
+                            }
+                            setPaying(true);
+                            try {
+                              await submitPay({ data: { enrollmentId: r.id, payerUpiId: payUpi, utr } });
+                              setPayUpi(""); setUtr(""); setOpen(null);
+                              await reload();
+                            } catch (e: any) {
+                              setPayErr(e?.message ?? "Verification failed");
+                            } finally { setPaying(false); }
+                          }}
+                          className="w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60">
+                          {paying ? "Verifying payment…" : "Verify & generate ticket"}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
               )}
+
 
               {r.status === "payment_submitted" && (
                 <p className="mt-4 text-sm text-muted-foreground">
