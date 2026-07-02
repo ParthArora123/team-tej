@@ -5,7 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
-  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail,
+  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment,
 } from "@/lib/enrollment.functions";
 import {
   adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
@@ -14,16 +14,18 @@ import {
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan";
+type Tab = "overview" | "workshops" | "approvals" | "profiles" | "students" | "team" | "scan";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
-  { id: "team", label: "Team roles", emphasis: true },
-  { id: "profiles", label: "Home profiles", emphasis: true },
+  { id: "approvals", label: "Payment approvals", emphasis: true },
+  { id: "team", label: "Team roles" },
+  { id: "profiles", label: "Home profiles" },
   { id: "workshops", label: "Workshops" },
   { id: "students", label: "Students" },
   { id: "scan", label: "Scan" },
 ];
+
 
 
 function AdminPage() {
