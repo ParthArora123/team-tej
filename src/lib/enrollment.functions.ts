@@ -312,7 +312,6 @@ export const adminSetUserAdmin = createServerFn({ method: "POST" })
     if (data.makeAdmin) {
       const { error } = await supabaseAdmin.from("user_roles")
         .insert({ user_id: data.userId, role: "admin" as any });
-      // ignore duplicate; propagate other errors
       if (error && !String(error.message).toLowerCase().includes("duplicate")) throw error;
     } else {
       const { error } = await supabaseAdmin.from("user_roles")
@@ -321,3 +320,21 @@ export const adminSetUserAdmin = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+export const adminAddTeamByEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ email: z.string().email() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const email = data.email.trim().toLowerCase();
+    const { data: prof, error: pErr } = await supabaseAdmin
+      .from("profiles").select("id, email").ilike("email", email).maybeSingle();
+    if (pErr) throw pErr;
+    if (!prof) throw new Error("No signed-up user with that email. Ask them to sign in once, then try again.");
+    const { error } = await supabaseAdmin.from("user_roles")
+      .insert({ user_id: prof.id, role: "admin" as any });
+    if (error && !String(error.message).toLowerCase().includes("duplicate")) throw error;
+    return { ok: true, userId: prof.id };
+  });
+
