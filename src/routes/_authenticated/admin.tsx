@@ -5,7 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   listAllEnrollments, approveEnrollment, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
-  adminListTeam, adminSetUserAdmin,
+  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail,
 } from "@/lib/enrollment.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
