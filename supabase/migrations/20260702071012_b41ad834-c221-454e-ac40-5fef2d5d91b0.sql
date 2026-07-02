@@ -1,0 +1,1 @@
+REVOKE SELECT (upi_id_encrypted) ON public.programs FROM anon, authenticated;
