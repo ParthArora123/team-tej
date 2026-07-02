@@ -30,9 +30,14 @@ function Dashboard() {
   const [rows, setRows] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
+  const [payUpi, setPayUpi] = useState("");
+  const [utr, setUtr] = useState("");
+  const [payErr, setPayErr] = useState("");
+  const [paying, setPaying] = useState(false);
 
   const reload = async () => setRows(await fetchEnrollments());
   useEffect(() => { reload(); adminCheck().then((r) => setIsAdmin(r.isAdmin)); }, []);
+
 
   const signOut = async () => { await supabase.auth.signOut(); navigate({ to: "/" }); };
 
