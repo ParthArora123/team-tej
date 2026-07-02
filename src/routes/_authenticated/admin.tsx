@@ -99,6 +99,8 @@ function AdminPage() {
         </div>
       )}
 
+      {tab === "students" && <StudentsTab rows={enrs} />}
+
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
   );
