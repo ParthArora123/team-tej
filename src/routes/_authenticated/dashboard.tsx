@@ -101,34 +101,37 @@ function Dashboard() {
                       <p className="text-sm font-mono select-all text-foreground">{upiId}</p>
 
                       <div className="mt-5 w-full max-w-sm space-y-3">
-                        <label className="block">
+                        <div className="block">
                           <span className="text-xs uppercase tracking-wider text-muted-foreground">Upload your payment screenshot</span>
-                          <input
-                            type="file"
-                            accept="image/png,image/jpeg,image/webp"
-                            onChange={(e) => {
-                              const f = e.target.files?.[0] ?? null;
-                              setPayErr("");
-                              if (f && !f.type.startsWith("image/")) {
-                                setPayErr("Only image files are allowed."); return;
-                              }
-                              if (f && f.size > 8 * 1024 * 1024) {
-                                setPayErr("Screenshot must be under 8 MB."); return;
-                              }
-                              setFile(f);
-                              setPreview(f ? URL.createObjectURL(f) : "");
-                            }}
-                            id={`payment-proof-${r.id}`}
-                            className="sr-only"
-                          />
-                          <span className="mt-2 flex items-center justify-center gap-2 rounded-lg border border-dashed border-primary/50 bg-primary/10 px-4 py-4 text-sm font-medium text-primary cursor-pointer active:scale-[0.99]">
+                          <label
+                            htmlFor={`payment-proof-${r.id}`}
+                            className="mt-2 relative flex items-center justify-center gap-2 rounded-lg border border-dashed border-primary/50 bg-primary/10 px-4 py-4 text-sm font-medium text-primary cursor-pointer active:scale-[0.99] overflow-hidden"
+                          >
                             <Upload size={16} /> {file ? "Change payment screenshot" : "Choose payment screenshot"}
-                          </span>
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/webp"
+                              onChange={(e) => {
+                                const f = e.target.files?.[0] ?? null;
+                                setPayErr("");
+                                if (f && !f.type.startsWith("image/")) {
+                                  setPayErr("Only image files are allowed."); return;
+                                }
+                                if (f && f.size > 8 * 1024 * 1024) {
+                                  setPayErr("Screenshot must be under 8 MB."); return;
+                                }
+                                setFile(f);
+                                setPreview(f ? URL.createObjectURL(f) : "");
+                              }}
+                              id={`payment-proof-${r.id}`}
+                              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                            />
+                          </label>
                           {file && <span className="mt-2 block truncate text-xs text-foreground">{file.name}</span>}
                           <span className="mt-1 block text-[11px] text-muted-foreground">
                             Upload the success receipt from your UPI app (GPay, PhonePe, Paytm, BHIM, bank app). We auto-verify it.
                           </span>
-                        </label>
+                        </div>
                         {preview && (
                           <img src={preview} alt="Payment proof preview" className="max-h-56 rounded-md border border-border mx-auto" />
                         )}
