@@ -90,8 +90,10 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     const buf = Buffer.from(await blob.arrayBuffer());
     const dataUrl = `data:${contentType};base64,${buf.toString("base64")}`;
 
-    // Screenshot is accepted as-is (image validation already enforced above).
-    // Admins can review the uploaded proof from the Admin Portal.
+    const verification = await verifyPaymentScreenshot(dataUrl, existing.amount_inr);
+    if (!verification.accepted) {
+      throw new Error(verification.reason);
+    }
 
 
     // Generate a unique ticket code (retry on rare collision).
@@ -137,6 +139,72 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
 
     return { ok: true, ticket_code: ticket };
   });
+
+async function verifyPaymentScreenshot(dataUrl: string, amountInr: number) {
+  const apiKey = process.env.LOVABLE_API_KEY;
+  if (!apiKey) {
+    throw new Error("Payment screenshot verification is not configured yet.");
+  }
+
+  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Lovable-API-Key": apiKey,
+    },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content:
+            "You verify Indian payment proof screenshots for a dance workshop. Return only valid JSON with keys: is_payment_screenshot, payment_successful, amount_matches, detected_amount, reason. Be practical: accept UPI, bank, wallet, GPay, PhonePe, Paytm, BHIM, or netbanking success receipts. Reject unrelated images, pending/failed payments, edited/fake-looking screenshots, or screenshots with a clearly different amount.",
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Expected paid amount is INR ${amountInr}. Check whether this image is a successful payment receipt and whether the amount matches. If amount text is not readable but the screenshot clearly shows successful payment, set amount_matches true.`,
+            },
+            { type: "image_url", image_url: { url: dataUrl } },
+          ],
+        },
+      ],
+    }),
+  });
+
+  const raw = await response.text();
+  if (!response.ok) {
+    throw new Error("Payment screenshot verification failed. Please upload a clear UPI/bank payment receipt.");
+  }
+
+  let parsed: any;
+  try {
+    const payload = JSON.parse(raw);
+    const content = payload?.choices?.[0]?.message?.content ?? "{}";
+    parsed = typeof content === "string" ? JSON.parse(content) : content;
+  } catch {
+    throw new Error("Payment screenshot could not be verified. Please upload a clearer receipt from your payment app.");
+  }
+
+  const detectedAmount = Number(parsed.detected_amount);
+  const amountMatches = parsed.amount_matches === true || (
+    Number.isFinite(detectedAmount) && Math.abs(detectedAmount - amountInr) <= Math.max(2, amountInr * 0.02)
+  );
+
+  if (parsed.is_payment_screenshot === true && parsed.payment_successful === true && amountMatches) {
+    return { accepted: true, reason: "Verified" };
+  }
+
+  return {
+    accepted: false,
+    reason: typeof parsed.reason === "string" && parsed.reason.trim()
+      ? parsed.reason
+      : "This doesn't look like a successful payment screenshot. Please upload the receipt from your UPI/bank app.",
+  };
+}
 
 
 
