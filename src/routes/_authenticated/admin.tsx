@@ -91,7 +91,7 @@ function AdminPage() {
         <WorkshopsTab rows={workshops} onSave={saveWorkshop} onDel={delWorkshop} onPub={setPublished} reload={reload} />
       )}
 
-      {tab === "approvals" && <ApprovalsTab rows={enrs} onApprove={approve} reload={reload} />}
+      
 
 
       {tab === "students" && <StudentsTab rows={enrs} />}
