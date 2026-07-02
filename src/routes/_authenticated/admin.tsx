@@ -43,7 +43,7 @@ function AdminPage() {
       <h1 className="font-display text-4xl font-bold mt-1">Control room</h1>
 
       <div className="mt-6 flex gap-2 flex-wrap">
-        {(["overview","workshops","approvals","scan"] as Tab[]).map((t) => (
+        {(["overview","workshops","approvals","students","scan"] as Tab[]).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-full text-sm capitalize ${tab===t?"bg-primary text-primary-foreground":"bg-muted"}`}>
             {t}
