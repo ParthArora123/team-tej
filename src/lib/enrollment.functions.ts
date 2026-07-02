@@ -43,13 +43,31 @@ export const createEnrollment = createServerFn({ method: "POST" })
     return enr;
   });
 
-// Marks the enrollment as awaiting admin verification. The ticket is only
-// issued after an admin approves the payment from the Control Room.
+// Verifies the UPI payment automatically by validating the payer's UPI VPA
+// format and the UTR (12-digit UPI reference number). The UTR is unique
+// across the table, so a receipt reference cannot be re-used across
+// registrations. On success the ticket is issued instantly.
+const UPI_VPA = /^[a-zA-Z0-9._-]{2,64}@[a-zA-Z]{2,32}$/;
+const UTR_RE = /^[0-9]{12}$/;
+
 export const markPaymentSubmitted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ enrollmentId: z.string().uuid() }).parse(input))
+  .inputValidator((input) => z.object({
+    enrollmentId: z.string().uuid(),
+    payerUpiId: z.string().trim().regex(UPI_VPA, "Enter a valid UPI ID like name@bank"),
+    utr: z.string().trim().regex(UTR_RE, "UTR must be the 12-digit reference from your UPI app"),
+  }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Reject re-used UTRs before we touch this row.
+    const { data: utrDup } = await supabaseAdmin
+      .from("enrollments").select("id, user_id")
+      .eq("payment_utr", data.utr).maybeSingle();
+    if (utrDup && utrDup.id !== data.enrollmentId) {
+      throw new Error("This UTR has already been used for another registration.");
+    }
+
 
     const { data: existing, error: exErr } = await supabaseAdmin
       .from("enrollments")
@@ -84,7 +102,10 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
         ticket_generated_at: now,
         approved_at: now,
         approved_by: context.userId,
+        payer_upi_id: data.payerUpiId,
+        payment_utr: data.utr,
       })
+
       .eq("id", existing.id)
       // Only issue a ticket once — guards against duplicate generation on
       // concurrent clicks; if another request already confirmed, this is a no-op.

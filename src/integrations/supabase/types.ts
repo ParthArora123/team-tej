@@ -45,8 +45,10 @@ export type Database = {
           id: string
           medical_info: string | null
           notification_provider: string | null
+          payer_upi_id: string | null
           payment_confirmed_at: string | null
           payment_note: string | null
+          payment_utr: string | null
           phone: string | null
           program_id: string
           sms_error: string | null
@@ -79,8 +81,10 @@ export type Database = {
           id?: string
           medical_info?: string | null
           notification_provider?: string | null
+          payer_upi_id?: string | null
           payment_confirmed_at?: string | null
           payment_note?: string | null
+          payment_utr?: string | null
           phone?: string | null
           program_id: string
           sms_error?: string | null
@@ -113,8 +117,10 @@ export type Database = {
           id?: string
           medical_info?: string | null
           notification_provider?: string | null
+          payer_upi_id?: string | null
           payment_confirmed_at?: string | null
           payment_note?: string | null
+          payment_utr?: string | null
           phone?: string | null
           program_id?: string
           sms_error?: string | null
