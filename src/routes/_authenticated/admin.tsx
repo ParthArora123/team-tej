@@ -92,7 +92,7 @@ function AdminPage() {
         <WorkshopsTab rows={workshops} onSave={saveWorkshop} onDel={delWorkshop} onPub={setPublished} reload={reload} />
       )}
 
-      {/* Approvals tab removed — payments auto-confirm and tickets issue instantly. */}
+      {tab === "approvals" && <ApprovalsTab rows={enrs} onApprove={approve} reload={reload} />}
 
 
       {tab === "students" && <StudentsTab rows={enrs} />}
