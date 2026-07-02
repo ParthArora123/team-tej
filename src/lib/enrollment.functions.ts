@@ -396,10 +396,16 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
     const { data, error } = await supabaseAdmin.from("programs").select("*").order("created_at", { ascending: false });
     if (error) throw error;
     // Never expose ciphertext; expose a boolean flag so admins can see UPI status.
-    return (data ?? []).map((r: any) => {
+    // Also decorate banner_path with a signed URL for preview in admin.
+    return Promise.all((data ?? []).map(async (r: any) => {
       const { upi_id_encrypted, ...rest } = r;
-      return { ...rest, has_upi: !!upi_id_encrypted };
-    });
+      let banner_signed_url: string | null = null;
+      if (rest.banner_path) {
+        const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_path, 60 * 60 * 24 * 7);
+        banner_signed_url = s?.signedUrl ?? null;
+      }
+      return { ...rest, has_upi: !!upi_id_encrypted, banner_signed_url };
+    }));
   });
 
 
