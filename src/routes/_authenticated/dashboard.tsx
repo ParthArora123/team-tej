@@ -93,7 +93,8 @@ function Dashboard() {
                   {open === r.id && (
                     <div className="mt-4 flex flex-col items-center bg-muted/40 rounded-xl p-5">
                       <div className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} /></div>
-                      <p className="mt-3 text-xs text-muted-foreground">Scan with any UPI app · {UPI_ID}</p>
+                      <p className="mt-3 text-xs text-muted-foreground">Scan with any UPI app</p>
+                      <p className="text-sm font-mono select-all text-foreground">{upiId}</p>
                       <button onClick={async () => { await submitPay({ data: { enrollmentId: r.id } }); reload(); }}
                         className="mt-4 px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium">
                         I've completed the payment
