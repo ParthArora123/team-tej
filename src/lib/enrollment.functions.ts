@@ -43,35 +43,27 @@ export const createEnrollment = createServerFn({ method: "POST" })
     return enr;
   });
 
-// Verifies the UPI payment automatically by validating the payer's UPI VPA
-// format and the UTR (12-digit UPI reference number). The UTR is unique
-// across the table, so a receipt reference cannot be re-used across
-// registrations. On success the ticket is issued instantly.
-const UPI_VPA = /^[a-zA-Z0-9._-]{2,64}@[a-zA-Z]{2,32}$/;
-const UTR_RE = /^[0-9]{12}$/;
-
+// After a student uploads a payment screenshot to the `payment-proofs` storage
+// bucket, this validates the image with the Lovable AI vision model to make
+// sure it actually looks like a UPI payment success screen (not a random
+// image), then generates the ticket.
 export const markPaymentSubmitted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({
     enrollmentId: z.string().uuid(),
-    payerUpiId: z.string().trim().regex(UPI_VPA, "Enter a valid UPI ID like name@bank"),
-    utr: z.string().trim().regex(UTR_RE, "UTR must be the 12-digit reference from your UPI app"),
+    proofPath: z.string().min(3).max(300),
   }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // Reject re-used UTRs before we touch this row.
-    const { data: utrDup } = await supabaseAdmin
-      .from("enrollments").select("id, user_id")
-      .eq("payment_utr", data.utr).maybeSingle();
-    if (utrDup && utrDup.id !== data.enrollmentId) {
-      throw new Error("This UTR has already been used for another registration.");
+    // The uploaded file must live under the user's own folder.
+    if (!data.proofPath.startsWith(`${context.userId}/`)) {
+      throw new Error("Invalid upload path.");
     }
-
 
     const { data: existing, error: exErr } = await supabaseAdmin
       .from("enrollments")
-      .select("id, user_id, status, ticket_code, program_id")
+      .select("id, user_id, status, ticket_code, program_id, amount_inr")
       .eq("id", data.enrollmentId)
       .eq("user_id", context.userId)
       .maybeSingle();
@@ -81,6 +73,67 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     // Idempotent — if the ticket is already generated, return it as-is.
     if (existing.status === "confirmed" && existing.ticket_code) {
       return { ok: true, already: true, ticket_code: existing.ticket_code };
+    }
+
+    // Fetch the uploaded screenshot from storage and hand it to the vision
+    // model as base64. Only images and reasonable sizes are accepted.
+    const dl = await supabaseAdmin.storage.from("payment-proofs").download(data.proofPath);
+    if (dl.error || !dl.data) throw new Error("Could not read the uploaded screenshot.");
+    const blob = dl.data;
+    const contentType = (blob.type || "").toLowerCase();
+    if (!contentType.startsWith("image/")) {
+      throw new Error("Please upload an image file (JPG or PNG).");
+    }
+    if (blob.size > 8 * 1024 * 1024) {
+      throw new Error("Screenshot is too large. Max 8 MB.");
+    }
+    const buf = Buffer.from(await blob.arrayBuffer());
+    const dataUrl = `data:${contentType};base64,${buf.toString("base64")}`;
+
+    // Ask Lovable AI Gateway to classify the screenshot.
+    const apiKey = process.env.LOVABLE_API_KEY;
+    if (!apiKey) throw new Error("Payment verification is not configured.");
+    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: "You verify UPI payment screenshots. Reply with STRICT JSON only, no prose." },
+          { role: "user", content: [
+            { type: "text", text:
+              "Look at this image. Return JSON of the shape " +
+              "{\"is_payment_screenshot\":boolean,\"is_success\":boolean,\"amount\":number|null,\"reason\":string}. " +
+              "Set is_payment_screenshot=true ONLY if the image is clearly a UPI / bank payment app receipt " +
+              "(Google Pay, PhonePe, Paytm, BHIM, bank app, etc.) showing a completed or attempted transfer. " +
+              "Set is_success=true if the screen shows the payment as successful/completed/paid. " +
+              "amount = the transaction amount in INR if visible, else null. reason = short explanation." },
+            { type: "image_url", image_url: { url: dataUrl } },
+          ] },
+        ],
+      }),
+    });
+    if (!aiRes.ok) {
+      const t = await aiRes.text().catch(() => "");
+      throw new Error(`Payment verification service failed. ${t.slice(0, 120)}`);
+    }
+    const aiJson: any = await aiRes.json();
+    const raw = aiJson?.choices?.[0]?.message?.content ?? "";
+    let verdict: { is_payment_screenshot?: boolean; is_success?: boolean; amount?: number | null; reason?: string } = {};
+    try {
+      const m = String(raw).match(/\{[\s\S]*\}/);
+      verdict = JSON.parse(m ? m[0] : raw);
+    } catch {
+      throw new Error("Couldn't read the verification result. Please try again.");
+    }
+    if (!verdict.is_payment_screenshot) {
+      throw new Error("This doesn't look like a payment screenshot. Please upload the receipt from your UPI/bank app.");
+    }
+    if (verdict.is_success === false) {
+      throw new Error("The screenshot shows the payment wasn't successful. Please complete the payment and re-upload.");
+    }
+    if (typeof verdict.amount === "number" && Math.abs(verdict.amount - existing.amount_inr) > 1) {
+      throw new Error(`Amount mismatch — the screenshot shows ₹${verdict.amount} but registration is ₹${existing.amount_inr}.`);
     }
 
     // Generate a unique ticket code (retry on rare collision).
@@ -102,15 +155,14 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
         ticket_generated_at: now,
         approved_at: now,
         approved_by: context.userId,
-        payer_upi_id: data.payerUpiId,
-        payment_utr: data.utr,
+        payment_proof_path: data.proofPath,
       })
-
       .eq("id", existing.id)
       // Only issue a ticket once — guards against duplicate generation on
       // concurrent clicks; if another request already confirmed, this is a no-op.
       .is("ticket_code", null);
     if (upErr) throw upErr;
+
 
     // Bump seats_taken (best-effort; ignore if already at capacity).
     if (existing.program_id) {
