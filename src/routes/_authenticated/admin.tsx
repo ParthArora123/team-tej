@@ -7,19 +7,25 @@ import {
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
   adminListTeam, adminSetUserAdmin, adminAddTeamByEmail,
 } from "@/lib/enrollment.functions";
+import {
+  adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
+  adminSetTeamProfilePublished, adminReorderTeamProfile, adminUploadTeamPhoto,
+} from "@/lib/team.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "approvals" | "students" | "team" | "scan";
+type Tab = "overview" | "workshops" | "profiles" | "approvals" | "students" | "team" | "scan";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
   { id: "team", label: "Team roles", emphasis: true },
+  { id: "profiles", label: "Home profiles", emphasis: true },
   { id: "workshops", label: "Workshops" },
   { id: "approvals", label: "Approvals" },
   { id: "students", label: "Students" },
   { id: "scan", label: "Scan" },
 ];
+
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -122,10 +128,13 @@ function AdminPage() {
 
       {tab === "team" && <TeamTab />}
 
+      {tab === "profiles" && <ProfilesTab />}
+
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
   );
 }
+
 
 function StatCard({ label, value, accent }: { label: string; value: any; accent?: boolean }) {
   return (
@@ -557,6 +566,209 @@ function TeamTab() {
       <p className="text-[11px] text-muted-foreground">
         Registered students appear in the Students tab — not here.
       </p>
+    </div>
+  );
+}
+
+type ProfileForm = {
+  id?: string;
+  name: string;
+  designation: string;
+  short_description: string;
+  biography: string;
+  photo_url: string;
+  photo_path: string;
+  achievements: string;
+  dance_styles: string;
+  experience: string;
+  socials: string; // JSON textarea
+  sort_order: string;
+  published: boolean;
+};
+
+const emptyProfile: ProfileForm = {
+  name: "", designation: "", short_description: "", biography: "",
+  photo_url: "", photo_path: "", achievements: "", dance_styles: "",
+  experience: "", socials: "", sort_order: "0", published: true,
+};
+
+function ProfilesTab() {
+  const list = useServerFn(adminListTeamProfiles);
+  const save = useServerFn(adminSaveTeamProfile);
+  const del = useServerFn(adminDeleteTeamProfile);
+  const setPub = useServerFn(adminSetTeamProfilePublished);
+  const reorder = useServerFn(adminReorderTeamProfile);
+  const upload = useServerFn(adminUploadTeamPhoto);
+
+  const [rows, setRows] = useState<any[]>([]);
+  const [f, setF] = useState<ProfileForm>(emptyProfile);
+  const [msg, setMsg] = useState("");
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    try { setRows(await list()); } catch (e: any) { setErr(e.message); }
+    finally { setLoading(false); }
+  };
+  useEffect(() => { load(); }, []);
+
+  const edit = (r: any) => setF({
+    id: r.id, name: r.name ?? "", designation: r.designation ?? "",
+    short_description: r.short_description ?? "", biography: r.biography ?? "",
+    photo_url: r.photo_url && !r.photo_path ? r.photo_url : "",
+    photo_path: r.photo_path ?? "",
+    achievements: (r.achievements ?? []).join("\n"),
+    dance_styles: (r.dance_styles ?? []).join(", "),
+    experience: r.experience ?? "",
+    socials: r.socials ? JSON.stringify(r.socials, null, 2) : "",
+    sort_order: String(r.sort_order ?? 0),
+    published: !!r.published,
+  });
+
+  const onSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr(""); setMsg("");
+    let socialsObj: Record<string, string> = {};
+    if (f.socials.trim()) {
+      try { socialsObj = JSON.parse(f.socials); }
+      catch { setErr("Social links must be valid JSON, e.g. { \"instagram\": \"https://…\" }"); return; }
+    }
+    try {
+      await save({ data: {
+        id: f.id,
+        name: f.name.trim(),
+        designation: f.designation.trim() || null,
+        short_description: f.short_description.trim() || null,
+        biography: f.biography.trim() || null,
+        photo_url: f.photo_url.trim() || null,
+        photo_path: f.photo_path.trim() || null,
+        achievements: f.achievements.split("\n").map((s) => s.trim()).filter(Boolean),
+        dance_styles: f.dance_styles.split(",").map((s) => s.trim()).filter(Boolean),
+        experience: f.experience.trim() || null,
+        socials: socialsObj,
+        sort_order: Number(f.sort_order) || 0,
+        published: f.published,
+      }});
+      setMsg("Saved.");
+      setF(emptyProfile);
+      await load();
+    } catch (e: any) { setErr(e.message); }
+  };
+
+  const onFile = async (file: File) => {
+    setErr(""); setMsg(""); setUploading(true);
+    try {
+      const buf = await file.arrayBuffer();
+      let bin = "";
+      const bytes = new Uint8Array(buf);
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      const b64 = btoa(bin);
+      const res = await upload({ data: {
+        profileId: f.id, filename: file.name, contentType: file.type || "image/jpeg", dataBase64: b64,
+      }});
+      setF((prev) => ({ ...prev, photo_path: res.path, photo_url: res.url ?? prev.photo_url }));
+      if (f.id) { setMsg("Photo uploaded."); await load(); }
+    } catch (e: any) { setErr(e.message); }
+    finally { setUploading(false); }
+  };
+
+  return (
+    <div className="mt-8 grid lg:grid-cols-[1fr_1fr] gap-6">
+      <form onSubmit={onSave} className="bg-card border border-border rounded-2xl p-5 space-y-3">
+        <p className="font-display text-lg font-bold">{f.id ? "Edit profile" : "Add profile"}</p>
+
+        <In placeholder="Name *" v={f.name} on={(v) => setF({ ...f, name: v })} required />
+        <In placeholder="Designation (e.g. Founder · Artistic Director)" v={f.designation} on={(v) => setF({ ...f, designation: v })} />
+        <textarea placeholder="Short description (shown on Home)" value={f.short_description}
+          onChange={(e) => setF({ ...f, short_description: e.target.value })} rows={2}
+          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
+        <textarea placeholder="Full biography" value={f.biography}
+          onChange={(e) => setF({ ...f, biography: e.target.value })} rows={4}
+          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
+
+        <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Profile photo</p>
+          {(f.photo_url || f.photo_path) && (
+            <div className="flex items-center gap-3">
+              {f.photo_url && <img src={f.photo_url} alt="" className="h-20 w-20 rounded-lg object-cover border border-border" />}
+              <p className="text-[11px] text-muted-foreground break-all">{f.photo_path || f.photo_url}</p>
+            </div>
+          )}
+          <input type="file" accept="image/*"
+            onChange={(e) => { const file = e.target.files?.[0]; if (file) onFile(file); }}
+            className="block w-full text-xs" />
+          {uploading && <p className="text-xs text-muted-foreground">Uploading…</p>}
+          <p className="text-[11px] text-muted-foreground">Or paste an external image URL below.</p>
+          <In placeholder="Photo URL (external)" v={f.photo_url} on={(v) => setF({ ...f, photo_url: v, photo_path: v ? "" : f.photo_path })} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <In placeholder="Experience (e.g. 12+ years)" v={f.experience} on={(v) => setF({ ...f, experience: v })} />
+          <In type="number" placeholder="Sort order" v={f.sort_order} on={(v) => setF({ ...f, sort_order: v })} />
+        </div>
+        <In placeholder="Dance styles (comma separated)" v={f.dance_styles} on={(v) => setF({ ...f, dance_styles: v })} />
+        <textarea placeholder="Achievements (one per line)" value={f.achievements}
+          onChange={(e) => setF({ ...f, achievements: e.target.value })} rows={3}
+          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
+        <textarea placeholder='Social links JSON, e.g. {"instagram":"https://…","youtube":"https://…"}'
+          value={f.socials} onChange={(e) => setF({ ...f, socials: e.target.value })} rows={3}
+          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm font-mono" />
+
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} />
+          Publish on Home page
+        </label>
+
+        <div className="flex gap-2">
+          <button type="submit" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">
+            {f.id ? "Update" : "Save"}
+          </button>
+          {f.id && <button type="button" onClick={() => setF(emptyProfile)} className="px-4 py-2 rounded-lg bg-muted text-sm">Cancel</button>}
+        </div>
+        {msg && <p className="text-xs text-primary">{msg}</p>}
+        {err && <p className="text-xs text-destructive">{err}</p>}
+      </form>
+
+      <div className="space-y-3">
+        {loading && <p className="text-sm text-muted-foreground">Loading profiles…</p>}
+        {!loading && rows.length === 0 && <p className="text-sm text-muted-foreground">No profiles yet. Add one on the left.</p>}
+        {rows.map((r, i) => (
+          <div key={r.id} className="bg-card border border-border rounded-xl p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                {r.photo_url
+                  ? <img src={r.photo_url} alt={r.name} className="h-16 w-16 rounded-lg object-cover border border-border" />
+                  : <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center font-display text-2xl text-primary">{r.name?.charAt(0)?.toUpperCase()}</div>}
+                <div>
+                  <p className="font-medium">{r.name}</p>
+                  <p className="text-xs text-muted-foreground">{r.designation ?? "—"}</p>
+                  <p className="text-[11px] mt-1">
+                    <span className={r.published ? "text-emerald-400" : "text-amber-400"}>
+                      {r.published ? "Published" : "Draft"}
+                    </span>
+                    <span className="text-muted-foreground"> · order {r.sort_order ?? 0}</span>
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex gap-1">
+                  <button disabled={i === 0} onClick={async () => { await reorder({ data: { id: r.id, direction: "up" }}); load(); }}
+                    className="px-2 py-1 text-xs rounded bg-muted disabled:opacity-40">↑</button>
+                  <button disabled={i === rows.length - 1} onClick={async () => { await reorder({ data: { id: r.id, direction: "down" }}); load(); }}
+                    className="px-2 py-1 text-xs rounded bg-muted disabled:opacity-40">↓</button>
+                </div>
+                <button onClick={() => edit(r)} className="px-3 py-1 text-xs rounded bg-muted">Edit</button>
+                <button onClick={async () => { await setPub({ data: { id: r.id, published: !r.published }}); load(); }}
+                  className="px-3 py-1 text-xs rounded bg-muted">{r.published ? "Unpublish" : "Publish"}</button>
+                <button onClick={async () => { if (confirm("Delete this profile?")) { await del({ data: { id: r.id }}); load(); } }}
+                  className="px-3 py-1 text-xs rounded bg-destructive text-white">Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

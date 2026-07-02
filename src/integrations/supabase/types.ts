@@ -254,6 +254,60 @@ export type Database = {
         }
         Relationships: []
       }
+      team_profiles: {
+        Row: {
+          achievements: string[] | null
+          biography: string | null
+          created_at: string
+          dance_styles: string[] | null
+          designation: string | null
+          experience: string | null
+          id: string
+          name: string
+          photo_path: string | null
+          photo_url: string | null
+          published: boolean
+          short_description: string | null
+          socials: Json | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          achievements?: string[] | null
+          biography?: string | null
+          created_at?: string
+          dance_styles?: string[] | null
+          designation?: string | null
+          experience?: string | null
+          id?: string
+          name: string
+          photo_path?: string | null
+          photo_url?: string | null
+          published?: boolean
+          short_description?: string | null
+          socials?: Json | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          achievements?: string[] | null
+          biography?: string | null
+          created_at?: string
+          dance_styles?: string[] | null
+          designation?: string | null
+          experience?: string | null
+          id?: string
+          name?: string
+          photo_path?: string | null
+          photo_url?: string | null
+          published?: boolean
+          short_description?: string | null
+          socials?: Json | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           approved: boolean

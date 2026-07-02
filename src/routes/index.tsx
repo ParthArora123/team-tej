@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { listPublicTeamProfiles } from "@/lib/team.functions";
+
 import { ArrowUpRight, Sparkles, Calendar } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
@@ -48,12 +50,14 @@ const stats = [
   { value: "40+", label: "Live productions" },
 ];
 
-const team = [
-  { name: "Tej Sharma", role: "Founder · Artistic Director", initial: "T", bio: "Twelve years on stage. Trained at NIPA & Rambert." },
-  { name: "Ria Kapoor", role: "Senior Choreographer", initial: "R", bio: "Resident choreographer for fusion and contemporary." },
-  { name: "Aman Verma", role: "Head of Hip-Hop", initial: "A", bio: "Industry choreographer. Reels, films, live tours." },
-  { name: "Niharika Das", role: "Classical & Kathak Lead", initial: "N", bio: "Kathak Visharad. Bridges classical into fusion form." },
-];
+type TeamMember = {
+  id: string;
+  name: string;
+  designation?: string | null;
+  short_description?: string | null;
+  photo_url?: string | null;
+};
+
 
 const stagger = {
   hidden: {},
@@ -73,6 +77,13 @@ function Index() {
   const heroY = useTransform(heroProgress, [0, 1], ["0%", "30%"]);
   const heroScale = useTransform(heroProgress, [0, 1], [1, 1.15]);
   const heroOpacity = useTransform(heroProgress, [0, 1], [1, 0.2]);
+
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  useEffect(() => {
+    listPublicTeamProfiles().then((rows: any) => setTeam(rows ?? [])).catch(() => setTeam([]));
+  }, []);
+
+
 
   return (
     <>
@@ -251,16 +262,20 @@ function Index() {
         >
           {team.map((m) => (
             <motion.div
-              key={m.name}
+              key={m.id}
               variants={item}
               className="snap-start shrink-0 w-[78%] p-6 rounded-2xl border border-border bg-card"
             >
-              <div className="aspect-[4/5] rounded-xl bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-7xl font-display font-bold text-primary">
-                {m.initial}
+              <div className="aspect-[4/5] rounded-xl overflow-hidden bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-7xl font-display font-bold text-primary">
+                {m.photo_url ? (
+                  <img src={m.photo_url} alt={m.name} className="h-full w-full object-cover" loading="lazy" />
+                ) : (
+                  <span>{m.name.charAt(0).toUpperCase()}</span>
+                )}
               </div>
               <p className="mt-5 font-display text-xl font-bold">{m.name}</p>
-              <p className="text-xs uppercase tracking-widest text-primary mt-1">{m.role}</p>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.bio}</p>
+              {m.designation && <p className="text-xs uppercase tracking-widest text-primary mt-1">{m.designation}</p>}
+              {m.short_description && <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.short_description}</p>}
             </motion.div>
           ))}
         </motion.div>
@@ -275,20 +290,25 @@ function Index() {
         >
           {team.map((m) => (
             <motion.div
-              key={m.name}
+              key={m.id}
               variants={item}
               whileHover={{ y: -6 }}
               className="group p-6 rounded-2xl border border-border bg-card hover:border-primary transition-colors"
             >
-              <div className="aspect-[4/5] rounded-xl bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-7xl font-display font-bold text-primary group-hover:scale-105 transition-transform duration-500">
-                {m.initial}
+              <div className="aspect-[4/5] rounded-xl overflow-hidden bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-7xl font-display font-bold text-primary group-hover:scale-105 transition-transform duration-500">
+                {m.photo_url ? (
+                  <img src={m.photo_url} alt={m.name} className="h-full w-full object-cover" loading="lazy" />
+                ) : (
+                  <span>{m.name.charAt(0).toUpperCase()}</span>
+                )}
               </div>
               <p className="mt-5 font-display text-xl font-bold">{m.name}</p>
-              <p className="text-xs uppercase tracking-widest text-primary mt-1">{m.role}</p>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.bio}</p>
+              {m.designation && <p className="text-xs uppercase tracking-widest text-primary mt-1">{m.designation}</p>}
+              {m.short_description && <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.short_description}</p>}
             </motion.div>
           ))}
         </motion.div>
+
       </section>
 
       {/* DANCE STYLES */}
