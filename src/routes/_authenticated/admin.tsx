@@ -205,9 +205,15 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   };
 
   return (
-    <div className="mt-8 grid lg:grid-cols-[1fr_1fr] gap-6">
-      <form onSubmit={save} className="bg-card border border-border rounded-2xl p-5 space-y-3">
-        <p className="font-display text-lg font-bold">{f.id ? "Edit workshop" : "Add workshop"}</p>
+    <div className="mt-6 grid lg:grid-cols-[1fr_1fr] gap-4 lg:gap-6">
+      <details open={!!f.id} className="bg-card border border-border rounded-2xl group lg:!open">
+        <summary className="lg:hidden list-none cursor-pointer px-4 py-3 flex items-center justify-between text-sm font-medium">
+          <span>{f.id ? "Edit workshop" : "Add workshop"}</span>
+          <span className="text-muted-foreground text-xs group-open:hidden">Tap to open</span>
+          <span className="text-muted-foreground text-xs hidden group-open:inline">Close</span>
+        </summary>
+      <form onSubmit={save} className="p-4 lg:p-5 space-y-3 border-t border-border lg:border-t-0">
+        <p className="hidden lg:block font-display text-lg font-bold">{f.id ? "Edit workshop" : "Add workshop"}</p>
         <In placeholder="Workshop name *" v={f.name} on={(v) => setF({ ...f, name: v })} required />
         <textarea placeholder="Description" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
           className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" rows={3} />
@@ -282,6 +288,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           {f.id && <button type="button" onClick={() => setF(emptyWs())} className="px-4 py-2 rounded-lg bg-muted text-sm">Cancel</button>}
         </div>
       </form>
+      </details>
 
       <div className="space-y-3">
         {rows.map((r: any) => (
