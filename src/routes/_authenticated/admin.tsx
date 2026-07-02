@@ -748,6 +748,24 @@ function ProfilesTab() {
 function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any; reload: () => void }) {
   const pending = rows.filter((r) => r.status === "payment_submitted");
   const [busy, setBusy] = useState<string | null>(null);
+  const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
+  const getProof = useServerFn(adminGetProofUrl);
+
+  useEffect(() => {
+    (async () => {
+      const next: Record<string, string> = {};
+      for (const r of pending) {
+        if (r.payment_proof_path && !proofUrls[r.id]) {
+          try {
+            const { url } = await getProof({ data: { path: r.payment_proof_path } });
+            next[r.id] = url;
+          } catch {}
+        }
+      }
+      if (Object.keys(next).length) setProofUrls((prev) => ({ ...prev, ...next }));
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pending.length]);
 
   const act = async (id: string, approve: boolean) => {
     setBusy(id);
@@ -764,7 +782,7 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   return (
     <div className="mt-8 space-y-3">
       <p className="text-sm text-muted-foreground">
-        Verify the payment in your UPI app, then approve — this issues the ticket and increments seats.
+        Review each uploaded payment screenshot, then approve to issue the ticket and increment seats.
       </p>
       {pending.length === 0 && (
         <div className="bg-card border border-border rounded-2xl p-8 text-center text-sm text-muted-foreground">
@@ -772,22 +790,34 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
         </div>
       )}
       {pending.map((r) => (
-        <div key={r.id} className="bg-card border border-border rounded-2xl p-5 flex flex-wrap items-start justify-between gap-4">
+        <div key={r.id} className="bg-card border border-border rounded-2xl p-5 grid gap-4 md:grid-cols-[1fr_240px]">
           <div className="min-w-0">
             <p className="font-display text-lg font-semibold">{r.full_name ?? "—"}</p>
             <p className="text-xs text-muted-foreground">{r.email} · {r.phone}</p>
             <p className="text-sm mt-2">{r.program?.name ?? "Workshop"} · ₹{(r.amount_inr ?? 0).toLocaleString("en-IN")}</p>
             <p className="text-[11px] text-muted-foreground mt-1">Submitted {r.payment_confirmed_at ? new Date(r.payment_confirmed_at).toLocaleString() : "—"}</p>
+            <div className="flex gap-2 mt-4">
+              <button disabled={busy === r.id} onClick={() => act(r.id, true)}
+                className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-50">
+                Approve & issue ticket
+              </button>
+              <button disabled={busy === r.id} onClick={() => act(r.id, false)}
+                className="px-4 py-2 rounded-lg bg-destructive text-white text-sm font-medium disabled:opacity-50">
+                Reject
+              </button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button disabled={busy === r.id} onClick={() => act(r.id, true)}
-              className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-50">
-              Approve & issue ticket
-            </button>
-            <button disabled={busy === r.id} onClick={() => act(r.id, false)}
-              className="px-4 py-2 rounded-lg bg-destructive text-white text-sm font-medium disabled:opacity-50">
-              Reject
-            </button>
+          <div>
+            {proofUrls[r.id] ? (
+              <a href={proofUrls[r.id]} target="_blank" rel="noreferrer" className="block">
+                <img src={proofUrls[r.id]} alt="Payment proof" className="w-full h-auto max-h-64 object-contain rounded-md border border-border bg-muted" />
+                <span className="mt-1 block text-[11px] text-primary underline">Open full size</span>
+              </a>
+            ) : (
+              <div className="w-full h-40 rounded-md border border-dashed border-border grid place-items-center text-xs text-muted-foreground">
+                {r.payment_proof_path ? "Loading screenshot…" : "No screenshot"}
+              </div>
+            )}
           </div>
         </div>
       ))}
