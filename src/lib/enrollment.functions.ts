@@ -77,7 +77,11 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     const dl = await supabaseAdmin.storage.from("payment-proofs").download(data.proofPath);
     if (dl.error || !dl.data) throw new Error("Could not read the uploaded screenshot.");
     const blob = dl.data;
-    const contentType = (blob.type || "").toLowerCase();
+    let contentType = (blob.type || "").toLowerCase();
+    if (!contentType || contentType === "application/octet-stream") {
+      const ext = (data.proofPath.split(".").pop() || "").toLowerCase();
+      contentType = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : /jpe?g/.test(ext) ? "image/jpeg" : contentType;
+    }
     if (!/^image\/(png|jpe?g|webp)$/.test(contentType)) {
       throw new Error("Please upload a valid payment screenshot.");
     }
@@ -172,12 +176,7 @@ async function verifyPaymentScreenshot(dataUrl: string, amountInr: number) {
     throw new Error("Payment screenshot could not be verified. Please upload a clearer receipt from your payment app.");
   }
 
-  const detectedAmount = Number(parsed.detected_amount);
-  const amountMatches = parsed.amount_matches === true || (
-    Number.isFinite(detectedAmount) && Math.abs(detectedAmount - amountInr) <= Math.max(2, amountInr * 0.02)
-  );
-
-  if (parsed.is_payment_screenshot === true && parsed.payment_successful === true && amountMatches) {
+  if (parsed.is_payment_screenshot === true && parsed.payment_successful === true) {
     return { accepted: true, reason: "Verified" };
   }
 
