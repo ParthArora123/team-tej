@@ -205,14 +205,14 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   };
 
   return (
-    <div className="mt-6 grid lg:grid-cols-[1fr_1fr] gap-4 lg:gap-6">
-      <details open={!!f.id} className="bg-card border border-border rounded-2xl group lg:!open">
-        <summary className="lg:hidden list-none cursor-pointer px-4 py-3 flex items-center justify-between text-sm font-medium">
-          <span>{f.id ? "Edit workshop" : "Add workshop"}</span>
-          <span className="text-muted-foreground text-xs group-open:hidden">Tap to open</span>
-          <span className="text-muted-foreground text-xs hidden group-open:inline">Close</span>
+    <div className="mt-6 grid lg:grid-cols-[1fr_1fr] gap-4 lg:gap-6 min-w-0">
+      <details open={!!f.id} className="bg-card border border-border rounded-2xl group lg:!open min-w-0 overflow-hidden">
+        <summary className="lg:hidden list-none cursor-pointer px-3 py-2.5 flex items-center justify-between text-sm font-medium">
+          <span className="truncate">{f.id ? "Edit workshop" : "Add workshop"}</span>
+          <span className="text-muted-foreground text-xs group-open:hidden shrink-0 ml-2">Tap to open</span>
+          <span className="text-muted-foreground text-xs hidden group-open:inline shrink-0 ml-2">Close</span>
         </summary>
-      <form onSubmit={save} className="p-4 lg:p-5 space-y-3 border-t border-border lg:border-t-0">
+      <form onSubmit={save} className="p-3 lg:p-5 space-y-3 border-t border-border lg:border-t-0 min-w-0">
         <p className="hidden lg:block font-display text-lg font-bold">{f.id ? "Edit workshop" : "Add workshop"}</p>
         <In placeholder="Workshop name *" v={f.name} on={(v) => setF({ ...f, name: v })} required />
         <textarea placeholder="Description" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
