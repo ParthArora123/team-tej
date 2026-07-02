@@ -44,8 +44,8 @@ export const createEnrollment = createServerFn({ method: "POST" })
   });
 
 // Auto-confirms the enrollment: marks payment successful, generates a unique
-// ticket code, increments seats taken, and sends SMS + WhatsApp confirmation
-// to the mobile number captured at registration.
+// ticket code, increments seats taken. Email confirmation is enqueued once
+// the project's email domain is configured.
 export const markPaymentSubmitted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ enrollmentId: z.string().uuid() }).parse(input))
@@ -54,14 +54,14 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
 
     const { data: existing, error: exErr } = await supabaseAdmin
       .from("enrollments")
-      .select("id, user_id, status, ticket_code, program_id, full_name, phone, amount_inr")
+      .select("id, user_id, status, ticket_code, program_id, full_name, email, amount_inr")
       .eq("id", data.enrollmentId)
       .eq("user_id", context.userId)
       .maybeSingle();
     if (exErr) throw exErr;
     if (!existing) throw new Error("Registration not found");
 
-    // Idempotent — never re-issue or re-notify for an already-confirmed ticket.
+    // Idempotent — never re-issue for an already-confirmed ticket.
     if (existing.status === "confirmed" && existing.ticket_code) {
       return { ok: true, ticket: existing.ticket_code, already: true };
     }
@@ -90,55 +90,41 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       }).eq("id", existing.id);
     if (upErr) throw upErr;
 
+    let program: any = null;
     if (existing.program_id) {
       const { data: p } = await supabaseAdmin
         .from("programs").select("seats_taken, name, event_date, event_time, venue")
         .eq("id", existing.program_id).single();
+      program = p;
       await supabaseAdmin.from("programs")
         .update({ seats_taken: (p?.seats_taken ?? 0) + 1 })
         .eq("id", existing.program_id);
+    }
 
-      try {
-        const { sendConfirmation } = await import("./notify.server");
-        const origin = process.env.PUBLIC_SITE_URL
-          ?? process.env.SITE_URL
-          ?? "https://team-tej.lovable.app";
-        const report = await sendConfirmation({
-          studentName: existing.full_name ?? "Student",
-          workshopName: p?.name ?? "Team Tej Workshop",
-          eventDate: p?.event_date ? new Date(p.event_date).toDateString() : null,
-          eventTime: p?.event_time ?? null,
-          venue: p?.venue ?? null,
-          ticketCode: ticket,
-          amount: existing.amount_inr ?? 0,
-          verifyUrl: `${origin}/verify?code=${encodeURIComponent(ticket)}`,
-          phone: existing.phone ?? "",
-        });
-        await supabaseAdmin.from("enrollments").update({
-          notification_provider: report.provider,
-          sms_status: report.sms.status,
-          sms_message_id: report.sms.messageId ?? null,
-          sms_error: report.sms.error ?? null,
-          sms_sent_at: report.sms.sentAt ?? null,
-          whatsapp_status: report.whatsapp.status,
-          whatsapp_message_id: report.whatsapp.messageId ?? null,
-          whatsapp_error: report.whatsapp.error ?? null,
-          whatsapp_sent_at: report.whatsapp.sentAt ?? null,
-        }).eq("id", existing.id);
-      } catch (e) {
-        console.error("[markPaymentSubmitted] notify failed:", e);
-        await supabaseAdmin.from("enrollments").update({
-          notification_provider: "msg91",
-          sms_status: "failed",
-          sms_error: String((e as any)?.message ?? e).slice(0, 500),
-          whatsapp_status: "failed",
-          whatsapp_error: String((e as any)?.message ?? e).slice(0, 500),
-        }).eq("id", existing.id);
-      }
+    // Fire-and-forget email confirmation via the project's email queue.
+    try {
+      const { sendConfirmationEmail } = await import("./email-confirmation.server");
+      const origin = process.env.PUBLIC_SITE_URL
+        ?? process.env.SITE_URL
+        ?? "https://team-tej.lovable.app";
+      await sendConfirmationEmail({
+        to: existing.email ?? "",
+        studentName: existing.full_name ?? "Student",
+        workshopName: program?.name ?? "Team Tej Workshop",
+        eventDate: program?.event_date ? new Date(program.event_date).toDateString() : null,
+        eventTime: program?.event_time ?? null,
+        venue: program?.venue ?? null,
+        ticketCode: ticket,
+        amount: existing.amount_inr ?? 0,
+        verifyUrl: `${origin}/verify?code=${encodeURIComponent(ticket)}`,
+      });
+    } catch (e) {
+      console.error("[markPaymentSubmitted] email failed:", e);
     }
 
     return { ok: true, ticket };
   });
+
 
 export const listMyEnrollments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
