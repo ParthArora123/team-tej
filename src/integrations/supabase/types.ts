@@ -107,6 +107,13 @@ export type Database = {
             referencedRelation: "programs"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "enrollments_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       events: {
@@ -303,7 +310,69 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      programs_public: {
+        Row: {
+          banner_url: string | null
+          capacity: number | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          duration: string | null
+          event_date: string | null
+          event_time: string | null
+          id: string | null
+          instructor: string | null
+          kind: Database["public"]["Enums"]["program_kind"] | null
+          name: string | null
+          price_inr: number | null
+          published: boolean | null
+          registration_closes_on: string | null
+          seats_taken: number | null
+          style: string | null
+          venue: string | null
+        }
+        Insert: {
+          banner_url?: string | null
+          capacity?: number | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          event_date?: string | null
+          event_time?: string | null
+          id?: string | null
+          instructor?: string | null
+          kind?: Database["public"]["Enums"]["program_kind"] | null
+          name?: string | null
+          price_inr?: number | null
+          published?: boolean | null
+          registration_closes_on?: string | null
+          seats_taken?: number | null
+          style?: string | null
+          venue?: string | null
+        }
+        Update: {
+          banner_url?: string | null
+          capacity?: number | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: string | null
+          event_date?: string | null
+          event_time?: string | null
+          id?: string | null
+          instructor?: string | null
+          kind?: Database["public"]["Enums"]["program_kind"] | null
+          name?: string | null
+          price_inr?: number | null
+          published?: boolean | null
+          registration_closes_on?: string | null
+          seats_taken?: number | null
+          style?: string | null
+          venue?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
