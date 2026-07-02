@@ -22,6 +22,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedPayEnrollmentIdRouteImport } from './routes/_authenticated/pay.$enrollmentId'
 
 const ZeroToHeroRoute = ZeroToHeroRouteImport.update({
   id: '/zero-to-hero',
@@ -87,6 +88,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPayEnrollmentIdRoute =
+  AuthenticatedPayEnrollmentIdRouteImport.update({
+    id: '/pay/$enrollmentId',
+    path: '/pay/$enrollmentId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -115,6 +123,7 @@ export interface FileRoutesByTo {
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -131,6 +140,7 @@ export interface FileRoutesById {
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/zero-to-hero'
     | '/admin'
     | '/dashboard'
+    | '/pay/$enrollmentId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/zero-to-hero'
     | '/admin'
     | '/dashboard'
+    | '/pay/$enrollmentId'
   id:
     | '__root__'
     | '/'
@@ -176,6 +188,7 @@ export interface FileRouteTypes {
     | '/zero-to-hero'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/_authenticated/pay/$enrollmentId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -285,17 +298,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pay/$enrollmentId': {
+      id: '/_authenticated/pay/$enrollmentId'
+      path: '/pay/$enrollmentId'
+      fullPath: '/pay/$enrollmentId'
+      preLoaderRoute: typeof AuthenticatedPayEnrollmentIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPayEnrollmentIdRoute: typeof AuthenticatedPayEnrollmentIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPayEnrollmentIdRoute: AuthenticatedPayEnrollmentIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
