@@ -119,7 +119,7 @@ export function EnrollDialog({ klass, onClose }: Props) {
               </div>
               <h3 className="mt-3 text-xl font-display font-bold">Registered</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Head to your dashboard to scan the UPI QR, pay, and confirm. Your ticket appears there after admin approval.
+                Head to your dashboard to scan the UPI QR and pay. Your ticket and QR are issued instantly after payment, and a confirmation is sent to your mobile.
               </p>
               <button onClick={() => { onClose(); navigate({ to: "/dashboard" }); }}
                 className="mt-5 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground">Go to payment</button>
