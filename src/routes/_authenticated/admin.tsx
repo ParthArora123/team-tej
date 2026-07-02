@@ -5,11 +5,12 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   listAllEnrollments, approveEnrollment, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
+  adminListTeam, adminSetUserAdmin,
 } from "@/lib/enrollment.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "approvals" | "students" | "scan";
+type Tab = "overview" | "workshops" | "approvals" | "students" | "team" | "scan";
 
 function AdminPage() {
   const navigate = useNavigate();
