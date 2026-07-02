@@ -1,40 +1,43 @@
-// Server-only helpers for sending confirmation SMS + WhatsApp via Twilio.
-// Uses the Lovable connector gateway. If the Twilio connector is not linked
-// yet, calls no-op and log a warning so ticket generation still succeeds.
+// Server-only helpers for sending confirmation SMS + WhatsApp via MSG91.
+// All API calls happen server-side using env-var secrets — the auth key is
+// never exposed to the browser. Returns a structured delivery-status object
+// so callers can persist it against the enrollment row.
+//
+// Required env vars:
+//   MSG91_AUTH_KEY                       – account auth key
+//   MSG91_SENDER_ID                      – 6-char DLT-registered SMS sender
+//   MSG91_SMS_TEMPLATE_ID                – DLT-approved SMS template id
+//   MSG91_WHATSAPP_INTEGRATED_NUMBER     – WhatsApp business number (digits)
+//   MSG91_WHATSAPP_TEMPLATE_NAME         – approved WhatsApp template name
+//   MSG91_WHATSAPP_LANGUAGE (optional)   – default 'en'
+//   MSG91_WHATSAPP_NAMESPACE (optional)  – template namespace if required
+//   MSG91_COUNTRY_CODE (optional)        – default '91'
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/twilio";
+const MSG91_BASE = "https://control.msg91.com/api/v5";
 
 function normalizePhone(raw: string): string | null {
   if (!raw) return null;
   const trimmed = raw.trim();
-  if (trimmed.startsWith("+")) return "+" + trimmed.slice(1).replace(/\D/g, "");
+  const cc = (process.env.MSG91_COUNTRY_CODE ?? "91").replace(/\D/g, "");
+  if (trimmed.startsWith("+")) return trimmed.slice(1).replace(/\D/g, "");
   const digits = trimmed.replace(/\D/g, "");
   if (!digits) return null;
-  // Default to India country code if 10-digit number.
-  if (digits.length === 10) return "+91" + digits;
-  return "+" + digits;
+  // 10-digit numbers get the default country code prefix.
+  if (digits.length === 10) return cc + digits;
+  return digits;
 }
 
-async function twilioSend(params: Record<string, string>): Promise<void> {
-  const lovableKey = process.env.LOVABLE_API_KEY;
-  const twilioKey = process.env.TWILIO_API_KEY;
-  if (!lovableKey || !twilioKey) {
-    console.warn("[notify] Twilio not configured — skipping message send");
-    return;
-  }
-  const res = await fetch(`${GATEWAY_URL}/Messages.json`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${lovableKey}`,
-      "X-Connection-Api-Key": twilioKey,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams(params),
-  });
-  if (!res.ok) {
-    const body = await res.text();
-    console.error(`[notify] Twilio ${res.status}: ${body}`);
-  }
+export interface ChannelResult {
+  status: "sent" | "failed" | "skipped";
+  messageId?: string | null;
+  error?: string | null;
+  sentAt?: string | null;
+}
+
+export interface DeliveryReport {
+  provider: "msg91";
+  sms: ChannelResult;
+  whatsapp: ChannelResult;
 }
 
 export interface ConfirmationPayload {
@@ -49,7 +52,61 @@ export interface ConfirmationPayload {
   phone: string;
 }
 
-function buildMessage(p: ConfirmationPayload): string {
+async function sendSms(to: string, p: ConfirmationPayload): Promise<ChannelResult> {
+  const authKey = process.env.MSG91_AUTH_KEY;
+  const templateId = process.env.MSG91_SMS_TEMPLATE_ID;
+  const senderId = process.env.MSG91_SENDER_ID;
+  if (!authKey || !templateId || !senderId) {
+    return { status: "skipped", error: "MSG91 SMS not configured" };
+  }
+
+  // MSG91 Flow API — DLT-approved template variables. Adjust variable names
+  // in your MSG91 template to match VAR1..VAR7 below.
+  const payload = {
+    template_id: templateId,
+    sender: senderId,
+    short_url: "1",
+    recipients: [{
+      mobiles: to,
+      VAR1: p.studentName,
+      VAR2: p.workshopName,
+      VAR3: p.eventDate ?? "",
+      VAR4: p.eventTime ?? "",
+      VAR5: p.venue ?? "",
+      VAR6: p.ticketCode,
+      VAR7: p.verifyUrl,
+    }],
+  };
+
+  try {
+    const res = await fetch(`${MSG91_BASE}/flow/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "application/json",
+        authkey: authKey,
+      },
+      body: JSON.stringify(payload),
+    });
+    const body = await res.text();
+    if (!res.ok) {
+      console.error(`[notify/msg91-sms] ${res.status}: ${body}`);
+      return { status: "failed", error: `HTTP ${res.status}: ${body.slice(0, 300)}` };
+    }
+    let parsed: any;
+    try { parsed = JSON.parse(body); } catch { /* ignore */ }
+    return {
+      status: "sent",
+      messageId: parsed?.request_id ?? parsed?.message ?? null,
+      sentAt: new Date().toISOString(),
+    };
+  } catch (e: any) {
+    console.error("[notify/msg91-sms] error", e);
+    return { status: "failed", error: e?.message ?? "Unknown SMS error" };
+  }
+}
+
+function buildWhatsAppTextFallback(p: ConfirmationPayload): string {
   const lines = [
     `🎉 Congratulations, ${p.studentName}!`,
     `Your registration for ${p.workshopName} is CONFIRMED.`,
@@ -63,24 +120,97 @@ function buildMessage(p: ConfirmationPayload): string {
   return lines.join("\n");
 }
 
-export async function sendConfirmation(p: ConfirmationPayload): Promise<void> {
+async function sendWhatsApp(to: string, p: ConfirmationPayload): Promise<ChannelResult> {
+  const authKey = process.env.MSG91_AUTH_KEY;
+  const integratedNumber = process.env.MSG91_WHATSAPP_INTEGRATED_NUMBER;
+  const templateName = process.env.MSG91_WHATSAPP_TEMPLATE_NAME;
+  const language = process.env.MSG91_WHATSAPP_LANGUAGE ?? "en";
+  const namespace = process.env.MSG91_WHATSAPP_NAMESPACE;
+  if (!authKey || !integratedNumber || !templateName) {
+    return { status: "skipped", error: "MSG91 WhatsApp not configured" };
+  }
+
+  // MSG91 WhatsApp Outbound (template) API. Body variables are positional —
+  // your MSG91 template must expect {{1}}..{{7}} in the order below, matching
+  // the SMS template above.
+  const bodyComponent = {
+    type: "body",
+    parameters: [
+      { type: "text", text: p.studentName },
+      { type: "text", text: p.workshopName },
+      { type: "text", text: p.eventDate ?? "" },
+      { type: "text", text: p.eventTime ?? "" },
+      { type: "text", text: p.venue ?? "" },
+      { type: "text", text: p.ticketCode },
+      { type: "text", text: p.verifyUrl },
+    ],
+  };
+
+  const template: any = {
+    name: templateName,
+    language: { code: language, policy: "deterministic" },
+    components: [bodyComponent],
+  };
+  if (namespace) template.namespace = namespace;
+
+  const payload = {
+    integrated_number: integratedNumber,
+    content_type: "template",
+    payload: {
+      messaging_product: "whatsapp",
+      type: "template",
+      template,
+      to_and_components: [{
+        to: [to],
+        components: {
+          body_1: { type: "text", value: p.studentName },
+          body_2: { type: "text", value: p.workshopName },
+          body_3: { type: "text", value: p.eventDate ?? "" },
+          body_4: { type: "text", value: p.eventTime ?? "" },
+          body_5: { type: "text", value: p.venue ?? "" },
+          body_6: { type: "text", value: p.ticketCode },
+          body_7: { type: "text", value: p.verifyUrl },
+        },
+      }],
+      // Fallback plain text preserved for logs / template previews.
+      text: buildWhatsAppTextFallback(p),
+    },
+  };
+
+  try {
+    const res = await fetch(`${MSG91_BASE}/whatsapp/whatsapp-outbound-message/bulk/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "application/json",
+        authkey: authKey,
+      },
+      body: JSON.stringify(payload),
+    });
+    const body = await res.text();
+    if (!res.ok) {
+      console.error(`[notify/msg91-wa] ${res.status}: ${body}`);
+      return { status: "failed", error: `HTTP ${res.status}: ${body.slice(0, 300)}` };
+    }
+    let parsed: any;
+    try { parsed = JSON.parse(body); } catch { /* ignore */ }
+    return {
+      status: "sent",
+      messageId: parsed?.request_id ?? parsed?.data?.request_id ?? null,
+      sentAt: new Date().toISOString(),
+    };
+  } catch (e: any) {
+    console.error("[notify/msg91-wa] error", e);
+    return { status: "failed", error: e?.message ?? "Unknown WhatsApp error" };
+  }
+}
+
+export async function sendConfirmation(p: ConfirmationPayload): Promise<DeliveryReport> {
   const to = normalizePhone(p.phone);
   if (!to) {
-    console.warn("[notify] Missing/invalid phone, skipping");
-    return;
+    const skipped: ChannelResult = { status: "skipped", error: "Invalid mobile number" };
+    return { provider: "msg91", sms: skipped, whatsapp: skipped };
   }
-  const body = buildMessage(p);
-  const smsFrom = process.env.TWILIO_SMS_FROM;
-  const waFrom = process.env.TWILIO_WHATSAPP_FROM;
-  const tasks: Promise<void>[] = [];
-  if (smsFrom) tasks.push(twilioSend({ To: to, From: smsFrom, Body: body }));
-  else console.warn("[notify] TWILIO_SMS_FROM not set — skipping SMS");
-  if (waFrom) {
-    const waTo = to.startsWith("whatsapp:") ? to : `whatsapp:${to}`;
-    const waFromFmt = waFrom.startsWith("whatsapp:") ? waFrom : `whatsapp:${waFrom}`;
-    tasks.push(twilioSend({ To: waTo, From: waFromFmt, Body: body }));
-  } else {
-    console.warn("[notify] TWILIO_WHATSAPP_FROM not set — skipping WhatsApp");
-  }
-  await Promise.allSettled(tasks);
+  const [sms, whatsapp] = await Promise.all([sendSms(to, p), sendWhatsApp(to, p)]);
+  return { provider: "msg91", sms, whatsapp };
 }
