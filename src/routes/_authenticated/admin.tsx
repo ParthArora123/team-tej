@@ -120,101 +120,279 @@ function StatCard({ label, value, accent }: { label: string; value: any; accent?
   );
 }
 
-const emptyWs = {
+const todayISO = () => new Date().toISOString().slice(0, 10);
+
+const emptyWs = () => ({
   id: undefined as string | undefined,
-  kind: "workshop", name: "", description: "", banner_url: "",
+  kind: "workshop", name: "", description: "", banner_url: "", banner_path: "",
+  banner_preview: "" as string,
   event_date: "", event_time: "", venue: "", instructor: "",
   duration: "", capacity: "", price_inr: "", registration_closes_on: "",
+  registration_open_on: todayISO(),
   category: "", style: "", published: false,
+  silver_seat_enabled: false,
   upi_id: "", clear_upi: false, has_upi: false,
-};
+});
 
 function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
-  const [f, setF] = useState<any>(emptyWs);
-  const [msg, setMsg] = useState("");
+  const uploadImage = useServerFn(adminUploadWorkshopImage);
+  const [f, setF] = useState<any>(emptyWs());
+  const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const edit = (r: any) => setF({
     id: r.id, kind: r.kind, name: r.name ?? "", description: r.description ?? "",
-    banner_url: r.banner_url ?? "", event_date: r.event_date ?? "", event_time: r.event_time ?? "",
+    banner_url: r.banner_url ?? "", banner_path: r.banner_path ?? "",
+    banner_preview: r.banner_signed_url ?? r.banner_url ?? "",
+    event_date: r.event_date ?? "", event_time: r.event_time ?? "",
     venue: r.venue ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
     capacity: r.capacity ?? "", price_inr: r.price_inr ?? "",
-    registration_closes_on: r.registration_closes_on ?? "", category: r.category ?? "",
+    registration_closes_on: r.registration_closes_on ?? "",
+    registration_open_on: r.registration_open_on ?? todayISO(),
+    category: r.category ?? "",
     style: r.style ?? "", published: !!r.published,
+    silver_seat_enabled: !!r.silver_seat_enabled,
     upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
   });
 
+  const handleFile = async (file: File) => {
+    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+      toast.error("Only JPG, PNG or WebP images are allowed.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("Image is too large. Max 8 MB.");
+      return;
+    }
+    setUploading(true);
+    try {
+      const buf = await file.arrayBuffer();
+      let binary = "";
+      const bytes = new Uint8Array(buf);
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      const dataBase64 = btoa(binary);
+      const res = await uploadImage({ data: { filename: file.name, contentType: file.type, dataBase64 } });
+      setF((s: any) => ({ ...s, banner_path: res.path, banner_url: "", banner_preview: res.url ?? URL.createObjectURL(file) }));
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
+    setBusy(true);
     try {
       await onSave({ data: {
-        ...f, price_inr: Number(f.price_inr),
+        ...f,
+        price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
         upi_id: f.upi_id?.trim() || undefined,
         clear_upi: !!f.clear_upi,
+        silver_seat_enabled: !!f.silver_seat_enabled,
+        banner_url: f.banner_url || undefined,
+        banner_path: f.banner_path || undefined,
+        registration_open_on: f.registration_open_on || undefined,
       }});
-      setMsg("Saved."); setF(emptyWs); reload();
-    } catch (e: any) { setMsg(e.message); }
+      toast.success(f.id ? "Workshop updated successfully!" : "Workshop published successfully!", { duration: 3500 });
+      setF(emptyWs()); reload();
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to save workshop");
+    } finally { setBusy(false); }
   };
 
   return (
-    <div className="mt-8 grid lg:grid-cols-[1fr_1fr] gap-6">
-      <form onSubmit={save} className="bg-card border border-border rounded-2xl p-5 space-y-3">
-        <p className="font-display text-lg font-bold">{f.id ? "Edit workshop" : "Add workshop"}</p>
-        <In placeholder="Workshop name *" v={f.name} on={(v) => setF({ ...f, name: v })} required />
-        <textarea placeholder="Description" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
-          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" rows={3} />
-        <In placeholder="Banner image URL (https://…)" v={f.banner_url} on={(v) => setF({ ...f, banner_url: v })} />
-        <div className="grid grid-cols-2 gap-2">
-          <In type="date" placeholder="Event date" v={f.event_date} on={(v) => setF({ ...f, event_date: v })} />
-          <In placeholder="Time (e.g. 4:00 PM)" v={f.event_time} on={(v) => setF({ ...f, event_time: v })} />
-          <In placeholder="Venue" v={f.venue} on={(v) => setF({ ...f, venue: v })} />
-          <In placeholder="Instructor" v={f.instructor} on={(v) => setF({ ...f, instructor: v })} />
-          <In placeholder="Duration (e.g. 2 hrs)" v={f.duration} on={(v) => setF({ ...f, duration: v })} />
-          <In placeholder="Category (e.g. Hip-Hop)" v={f.category} on={(v) => setF({ ...f, category: v })} />
-          <In type="number" placeholder="Capacity" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
-          <In type="number" placeholder="Fee (₹) *" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
-          <In type="date" placeholder="Registration closes" v={f.registration_closes_on} on={(v) => setF({ ...f, registration_closes_on: v })} />
-          <select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}
-            className="px-3 py-2 rounded-lg bg-muted border border-border text-sm">
-            <option value="workshop">Workshop</option>
-            <option value="nritya_sadhana">Nritya Sadhana</option>
-            <option value="zero_to_hero">Zero to Hero</option>
-            <option value="online_training">Online Training</option>
-          </select>
+    <div className="mt-8 grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-6">
+      <form onSubmit={save} className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="px-6 py-5 border-b border-border bg-gradient-to-br from-primary/5 via-transparent to-transparent">
+          <p className="text-[11px] uppercase tracking-widest text-primary/80">
+            {f.id ? "Editing" : "New"}
+          </p>
+          <h3 className="font-display text-2xl font-bold mt-0.5">
+            {f.id ? "Edit workshop" : "Add workshop"}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            Fill in the details, upload a cover image and publish when ready.
+          </p>
         </div>
-        <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
-          <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "UPI ID (e.g. tejas@upi)"}
-            v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
-          <p className="text-[11px] text-muted-foreground">Stored encrypted at rest. Shown only on the payment page.</p>
-          {f.has_upi && (
-            <label className="flex items-center gap-2 text-xs">
-              <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
-              Remove saved UPI and fall back to default
-            </label>
-          )}
+
+        <div className="p-6 space-y-6">
+          {/* Cover image uploader */}
+          <FieldWrap label="Workshop image" hint="JPG, PNG or WebP · up to 8 MB">
+            <div
+              onClick={() => fileRef.current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => { e.preventDefault(); const f0 = e.dataTransfer.files?.[0]; if (f0) handleFile(f0); }}
+              className="group relative flex items-center gap-4 rounded-xl border border-dashed border-border bg-muted/30 hover:bg-muted/50 hover:border-primary/50 transition cursor-pointer p-3"
+            >
+              <div className="h-20 w-28 rounded-lg overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                {f.banner_preview ? (
+                  <img src={f.banner_preview} alt="preview" className="h-full w-full object-cover" />
+                ) : (
+                  <ImageUp size={22} className="text-muted-foreground" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <Upload size={14} /> {uploading ? "Uploading…" : f.banner_preview ? "Replace image" : "Click or drop an image"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                  {f.banner_path ? f.banner_path.split("/").pop() : "Shown on the public workshop card and detail page."}
+                </p>
+              </div>
+              {f.banner_preview && (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setF({ ...f, banner_path: "", banner_url: "", banner_preview: "" }); }}
+                  className="p-1.5 rounded-full bg-background border border-border hover:bg-destructive hover:text-white transition"
+                  aria-label="Remove image"
+                >
+                  <X size={14} />
+                </button>
+              )}
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => { const f0 = e.target.files?.[0]; if (f0) handleFile(f0); e.currentTarget.value = ""; }}
+              />
+            </div>
+          </FieldWrap>
+
+          {/* Basics */}
+          <div className="space-y-4">
+            <FieldWrap label="Workshop name" required>
+              <In placeholder="e.g. Contemporary Intensive with Tejas"
+                v={f.name} on={(v) => setF({ ...f, name: v })} required />
+            </FieldWrap>
+
+            <FieldWrap label="Description">
+              <textarea placeholder="Short summary shown on the workshop card…"
+                value={f.description}
+                onChange={(e) => setF({ ...f, description: e.target.value })}
+                className="w-full px-3 py-2.5 rounded-lg bg-muted border border-border text-sm focus:outline-none focus:ring-1 focus:ring-primary/60"
+                rows={3} />
+            </FieldWrap>
+          </div>
+
+          {/* Schedule */}
+          <div className="pt-2">
+            <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Schedule</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <FieldWrap label="Registration open" icon={<CalendarDays size={13} />} hint="Defaults to today">
+                <In type="date" v={f.registration_open_on} on={(v) => setF({ ...f, registration_open_on: v })} />
+              </FieldWrap>
+              <FieldWrap label="Registration closes" icon={<CalendarDays size={13} />}>
+                <In type="date" v={f.registration_closes_on} on={(v) => setF({ ...f, registration_closes_on: v })} />
+              </FieldWrap>
+              <FieldWrap label="Workshop date" icon={<CalendarDays size={13} />}>
+                <In type="date" v={f.event_date} on={(v) => setF({ ...f, event_date: v })} />
+              </FieldWrap>
+              <FieldWrap label="Workshop time" icon={<Clock size={13} />}>
+                <In type="time" v={f.event_time} on={(v) => setF({ ...f, event_time: v })} />
+              </FieldWrap>
+            </div>
+          </div>
+
+          {/* Details */}
+          <div className="pt-2">
+            <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Details</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <FieldWrap label="Venue"><In placeholder="Studio address" v={f.venue} on={(v) => setF({ ...f, venue: v })} /></FieldWrap>
+              <FieldWrap label="Instructor"><In placeholder="Lead instructor" v={f.instructor} on={(v) => setF({ ...f, instructor: v })} /></FieldWrap>
+              <FieldWrap label="Duration"><In placeholder="e.g. 2 hrs" v={f.duration} on={(v) => setF({ ...f, duration: v })} /></FieldWrap>
+              <FieldWrap label="Category"><In placeholder="e.g. Hip-Hop" v={f.category} on={(v) => setF({ ...f, category: v })} /></FieldWrap>
+              <FieldWrap label="Capacity"><In type="number" placeholder="Seats" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} /></FieldWrap>
+              <FieldWrap label="Fee (₹)" required>
+                <In type="number" placeholder="e.g. 1500" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
+              </FieldWrap>
+              <FieldWrap label="Program type">
+                <select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-lg bg-muted border border-border text-sm">
+                  <option value="workshop">Workshop</option>
+                  <option value="nritya_sadhana">Nritya Sadhana</option>
+                  <option value="zero_to_hero">Zero to Hero</option>
+                  <option value="online_training">Online Training</option>
+                </select>
+              </FieldWrap>
+            </div>
+          </div>
+
+          {/* Silver seat */}
+          <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 to-transparent p-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <p className="text-sm font-semibold flex items-center gap-2">
+                  <Sparkles size={14} className="text-primary" /> Silver Seat option
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Adds a premium ₹1,000 tier participants can pick during registration. When disabled it never appears.
+                </p>
+              </div>
+              <ToggleSwitch checked={!!f.silver_seat_enabled} onChange={(v) => setF({ ...f, silver_seat_enabled: v })} />
+            </div>
+          </div>
+
+          {/* Payment UPI */}
+          <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2">
+            <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
+            <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "UPI ID (e.g. tejas@upi)"}
+              v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
+            <p className="text-[11px] text-muted-foreground">Stored encrypted at rest. Shown only on the payment page.</p>
+            {f.has_upi && (
+              <label className="flex items-center gap-2 text-xs">
+                <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
+                Remove saved UPI and fall back to default
+              </label>
+            )}
+          </div>
+
+          {/* Publish */}
+          <label className="flex items-center gap-3 rounded-xl border border-border p-3 bg-card">
+            <input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} />
+            <span className="text-sm">
+              <span className="font-medium">Publish</span>
+              <span className="block text-xs text-muted-foreground">Make this workshop visible to customers.</span>
+            </span>
+          </label>
+
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+            <button type="submit" disabled={busy || uploading}
+              className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-60">
+              {busy ? "Saving…" : f.id ? "Update workshop" : "Publish workshop"}
+            </button>
+            {f.id && (
+              <button type="button" onClick={() => setF(emptyWs())}
+                className="px-4 py-2.5 rounded-lg bg-muted text-sm">Cancel</button>
+            )}
+          </div>
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} />
-          Publish (visible to customers)
-        </label>
-        <div className="flex gap-2">
-          <button type="submit" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">
-            {f.id ? "Update" : "Save"}
-          </button>
-          {f.id && <button type="button" onClick={() => setF(emptyWs)} className="px-4 py-2 rounded-lg bg-muted text-sm">Cancel</button>}
-        </div>
-        {msg && <p className="text-xs text-muted-foreground">{msg}</p>}
       </form>
 
       <div className="space-y-3">
         {rows.map((r: any) => (
-          <div key={r.id} className="bg-card border border-border rounded-xl p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-medium">{r.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {r.event_date ?? "—"} · {r.venue ?? "—"} · ₹{r.price_inr} · {r.seats_taken ?? 0}/{r.capacity ?? "∞"} seats
+          <div key={r.id} className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="flex gap-3 p-3">
+              <div className="h-20 w-28 rounded-lg overflow-hidden bg-muted shrink-0">
+                {(r.banner_signed_url || r.banner_url) ? (
+                  <img src={r.banner_signed_url || r.banner_url} alt={r.name} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs">No image</div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{r.name}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {r.event_date ?? "—"} {r.event_time ? `· ${r.event_time}` : ""} · {r.venue ?? "—"}
+                </p>
+                <p className="text-xs mt-1">
+                  ₹{r.price_inr}
+                  {r.silver_seat_enabled && <span className="ml-1 text-primary">· Silver +₹1,000</span>}
+                  <span className="text-muted-foreground"> · {r.seats_taken ?? 0}/{r.capacity ?? "∞"}</span>
                 </p>
                 <p className="text-[11px] mt-1 flex flex-wrap gap-2">
                   <span className={r.published ? "text-emerald-400" : "text-amber-400"}>
@@ -225,11 +403,11 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                   </span>
                 </p>
               </div>
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 shrink-0">
                 <button onClick={() => edit(r)} className="px-3 py-1 text-xs rounded bg-muted">Edit</button>
-                <button onClick={async () => { await onPub({ data: { id: r.id, published: !r.published }}); reload(); }}
+                <button onClick={async () => { await onPub({ data: { id: r.id, published: !r.published }}); reload(); toast.success(!r.published ? "Published" : "Unpublished"); }}
                   className="px-3 py-1 text-xs rounded bg-muted">{r.published ? "Unpublish" : "Publish"}</button>
-                <button onClick={async () => { if (confirm("Delete?")) { await onDel({ data: { id: r.id }}); reload(); }}}
+                <button onClick={async () => { if (confirm("Delete?")) { await onDel({ data: { id: r.id }}); reload(); toast.success("Deleted"); }}}
                   className="px-3 py-1 text-xs rounded bg-destructive text-white">Delete</button>
               </div>
             </div>
@@ -240,6 +418,33 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
     </div>
   );
 }
+
+function FieldWrap({ label, hint, required, icon, children }: { label: string; hint?: string; required?: boolean; icon?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">
+        {icon}{label}{required && <span className="text-primary">*</span>}
+      </span>
+      {children}
+      {hint && <span className="block text-[11px] text-muted-foreground mt-1">{hint}</span>}
+    </label>
+  );
+}
+
+function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition ${checked ? "bg-primary" : "bg-muted border border-border"}`}
+    >
+      <span className={`inline-block h-5 w-5 transform rounded-full bg-background shadow transition ${checked ? "translate-x-5" : "translate-x-0.5"}`} />
+    </button>
+  );
+}
+
 
 function In({ v, on, ...p }: { v: string; on: (v: string) => void; [k: string]: any }) {
   return <input value={v} onChange={(e) => on(e.target.value)} {...p}
