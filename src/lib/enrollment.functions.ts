@@ -136,6 +136,8 @@ const workshopSchema = z.object({
   category: z.string().optional(),
   style: z.string().optional(),
   published: z.boolean().default(false),
+  upi_id: z.string().max(120).optional().or(z.literal("")),
+  clear_upi: z.boolean().optional(),
 });
 
 export const adminSaveWorkshop = createServerFn({ method: "POST" })
@@ -144,18 +146,25 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const clean = {
-      ...data,
-      banner_url: data.banner_url || null,
-      event_date: data.event_date || null,
-      registration_closes_on: data.registration_closes_on || null,
+    const { upi_id, clear_upi, ...rest } = data;
+    const clean: any = {
+      ...rest,
+      banner_url: rest.banner_url || null,
+      event_date: rest.event_date || null,
+      registration_closes_on: rest.registration_closes_on || null,
     };
+    if (clear_upi) {
+      clean.upi_id_encrypted = null;
+    } else if (upi_id && upi_id.trim()) {
+      const { encryptSecret, sanitizeUpiId } = await import("./crypto.server");
+      clean.upi_id_encrypted = encryptSecret(sanitizeUpiId(upi_id));
+    }
     if (data.id) {
       const { error } = await supabaseAdmin.from("programs").update(clean).eq("id", data.id);
       if (error) throw error;
       return { ok: true, id: data.id };
     }
-    const { data: row, error } = await supabaseAdmin.from("programs").insert(clean as any).select("id").single();
+    const { data: row, error } = await supabaseAdmin.from("programs").insert(clean).select("id").single();
     if (error) throw error;
     return { ok: true, id: row.id };
   });
