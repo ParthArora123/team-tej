@@ -50,12 +50,14 @@ const stats = [
   { value: "40+", label: "Live productions" },
 ];
 
-const team = [
-  { name: "Tej Sharma", role: "Founder · Artistic Director", initial: "T", bio: "Twelve years on stage. Trained at NIPA & Rambert." },
-  { name: "Ria Kapoor", role: "Senior Choreographer", initial: "R", bio: "Resident choreographer for fusion and contemporary." },
-  { name: "Aman Verma", role: "Head of Hip-Hop", initial: "A", bio: "Industry choreographer. Reels, films, live tours." },
-  { name: "Niharika Das", role: "Classical & Kathak Lead", initial: "N", bio: "Kathak Visharad. Bridges classical into fusion form." },
-];
+type TeamMember = {
+  id: string;
+  name: string;
+  designation?: string | null;
+  short_description?: string | null;
+  photo_url?: string | null;
+};
+
 
 const stagger = {
   hidden: {},
