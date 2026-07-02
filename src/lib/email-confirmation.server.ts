@@ -34,13 +34,14 @@ export async function sendConfirmationEmail(p: ConfirmationEmailPayload): Promis
     verifyUrl: p.verifyUrl,
   };
 
-  const { error } = await supabaseAdmin.rpc("enqueue_email" as any, {
+  const { error } = await (supabaseAdmin.rpc as any)("enqueue_email", {
     queue_name: "transactional_emails",
     template_name: "workshop-confirmation",
     recipient_email: p.to,
     template_data: templateData,
     idempotency_key: `confirm-${p.ticketCode}`,
-  } as any);
+  });
+
 
   if (error) {
     // RPC not present yet (email infra not provisioned) — skip silently but log.
