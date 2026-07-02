@@ -5,11 +5,12 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   listAllEnrollments, approveEnrollment, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
+  adminListTeam, adminSetUserAdmin,
 } from "@/lib/enrollment.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "approvals" | "students" | "scan";
+type Tab = "overview" | "workshops" | "approvals" | "students" | "team" | "scan";
 
 function AdminPage() {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ function AdminPage() {
       <h1 className="font-display text-4xl font-bold mt-1">Control room</h1>
 
       <div className="mt-6 flex gap-2 flex-wrap">
-        {(["overview","workshops","approvals","students","scan"] as Tab[]).map((t) => (
+        {(["overview","workshops","approvals","students","team","scan"] as Tab[]).map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2 rounded-full text-sm capitalize ${tab===t?"bg-primary text-primary-foreground":"bg-muted"}`}>
             {t}
@@ -100,6 +101,8 @@ function AdminPage() {
       )}
 
       {tab === "students" && <StudentsTab rows={enrs} />}
+
+      {tab === "team" && <TeamTab />}
 
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
@@ -383,6 +386,109 @@ function ScanTab({ onScan }: { onScan: any }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function TeamTab() {
+  const list = useServerFn(adminListTeam);
+  const setRole = useServerFn(adminSetUserAdmin);
+  const check = useServerFn(checkIsAdmin);
+  const [rows, setRows] = useState<any[]>([]);
+  const [me, setMe] = useState<string>("");
+  const [q, setQ] = useState("");
+  const [busy, setBusy] = useState<string>("");
+  const [err, setErr] = useState("");
+
+  const load = async () => {
+    setErr("");
+    try {
+      const [team] = await Promise.all([list()]);
+      setRows(team);
+    } catch (e: any) { setErr(e.message); }
+  };
+  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    // Track self so we can disable the toggle on our own row
+    import("@/integrations/supabase/client").then(({ supabase }) =>
+      supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? ""))
+    );
+  }, []);
+
+  const filtered = rows.filter((r) => {
+    if (!q.trim()) return true;
+    const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""}`.toLowerCase();
+    return hay.includes(q.trim().toLowerCase());
+  });
+
+  const toggle = async (r: any) => {
+    setErr(""); setBusy(r.id);
+    try {
+      await setRole({ data: { userId: r.id, makeAdmin: !r.is_admin } });
+      await load();
+    } catch (e: any) { setErr(e.message); }
+    finally { setBusy(""); }
+  };
+
+  return (
+    <div className="mt-8">
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone…"
+          className="flex-1 min-w-[240px] px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
+        <p className="text-xs text-muted-foreground">
+          {rows.filter((r) => r.is_admin).length} admin · {rows.length} total
+        </p>
+      </div>
+      {err && <p className="text-xs text-destructive mb-3">{err}</p>}
+
+      <div className="overflow-x-auto rounded-xl border border-border bg-card">
+        <table className="w-full text-sm">
+          <thead className="text-xs uppercase tracking-wider text-muted-foreground bg-muted/40">
+            <tr>
+              <th className="text-left px-3 py-2">Name</th>
+              <th className="text-left px-3 py-2">Email</th>
+              <th className="text-left px-3 py-2">Phone</th>
+              <th className="text-left px-3 py-2">Role</th>
+              <th className="text-right px-3 py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r) => {
+              const self = r.id === me;
+              return (
+                <tr key={r.id} className="border-t border-border/60 hover:bg-muted/30">
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    {r.full_name || <span className="text-muted-foreground">—</span>}
+                    {self && <span className="ml-2 text-[10px] uppercase tracking-widest text-primary">you</span>}
+                  </td>
+                  <td className="px-3 py-2 whitespace-nowrap">{r.email}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">{r.phone || "—"}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    {r.is_admin
+                      ? <span className="px-2 py-0.5 rounded-full bg-primary/15 text-primary text-xs">Admin</span>
+                      : <span className="px-2 py-0.5 rounded-full bg-muted text-xs">User</span>}
+                  </td>
+                  <td className="px-3 py-2 whitespace-nowrap text-right">
+                    <button onClick={() => toggle(r)} disabled={busy === r.id || (self && r.is_admin)}
+                      title={self && r.is_admin ? "You cannot remove your own admin role" : ""}
+                      className={`px-3 py-1.5 rounded-lg text-xs disabled:opacity-40 ${
+                        r.is_admin ? "bg-destructive text-white" : "bg-primary text-primary-foreground"
+                      }`}>
+                      {busy === r.id ? "…" : r.is_admin ? "Revoke admin" : "Make admin"}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+            {filtered.length === 0 && (
+              <tr><td colSpan={5} className="px-3 py-6 text-center text-muted-foreground">No team members match.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <p className="text-[11px] text-muted-foreground mt-2">
+        Only signed-up users appear here. Ask a teammate to sign in once, then grant them admin.
+      </p>
     </div>
   );
 }
