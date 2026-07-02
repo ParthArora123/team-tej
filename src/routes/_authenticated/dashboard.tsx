@@ -102,12 +102,13 @@ function Dashboard() {
 
                       <div className="mt-5 w-full max-w-sm space-y-3">
                         <div className="block">
-                          <span className="text-xs uppercase tracking-wider text-muted-foreground">Upload your payment screenshot</span>
-                          <label
-                            htmlFor={`payment-proof-${r.id}`}
-                            className="mt-2 relative flex items-center justify-center gap-2 rounded-lg border border-dashed border-primary/50 bg-primary/10 px-4 py-4 text-sm font-medium text-primary cursor-pointer active:scale-[0.99] overflow-hidden"
-                          >
-                            <Upload size={16} /> {file ? "Change payment screenshot" : "Choose payment screenshot"}
+                          <label htmlFor={`payment-proof-${r.id}`} className="text-xs uppercase tracking-wider text-muted-foreground">
+                            Upload your payment screenshot
+                          </label>
+                          <div className="mt-2 rounded-lg border border-dashed border-primary/50 bg-primary/10 px-4 py-4">
+                            <div className="mb-2 flex items-center justify-center gap-2 text-sm font-medium text-primary">
+                              <Upload size={16} /> {file ? "Change payment screenshot" : "Choose payment screenshot"}
+                            </div>
                             <input
                               type="file"
                               accept="image/png,image/jpeg,image/webp"
@@ -124,9 +125,9 @@ function Dashboard() {
                                 setPreview(f ? URL.createObjectURL(f) : "");
                               }}
                               id={`payment-proof-${r.id}`}
-                              className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                              className="block w-full cursor-pointer rounded-md border border-border bg-background text-sm text-foreground file:mr-3 file:cursor-pointer file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-foreground"
                             />
-                          </label>
+                          </div>
                           {file && <span className="mt-2 block truncate text-xs text-foreground">{file.name}</span>}
                           <span className="mt-1 block text-[11px] text-muted-foreground">
                             Upload the success receipt from your UPI app (GPay, PhonePe, Paytm, BHIM, bank app). We auto-verify it.
