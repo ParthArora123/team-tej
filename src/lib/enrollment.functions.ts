@@ -102,7 +102,10 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
         ticket_generated_at: now,
         approved_at: now,
         approved_by: context.userId,
+        payer_upi_id: data.payerUpiId,
+        payment_utr: data.utr,
       })
+
       .eq("id", existing.id)
       // Only issue a ticket once — guards against duplicate generation on
       // concurrent clicks; if another request already confirmed, this is a no-op.
