@@ -104,6 +104,13 @@
   }
 }
 
+html, body {
+  overflow-x: clip;
+  max-width: 100vw;
+}
+
+
+
 @utility text-balance {
   text-wrap: balance;
 }
