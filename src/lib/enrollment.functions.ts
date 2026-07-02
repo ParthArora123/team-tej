@@ -61,7 +61,17 @@ export const listMyEnrollments = createServerFn({ method: "GET" })
       .from("enrollments").select("*, program:programs(*)")
       .eq("user_id", context.userId).order("created_at", { ascending: false });
     if (error) throw error;
-    return data ?? [];
+    const { decryptSecret } = await import("./crypto.server");
+    // Decrypt the workshop's UPI ID for the enrollee to display on the payment
+    // page only. The ciphertext column is never returned to the client.
+    return (data ?? []).map((r: any) => {
+      if (r.program) {
+        const upi = decryptSecret(r.program.upi_id_encrypted);
+        const { upi_id_encrypted, ...rest } = r.program;
+        r.program = { ...rest, upi_id: upi };
+      }
+      return r;
+    });
   });
 
 async function assertAdmin(context: any) {
