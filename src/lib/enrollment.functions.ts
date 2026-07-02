@@ -43,15 +43,83 @@ export const createEnrollment = createServerFn({ method: "POST" })
     return enr;
   });
 
+// Auto-confirms the enrollment: marks payment successful, generates a unique
+// ticket code, increments seats taken, and sends SMS + WhatsApp confirmation
+// to the mobile number captured at registration.
 export const markPaymentSubmitted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ enrollmentId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("enrollments")
-      .update({ status: "payment_submitted" })
-      .eq("id", data.enrollmentId).eq("user_id", context.userId);
-    if (error) throw error;
-    return { ok: true };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: existing, error: exErr } = await supabaseAdmin
+      .from("enrollments")
+      .select("id, user_id, status, ticket_code, program_id, full_name, phone, amount_inr")
+      .eq("id", data.enrollmentId)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (exErr) throw exErr;
+    if (!existing) throw new Error("Registration not found");
+
+    // Idempotent — never re-issue or re-notify for an already-confirmed ticket.
+    if (existing.status === "confirmed" && existing.ticket_code) {
+      return { ok: true, ticket: existing.ticket_code, already: true };
+    }
+
+    // Cryptographically-random, unique ticket code.
+    const { randomBytes } = await import("crypto");
+    let ticket = "";
+    for (let i = 0; i < 5; i++) {
+      const candidate = "TTJ-" + randomBytes(6).toString("base64url")
+        .toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10);
+      const { data: clash } = await supabaseAdmin
+        .from("enrollments").select("id").eq("ticket_code", candidate).maybeSingle();
+      if (!clash) { ticket = candidate; break; }
+    }
+    if (!ticket) throw new Error("Could not allocate ticket code, please retry.");
+
+    const now = new Date().toISOString();
+    const { error: upErr } = await supabaseAdmin
+      .from("enrollments").update({
+        status: "confirmed",
+        ticket_code: ticket,
+        approved_at: now,
+        approved_by: context.userId,
+        payment_confirmed_at: now,
+        ticket_generated_at: now,
+      }).eq("id", existing.id);
+    if (upErr) throw upErr;
+
+    if (existing.program_id) {
+      const { data: p } = await supabaseAdmin
+        .from("programs").select("seats_taken, name, event_date, event_time, venue")
+        .eq("id", existing.program_id).single();
+      await supabaseAdmin.from("programs")
+        .update({ seats_taken: (p?.seats_taken ?? 0) + 1 })
+        .eq("id", existing.program_id);
+
+      try {
+        const { sendConfirmation } = await import("./notify.server");
+        const origin = process.env.PUBLIC_SITE_URL
+          ?? process.env.SITE_URL
+          ?? "https://team-tej.lovable.app";
+        await sendConfirmation({
+          studentName: existing.full_name ?? "Student",
+          workshopName: p?.name ?? "Team Tej Workshop",
+          eventDate: p?.event_date ? new Date(p.event_date).toDateString() : null,
+          eventTime: p?.event_time ?? null,
+          venue: p?.venue ?? null,
+          ticketCode: ticket,
+          amount: existing.amount_inr ?? 0,
+          verifyUrl: `${origin}/verify?code=${encodeURIComponent(ticket)}`,
+          phone: existing.phone ?? "",
+        });
+      } catch (e) {
+        console.error("[markPaymentSubmitted] notify failed:", e);
+      }
+    }
+
+    return { ok: true, ticket };
   });
 
 export const listMyEnrollments = createServerFn({ method: "GET" })

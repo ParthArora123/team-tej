@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { QRCodeSVG } from "qrcode.react";
 import {
-  listAllEnrollments, approveEnrollment, adminSaveWorkshop, adminSetPublished,
+  listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
   adminListTeam, adminSetUserAdmin, adminAddTeamByEmail,
 } from "@/lib/enrollment.functions";
@@ -14,14 +14,13 @@ import {
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "profiles" | "approvals" | "students" | "team" | "scan";
+type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
   { id: "team", label: "Team roles", emphasis: true },
   { id: "profiles", label: "Home profiles", emphasis: true },
   { id: "workshops", label: "Workshops" },
-  { id: "approvals", label: "Approvals" },
   { id: "students", label: "Students" },
   { id: "scan", label: "Scan" },
 ];
@@ -31,7 +30,7 @@ function AdminPage() {
   const navigate = useNavigate();
   const fetchStats = useServerFn(adminStats);
   const fetchAll = useServerFn(listAllEnrollments);
-  const approve = useServerFn(approveEnrollment);
+  // Payments now auto-confirm — no manual approve step.
   const fetchWorkshops = useServerFn(adminListWorkshops);
   const saveWorkshop = useServerFn(adminSaveWorkshop);
   const setPublished = useServerFn(adminSetPublished);
@@ -81,9 +80,7 @@ function AdminPage() {
           <StatCard label="Total workshops" value={stats.totalWorkshops} />
           <StatCard label="Published" value={stats.activeWorkshops} />
           <StatCard label="Total registrations" value={stats.totalRegs} />
-          <StatCard label="Pending payment approval" value={stats.pending} accent />
-          <StatCard label="Approved" value={stats.approved} />
-          <StatCard label="Rejected" value={stats.rejected} />
+          <StatCard label="Confirmed (paid)" value={stats.approved} accent />
           <StatCard label="Awaiting payment" value={stats.awaiting} />
           <StatCard label="Revenue (₹)" value={stats.revenue.toLocaleString("en-IN")} />
         </div>
@@ -93,36 +90,8 @@ function AdminPage() {
         <WorkshopsTab rows={workshops} onSave={saveWorkshop} onDel={delWorkshop} onPub={setPublished} reload={reload} />
       )}
 
-      {tab === "approvals" && (
-        <div className="mt-8 grid gap-3">
-          {enrs.length === 0 && <p className="text-muted-foreground">No registrations yet.</p>}
-          {enrs.map((r) => (
-            <div key={r.id} className="bg-card border border-border rounded-xl p-5">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div className="text-sm">
-                  <p className="font-medium">{r.program?.name} · ₹{r.amount_inr}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {r.full_name ?? r.profile?.full_name} · {r.email ?? r.profile?.email} · {r.phone ?? r.profile?.phone}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {[r.gender, r.age && `${r.age}y`, r.city, r.state].filter(Boolean).join(" · ")}
-                  </p>
-                  {r.emergency_contact && <p className="text-[11px] text-muted-foreground">Emergency: {r.emergency_contact}</p>}
-                  <p className="text-[11px] mt-1">Status: <span className="text-primary">{r.status}</span> {r.ticket_code ? `· ${r.ticket_code}` : ""}</p>
-                </div>
-                {r.status === "payment_submitted" && (
-                  <div className="flex gap-2">
-                    <button onClick={async () => { await approve({ data: { enrollmentId: r.id, approve: true }}); reload(); }}
-                      className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm">Approve & issue ticket</button>
-                    <button onClick={async () => { await approve({ data: { enrollmentId: r.id, approve: false }}); reload(); }}
-                      className="px-4 py-2 rounded-lg bg-destructive text-white text-sm">Reject</button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Approvals tab removed — payments auto-confirm and tickets issue instantly. */}
+
 
       {tab === "students" && <StudentsTab rows={enrs} />}
 

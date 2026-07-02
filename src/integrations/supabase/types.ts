@@ -44,12 +44,14 @@ export type Database = {
           gender: string | null
           id: string
           medical_info: string | null
+          payment_confirmed_at: string | null
           payment_note: string | null
           phone: string | null
           program_id: string
           state: string | null
           status: Database["public"]["Enums"]["enrollment_status"]
           ticket_code: string | null
+          ticket_generated_at: string | null
           updated_at: string
           user_id: string
         }
@@ -67,12 +69,14 @@ export type Database = {
           gender?: string | null
           id?: string
           medical_info?: string | null
+          payment_confirmed_at?: string | null
           payment_note?: string | null
           phone?: string | null
           program_id: string
           state?: string | null
           status?: Database["public"]["Enums"]["enrollment_status"]
           ticket_code?: string | null
+          ticket_generated_at?: string | null
           updated_at?: string
           user_id: string
         }
@@ -90,12 +94,14 @@ export type Database = {
           gender?: string | null
           id?: string
           medical_info?: string | null
+          payment_confirmed_at?: string | null
           payment_note?: string | null
           phone?: string | null
           program_id?: string
           state?: string | null
           status?: Database["public"]["Enums"]["enrollment_status"]
           ticket_code?: string | null
+          ticket_generated_at?: string | null
           updated_at?: string
           user_id?: string
         }
