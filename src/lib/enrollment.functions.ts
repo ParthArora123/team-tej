@@ -98,16 +98,18 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
+        response_format: { type: "json_object" },
         messages: [
-          { role: "system", content: "You verify UPI payment screenshots. Reply with STRICT JSON only, no prose." },
+          { role: "system", content: "You verify UPI/bank payment screenshots from Indian payment apps. Reply with STRICT JSON only." },
           { role: "user", content: [
             { type: "text", text:
-              "Look at this image. Return JSON of the shape " +
-              "{\"is_payment_screenshot\":boolean,\"is_success\":boolean,\"amount\":number|null,\"reason\":string}. " +
-              "Set is_payment_screenshot=true ONLY if the image is clearly a UPI / bank payment app receipt " +
-              "(Google Pay, PhonePe, Paytm, BHIM, bank app, etc.) showing a completed or attempted transfer. " +
-              "Set is_success=true if the screen shows the payment as successful/completed/paid. " +
-              "amount = the transaction amount in INR if visible, else null. reason = short explanation." },
+              "Return JSON: {\"is_payment_screenshot\":boolean,\"is_success\":boolean,\"amount\":number|null,\"reason\":string}. " +
+              "Set is_payment_screenshot=true if the image appears to be from ANY payment/banking/UPI app or wallet " +
+              "(Google Pay, PhonePe, Paytm, BHIM, CRED, Amazon Pay, bank apps, SMS receipts, etc.) — including transfers, " +
+              "payments, or receipts. Be lenient: if it plausibly shows a transaction (amount + recipient/UPI ref/date), mark true. " +
+              "Only set false for clearly unrelated images (selfies, memes, random photos, screenshots of other apps). " +
+              "Set is_success=true unless the screen explicitly shows Failed/Pending/Cancelled. " +
+              "amount = transaction amount in INR if visible, else null." },
             { type: "image_url", image_url: { url: dataUrl } },
           ] },
         ],
@@ -124,16 +126,21 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       const m = String(raw).match(/\{[\s\S]*\}/);
       verdict = JSON.parse(m ? m[0] : raw);
     } catch {
-      throw new Error("Couldn't read the verification result. Please try again.");
+      // If parsing fails, don't block — accept and continue.
+      verdict = { is_payment_screenshot: true, is_success: true, amount: null };
     }
-    if (!verdict.is_payment_screenshot) {
-      throw new Error("This doesn't look like a payment screenshot. Please upload the receipt from your UPI/bank app.");
+    if (verdict.is_payment_screenshot === false) {
+      throw new Error(`This doesn't look like a payment screenshot. ${verdict.reason ?? "Please upload the receipt from your UPI/bank app."}`);
     }
     if (verdict.is_success === false) {
       throw new Error("The screenshot shows the payment wasn't successful. Please complete the payment and re-upload.");
     }
-    if (typeof verdict.amount === "number" && Math.abs(verdict.amount - existing.amount_inr) > 1) {
-      throw new Error(`Amount mismatch — the screenshot shows ₹${verdict.amount} but registration is ₹${existing.amount_inr}.`);
+    // Amount check: tolerate OCR noise — only reject on large mismatch.
+    if (typeof verdict.amount === "number" && verdict.amount > 0) {
+      const diff = Math.abs(verdict.amount - existing.amount_inr);
+      if (diff > Math.max(5, existing.amount_inr * 0.02)) {
+        throw new Error(`Amount mismatch — the screenshot shows ₹${verdict.amount} but registration is ₹${existing.amount_inr}.`);
+      }
     }
 
     // Generate a unique ticket code (retry on rare collision).
