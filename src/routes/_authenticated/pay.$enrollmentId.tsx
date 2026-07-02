@@ -11,6 +11,13 @@ export const Route = createFileRoute("/_authenticated/pay/$enrollmentId")({
 
 const ALLOWED = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
+const contentTypeFromExt = (name: string) => {
+  const ext = (name.split(".").pop() || "jpg").toLowerCase();
+  if (ext === "png") return "image/png";
+  if (ext === "webp") return "image/webp";
+  return "image/jpeg";
+};
+
 function PayUpload() {
   const { enrollmentId } = Route.useParams();
   const navigate = useNavigate();
@@ -34,7 +41,9 @@ function PayUpload() {
     if (!f) { setFile(null); setPreview(""); return; }
     const name = f.name.toLowerCase();
     const okExt = /\.(jpe?g|png|webp)$/.test(name);
-    if (!ALLOWED.includes(f.type) || !okExt) {
+    const type = f.type.toLowerCase();
+    const okType = !type || ALLOWED.includes(type);
+    if (!okExt || !okType) {
       setErr("Only .jpg, .jpeg, .png, or .webp images are allowed.");
       return;
     }
@@ -56,7 +65,7 @@ function PayUpload() {
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
       const path = `${uid}/${enr.id}-${Date.now()}.${ext || "jpg"}`;
       const up = await supabase.storage.from("payment-proofs").upload(path, file, {
-        contentType: file.type, upsert: false,
+        contentType: file.type || contentTypeFromExt(file.name), upsert: false,
       });
       if (up.error) throw up.error;
       await submitPay({ data: { enrollmentId: enr.id, proofPath: path } });
