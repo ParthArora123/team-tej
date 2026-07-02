@@ -78,6 +78,13 @@ function Index() {
   const heroScale = useTransform(heroProgress, [0, 1], [1, 1.15]);
   const heroOpacity = useTransform(heroProgress, [0, 1], [1, 0.2]);
 
+  const [team, setTeam] = useState<TeamMember[]>([]);
+  useEffect(() => {
+    listPublicTeamProfiles().then((rows: any) => setTeam(rows ?? [])).catch(() => setTeam([]));
+  }, []);
+
+
+
   return (
     <>
       {/* HERO */}
