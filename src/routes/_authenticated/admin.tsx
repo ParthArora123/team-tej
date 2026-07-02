@@ -12,6 +12,15 @@ export const Route = createFileRoute("/_authenticated/admin")({ component: Admin
 
 type Tab = "overview" | "workshops" | "approvals" | "students" | "team" | "scan";
 
+const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
+  { id: "overview", label: "Overview" },
+  { id: "team", label: "Team roles", emphasis: true },
+  { id: "workshops", label: "Workshops" },
+  { id: "approvals", label: "Approvals" },
+  { id: "students", label: "Students" },
+  { id: "scan", label: "Scan" },
+];
+
 function AdminPage() {
   const navigate = useNavigate();
   const fetchStats = useServerFn(adminStats);
@@ -41,13 +50,22 @@ function AdminPage() {
   return (
     <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-6xl mx-auto">
       <p className="text-xs uppercase tracking-widest text-primary">Admin</p>
-      <h1 className="font-display text-4xl font-bold mt-1">Control room</h1>
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-4xl font-bold">Control room</h1>
+        <button
+          type="button"
+          onClick={() => setTab("team")}
+          className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium"
+        >
+          Manage team roles
+        </button>
+      </div>
 
       <div className="mt-6 flex gap-2 flex-wrap">
-        {(["overview","workshops","approvals","students","team","scan"] as Tab[]).map((t) => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-full text-sm capitalize ${tab===t?"bg-primary text-primary-foreground":"bg-muted"}`}>
-            {t}
+        {adminTabs.map((t) => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`px-4 py-2 rounded-full text-sm ${tab===t.id?"bg-primary text-primary-foreground":t.emphasis?"bg-primary/10 text-primary border border-primary/30":"bg-muted"}`}>
+            {t.label}
           </button>
         ))}
       </div>
@@ -393,19 +411,21 @@ function ScanTab({ onScan }: { onScan: any }) {
 function TeamTab() {
   const list = useServerFn(adminListTeam);
   const setRole = useServerFn(adminSetUserAdmin);
-  const check = useServerFn(checkIsAdmin);
   const [rows, setRows] = useState<any[]>([]);
   const [me, setMe] = useState<string>("");
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState<string>("");
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
     setErr("");
+    setLoading(true);
     try {
       const [team] = await Promise.all([list()]);
       setRows(team);
     } catch (e: any) { setErr(e.message); }
+    finally { setLoading(false); }
   };
   useEffect(() => { load(); }, []);
   useEffect(() => {
@@ -440,6 +460,7 @@ function TeamTab() {
         </p>
       </div>
       {err && <p className="text-xs text-destructive mb-3">{err}</p>}
+      {loading && <p className="text-sm text-muted-foreground mb-3">Loading team members…</p>}
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-sm">
