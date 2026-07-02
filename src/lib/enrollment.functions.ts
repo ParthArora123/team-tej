@@ -203,6 +203,8 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
       const { upi_id_encrypted, ...rest } = r;
       return { ...rest, has_upi: !!upi_id_encrypted };
     });
+  });
+
 
 export const adminStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
