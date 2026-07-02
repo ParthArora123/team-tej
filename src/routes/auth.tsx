@@ -2,14 +2,11 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
-import { bootstrapAdmin } from "@/lib/bootstrap.functions";
-import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/auth")({ component: AuthPage });
 
 function AuthPage() {
   const navigate = useNavigate();
-  const boot = useServerFn(bootstrapAdmin);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,7 +16,6 @@ function AuthPage() {
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    boot().catch(() => {});
     supabase.auth.getUser().then(({ data }) => { if (data.user) navigate({ to: "/dashboard" }); });
   }, []);
 
@@ -37,7 +33,6 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
-      await boot().catch(() => {});
       navigate({ to: "/dashboard" });
     } catch (e: any) {
       setErr(e.message ?? "Something went wrong");
