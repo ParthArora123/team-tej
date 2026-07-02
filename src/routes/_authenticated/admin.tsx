@@ -59,6 +59,7 @@ function AdminPage() {
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-6xl mx-auto">
+      <Toaster position="top-right" richColors closeButton />
       <p className="text-xs uppercase tracking-widest text-primary">Admin</p>
       <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-4xl font-bold">Control room</h1>
