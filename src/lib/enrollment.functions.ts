@@ -277,3 +277,47 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
       .maybeSingle();
     return { isAdmin: !!data };
   });
+
+export const adminListTeam = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [{ data: profiles, error: pErr }, { data: roles, error: rErr }] = await Promise.all([
+      supabaseAdmin.from("profiles").select("id, email, full_name, phone, created_at").order("created_at", { ascending: false }),
+      supabaseAdmin.from("user_roles").select("user_id, role"),
+    ]);
+    if (pErr) throw pErr;
+    if (rErr) throw rErr;
+    const roleMap = new Map<string, string[]>();
+    (roles ?? []).forEach((r: any) => {
+      const list = roleMap.get(r.user_id) ?? [];
+      list.push(r.role);
+      roleMap.set(r.user_id, list);
+    });
+    return (profiles ?? []).map((p: any) => ({
+      ...p, roles: roleMap.get(p.id) ?? [], is_admin: (roleMap.get(p.id) ?? []).includes("admin"),
+    }));
+  });
+
+export const adminSetUserAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ userId: z.string().uuid(), makeAdmin: z.boolean() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.userId === context.userId && !data.makeAdmin) {
+      throw new Error("You cannot remove your own admin role.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (data.makeAdmin) {
+      const { error } = await supabaseAdmin.from("user_roles")
+        .insert({ user_id: data.userId, role: "admin" as any });
+      // ignore duplicate; propagate other errors
+      if (error && !String(error.message).toLowerCase().includes("duplicate")) throw error;
+    } else {
+      const { error } = await supabaseAdmin.from("user_roles")
+        .delete().eq("user_id", data.userId).eq("role", "admin" as any);
+      if (error) throw error;
+    }
+    return { ok: true };
+  });
