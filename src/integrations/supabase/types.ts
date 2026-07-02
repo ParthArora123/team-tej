@@ -264,6 +264,7 @@ export type Database = {
           experience: string | null
           id: string
           name: string
+          photo_path: string | null
           photo_url: string | null
           published: boolean
           short_description: string | null
@@ -280,6 +281,7 @@ export type Database = {
           experience?: string | null
           id?: string
           name: string
+          photo_path?: string | null
           photo_url?: string | null
           published?: boolean
           short_description?: string | null
@@ -296,6 +298,7 @@ export type Database = {
           experience?: string | null
           id?: string
           name?: string
+          photo_path?: string | null
           photo_url?: string | null
           published?: boolean
           short_description?: string | null
