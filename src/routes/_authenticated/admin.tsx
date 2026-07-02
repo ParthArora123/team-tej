@@ -5,7 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
-  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment,
+  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, adminGetProofUrl,
 } from "@/lib/enrollment.functions";
 import {
   adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
