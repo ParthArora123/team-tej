@@ -53,30 +53,60 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
 
     const { data: existing, error: exErr } = await supabaseAdmin
       .from("enrollments")
-      .select("id, user_id, status, ticket_code")
+      .select("id, user_id, status, ticket_code, program_id")
       .eq("id", data.enrollmentId)
       .eq("user_id", context.userId)
       .maybeSingle();
     if (exErr) throw exErr;
     if (!existing) throw new Error("Registration not found");
 
-    // Idempotent — don't downgrade a confirmed ticket.
-    if (existing.status === "confirmed") {
-      return { ok: true, already: true };
-    }
-    if (existing.status === "payment_submitted") {
-      return { ok: true, already: true };
+    // Idempotent — if the ticket is already generated, return it as-is.
+    if (existing.status === "confirmed" && existing.ticket_code) {
+      return { ok: true, already: true, ticket_code: existing.ticket_code };
     }
 
+    // Generate a unique ticket code (retry on rare collision).
+    const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+    let ticket = genCode();
+    for (let i = 0; i < 5; i++) {
+      const { data: dup } = await supabaseAdmin
+        .from("enrollments").select("id").eq("ticket_code", ticket).maybeSingle();
+      if (!dup) break;
+      ticket = genCode();
+    }
+
+    const now = new Date().toISOString();
     const { error: upErr } = await supabaseAdmin
       .from("enrollments").update({
-        status: "payment_submitted",
-        payment_confirmed_at: new Date().toISOString(),
-      }).eq("id", existing.id);
+        status: "confirmed",
+        ticket_code: ticket,
+        payment_confirmed_at: now,
+        ticket_generated_at: now,
+        approved_at: now,
+        approved_by: context.userId,
+      })
+      .eq("id", existing.id)
+      // Only issue a ticket once — guards against duplicate generation on
+      // concurrent clicks; if another request already confirmed, this is a no-op.
+      .is("ticket_code", null);
     if (upErr) throw upErr;
 
-    return { ok: true };
+    // Bump seats_taken (best-effort; ignore if already at capacity).
+    if (existing.program_id) {
+      const { data: p } = await supabaseAdmin
+        .from("programs").select("seats_taken").eq("id", existing.program_id).single();
+      await supabaseAdmin.from("programs")
+        .update({ seats_taken: (p?.seats_taken ?? 0) + 1 })
+        .eq("id", existing.program_id);
+    }
+
+    // Email confirmation is intentionally skipped for now. The workflow is
+    // structured so a call to sendConfirmationEmail(...) can be added here
+    // later without changing anything else.
+
+    return { ok: true, ticket_code: ticket };
   });
+
 
 
 
