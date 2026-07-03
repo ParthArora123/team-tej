@@ -429,11 +429,11 @@ function Index() {
             {workshops.map((w) => (
               <motion.article key={w.id} variants={item}
                 className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
-                <div className="aspect-[16/10] overflow-hidden bg-muted flex items-center justify-center">
+                <div className="w-full overflow-hidden bg-muted">
                   {w.banner_url ? (
-                    <img src={w.banner_url} alt={w.name} loading="lazy" className="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-500 group-hover:scale-105" />
+                    <img src={w.banner_url} alt={w.name} loading="lazy" className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/40" />
+                    <div className="aspect-[16/10] w-full bg-gradient-to-br from-primary/20 to-secondary/40" />
                   )}
                 </div>
                 <div className="p-5 flex-1 flex flex-col">
