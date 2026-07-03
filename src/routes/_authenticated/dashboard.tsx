@@ -188,6 +188,7 @@ function Dashboard() {
               {r.status === "rejected" && (
                 <p className="mt-4 text-sm text-destructive">Payment couldn't be verified. Please contact us.</p>
               )}
+              </div>
             </motion.div>
           );
         })}
