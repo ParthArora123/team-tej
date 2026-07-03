@@ -15,6 +15,12 @@ import {
   adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
   adminSetTeamProfilePublished, adminReorderTeamProfile, adminUploadTeamPhoto,
 } from "@/lib/team.functions";
+import {
+  adminListCelebrities, adminSaveCelebrity, adminDeleteCelebrity,
+  adminListBrands, adminSaveBrand, adminDeleteBrand,
+  adminListGlobe, adminSaveGlobe, adminDeleteGlobe,
+} from "@/lib/content.functions";
+
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
