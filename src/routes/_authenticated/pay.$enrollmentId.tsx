@@ -118,16 +118,21 @@ function PayUpload() {
         {preview && (
           <img src={preview} alt="Payment proof preview" className="mt-4 max-h-72 rounded-md border border-border mx-auto" />
         )}
-        {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
+        {!file && !err && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Please upload your payment confirmation screenshot to continue.
+          </p>
+        )}
+        {err && <p className="mt-3 text-sm text-destructive whitespace-pre-line">{err}</p>}
 
         <button
           disabled={busy || !file}
           onClick={submit}
-          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60">
-          {busy ? "Uploading & verifying…" : "Submit payment screenshot"}
+          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">
+          {busy ? "Verifying payment…" : "I Have Completed the Payment"}
         </button>
         <p className="mt-3 text-[11px] text-muted-foreground">
-          Only one image can be uploaded. Non-payment images will be rejected. Your ticket is issued after an admin verifies the payment.
+          The screenshot must show a successful payment to the official UPI ID with the correct amount and date. Photos of screens, cropped, or unclear images will be rejected.
         </p>
       </div>
     </div>
