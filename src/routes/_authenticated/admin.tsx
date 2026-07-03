@@ -406,6 +406,15 @@ function In({ v, on, ...p }: { v: string; on: (v: string) => void; [k: string]: 
     className="w-full min-w-0 px-3 py-2 rounded-lg bg-muted border border-border text-sm" />;
 }
 
+function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <div className="mt-1">{children}</div>
+    </label>
+  );
+}
+
 function StudentsTab({ rows }: { rows: any[] }) {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
