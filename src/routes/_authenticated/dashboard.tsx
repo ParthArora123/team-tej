@@ -93,8 +93,8 @@ function Dashboard() {
             <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               className="bg-card border border-border rounded-2xl overflow-hidden">
               {r.program?.banner_url && (
-                <div className="aspect-[16/6] w-full overflow-hidden bg-muted flex items-center justify-center">
-                  <img src={r.program.banner_url} alt={r.program?.name ?? ""} className="max-w-full max-h-full w-auto h-auto object-contain" loading="lazy" />
+                <div className="w-full overflow-hidden bg-muted">
+                  <img src={r.program.banner_url} alt={r.program?.name ?? ""} className="w-full h-auto object-contain" loading="lazy" />
                 </div>
               )}
               <div className="p-6">
