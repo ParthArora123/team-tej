@@ -116,6 +116,12 @@ function AdminPage() {
 
       {tab === "profiles" && <ProfilesTab />}
 
+      {tab === "celebrities" && <CelebritiesTab />}
+
+      {tab === "brands" && <BrandsTab />}
+
+      {tab === "globe" && <GlobeTab />}
+
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
   );
