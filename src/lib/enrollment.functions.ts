@@ -391,6 +391,7 @@ const workshopSchema = z.object({
   silver_seat_enabled: z.boolean().optional(),
   upi_id: z.string().max(120).optional().or(z.literal("")),
   clear_upi: z.boolean().optional(),
+  bank_account_holder: z.string().min(2).max(120),
 });
 
 export const adminSaveWorkshop = createServerFn({ method: "POST" })
