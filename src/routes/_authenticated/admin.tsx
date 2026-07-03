@@ -246,6 +246,15 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         banner_path: f.banner_path || undefined,
         registration_open_on: f.registration_open_on || undefined,
       }});
+      if (!payerDefaults && f.save_payer_default && f.upi_id?.trim() && f.bank_account_holder?.trim()) {
+        try {
+          window.localStorage.setItem(WS_PAYER_KEY, JSON.stringify({
+            upi_id: f.upi_id.trim(),
+            bank_account_holder: f.bank_account_holder.trim(),
+          }));
+          setPayerDefaults({ upi_id: f.upi_id.trim(), bank_account_holder: f.bank_account_holder.trim() });
+        } catch {}
+      }
       toast.success(f.id ? "Workshop updated successfully!" : "Workshop added successfully!", { duration: 3500 });
       closeDialog();
       reload();
