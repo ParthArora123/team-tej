@@ -83,12 +83,18 @@ function Index() {
 
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [workshops, setWorkshops] = useState<any[]>([]);
+  const [celebrities, setCelebrities] = useState<any[]>([]);
+  const [brands, setBrands] = useState<any[]>([]);
+  const [globe, setGlobe] = useState<any[]>([]);
   const fetchPrograms = useServerFn(listPrograms);
   useEffect(() => {
     listPublicTeamProfiles().then((rows: any) => setTeam(rows ?? [])).catch(() => setTeam([]));
     fetchPrograms({ data: { kind: "workshop" } })
       .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
       .catch(() => setWorkshops([]));
+    listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch(() => setCelebrities([]));
+    listPublicBrands().then((r: any) => setBrands(r ?? [])).catch(() => setBrands([]));
+    listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch(() => setGlobe([]));
   }, []);
 
 
