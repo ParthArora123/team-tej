@@ -395,63 +395,56 @@ function Index() {
         </motion.div>
       </section>
 
-      {/* WORKSHOPS TEASER */}
+      {/* WORKSHOPS — dynamic */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="relative aspect-[5/4] rounded-2xl border border-border overflow-hidden order-2 lg:order-1"
-          >
-            <MotionImage
-              src={aboutImg}
-              alt="Workshop"
-              width={1200}
-              height={1400}
-              className="absolute inset-0 h-full w-full"
-              overlay={<div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />}
-            >
-              <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between z-10">
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-primary">Next up</p>
-                  <p className="font-display text-2xl font-bold">Crosswinds Intensive</p>
-                </div>
-                <span className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-medium">
-                  24 seats
-                </span>
-              </div>
-            </MotionImage>
-          </motion.div>
-
-
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="order-1 lg:order-2"
-          >
+        <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
+          <div>
             <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
               <Calendar size={12} /> Workshops
             </p>
             <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold leading-tight text-balance">
               Short bursts. Big leaps.
             </h2>
-            <p className="mt-6 text-muted-foreground leading-relaxed">
-              One-off intensives with visiting choreographers. Limited seats,
-              high intensity, instant UPI registration. Built for dancers who
-              want a focused dose without a full batch commitment.
-            </p>
-            <Link
-              to="/workshops"
-              className="mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
-            >
-              Register for a workshop <ArrowUpRight size={18} />
-            </Link>
-          </motion.div>
+          </div>
+          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition">
+            See all workshops <ArrowUpRight size={14} />
+          </Link>
         </div>
+
+        {workshops.length === 0 ? (
+          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
+            <p className="font-display text-2xl">Coming Soon</p>
+            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+          </div>
+        ) : (
+          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {workshops.map((w) => (
+              <motion.article key={w.id} variants={item}
+                className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
+                <div className="aspect-[16/10] overflow-hidden bg-muted">
+                  {w.banner_url ? (
+                    <img src={w.banner_url} alt={w.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/40" />
+                  )}
+                </div>
+                <div className="p-5 flex-1 flex flex-col">
+                  {w.category && <p className="text-[10px] uppercase tracking-widest text-primary">{w.category}</p>}
+                  <p className="mt-1 font-display text-xl font-bold">{w.name}</p>
+                  <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+                    {w.event_date && <p className="flex items-center gap-2"><Calendar size={12} />{new Date(w.event_date).toDateString()}{w.event_time ? ` · ${w.event_time}` : ""}</p>}
+                    {w.venue && <p className="flex items-center gap-2"><MapPin size={12} />{w.venue}</p>}
+                  </div>
+                  <div className="mt-4 flex items-end justify-between">
+                    <p className="font-display text-xl">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
+                    <Link to="/workshops" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">Register</Link>
+                  </div>
+                </div>
+              </motion.article>
+            ))}
+          </motion.div>
+        )}
       </section>
 
       {/* CTA */}
