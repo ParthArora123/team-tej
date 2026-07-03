@@ -9,17 +9,12 @@ export const Route = createFileRoute("/_authenticated/pay/$enrollmentId")({
   component: PayUpload,
 });
 
-const ALLOWED_EXT = /\.(jpe?g|png|webp|heic|heif|gif|bmp|tiff?)$/i;
+const ALLOWED_EXT = /\.(jpe?g|png|webp)$/i;
 
 const contentTypeFromExt = (name: string) => {
   const ext = (name.split(".").pop() || "jpg").toLowerCase();
   if (ext === "png") return "image/png";
   if (ext === "webp") return "image/webp";
-  if (ext === "gif") return "image/gif";
-  if (ext === "bmp") return "image/bmp";
-  if (ext === "tif" || ext === "tiff") return "image/tiff";
-  if (ext === "heic") return "image/heic";
-  if (ext === "heif") return "image/heif";
   return "image/jpeg";
 };
 
