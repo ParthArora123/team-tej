@@ -1,10 +1,29 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Download } from "lucide-react";
 
 async function downloadQrPng(containerId: string, filename: string, size = 720) {
+  const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
+  if (sourceCanvas) {
+    const padding = Math.round(size * 0.08);
+    const qrSize = size - padding * 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(sourceCanvas, padding, padding, qrSize, qrSize);
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = filename;
+    a.click();
+    return;
+  }
+
   const svg = document.querySelector(`#${containerId} svg`) as SVGSVGElement | null;
   if (!svg) return;
   const xml = new XMLSerializer().serializeToString(svg);
@@ -88,27 +107,24 @@ function Dashboard() {
           // "Invalid QR / Invalid format" error in GPay/PhonePe/Paytm/BHIM:
           //   - VPA missing or not in name@psp form
           //   - amount not sent as a fixed 2-decimal number (e.g. "100" vs "100.00")
-          //   - payee name / note containing reserved URI chars (& = # ? / :) or
-          //     spaces encoded as %20 (some apps insist on '+')
-          const rawUpi = (r.program?.upi_id || "").trim();
+          //   - payee name / note containing reserved URI chars (& = # ? / :)
+          //   - QR rendered without the required quiet-zone margin
+          const rawUpi = (r.program?.upi_id || "").trim().toLowerCase();
           const validUpi = /^[a-zA-Z0-9._-]{2,64}@[a-zA-Z][a-zA-Z0-9]{1,32}$/.test(rawUpi);
           const upiId = validUpi ? rawUpi : "";
           const cleanText = (s: string) =>
             String(s ?? "")
               .replace(/[&=#?/:%]+/g, " ")     // strip URI-reserved chars
-              .replace(/[^\w .,'-]/g, " ")     // keep safe printable set
+              .replace(/[^a-zA-Z0-9 .-]/g, " ") // keep UPI-app-safe printable set
               .replace(/\s+/g, " ")
               .trim()
               .slice(0, 40);
           const payeeName = cleanText(r.program?.bank_account_holder || "Tejas Dhoke") || "Tejas Dhoke";
           const note = cleanText(r.program?.name || "Enrollment") || "Enrollment";
           const amount = Number(r.amount_inr || 0).toFixed(2);
-          // UPI spec: use standard percent-encoding (%20 for spaces).
-          // Some UPI apps (PhonePe/GPay on published/https origins) reject '+'
-          // as a space and show "Invalid format".
           const enc = (v: string) => encodeURIComponent(v);
           const upiUrl = upiId
-            ? `upi://pay?pa=${enc(upiId)}&pn=${enc(payeeName)}&am=${amount}&cu=INR&tn=${enc(note)}`
+            ? `upi://pay?pa=${upiId}&pn=${enc(payeeName)}&am=${amount}&cu=INR&tn=${enc(note)}`
             : "";
           const verifyUrl = typeof window !== "undefined" && r.ticket_code
             ? `${window.location.origin}/verify?code=${encodeURIComponent(r.ticket_code)}`
@@ -150,7 +166,7 @@ function Dashboard() {
                     <div className="mt-4 flex flex-col items-center bg-muted/40 rounded-xl p-5">
                       {upiUrl ? (
                         <>
-                          <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} level="M" /></div>
+                          <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeCanvas value={upiUrl} size={220} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" /></div>
                           <button
                             type="button"
                             onClick={() => downloadQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
@@ -211,7 +227,7 @@ function Dashboard() {
                       <p className="text-xs text-muted-foreground">Show this at the studio on your first day.</p>
                     </div>
                     <div className="flex flex-col items-center gap-2">
-                      <div id={`ticket-qr-${r.id}`} className="bg-white p-2 rounded"><QRCodeSVG value={verifyUrl} size={92} /></div>
+                      <div id={`ticket-qr-${r.id}`} className="bg-white p-2 rounded"><QRCodeCanvas value={verifyUrl || r.ticket_code || ""} size={132} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" /></div>
                       <button
                         type="button"
                         onClick={() => downloadQrPng(`ticket-qr-${r.id}`, `ticket-${r.ticket_code}.png`)}

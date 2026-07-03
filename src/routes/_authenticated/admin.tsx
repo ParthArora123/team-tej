@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { toast, Toaster } from "sonner";
 import { CalendarDays, Clock, ImageUp, Sparkles, Upload, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -569,7 +569,7 @@ function ScanTab({ onScan }: { onScan: any }) {
             <p><span className="text-muted-foreground">Amount:</span> ₹{res.amount_inr}</p>
           </div>
           <div className="mt-4 inline-block bg-white p-2 rounded">
-            <QRCodeSVG value={res.ticket_code ?? ""} size={100} />
+            <QRCodeCanvas value={res.ticket_code ?? ""} size={132} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" />
           </div>
         </div>
       )}
