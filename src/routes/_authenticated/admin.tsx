@@ -364,20 +364,46 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 
             <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
-              <FieldRow label="Official UPI ID">
-                <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "Enter UPI ID (e.g. tejas@upi)"}
-                  v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
-              </FieldRow>
-              <FieldRow label="Bank Account Holder Name *">
-                <In placeholder="Enter bank account holder name (e.g. Tejas Dhoke)"
-                  v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
-              </FieldRow>
-              <p className="text-[11px] text-muted-foreground">UPI ID stored encrypted. Holder name is shown below the UPI ID on the payment page so students can verify the recipient before paying.</p>
-              {f.has_upi && (
-                <label className="flex items-center gap-2 text-xs">
-                  <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
-                  Remove saved UPI and fall back to default
-                </label>
+
+              {!f.id && payerDefaults ? (
+                <div className="rounded-md border border-border/60 bg-background/50 p-2 text-xs space-y-1">
+                  <p className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground">Using saved default payer</span>
+                    <button type="button"
+                      onClick={() => { try { window.localStorage.removeItem(WS_PAYER_KEY); } catch {} setPayerDefaults(null); setF({ ...f, upi_id: "", bank_account_holder: "", save_payer_default: false }); }}
+                      className="text-primary underline underline-offset-2">Change</button>
+                  </p>
+                  <p><span className="text-muted-foreground">UPI:</span> {payerDefaults.upi_id}</p>
+                  <p><span className="text-muted-foreground">Holder:</span> {payerDefaults.bank_account_holder}</p>
+                </div>
+              ) : (
+                <>
+                  <FieldRow label="Official UPI ID">
+                    <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "Enter UPI ID (e.g. tejas@upi)"}
+                      v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
+                  </FieldRow>
+                  <FieldRow label="Bank Account Holder Name *">
+                    <In placeholder="Enter bank account holder name (e.g. Tejas Dhoke)"
+                      v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
+                  </FieldRow>
+                  <p className="text-[11px] text-muted-foreground">UPI ID stored encrypted. Holder name is shown below the UPI ID on the payment page so students can verify the recipient before paying.</p>
+                  {!f.id && !payerDefaults && (
+                    <label className="flex items-start gap-2 text-xs rounded-md border border-border/60 bg-background/50 p-2 cursor-pointer">
+                      <input type="checkbox" className="mt-0.5" checked={!!f.save_payer_default}
+                        onChange={(e) => setF({ ...f, save_payer_default: e.target.checked })} />
+                      <span className="flex-1">
+                        <span className="block font-medium text-foreground">Set as default</span>
+                        <span className="text-muted-foreground">Save this UPI ID and holder name. Next time you add a workshop these fields will be hidden and used automatically.</span>
+                      </span>
+                    </label>
+                  )}
+                  {f.has_upi && (
+                    <label className="flex items-center gap-2 text-xs">
+                      <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
+                      Remove saved UPI and fall back to default
+                    </label>
+                  )}
+                </>
               )}
             </div>
 
