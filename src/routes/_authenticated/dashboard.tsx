@@ -85,7 +85,7 @@ function Dashboard() {
       <div className="mt-8 grid gap-4">
         {rows.map((r) => {
           const upiId = r.program?.upi_id || "teamtej@upi";
-          const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("Team Tej")}&am=${r.amount_inr}&cu=INR&tn=${encodeURIComponent(r.program?.name ?? "Enrollment")}`;
+          const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("Tejas Dinesh Dhoke")}&am=${r.amount_inr}&cu=INR&tn=${encodeURIComponent(r.program?.name ?? "Enrollment")}`;
           const verifyUrl = typeof window !== "undefined" && r.ticket_code
             ? `${window.location.origin}/verify?code=${encodeURIComponent(r.ticket_code)}`
             : "";

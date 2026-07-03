@@ -45,7 +45,7 @@ function AuthPage() {
         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-card border border-border rounded-2xl p-8"
       >
-        <p className="text-xs uppercase tracking-widest text-primary">Team Tej</p>
+        <p className="text-xs uppercase tracking-widest text-primary">Tejas Dinesh Dhoke</p>
         <h1 className="font-display text-3xl font-bold mt-2">
           {mode === "signin" ? "Welcome back" : "Create account"}
         </h1>

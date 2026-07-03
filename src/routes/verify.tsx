@@ -12,8 +12,8 @@ export const Route = createFileRoute("/verify")({
   }),
   head: () => ({
     meta: [
-      { title: "Verify Ticket — Team Tej" },
-      { name: "description", content: "Verify a Team Tej enrollment ticket by scanning the QR." },
+      { title: "Verify Ticket — Tejas Dinesh Dhoke" },
+      { name: "description", content: "Verify a Tejas Dinesh Dhoke enrollment ticket by scanning the QR." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -108,7 +108,7 @@ function Verify() {
         <div className="flex items-center gap-2 text-primary">
           <ShieldCheck size={18} />
           <span className="text-xs uppercase tracking-widest font-semibold">
-            Team Tej · Ticket Verified
+            Tejas Dinesh Dhoke · Ticket Verified
           </span>
         </div>
 
@@ -120,7 +120,7 @@ function Verify() {
             <p className="font-display text-2xl font-bold leading-tight">
               {t.student || "Registered Student"}
             </p>
-            <p className="text-xs text-muted-foreground">CONFIRMED · Team Tej Dance Co</p>
+            <p className="text-xs text-muted-foreground">CONFIRMED · Tejas Dinesh Dhoke Dance Co</p>
           </div>
         </div>
 

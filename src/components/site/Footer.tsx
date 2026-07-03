@@ -48,7 +48,7 @@ export function Footer() {
       </div>
       <div className="border-t border-border">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6 flex flex-wrap gap-2 justify-between text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} Team Tej Dance Company</span>
+          <span>© {new Date().getFullYear()} Tejas Dinesh Dhoke Dance Company</span>
           <span>Crafted with movement.</span>
         </div>
       </div>

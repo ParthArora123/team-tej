@@ -14,13 +14,13 @@ export const Route = createFileRoute("/zero-to-hero")({
   component: ZeroToHeroPage,
   head: () => ({
     meta: [
-      { title: "Zero to Hero · Team Tej — Beginner Dance Confidence Program" },
+      { title: "Zero to Hero · Tejas Dinesh Dhoke — Beginner Dance Confidence Program" },
       {
         name: "description",
         content:
           "India's beginner dance confidence program. Learn dance from absolute zero and become the hero version of yourself — designed by Tejas Dinesh Dhoke.",
       },
-      { property: "og:title", content: "Zero to Hero · Team Tej" },
+      { property: "og:title", content: "Zero to Hero · Tejas Dinesh Dhoke" },
       {
         property: "og:description",
         content:
