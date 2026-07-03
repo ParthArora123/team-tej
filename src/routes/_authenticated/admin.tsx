@@ -139,6 +139,18 @@ function StatCard({ label, value, accent }: { label: string; value: any; accent?
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
+const WS_PAYER_KEY = "admin:ws:payerDefaults";
+type WsPayerDefaults = { upi_id: string; bank_account_holder: string };
+function readWsPayerDefaults(): WsPayerDefaults | null {
+  try {
+    const raw = typeof window !== "undefined" ? window.localStorage.getItem(WS_PAYER_KEY) : null;
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    if (p && typeof p.upi_id === "string" && typeof p.bank_account_holder === "string" && p.upi_id && p.bank_account_holder) return p;
+    return null;
+  } catch { return null; }
+}
+
 const emptyWs = () => ({
   id: undefined as string | undefined,
   kind: "workshop", name: "", description: "", banner_url: "", banner_path: "",
@@ -151,6 +163,7 @@ const emptyWs = () => ({
   silver_seat_price: "1000",
   upi_id: "", clear_upi: false, has_upi: false,
   bank_account_holder: "",
+  save_payer_default: false,
 });
 
 function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
