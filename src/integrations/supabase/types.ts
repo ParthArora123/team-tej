@@ -237,11 +237,11 @@ export type Database = {
           name: string
           price_inr: number
           published: boolean
-          registration_closes_on: string | null
           registration_open_on: string | null
           seats: number | null
           seats_taken: number
           silver_seat_enabled: boolean
+          silver_seat_price: number
           starts_on: string | null
           style: string | null
           upi_id_encrypted: string | null
@@ -265,11 +265,11 @@ export type Database = {
           name: string
           price_inr: number
           published?: boolean
-          registration_closes_on?: string | null
           registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
           silver_seat_enabled?: boolean
+          silver_seat_price?: number
           starts_on?: string | null
           style?: string | null
           upi_id_encrypted?: string | null
@@ -293,11 +293,11 @@ export type Database = {
           name?: string
           price_inr?: number
           published?: boolean
-          registration_closes_on?: string | null
           registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
           silver_seat_enabled?: boolean
+          silver_seat_price?: number
           starts_on?: string | null
           style?: string | null
           upi_id_encrypted?: string | null
@@ -417,6 +417,7 @@ export type Database = {
     Views: {
       programs_public: {
         Row: {
+          active: boolean | null
           bank_account_holder: string | null
           banner_path: string | null
           banner_url: string | null
@@ -433,14 +434,17 @@ export type Database = {
           name: string | null
           price_inr: number | null
           published: boolean | null
-          registration_closes_on: string | null
           registration_open_on: string | null
+          seats: number | null
           seats_taken: number | null
           silver_seat_enabled: boolean | null
+          silver_seat_price: number | null
+          starts_on: string | null
           style: string | null
           venue: string | null
         }
         Insert: {
+          active?: boolean | null
           bank_account_holder?: string | null
           banner_path?: string | null
           banner_url?: string | null
@@ -457,14 +461,17 @@ export type Database = {
           name?: string | null
           price_inr?: number | null
           published?: boolean | null
-          registration_closes_on?: string | null
           registration_open_on?: string | null
+          seats?: number | null
           seats_taken?: number | null
           silver_seat_enabled?: boolean | null
+          silver_seat_price?: number | null
+          starts_on?: string | null
           style?: string | null
           venue?: string | null
         }
         Update: {
+          active?: boolean | null
           bank_account_holder?: string | null
           banner_path?: string | null
           banner_url?: string | null
@@ -481,10 +488,12 @@ export type Database = {
           name?: string | null
           price_inr?: number | null
           published?: boolean | null
-          registration_closes_on?: string | null
           registration_open_on?: string | null
+          seats?: number | null
           seats_taken?: number | null
           silver_seat_enabled?: boolean | null
+          silver_seat_price?: number | null
+          starts_on?: string | null
           style?: string | null
           venue?: string | null
         }
