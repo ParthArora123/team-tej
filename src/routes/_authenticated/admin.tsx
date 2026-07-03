@@ -133,6 +133,7 @@ const emptyWs = () => ({
   category: "", style: "", published: false,
   silver_seat_enabled: false,
   upi_id: "", clear_upi: false, has_upi: false,
+  bank_account_holder: "",
 });
 
 function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
