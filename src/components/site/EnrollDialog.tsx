@@ -12,6 +12,7 @@ export interface EnrollClass {
   price: number;
   duration: string;
   silverSeatEnabled?: boolean;
+  silverSeatPrice?: number;
 }
 
 interface Props {
@@ -23,8 +24,6 @@ const initial = {
   fullName: "", email: "", phone: "", age: "", gender: "Female",
   address: "", city: "", state: "", emergencyContact: "", medicalInfo: "",
 };
-
-const SILVER_ADDON = 1000;
 
 export function EnrollDialog({ klass, onClose }: Props) {
   const navigate = useNavigate();
