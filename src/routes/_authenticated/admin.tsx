@@ -139,6 +139,18 @@ function StatCard({ label, value, accent }: { label: string; value: any; accent?
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
+const WS_PAYER_KEY = "admin:ws:payerDefaults";
+type WsPayerDefaults = { upi_id: string; bank_account_holder: string };
+function readWsPayerDefaults(): WsPayerDefaults | null {
+  try {
+    const raw = typeof window !== "undefined" ? window.localStorage.getItem(WS_PAYER_KEY) : null;
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    if (p && typeof p.upi_id === "string" && typeof p.bank_account_holder === "string" && p.upi_id && p.bank_account_holder) return p;
+    return null;
+  } catch { return null; }
+}
+
 const emptyWs = () => ({
   id: undefined as string | undefined,
   kind: "workshop", name: "", description: "", banner_url: "", banner_path: "",
@@ -151,6 +163,7 @@ const emptyWs = () => ({
   silver_seat_price: "1000",
   upi_id: "", clear_upi: false, has_upi: false,
   bank_account_holder: "",
+  save_payer_default: false,
 });
 
 function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
@@ -159,12 +172,19 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [payerDefaults, setPayerDefaults] = useState<WsPayerDefaults | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  const openAdd = () => { setF(emptyWs()); setOpen(true); };
+  const openAdd = () => {
+    const def = readWsPayerDefaults();
+    setPayerDefaults(def);
+    setF({ ...emptyWs(), upi_id: def?.upi_id ?? "", bank_account_holder: def?.bank_account_holder ?? "" });
+    setOpen(true);
+  };
   const closeDialog = () => { setOpen(false); setF(emptyWs()); };
 
   const edit = (r: any) => {
+    setPayerDefaults(readWsPayerDefaults());
     setF({
       id: r.id, kind: r.kind, name: r.name ?? "", description: r.description ?? "",
       banner_url: r.banner_url ?? "", banner_path: r.banner_path ?? "",
@@ -179,6 +199,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       silver_seat_price: (r.silver_seat_price ?? 1000).toString(),
       upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
       bank_account_holder: r.bank_account_holder ?? "",
+      save_payer_default: false,
     });
     setOpen(true);
   };
@@ -225,6 +246,15 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         banner_path: f.banner_path || undefined,
         registration_open_on: f.registration_open_on || undefined,
       }});
+      if (!payerDefaults && f.save_payer_default && f.upi_id?.trim() && f.bank_account_holder?.trim()) {
+        try {
+          window.localStorage.setItem(WS_PAYER_KEY, JSON.stringify({
+            upi_id: f.upi_id.trim(),
+            bank_account_holder: f.bank_account_holder.trim(),
+          }));
+          setPayerDefaults({ upi_id: f.upi_id.trim(), bank_account_holder: f.bank_account_holder.trim() });
+        } catch {}
+      }
       toast.success(f.id ? "Workshop updated successfully!" : "Workshop added successfully!", { duration: 3500 });
       closeDialog();
       reload();
@@ -334,20 +364,46 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 
             <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
-              <FieldRow label="Official UPI ID">
-                <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "Enter UPI ID (e.g. tejas@upi)"}
-                  v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
-              </FieldRow>
-              <FieldRow label="Bank Account Holder Name *">
-                <In placeholder="Enter bank account holder name (e.g. Tejas Dhoke)"
-                  v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
-              </FieldRow>
-              <p className="text-[11px] text-muted-foreground">UPI ID stored encrypted. Holder name is shown below the UPI ID on the payment page so students can verify the recipient before paying.</p>
-              {f.has_upi && (
-                <label className="flex items-center gap-2 text-xs">
-                  <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
-                  Remove saved UPI and fall back to default
-                </label>
+
+              {!f.id && payerDefaults ? (
+                <div className="rounded-md border border-border/60 bg-background/50 p-2 text-xs space-y-1">
+                  <p className="flex items-center justify-between gap-2">
+                    <span className="text-muted-foreground">Using saved default payer</span>
+                    <button type="button"
+                      onClick={() => { try { window.localStorage.removeItem(WS_PAYER_KEY); } catch {} setPayerDefaults(null); setF({ ...f, upi_id: "", bank_account_holder: "", save_payer_default: false }); }}
+                      className="text-primary underline underline-offset-2">Change</button>
+                  </p>
+                  <p><span className="text-muted-foreground">UPI:</span> {payerDefaults.upi_id}</p>
+                  <p><span className="text-muted-foreground">Holder:</span> {payerDefaults.bank_account_holder}</p>
+                </div>
+              ) : (
+                <>
+                  <FieldRow label="Official UPI ID">
+                    <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "Enter UPI ID (e.g. tejas@upi)"}
+                      v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
+                  </FieldRow>
+                  <FieldRow label="Bank Account Holder Name *">
+                    <In placeholder="Enter bank account holder name (e.g. Tejas Dhoke)"
+                      v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
+                  </FieldRow>
+                  <p className="text-[11px] text-muted-foreground">UPI ID stored encrypted. Holder name is shown below the UPI ID on the payment page so students can verify the recipient before paying.</p>
+                  {!f.id && !payerDefaults && (
+                    <label className="flex items-start gap-2 text-xs rounded-md border border-border/60 bg-background/50 p-2 cursor-pointer">
+                      <input type="checkbox" className="mt-0.5" checked={!!f.save_payer_default}
+                        onChange={(e) => setF({ ...f, save_payer_default: e.target.checked })} />
+                      <span className="flex-1">
+                        <span className="block font-medium text-foreground">Set as default</span>
+                        <span className="text-muted-foreground">Save this UPI ID and holder name. Next time you add a workshop these fields will be hidden and used automatically.</span>
+                      </span>
+                    </label>
+                  )}
+                  {f.has_upi && (
+                    <label className="flex items-center gap-2 text-xs">
+                      <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
+                      Remove saved UPI and fall back to default
+                    </label>
+                  )}
+                </>
               )}
             </div>
 
