@@ -45,11 +45,11 @@ function PayUpload() {
     setErr("");
     if (!f) { setFile(null); setPreview(""); return; }
     const name = f.name.toLowerCase();
-    const okExt = /\.(jpe?g|png|webp)$/.test(name);
     const type = f.type.toLowerCase();
-    const okType = !type || ALLOWED.includes(type);
-    if (!okExt || !okType) {
-      setErr("Only .jpg, .jpeg, .png, or .webp images are allowed.");
+    const okExt = ALLOWED_EXT.test(name);
+    const okType = !type || type.startsWith("image/");
+    if (!okExt && !okType) {
+      setErr("Please upload an image file (JPG, PNG, WEBP, HEIC, etc.).");
       return;
     }
     if (f.size > 8 * 1024 * 1024) {
