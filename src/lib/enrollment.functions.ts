@@ -114,7 +114,7 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     const verification = await verifyPaymentScreenshot(dataUrl, {
       amountInr: existing.amount_inr,
       officialUpi,
-      recipientName: "Tejas Dinesh Dhoke",
+      recipientNames: ["Tejas Dinesh Dhoke", "Parth Arora"],
       registrationOpenOn: program.registration_open_on ?? null,
       eventDate: program.event_date ?? null,
     });
@@ -156,7 +156,7 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
 type VerifyCtx = {
   amountInr: number;
   officialUpi: string;
-  recipientName: string;
+  recipientNames: string[];
   registrationOpenOn: string | null;
   eventDate: string | null;
 };
@@ -189,7 +189,7 @@ async function verifyPaymentScreenshot(dataUrl: string, ctx: VerifyCtx) {
             {
               type: "text",
               text: `Validate this payment confirmation screenshot for a dance workshop.
-Expected recipient name: "${ctx.recipientName}"
+Expected recipient name (any one of these is acceptable): ${ctx.recipientNames.map((n) => `"${n}"`).join(" or ")}
 Expected recipient UPI ID: "${ctx.officialUpi}"
 Expected amount: INR ${ctx.amountInr}
 Payment must be dated between ${openOn} and ${eventOn} (inclusive).
@@ -239,10 +239,11 @@ Extract all fields precisely from the image. If any required field is not clearl
     return { accepted: false, reason: "Could not confirm the payment was successful. Please upload the success receipt." };
   }
 
-  const expectedName = normName(ctx.recipientName);
+  const expectedNames = ctx.recipientNames.map(normName);
   const gotName = normName(p.recipient_name);
-  if (!gotName || (gotName !== expectedName && !gotName.includes(expectedName) && !expectedName.includes(gotName))) {
-    return { accepted: false, reason: `Invalid payment screenshot. The payment must be made to ${ctx.recipientName}.` };
+  const nameOk = !!gotName && expectedNames.some((n) => gotName === n || gotName.includes(n) || n.includes(gotName));
+  if (!nameOk) {
+    return { accepted: false, reason: `Invalid payment screenshot. The payment must be made to ${ctx.recipientNames.join(" or ")}.` };
   }
 
   const expectedUpi = normUpi(ctx.officialUpi);
