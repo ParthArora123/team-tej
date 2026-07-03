@@ -82,6 +82,13 @@ export function EnrollDialog({ klass, onClose }: Props) {
         medicalInfo: d.medicalInfo || null,
         silverSeat: !!(klass.silverSeatEnabled && silver),
       }});
+      if (!savedDefaults && saveDefault && d.upiId.trim() && d.accountHolder.trim()) {
+        try {
+          localStorage.setItem(DEFAULTS_KEY, JSON.stringify({
+            upiId: d.upiId.trim(), accountHolder: d.accountHolder.trim(),
+          }));
+        } catch {}
+      }
       setDone(true);
     } catch (e: any) { setErr(e.message ?? "Failed"); }
     finally { setBusy(false); }
