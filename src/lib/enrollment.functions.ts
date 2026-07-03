@@ -81,7 +81,7 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     // Load program for recipient UPI + date-window validation.
     const { data: program, error: pErr } = await supabaseAdmin
       .from("programs")
-      .select("upi_id_encrypted, event_date, registration_open_on, name")
+      .select("upi_id_encrypted, event_date, registration_open_on, name, bank_account_holder")
       .eq("id", existing.program_id!)
       .maybeSingle();
     if (pErr || !program) throw new Error("Workshop not found for this registration.");
@@ -92,6 +92,10 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       : "";
     if (!officialUpi) {
       throw new Error("The workshop's official UPI ID is not configured yet. Please contact the admin.");
+    }
+    const holder = (program as any).bank_account_holder?.trim();
+    if (!holder) {
+      throw new Error("The workshop's bank account holder name is not configured yet. Please contact the admin.");
     }
 
     const dl = await supabaseAdmin.storage.from("payment-proofs").download(data.proofPath);
@@ -114,7 +118,7 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     const verification = await verifyPaymentScreenshot(dataUrl, {
       amountInr: existing.amount_inr,
       officialUpi,
-      recipientNames: ["Tejas Dinesh Dhoke", "Parth Arora"],
+      recipientNames: [holder],
       registrationOpenOn: program.registration_open_on ?? null,
       eventDate: program.event_date ?? null,
     });
