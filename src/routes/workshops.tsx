@@ -38,8 +38,8 @@ function WorkshopsPage() {
             <motion.div key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col">
               {r.banner_url && (
-                <div className="aspect-video overflow-hidden bg-muted">
-                  <img src={r.banner_url} alt={r.name} className="w-full h-full object-cover" />
+                <div className="aspect-video overflow-hidden bg-muted flex items-center justify-center">
+                  <img src={r.banner_url} alt={r.name} className="max-w-full max-h-full w-auto h-auto object-contain" />
                 </div>
               )}
               <div className="p-6 flex-1 flex flex-col">
