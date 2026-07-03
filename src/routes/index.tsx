@@ -81,8 +81,13 @@ function Index() {
   const heroOpacity = useTransform(heroProgress, [0, 1], [1, 0.2]);
 
   const [team, setTeam] = useState<TeamMember[]>([]);
+  const [workshops, setWorkshops] = useState<any[]>([]);
+  const fetchPrograms = useServerFn(listPrograms);
   useEffect(() => {
     listPublicTeamProfiles().then((rows: any) => setTeam(rows ?? [])).catch(() => setTeam([]));
+    fetchPrograms({ data: { kind: "workshop" } })
+      .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
+      .catch(() => setWorkshops([]));
   }, []);
 
 
