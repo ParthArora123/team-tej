@@ -1019,18 +1019,54 @@ function CelebritiesTab() {
   const list = useServerFn(adminListCelebrities);
   const save = useServerFn(adminSaveCelebrity);
   const del = useServerFn(adminDeleteCelebrity);
+  const upload = useServerFn(adminUploadCelebrityPhoto);
   const [rows, setRows] = useState<any[]>([]);
   const [edit, setEdit] = useState<any | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
   const reload = async () => setRows(await list());
   useEffect(() => { reload(); }, []);
-  const empty = { name: "", role: "", photo_url: "", sort_order: 0, published: true };
+  const empty = { name: "", role: "", photo_url: "", photo_path: "", photo_preview: "", sort_order: 0, published: true };
+
+  const handleFile = async (file: File) => {
+    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+      toast.error("Only JPG, JPEG, PNG, or WebP images are allowed.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("Image is too large. Max 8 MB.");
+      return;
+    }
+    const localPreview = URL.createObjectURL(file);
+    setEdit((s: any) => ({ ...s, photo_preview: localPreview }));
+    setUploading(true);
+    try {
+      const buf = await file.arrayBuffer();
+      let binary = "";
+      const bytes = new Uint8Array(buf);
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      const dataBase64 = btoa(binary);
+      const res = await upload({ data: { filename: file.name, contentType: file.type, dataBase64 } });
+      setEdit((s: any) => ({ ...s, photo_path: res.path, photo_url: "", photo_preview: res.url ?? localPreview }));
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploading) { toast.error("Please wait for the upload to finish."); return; }
     try {
-      await save({ data: { ...edit, sort_order: Number(edit.sort_order) || 0 } });
+      const { photo_preview, ...payload } = edit;
+      await save({ data: { ...payload, photo_url: payload.photo_url || undefined, photo_path: payload.photo_path || undefined, sort_order: Number(payload.sort_order) || 0 } });
       toast.success("Saved"); setEdit(null); reload();
     } catch (e: any) { toast.error(e.message); }
   };
+
   return (
     <div className="mt-8 space-y-6">
       <div className="flex justify-between items-center">
@@ -1048,7 +1084,7 @@ function CelebritiesTab() {
               <p className="text-xs text-muted-foreground truncate">{r.role || "—"}</p>
               <p className="text-[10px] text-muted-foreground mt-1">{r.published ? "Published" : "Hidden"} · order {r.sort_order}</p>
               <div className="mt-2 flex gap-2">
-                <button onClick={() => setEdit({ ...r })} className="px-2 py-1 text-xs rounded bg-muted">Edit</button>
+                <button onClick={() => setEdit({ ...r, photo_preview: r.photo_url ?? "" })} className="px-2 py-1 text-xs rounded bg-muted">Edit</button>
                 <button onClick={async () => { if (confirm("Delete?")) { await del({ data: { id: r.id } }); reload(); } }} className="px-2 py-1 text-xs rounded bg-destructive/10 text-destructive">Delete</button>
               </div>
             </div>
@@ -1063,12 +1099,43 @@ function CelebritiesTab() {
             <form onSubmit={submit} className="space-y-3">
               <input required placeholder="Name" value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
               <input placeholder="Role / description" value={edit.role ?? ""} onChange={(e) => setEdit({ ...edit, role: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
-              <input placeholder="Photo URL" value={edit.photo_url ?? ""} onChange={(e) => setEdit({ ...edit, photo_url: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Celebrity photo</label>
+                <div
+                  onClick={() => !uploading && fileRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                  onDragLeave={() => setDragOver(false)}
+                  onDrop={(e) => { e.preventDefault(); setDragOver(false); const f0 = e.dataTransfer.files?.[0]; if (f0) handleFile(f0); }}
+                  className={`mt-1 flex items-center gap-3 rounded-lg border border-dashed p-3 cursor-pointer transition-colors ${dragOver ? "border-primary bg-primary/5" : "border-border bg-muted/40"}`}
+                >
+                  <div className="h-20 w-20 rounded-lg bg-muted overflow-hidden flex items-center justify-center shrink-0">
+                    {edit.photo_preview ? (
+                      <img src={edit.photo_preview} alt="Preview" className="h-full w-full object-cover" />
+                    ) : (
+                      <ImageUp size={20} className="text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="flex-1 text-xs min-w-0">
+                    <p className="font-medium">
+                      {uploading ? "Uploading…" : edit.photo_preview ? "Replace image" : "Click or drag to upload image"}
+                    </p>
+                    <p className="text-muted-foreground">JPG, JPEG, PNG, or WebP · up to 8 MB</p>
+                  </div>
+                  {edit.photo_preview && !uploading && (
+                    <button type="button" onClick={(e) => { e.stopPropagation(); setEdit({ ...edit, photo_path: "", photo_url: "", photo_preview: "" }); }}
+                      className="p-1 rounded bg-background border border-border" aria-label="Remove image"><X size={12} /></button>
+                  )}
+                  <input ref={fileRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                    onChange={(e) => { const f0 = e.target.files?.[0]; if (f0) handleFile(f0); e.currentTarget.value = ""; }} />
+                </div>
+              </div>
+
               <div className="flex gap-3">
                 <input type="number" placeholder="Sort order" value={edit.sort_order ?? 0} onChange={(e) => setEdit({ ...edit, sort_order: e.target.value })} className="flex-1 px-3 py-2 rounded-lg bg-muted" />
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!edit.published} onChange={(e) => setEdit({ ...edit, published: e.target.checked })} /> Published</label>
               </div>
-              <button className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground">Save</button>
+              <button disabled={uploading} className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-60">{uploading ? "Uploading…" : "Save"}</button>
             </form>
           )}
         </DialogContent>
