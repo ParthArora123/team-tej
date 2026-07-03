@@ -33,6 +33,7 @@ function WorkshopsPage() {
         {rows.map((r, i) => {
           const seatsLeft = r.capacity != null ? Math.max(0, r.capacity - (r.seats_taken ?? 0)) : null;
           const full = seatsLeft === 0;
+          const silverPrice = r.silver_seat_price ?? 1000;
           return (
             <motion.div key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col">
@@ -54,16 +55,25 @@ function WorkshopsPage() {
                   {seatsLeft != null && <p className="flex items-center gap-2"><Users size={12}/>{seatsLeft} of {r.capacity} seats left</p>}
                 </div>
 
+                {r.silver_seat_enabled && (
+                  <div className="mt-4 rounded-lg border border-primary/40 bg-primary/5 p-3">
+                    <p className="text-xs font-semibold text-primary">🎥 Silver Seat Offer (Additional ₹{silverPrice.toLocaleString("en-IN")})</p>
+                    <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                      We also have a Silver Seat Offer, where we'll shoot and professionally edit your solo dance video using our professional camera, giving you a high-quality video that you can use for your social media, portfolio, or personal memories.
+                    </p>
+                  </div>
+                )}
+
                 <div className="mt-5 flex items-end justify-between">
                   <div>
                     <p className="font-display text-2xl">₹{r.price_inr.toLocaleString("en-IN")}</p>
                     {r.silver_seat_enabled && (
-                      <p className="text-[11px] text-primary mt-0.5">+ ₹1,000 for Silver Seat</p>
+                      <p className="text-[11px] text-primary mt-0.5">+ ₹{silverPrice.toLocaleString("en-IN")} for Silver Seat</p>
                     )}
                   </div>
                   <button
                     disabled={full}
-                    onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled })}
+                    onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled, silverSeatPrice: silverPrice })}
                     className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50">
                     {full ? "Full" : "Register"}
                   </button>
