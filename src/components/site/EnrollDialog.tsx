@@ -45,7 +45,8 @@ export function EnrollDialog({ klass, onClose }: Props) {
 
   if (!klass) return null;
 
-  const total = klass.price + (klass.silverSeatEnabled && silver ? SILVER_ADDON : 0);
+  const silverAddon = klass.silverSeatPrice ?? 1000;
+  const total = klass.price + (klass.silverSeatEnabled && silver ? silverAddon : 0);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
