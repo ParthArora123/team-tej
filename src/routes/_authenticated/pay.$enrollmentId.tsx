@@ -42,9 +42,9 @@ function PayUpload() {
     const name = f.name.toLowerCase();
     const type = f.type.toLowerCase();
     const okExt = ALLOWED_EXT.test(name);
-    const okType = !type || type.startsWith("image/");
-    if (!okExt && !okType) {
-      setErr("Please upload an image file (JPG, PNG, WEBP, HEIC, etc.).");
+    const okType = type === "image/png" || type === "image/jpeg" || type === "image/jpg" || type === "image/webp";
+    if (!okExt || !okType) {
+      setErr("Please upload a PNG, JPG, or WEBP screenshot.");
       return;
     }
     if (f.size > 8 * 1024 * 1024) {
