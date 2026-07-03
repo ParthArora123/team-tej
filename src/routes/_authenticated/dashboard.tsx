@@ -145,17 +145,30 @@ function Dashboard() {
                   </button>
                   {open === r.id && (
                     <div className="mt-4 flex flex-col items-center bg-muted/40 rounded-xl p-5">
-                      <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} /></div>
-                      <button
-                        type="button"
-                        onClick={() => downloadQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
-                        className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
-                        <Download size={12} /> Download QR
-                      </button>
+                      {upiUrl ? (
+                        <>
+                          <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} level="M" /></div>
+                          <button
+                            type="button"
+                            onClick={() => downloadQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
+                            className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
+                            <Download size={12} /> Download QR
+                          </button>
+                          <a
+                            href={upiUrl}
+                            className="mt-2 text-[11px] text-primary underline underline-offset-2">
+                            Or tap here to open in your UPI app
+                          </a>
+                        </>
+                      ) : (
+                        <p className="text-xs text-destructive text-center max-w-xs">
+                          The workshop's UPI ID is missing or invalid. Please contact the admin before paying.
+                        </p>
+                      )}
                       <div className="mt-3 text-center">
                         <p className="text-xs text-muted-foreground">Scan with any UPI app and pay ₹{r.amount_inr.toLocaleString("en-IN")}</p>
                         <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">Official UPI ID</p>
-                        <p className="font-mono text-sm">{upiId}</p>
+                        <p className="font-mono text-sm">{upiId || "—"}</p>
                         {r.program?.bank_account_holder && (
                           <>
                             <p className="mt-2 text-[11px] uppercase tracking-widest text-muted-foreground">Account holder</p>
@@ -164,6 +177,7 @@ function Dashboard() {
                           </>
                         )}
                       </div>
+
                       <Link
                         to="/pay/$enrollmentId"
                         params={{ enrollmentId: r.id }}
