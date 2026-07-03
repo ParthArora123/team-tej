@@ -2,7 +2,26 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
-import { Check, Clock, X as XIcon, Ticket, LogOut, Shield } from "lucide-react";
+import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Download } from "lucide-react";
+
+async function downloadQrPng(containerId: string, filename: string, size = 720) {
+  const svg = document.querySelector(`#${containerId} svg`) as SVGSVGElement | null;
+  if (!svg) return;
+  const xml = new XMLSerializer().serializeToString(svg);
+  const svg64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(xml)));
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; img.src = svg64; });
+  const canvas = document.createElement("canvas");
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, size, size);
+  ctx.drawImage(img, 0, 0, size, size);
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = filename;
+  a.click();
+}
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, checkIsAdmin } from "@/lib/enrollment.functions";
 import { supabase } from "@/integrations/supabase/client";
@@ -89,7 +108,13 @@ function Dashboard() {
                   </button>
                   {open === r.id && (
                     <div className="mt-4 flex flex-col items-center bg-muted/40 rounded-xl p-5">
-                      <div className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} /></div>
+                      <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} /></div>
+                      <button
+                        type="button"
+                        onClick={() => downloadQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
+                        className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
+                        <Download size={12} /> Download QR
+                      </button>
                       <div className="mt-3 text-center">
                         <p className="text-xs text-muted-foreground">Scan with any UPI app and pay ₹{r.amount_inr.toLocaleString("en-IN")}</p>
                         <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">Official UPI ID</p>
@@ -131,7 +156,15 @@ function Dashboard() {
                       <p className="mt-2 font-mono text-lg">{r.ticket_code}</p>
                       <p className="text-xs text-muted-foreground">Show this at the studio on your first day.</p>
                     </div>
-                    <div className="bg-white p-2 rounded"><QRCodeSVG value={verifyUrl} size={92} /></div>
+                    <div className="flex flex-col items-center gap-2">
+                      <div id={`ticket-qr-${r.id}`} className="bg-white p-2 rounded"><QRCodeSVG value={verifyUrl} size={92} /></div>
+                      <button
+                        type="button"
+                        onClick={() => downloadQrPng(`ticket-qr-${r.id}`, `ticket-${r.ticket_code}.png`)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary text-[11px] font-medium">
+                        <Download size={11} /> Download
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
