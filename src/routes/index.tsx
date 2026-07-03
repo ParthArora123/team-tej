@@ -424,34 +424,67 @@ function Index() {
             <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
           </div>
         ) : (
-          <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
-            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {workshops.map((w) => (
-              <motion.article key={w.id} variants={item}
-                className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
-                <div className="w-full overflow-hidden bg-muted">
-                  {w.banner_url ? (
-                    <img src={w.banner_url} alt={w.name} loading="lazy" className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105" />
-                  ) : (
-                    <div className="aspect-[16/10] w-full bg-gradient-to-br from-primary/20 to-secondary/40" />
-                  )}
-                </div>
-                <div className="p-5 flex-1 flex flex-col">
-                  {w.category && <p className="text-[10px] uppercase tracking-widest text-primary">{w.category}</p>}
-                  <p className="mt-1 font-display text-xl font-bold">{w.name}</p>
-                  <div className="mt-3 space-y-1 text-xs text-muted-foreground">
-                    {w.event_date && <p className="flex items-center gap-2"><Calendar size={12} />{new Date(w.event_date).toDateString()}{w.event_time ? ` · ${w.event_time}` : ""}</p>}
-                    {w.venue && <p className="flex items-center gap-2"><MapPin size={12} />{w.venue}</p>}
+          <>
+            {/* Mobile: horizontal snap carousel */}
+            <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
+              className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {workshops.map((w) => (
+                <motion.article key={w.id} variants={item}
+                  className="snap-start shrink-0 w-[82%] rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
+                  <div className="w-full overflow-hidden bg-muted">
+                    {w.banner_url ? (
+                      <img src={w.banner_url} alt={w.name} loading="lazy" className="w-full h-auto object-contain" />
+                    ) : (
+                      <div className="aspect-[16/10] w-full bg-gradient-to-br from-primary/20 to-secondary/40" />
+                    )}
                   </div>
-                  <div className="mt-4 flex items-end justify-between">
-                    <p className="font-display text-xl">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
-                    <Link to="/workshops" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">Register</Link>
+                  <div className="p-5 flex-1 flex flex-col">
+                    {w.category && <p className="text-[10px] uppercase tracking-widest text-primary">{w.category}</p>}
+                    <p className="mt-1 font-display text-xl font-bold">{w.name}</p>
+                    <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+                      {w.event_date && <p className="flex items-center gap-2"><Calendar size={12} />{new Date(w.event_date).toDateString()}{w.event_time ? ` · ${w.event_time}` : ""}</p>}
+                      {w.venue && <p className="flex items-center gap-2"><MapPin size={12} />{w.venue}</p>}
+                    </div>
+                    <div className="mt-4 flex items-end justify-between">
+                      <p className="font-display text-xl">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
+                      <Link to="/workshops" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">Register</Link>
+                    </div>
                   </div>
-                </div>
-              </motion.article>
-            ))}
-          </motion.div>
+                </motion.article>
+              ))}
+            </motion.div>
+
+            {/* Desktop: grid */}
+            <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
+              className="hidden md:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {workshops.map((w) => (
+                <motion.article key={w.id} variants={item}
+                  className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
+                  <div className="w-full overflow-hidden bg-muted">
+                    {w.banner_url ? (
+                      <img src={w.banner_url} alt={w.name} loading="lazy" className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105" />
+                    ) : (
+                      <div className="aspect-[16/10] w-full bg-gradient-to-br from-primary/20 to-secondary/40" />
+                    )}
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    {w.category && <p className="text-[10px] uppercase tracking-widest text-primary">{w.category}</p>}
+                    <p className="mt-1 font-display text-xl font-bold">{w.name}</p>
+                    <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+                      {w.event_date && <p className="flex items-center gap-2"><Calendar size={12} />{new Date(w.event_date).toDateString()}{w.event_time ? ` · ${w.event_time}` : ""}</p>}
+                      {w.venue && <p className="flex items-center gap-2"><MapPin size={12} />{w.venue}</p>}
+                    </div>
+                    <div className="mt-4 flex items-end justify-between">
+                      <p className="font-display text-xl">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
+                      <Link to="/workshops" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">Register</Link>
+                    </div>
+                  </div>
+                </motion.article>
+              ))}
+            </motion.div>
+          </>
         )}
+
       </section>
 
       {/* CTA */}
