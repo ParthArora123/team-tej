@@ -16,7 +16,7 @@ import {
   adminSetTeamProfilePublished, adminReorderTeamProfile, adminUploadTeamPhoto,
 } from "@/lib/team.functions";
 import {
-  adminListCelebrities, adminSaveCelebrity, adminDeleteCelebrity,
+  adminListCelebrities, adminSaveCelebrity, adminDeleteCelebrity, adminUploadCelebrityPhoto,
   adminListBrands, adminSaveBrand, adminDeleteBrand,
   adminListGlobe, adminSaveGlobe, adminDeleteGlobe,
 } from "@/lib/content.functions";
