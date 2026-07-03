@@ -285,21 +285,30 @@ Extract all fields precisely from the image. If any required field is not clearl
 export const listMyEnrollments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+    // Use admin client so we can also read `upi_id_encrypted` for decryption
+    // and sign banner URLs; results are strictly scoped to the current user.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
       .from("enrollments").select("*, program:programs(*)")
       .eq("user_id", context.userId).order("created_at", { ascending: false });
     if (error) throw error;
     const { decryptSecret } = await import("./crypto.server");
-    // Decrypt the workshop's UPI ID for the enrollee to display on the payment
-    // page only. The ciphertext column is never returned to the client.
-    return (data ?? []).map((r: any) => {
+    const BANNER_BUCKET = "workshop-images";
+    const BANNER_TTL = 60 * 60 * 24 * 7;
+    return Promise.all((data ?? []).map(async (r: any) => {
       if (r.program) {
         const upi = decryptSecret(r.program.upi_id_encrypted);
         const { upi_id_encrypted, ...rest } = r.program;
-        r.program = { ...rest, upi_id: upi };
+        let banner_url = rest.banner_url ?? null;
+        if (!banner_url && rest.banner_path) {
+          const { data: signed } = await supabaseAdmin.storage
+            .from(BANNER_BUCKET).createSignedUrl(rest.banner_path, BANNER_TTL);
+          banner_url = signed?.signedUrl ?? null;
+        }
+        r.program = { ...rest, banner_url, upi_id: upi };
       }
       return r;
-    });
+    }));
   });
 
 async function assertAdmin(context: any) {
