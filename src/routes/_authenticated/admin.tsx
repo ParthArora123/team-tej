@@ -284,7 +284,9 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
               <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "UPI ID (e.g. tejas@upi)"}
                 v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
-              <p className="text-[11px] text-muted-foreground">Stored encrypted at rest. Shown only on the payment page.</p>
+              <In placeholder="Bank Account Holder Name (e.g. Tejas Dinesh Dhoke) *"
+                v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
+              <p className="text-[11px] text-muted-foreground">UPI ID stored encrypted. Holder name is shown below the UPI ID on the payment page so students can verify the recipient before paying.</p>
               {f.has_upi && (
                 <label className="flex items-center gap-2 text-xs">
                   <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
