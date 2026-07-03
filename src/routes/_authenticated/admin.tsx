@@ -156,11 +156,11 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       event_date: r.event_date ?? "", event_time: r.event_time ?? "",
       venue: r.venue ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
       capacity: r.capacity ?? "", price_inr: r.price_inr ?? "",
-      registration_closes_on: r.registration_closes_on ?? "",
       registration_open_on: r.registration_open_on ?? todayISO(),
       category: r.category ?? "",
       style: r.style ?? "", published: !!r.published,
       silver_seat_enabled: !!r.silver_seat_enabled,
+      silver_seat_price: (r.silver_seat_price ?? 1000).toString(),
       upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
       bank_account_holder: r.bank_account_holder ?? "",
     });
