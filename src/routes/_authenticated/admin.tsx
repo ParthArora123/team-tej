@@ -161,6 +161,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       style: r.style ?? "", published: !!r.published,
       silver_seat_enabled: !!r.silver_seat_enabled,
       upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
+      bank_account_holder: r.bank_account_holder ?? "",
     });
     setOpen(true);
   };
