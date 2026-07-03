@@ -184,6 +184,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   const closeDialog = () => { setOpen(false); setF(emptyWs()); };
 
   const edit = (r: any) => {
+    setPayerDefaults(readWsPayerDefaults());
     setF({
       id: r.id, kind: r.kind, name: r.name ?? "", description: r.description ?? "",
       banner_url: r.banner_url ?? "", banner_path: r.banner_path ?? "",
@@ -198,6 +199,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       silver_seat_price: (r.silver_seat_price ?? 1000).toString(),
       upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
       bank_account_holder: r.bank_account_holder ?? "",
+      save_payer_default: false,
     });
     setOpen(true);
   };
