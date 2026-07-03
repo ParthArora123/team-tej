@@ -29,6 +29,69 @@ export type Database = {
         }
         Relationships: []
       }
+      brands: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          published: boolean
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          published?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          published?: boolean
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      celebrities: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          photo_url: string | null
+          published: boolean
+          role: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          photo_url?: string | null
+          published?: boolean
+          role?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          photo_url?: string | null
+          published?: boolean
+          role?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           address: string | null
@@ -182,6 +245,42 @@ export type Database = {
           id?: string
           title?: string
           venue?: string | null
+        }
+        Relationships: []
+      }
+      globe_locations: {
+        Row: {
+          city: string
+          country: string
+          created_at: string
+          event_date: string | null
+          id: string
+          published: boolean
+          sort_order: number
+          status: Database["public"]["Enums"]["globe_status"]
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          country: string
+          created_at?: string
+          event_date?: string | null
+          id?: string
+          published?: boolean
+          sort_order?: number
+          status?: Database["public"]["Enums"]["globe_status"]
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          country?: string
+          created_at?: string
+          event_date?: string | null
+          id?: string
+          published?: boolean
+          sort_order?: number
+          status?: Database["public"]["Enums"]["globe_status"]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -510,6 +609,7 @@ export type Database = {
         | "payment_submitted"
         | "confirmed"
         | "rejected"
+      globe_status: "conducted" | "upcoming"
       program_kind:
         | "workshop"
         | "nritya_sadhana"
@@ -649,6 +749,7 @@ export const Constants = {
         "confirmed",
         "rejected",
       ],
+      globe_status: ["conducted", "upcoming"],
       program_kind: [
         "workshop",
         "nritya_sadhana",
