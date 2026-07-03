@@ -114,7 +114,7 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     const verification = await verifyPaymentScreenshot(dataUrl, {
       amountInr: existing.amount_inr,
       officialUpi,
-      recipientName: "Tejas Dinesh Dhoke",
+      recipientNames: ["Tejas Dinesh Dhoke", "Parth Arora"],
       registrationOpenOn: program.registration_open_on ?? null,
       eventDate: program.event_date ?? null,
     });
