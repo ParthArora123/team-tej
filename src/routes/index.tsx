@@ -280,11 +280,13 @@ function Index() {
               variants={item}
               className="snap-start shrink-0 w-[78%] p-6 rounded-2xl border border-border bg-card"
             >
-              <div className="aspect-[4/5] rounded-xl overflow-hidden bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-7xl font-display font-bold text-primary">
+              <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-gradient-to-br from-muted to-secondary">
                 {m.photo_url ? (
-                  <img src={m.photo_url} alt={m.name} className="h-full w-full object-cover" loading="lazy" />
+                  <img src={m.photo_url} alt={m.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
                 ) : (
-                  <span>{m.name.charAt(0).toUpperCase()}</span>
+                  <div className="absolute inset-0 flex items-center justify-center text-7xl font-display font-bold text-primary">
+                    {m.name.charAt(0).toUpperCase()}
+                  </div>
                 )}
               </div>
               <p className="mt-5 font-display text-xl font-bold">{m.name}</p>
@@ -309,11 +311,13 @@ function Index() {
               whileHover={{ y: -6 }}
               className="group p-6 rounded-2xl border border-border bg-card hover:border-primary transition-colors"
             >
-              <div className="aspect-[4/5] rounded-xl overflow-hidden bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-7xl font-display font-bold text-primary group-hover:scale-105 transition-transform duration-500">
+              <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-gradient-to-br from-muted to-secondary">
                 {m.photo_url ? (
-                  <img src={m.photo_url} alt={m.name} className="h-full w-full object-cover" loading="lazy" />
+                  <img src={m.photo_url} alt={m.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <span>{m.name.charAt(0).toUpperCase()}</span>
+                  <div className="absolute inset-0 flex items-center justify-center text-7xl font-display font-bold text-primary group-hover:scale-105 transition-transform duration-500">
+                    {m.name.charAt(0).toUpperCase()}
+                  </div>
                 )}
               </div>
               <p className="mt-5 font-display text-xl font-bold">{m.name}</p>
@@ -322,6 +326,7 @@ function Index() {
             </motion.div>
           ))}
         </motion.div>
+
 
       </section>
 
