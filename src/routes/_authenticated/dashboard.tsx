@@ -84,8 +84,29 @@ function Dashboard() {
 
       <div className="mt-8 grid gap-4">
         {rows.map((r) => {
-          const upiId = r.program?.upi_id || "teamtej@upi";
-          const upiUrl = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent("Tejas Dhoke")}&am=${r.amount_inr}&cu=INR&tn=${encodeURIComponent(r.program?.name ?? "Enrollment")}`;
+          // Build a spec-compliant UPI deep link. Common causes of the
+          // "Invalid QR / Invalid format" error in GPay/PhonePe/Paytm/BHIM:
+          //   - VPA missing or not in name@psp form
+          //   - amount not sent as a fixed 2-decimal number (e.g. "100" vs "100.00")
+          //   - payee name / note containing reserved URI chars (& = # ? / :) or
+          //     spaces encoded as %20 (some apps insist on '+')
+          const rawUpi = (r.program?.upi_id || "").trim();
+          const validUpi = /^[a-zA-Z0-9._-]{2,64}@[a-zA-Z][a-zA-Z0-9]{1,32}$/.test(rawUpi);
+          const upiId = validUpi ? rawUpi : "";
+          const cleanText = (s: string) =>
+            String(s ?? "")
+              .replace(/[&=#?/:%]+/g, " ")     // strip URI-reserved chars
+              .replace(/[^\w .,'-]/g, " ")     // keep safe printable set
+              .replace(/\s+/g, " ")
+              .trim()
+              .slice(0, 40);
+          const payeeName = cleanText(r.program?.bank_account_holder || "Tejas Dhoke") || "Tejas Dhoke";
+          const note = cleanText(r.program?.name || "Enrollment") || "Enrollment";
+          const amount = Number(r.amount_inr || 0).toFixed(2);
+          const enc = (v: string) => encodeURIComponent(v).replace(/%20/g, "+");
+          const upiUrl = upiId
+            ? `upi://pay?pa=${enc(upiId)}&pn=${enc(payeeName)}&am=${amount}&cu=INR&tn=${enc(note)}`
+            : "";
           const verifyUrl = typeof window !== "undefined" && r.ticket_code
             ? `${window.location.origin}/verify?code=${encodeURIComponent(r.ticket_code)}`
             : "";
@@ -124,17 +145,30 @@ function Dashboard() {
                   </button>
                   {open === r.id && (
                     <div className="mt-4 flex flex-col items-center bg-muted/40 rounded-xl p-5">
-                      <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} /></div>
-                      <button
-                        type="button"
-                        onClick={() => downloadQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
-                        className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
-                        <Download size={12} /> Download QR
-                      </button>
+                      {upiUrl ? (
+                        <>
+                          <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} level="M" /></div>
+                          <button
+                            type="button"
+                            onClick={() => downloadQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
+                            className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
+                            <Download size={12} /> Download QR
+                          </button>
+                          <a
+                            href={upiUrl}
+                            className="mt-2 text-[11px] text-primary underline underline-offset-2">
+                            Or tap here to open in your UPI app
+                          </a>
+                        </>
+                      ) : (
+                        <p className="text-xs text-destructive text-center max-w-xs">
+                          The workshop's UPI ID is missing or invalid. Please contact the admin before paying.
+                        </p>
+                      )}
                       <div className="mt-3 text-center">
                         <p className="text-xs text-muted-foreground">Scan with any UPI app and pay ₹{r.amount_inr.toLocaleString("en-IN")}</p>
                         <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">Official UPI ID</p>
-                        <p className="font-mono text-sm">{upiId}</p>
+                        <p className="font-mono text-sm">{upiId || "—"}</p>
                         {r.program?.bank_account_holder && (
                           <>
                             <p className="mt-2 text-[11px] uppercase tracking-widest text-muted-foreground">Account holder</p>
@@ -143,6 +177,7 @@ function Dashboard() {
                           </>
                         )}
                       </div>
+
                       <Link
                         to="/pay/$enrollmentId"
                         params={{ enrollmentId: r.id }}

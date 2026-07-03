@@ -9,17 +9,12 @@ export const Route = createFileRoute("/_authenticated/pay/$enrollmentId")({
   component: PayUpload,
 });
 
-const ALLOWED_EXT = /\.(jpe?g|png|webp|heic|heif|gif|bmp|tiff?)$/i;
+const ALLOWED_EXT = /\.(jpe?g|png|webp)$/i;
 
 const contentTypeFromExt = (name: string) => {
   const ext = (name.split(".").pop() || "jpg").toLowerCase();
   if (ext === "png") return "image/png";
   if (ext === "webp") return "image/webp";
-  if (ext === "gif") return "image/gif";
-  if (ext === "bmp") return "image/bmp";
-  if (ext === "tif" || ext === "tiff") return "image/tiff";
-  if (ext === "heic") return "image/heic";
-  if (ext === "heif") return "image/heif";
   return "image/jpeg";
 };
 
@@ -47,9 +42,9 @@ function PayUpload() {
     const name = f.name.toLowerCase();
     const type = f.type.toLowerCase();
     const okExt = ALLOWED_EXT.test(name);
-    const okType = !type || type.startsWith("image/");
-    if (!okExt && !okType) {
-      setErr("Please upload an image file (JPG, PNG, WEBP, HEIC, etc.).");
+    const okType = type === "image/png" || type === "image/jpeg" || type === "image/jpg" || type === "image/webp";
+    if (!okExt || !okType) {
+      setErr("Please upload a PNG, JPG, or WEBP screenshot.");
       return;
     }
     if (f.size > 8 * 1024 * 1024) {
@@ -127,7 +122,7 @@ function PayUpload() {
         </div>
         <input
           type="file"
-          accept="image/*"
+          accept="image/png,image/jpeg,image/webp,.jpg,.jpeg,.png,.webp"
           onChange={(e) => onPick(e.target.files?.[0] ?? null)}
           className="mt-2 block w-full cursor-pointer rounded-md border border-border bg-background text-sm text-foreground file:mr-3 file:cursor-pointer file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-foreground"
         />
