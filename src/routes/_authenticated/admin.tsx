@@ -172,9 +172,15 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [payerDefaults, setPayerDefaults] = useState<WsPayerDefaults | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  const openAdd = () => { setF(emptyWs()); setOpen(true); };
+  const openAdd = () => {
+    const def = readWsPayerDefaults();
+    setPayerDefaults(def);
+    setF({ ...emptyWs(), upi_id: def?.upi_id ?? "", bank_account_holder: def?.bank_account_holder ?? "" });
+    setOpen(true);
+  };
   const closeDialog = () => { setOpen(false); setF(emptyWs()); };
 
   const edit = (r: any) => {
