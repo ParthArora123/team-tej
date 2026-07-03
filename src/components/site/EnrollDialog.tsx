@@ -44,15 +44,25 @@ export function EnrollDialog({ klass, onClose }: Props) {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [d, setD] = useState(initial);
   const [silver, setSilver] = useState(false);
+  const [saveDefault, setSaveDefault] = useState(false);
+  const [savedDefaults, setSavedDefaults] = useState<PayerDefaults | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
     setSilver(false);
+    const def = readDefaults();
+    setSavedDefaults(def);
+    setSaveDefault(false);
     supabase.auth.getUser().then(({ data }) => {
       setSignedIn(!!data.user);
-      if (data.user?.email) setD((s) => ({ ...s, email: data.user!.email! }));
+      setD((s) => ({
+        ...s,
+        email: data.user?.email ?? s.email,
+        upiId: def?.upiId ?? "",
+        accountHolder: def?.accountHolder ?? "",
+      }));
     });
   }, [klass]);
 
