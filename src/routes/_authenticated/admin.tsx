@@ -128,10 +128,11 @@ const emptyWs = () => ({
   kind: "workshop", name: "", description: "", banner_url: "", banner_path: "",
   banner_preview: "" as string,
   event_date: "", event_time: "", venue: "", instructor: "",
-  duration: "", capacity: "", price_inr: "", registration_closes_on: "",
+  duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
   category: "", style: "", published: false,
   silver_seat_enabled: false,
+  silver_seat_price: "1000",
   upi_id: "", clear_upi: false, has_upi: false,
   bank_account_holder: "",
 });
