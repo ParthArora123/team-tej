@@ -2,7 +2,26 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { QRCodeSVG } from "qrcode.react";
-import { Check, Clock, X as XIcon, Ticket, LogOut, Shield } from "lucide-react";
+import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Download } from "lucide-react";
+
+async function downloadQrPng(containerId: string, filename: string, size = 720) {
+  const svg = document.querySelector(`#${containerId} svg`) as SVGSVGElement | null;
+  if (!svg) return;
+  const xml = new XMLSerializer().serializeToString(svg);
+  const svg64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(xml)));
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; img.src = svg64; });
+  const canvas = document.createElement("canvas");
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, size, size);
+  ctx.drawImage(img, 0, 0, size, size);
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = filename;
+  a.click();
+}
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, checkIsAdmin } from "@/lib/enrollment.functions";
 import { supabase } from "@/integrations/supabase/client";
