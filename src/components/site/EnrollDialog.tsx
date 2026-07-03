@@ -23,7 +23,20 @@ interface Props {
 const initial = {
   fullName: "", email: "", phone: "", age: "", gender: "Female",
   address: "", city: "", state: "", emergencyContact: "", medicalInfo: "",
+  upiId: "", accountHolder: "",
 };
+
+const DEFAULTS_KEY = "enroll:payerDefaults";
+type PayerDefaults = { upiId: string; accountHolder: string };
+function readDefaults(): PayerDefaults | null {
+  try {
+    const raw = localStorage.getItem(DEFAULTS_KEY);
+    if (!raw) return null;
+    const p = JSON.parse(raw);
+    if (p && typeof p.upiId === "string" && typeof p.accountHolder === "string" && p.upiId && p.accountHolder) return p;
+    return null;
+  } catch { return null; }
+}
 
 export function EnrollDialog({ klass, onClose }: Props) {
   const navigate = useNavigate();
@@ -31,15 +44,25 @@ export function EnrollDialog({ klass, onClose }: Props) {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [d, setD] = useState(initial);
   const [silver, setSilver] = useState(false);
+  const [saveDefault, setSaveDefault] = useState(false);
+  const [savedDefaults, setSavedDefaults] = useState<PayerDefaults | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
     setSilver(false);
+    const def = readDefaults();
+    setSavedDefaults(def);
+    setSaveDefault(false);
     supabase.auth.getUser().then(({ data }) => {
       setSignedIn(!!data.user);
-      if (data.user?.email) setD((s) => ({ ...s, email: data.user!.email! }));
+      setD((s) => ({
+        ...s,
+        email: data.user?.email ?? s.email,
+        upiId: def?.upiId ?? "",
+        accountHolder: def?.accountHolder ?? "",
+      }));
     });
   }, [klass]);
 
@@ -59,6 +82,13 @@ export function EnrollDialog({ klass, onClose }: Props) {
         medicalInfo: d.medicalInfo || null,
         silverSeat: !!(klass.silverSeatEnabled && silver),
       }});
+      if (!savedDefaults && saveDefault && d.upiId.trim() && d.accountHolder.trim()) {
+        try {
+          localStorage.setItem(DEFAULTS_KEY, JSON.stringify({
+            upiId: d.upiId.trim(), accountHolder: d.accountHolder.trim(),
+          }));
+        } catch {}
+      }
       setDone(true);
     } catch (e: any) { setErr(e.message ?? "Failed"); }
     finally { setBusy(false); }
@@ -111,6 +141,20 @@ export function EnrollDialog({ klass, onClose }: Props) {
                   <textarea value={d.medicalInfo} onChange={(e) => setD({...d, medicalInfo: e.target.value})} rows={2}
                     className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
                 </label>
+
+                {!savedDefaults && (
+                  <>
+                    <Field label="UPI ID (for payment)" v={d.upiId} on={(v) => setD({...d, upiId: v})} span2 />
+                    <Field label="Account holder name" v={d.accountHolder} on={(v) => setD({...d, accountHolder: v})} span2 />
+                    <label className="col-span-2 flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-3 cursor-pointer">
+                      <input type="checkbox" checked={saveDefault} onChange={(e) => setSaveDefault(e.target.checked)} className="mt-1" />
+                      <span className="flex-1 text-xs text-muted-foreground">
+                        <span className="block font-medium text-sm text-foreground">Set as default</span>
+                        Save this UPI ID and account holder name. Next time these fields will be hidden and used automatically.
+                      </span>
+                    </label>
+                  </>
+                )}
 
                 {klass.silverSeatEnabled && (
                   <label className="col-span-2 flex items-start gap-3 rounded-xl border border-primary/40 bg-primary/5 p-3 cursor-pointer">
