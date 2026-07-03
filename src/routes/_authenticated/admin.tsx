@@ -201,6 +201,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         ...f,
         price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
+        silver_seat_price: f.silver_seat_enabled ? Number(f.silver_seat_price || 1000) : 1000,
         upi_id: f.upi_id?.trim() || undefined,
         clear_upi: !!f.clear_upi,
         silver_seat_enabled: !!f.silver_seat_enabled,
