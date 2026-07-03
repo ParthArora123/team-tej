@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { listPublicTeamProfiles } from "@/lib/team.functions";
 import { listPrograms } from "@/lib/catalog.functions";
+import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin } from "lucide-react";
