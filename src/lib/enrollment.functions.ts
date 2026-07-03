@@ -385,12 +385,12 @@ const workshopSchema = z.object({
   duration: z.string().optional(),
   capacity: z.number().int().optional(),
   price_inr: z.number().int().min(0),
-  registration_closes_on: z.string().optional(),
   registration_open_on: z.string().optional(),
   category: z.string().optional(),
   style: z.string().optional(),
   published: z.boolean().default(false),
   silver_seat_enabled: z.boolean().optional(),
+  silver_seat_price: z.number().int().min(0).optional(),
   upi_id: z.string().max(120).optional().or(z.literal("")),
   clear_upi: z.boolean().optional(),
   bank_account_holder: z.string().min(2).max(120),
@@ -408,9 +408,9 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       banner_url: rest.banner_url || null,
       banner_path: rest.banner_path || null,
       event_date: rest.event_date || null,
-      registration_closes_on: rest.registration_closes_on || null,
       registration_open_on: rest.registration_open_on || null,
       silver_seat_enabled: !!rest.silver_seat_enabled,
+      silver_seat_price: rest.silver_seat_price ?? 1000,
     };
     if (clear_upi) {
       clean.upi_id_encrypted = null;

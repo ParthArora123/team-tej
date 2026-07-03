@@ -12,6 +12,7 @@ export interface EnrollClass {
   price: number;
   duration: string;
   silverSeatEnabled?: boolean;
+  silverSeatPrice?: number;
 }
 
 interface Props {
@@ -23,8 +24,6 @@ const initial = {
   fullName: "", email: "", phone: "", age: "", gender: "Female",
   address: "", city: "", state: "", emergencyContact: "", medicalInfo: "",
 };
-
-const SILVER_ADDON = 1000;
 
 export function EnrollDialog({ klass, onClose }: Props) {
   const navigate = useNavigate();
@@ -46,7 +45,8 @@ export function EnrollDialog({ klass, onClose }: Props) {
 
   if (!klass) return null;
 
-  const total = klass.price + (klass.silverSeatEnabled && silver ? SILVER_ADDON : 0);
+  const silverAddon = klass.silverSeatPrice ?? 1000;
+  const total = klass.price + (klass.silverSeatEnabled && silver ? silverAddon : 0);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,9 +119,9 @@ export function EnrollDialog({ klass, onClose }: Props) {
                       <span className="flex items-center gap-1.5 font-medium text-sm">
                         <Sparkles size={14} className="text-primary" /> Silver Seat
                       </span>
-                      <span className="block text-xs text-muted-foreground mt-0.5">Premium seating · adds ₹1,000 to your fee.</span>
+                      <span className="block text-xs text-muted-foreground mt-0.5">Premium seating · adds ₹{silverAddon.toLocaleString("en-IN")} to your fee.</span>
                     </span>
-                    <span className="text-sm font-medium">+₹1,000</span>
+                    <span className="text-sm font-medium">+₹{silverAddon.toLocaleString("en-IN")}</span>
                   </label>
                 )}
               </div>

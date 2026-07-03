@@ -128,10 +128,11 @@ const emptyWs = () => ({
   kind: "workshop", name: "", description: "", banner_url: "", banner_path: "",
   banner_preview: "" as string,
   event_date: "", event_time: "", venue: "", instructor: "",
-  duration: "", capacity: "", price_inr: "", registration_closes_on: "",
+  duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
   category: "", style: "", published: false,
   silver_seat_enabled: false,
+  silver_seat_price: "1000",
   upi_id: "", clear_upi: false, has_upi: false,
   bank_account_holder: "",
 });
@@ -155,11 +156,11 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       event_date: r.event_date ?? "", event_time: r.event_time ?? "",
       venue: r.venue ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
       capacity: r.capacity ?? "", price_inr: r.price_inr ?? "",
-      registration_closes_on: r.registration_closes_on ?? "",
       registration_open_on: r.registration_open_on ?? todayISO(),
       category: r.category ?? "",
       style: r.style ?? "", published: !!r.published,
       silver_seat_enabled: !!r.silver_seat_enabled,
+      silver_seat_price: (r.silver_seat_price ?? 1000).toString(),
       upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
       bank_account_holder: r.bank_account_holder ?? "",
     });
@@ -200,6 +201,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         ...f,
         price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
+        silver_seat_price: f.silver_seat_enabled ? Number(f.silver_seat_price || 1000) : 1000,
         upi_id: f.upi_id?.trim() || undefined,
         clear_upi: !!f.clear_upi,
         silver_seat_enabled: !!f.silver_seat_enabled,
@@ -229,63 +231,101 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           <DialogHeader>
             <DialogTitle>{f.id ? "Edit Workshop" : "Add Workshop"}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={save} className="space-y-3 min-w-0">
-            <In placeholder="Workshop name *" v={f.name} on={(v) => setF({ ...f, name: v })} required />
-            <textarea placeholder="Description" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
-              className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" rows={3} />
+          <form onSubmit={save} className="space-y-4 min-w-0">
+            <FieldRow label="Workshop Title *">
+              <In placeholder="Enter workshop title" v={f.name} on={(v) => setF({ ...f, name: v })} required />
+            </FieldRow>
 
-            <div
-              onClick={() => fileRef.current?.click()}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => { e.preventDefault(); const f0 = e.dataTransfer.files?.[0]; if (f0) handleFile(f0); }}
-              className="flex items-center gap-3 rounded-lg border border-dashed border-border bg-muted/40 p-2 cursor-pointer"
-            >
-              <div className="h-14 w-20 rounded bg-muted overflow-hidden flex items-center justify-center shrink-0">
-                {f.banner_preview ? <img src={f.banner_preview} alt="" className="h-full w-full object-cover" /> : <ImageUp size={18} className="text-muted-foreground" />}
+            <FieldRow label="Workshop Description">
+              <textarea placeholder="Enter workshop description" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
+                className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" rows={3} />
+            </FieldRow>
+
+            <FieldRow label="Workshop Banner">
+              <div
+                onClick={() => fileRef.current?.click()}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => { e.preventDefault(); const f0 = e.dataTransfer.files?.[0]; if (f0) handleFile(f0); }}
+                className="flex items-center gap-3 rounded-lg border border-dashed border-border bg-muted/40 p-2 cursor-pointer"
+              >
+                <div className="h-14 w-20 rounded bg-muted overflow-hidden flex items-center justify-center shrink-0">
+                  {f.banner_preview ? <img src={f.banner_preview} alt="" className="h-full w-full object-cover" /> : <ImageUp size={18} className="text-muted-foreground" />}
+                </div>
+                <div className="flex-1 text-xs">
+                  <p className="font-medium">{uploading ? "Uploading…" : f.banner_preview ? "Replace image" : "Upload workshop banner image"}</p>
+                  <p className="text-muted-foreground">JPG, PNG, WebP · up to 8 MB</p>
+                </div>
+                {f.banner_preview && (
+                  <button type="button" onClick={(e) => { e.stopPropagation(); setF({ ...f, banner_path: "", banner_url: "", banner_preview: "" }); }}
+                    className="p-1 rounded bg-background border border-border"><X size={12} /></button>
+                )}
+                <input ref={fileRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
+                  onChange={(e) => { const f0 = e.target.files?.[0]; if (f0) handleFile(f0); e.currentTarget.value = ""; }} />
               </div>
-              <div className="flex-1 text-xs">
-                <p className="font-medium">{uploading ? "Uploading…" : f.banner_preview ? "Replace image" : "Upload workshop image"}</p>
-                <p className="text-muted-foreground">JPG, PNG, WebP · up to 8 MB</p>
-              </div>
-              {f.banner_preview && (
-                <button type="button" onClick={(e) => { e.stopPropagation(); setF({ ...f, banner_path: "", banner_url: "", banner_preview: "" }); }}
-                  className="p-1 rounded bg-background border border-border"><X size={12} /></button>
+            </FieldRow>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <FieldRow label="Registration Open Date">
+                <In type="date" placeholder="Select registration open date" v={f.registration_open_on} on={(v) => setF({ ...f, registration_open_on: v })} />
+              </FieldRow>
+              <FieldRow label="Workshop Date">
+                <In type="date" placeholder="Select workshop date" v={f.event_date} on={(v) => setF({ ...f, event_date: v })} />
+              </FieldRow>
+              <FieldRow label="Workshop Time">
+                <In type="time" placeholder="Select workshop time" v={f.event_time} on={(v) => setF({ ...f, event_time: v })} />
+              </FieldRow>
+              <FieldRow label="Workshop Duration">
+                <In placeholder="Enter duration (e.g. 2 hrs)" v={f.duration} on={(v) => setF({ ...f, duration: v })} />
+              </FieldRow>
+              <FieldRow label="Workshop Location">
+                <In placeholder="Enter workshop location" v={f.venue} on={(v) => setF({ ...f, venue: v })} />
+              </FieldRow>
+              <FieldRow label="Instructor">
+                <In placeholder="Enter instructor name" v={f.instructor} on={(v) => setF({ ...f, instructor: v })} />
+              </FieldRow>
+              <FieldRow label="Category">
+                <In placeholder="Enter category (e.g. Hip-Hop)" v={f.category} on={(v) => setF({ ...f, category: v })} />
+              </FieldRow>
+              <FieldRow label="Maximum Capacity">
+                <In type="number" placeholder="Enter maximum participants" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
+              </FieldRow>
+              <FieldRow label="Workshop Fee (₹) *">
+                <In type="number" placeholder="Enter workshop fee" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
+              </FieldRow>
+              <FieldRow label="Workshop Type">
+                <select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+                  <option value="workshop">Workshop</option>
+                  <option value="nritya_sadhana">Nritya Sadhana</option>
+                  <option value="zero_to_hero">Zero to Hero</option>
+                  <option value="online_training">Online Training</option>
+                </select>
+              </FieldRow>
+            </div>
+
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input type="checkbox" checked={!!f.silver_seat_enabled} onChange={(e) => setF({ ...f, silver_seat_enabled: e.target.checked })} />
+                Enable Silver Seat option
+              </label>
+              {f.silver_seat_enabled && (
+                <FieldRow label="Silver Seat Price (₹)">
+                  <In type="number" placeholder="Enter additional Silver Seat price" v={f.silver_seat_price} on={(v) => setF({ ...f, silver_seat_price: v })} />
+                </FieldRow>
               )}
-              <input ref={fileRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
-                onChange={(e) => { const f0 = e.target.files?.[0]; if (f0) handleFile(f0); e.currentTarget.value = ""; }} />
+              <p className="text-[11px] text-muted-foreground">Default is ₹1,000. This is added on top of the workshop fee when a student picks the Silver Seat option.</p>
             </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <In type="date" placeholder="Event date" v={f.event_date} on={(v) => setF({ ...f, event_date: v })} />
-              <In type="time" placeholder="Time" v={f.event_time} on={(v) => setF({ ...f, event_time: v })} />
-              <In placeholder="Venue" v={f.venue} on={(v) => setF({ ...f, venue: v })} />
-              <In placeholder="Instructor" v={f.instructor} on={(v) => setF({ ...f, instructor: v })} />
-              <In placeholder="Duration (e.g. 2 hrs)" v={f.duration} on={(v) => setF({ ...f, duration: v })} />
-              <In placeholder="Category (e.g. Hip-Hop)" v={f.category} on={(v) => setF({ ...f, category: v })} />
-              <In type="number" placeholder="Capacity" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
-              <In type="number" placeholder="Fee (₹) *" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
-              <In type="date" placeholder="Registration opens" v={f.registration_open_on} on={(v) => setF({ ...f, registration_open_on: v })} />
-              <In type="date" placeholder="Registration closes" v={f.registration_closes_on} on={(v) => setF({ ...f, registration_closes_on: v })} />
-              <select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}
-                className="px-3 py-2 rounded-lg bg-muted border border-border text-sm col-span-2">
-                <option value="workshop">Workshop</option>
-                <option value="nritya_sadhana">Nritya Sadhana</option>
-                <option value="zero_to_hero">Zero to Hero</option>
-                <option value="online_training">Online Training</option>
-              </select>
-            </div>
-
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={!!f.silver_seat_enabled} onChange={(e) => setF({ ...f, silver_seat_enabled: e.target.checked })} />
-              Enable Silver Seat (+₹1,000 option at registration)
-            </label>
 
             <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
-              <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "UPI ID (e.g. tejas@upi)"}
-                v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
-              <In placeholder="Bank Account Holder Name (e.g. Tejas Dinesh Dhoke) *"
-                v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
+              <FieldRow label="Official UPI ID">
+                <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "Enter UPI ID (e.g. tejas@upi)"}
+                  v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
+              </FieldRow>
+              <FieldRow label="Bank Account Holder Name *">
+                <In placeholder="Enter bank account holder name (e.g. Tejas Dinesh Dhoke)"
+                  v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
+              </FieldRow>
               <p className="text-[11px] text-muted-foreground">UPI ID stored encrypted. Holder name is shown below the UPI ID on the payment page so students can verify the recipient before paying.</p>
               {f.has_upi && (
                 <label className="flex items-center gap-2 text-xs">
@@ -294,6 +334,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 </label>
               )}
             </div>
+
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} />
               Publish (visible to customers)
@@ -363,6 +404,15 @@ function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (v: b
 function In({ v, on, ...p }: { v: string; on: (v: string) => void; [k: string]: any }) {
   return <input value={v} onChange={(e) => on(e.target.value)} {...p}
     className="w-full min-w-0 px-3 py-2 rounded-lg bg-muted border border-border text-sm" />;
+}
+
+function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <div className="mt-1">{children}</div>
+    </label>
+  );
 }
 
 function StudentsTab({ rows }: { rows: any[] }) {
