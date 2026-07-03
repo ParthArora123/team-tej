@@ -78,6 +78,22 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       return { ok: true, already: true };
     }
 
+    // Load program for recipient UPI + date-window validation.
+    const { data: program, error: pErr } = await supabaseAdmin
+      .from("programs")
+      .select("upi_id_encrypted, event_date, registration_open_on, name")
+      .eq("id", existing.program_id!)
+      .maybeSingle();
+    if (pErr || !program) throw new Error("Workshop not found for this registration.");
+
+    const { decryptSecret, sanitizeUpiId } = await import("./crypto.server");
+    const officialUpi = program.upi_id_encrypted
+      ? sanitizeUpiId(decryptSecret(program.upi_id_encrypted) || "")
+      : "";
+    if (!officialUpi) {
+      throw new Error("The workshop's official UPI ID is not configured yet. Please contact the admin.");
+    }
+
     const dl = await supabaseAdmin.storage.from("payment-proofs").download(data.proofPath);
     if (dl.error || !dl.data) throw new Error("Could not read the uploaded screenshot.");
     const blob = dl.data;
@@ -95,9 +111,15 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     const buf = Buffer.from(await blob.arrayBuffer());
     const dataUrl = `data:${contentType};base64,${buf.toString("base64")}`;
 
-    const verification = await verifyPaymentScreenshot(dataUrl, existing.amount_inr);
+    const verification = await verifyPaymentScreenshot(dataUrl, {
+      amountInr: existing.amount_inr,
+      officialUpi,
+      recipientName: "Tejas Dinesh Dhoke",
+      registrationOpenOn: program.registration_open_on ?? null,
+      eventDate: program.event_date ?? null,
+    });
     if (!verification.accepted) {
-      throw new Error("Please upload a valid payment screenshot.");
+      throw new Error(verification.reason);
     }
 
     const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -131,18 +153,27 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     return { ok: true, confirmed: true, ticket };
   });
 
-async function verifyPaymentScreenshot(dataUrl: string, amountInr: number) {
+type VerifyCtx = {
+  amountInr: number;
+  officialUpi: string;
+  recipientName: string;
+  registrationOpenOn: string | null;
+  eventDate: string | null;
+};
+
+async function verifyPaymentScreenshot(dataUrl: string, ctx: VerifyCtx) {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) {
     throw new Error("Payment screenshot verification is not configured yet.");
   }
 
+  const today = new Date().toISOString().slice(0, 10);
+  const openOn = ctx.registrationOpenOn || "any earlier date";
+  const eventOn = ctx.eventDate || today;
+
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Lovable-API-Key": apiKey,
-    },
+    headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey },
     body: JSON.stringify({
       model: "google/gemini-2.5-flash",
       response_format: { type: "json_object" },
@@ -150,14 +181,19 @@ async function verifyPaymentScreenshot(dataUrl: string, amountInr: number) {
         {
           role: "system",
           content:
-            "You verify Indian payment proof screenshots for a dance workshop. Return only valid JSON with keys: is_payment_screenshot, payment_successful, amount_matches, detected_amount, reason. Be practical: accept UPI, bank, wallet, GPay, PhonePe, Paytm, BHIM, or netbanking success receipts. Reject unrelated images, pending/failed payments, edited/fake-looking screenshots, or screenshots with a clearly different amount.",
+            "You are a strict OCR-based validator for Indian UPI/bank payment confirmation screenshots. Return ONLY valid JSON with keys: is_payment_screenshot (bool), is_screenshot_not_photo (bool), payment_status (one of successful|failed|pending|processing|cancelled|refunded|reversed|unknown), recipient_name (string or null), recipient_upi_id (string or null), payer_upi_id (string or null), amount (number or null), payment_date (YYYY-MM-DD or null), payment_time (HH:MM or null), extraction_confidence (low|medium|high), reason (short human-readable string). Extract the RECIPIENT (payee / To) UPI ID and name, never the payer's. Reject camera photos of screens, cropped images hiding key info, or non-payment images.",
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: `Expected paid amount is INR ${amountInr}. Check whether this image is a successful payment receipt and whether the amount matches. If amount text is not readable but the screenshot clearly shows successful payment, set amount_matches true.`,
+              text: `Validate this payment confirmation screenshot for a dance workshop.
+Expected recipient name: "${ctx.recipientName}"
+Expected recipient UPI ID: "${ctx.officialUpi}"
+Expected amount: INR ${ctx.amountInr}
+Payment must be dated between ${openOn} and ${eventOn} (inclusive).
+Extract all fields precisely from the image. If any required field is not clearly visible, set extraction_confidence to "low".`,
             },
             { type: "image_url", image_url: { url: dataUrl } },
           ],
@@ -168,28 +204,72 @@ async function verifyPaymentScreenshot(dataUrl: string, amountInr: number) {
 
   const raw = await response.text();
   if (!response.ok) {
-    throw new Error("Payment screenshot verification failed. Please upload a clear UPI/bank payment receipt.");
+    return { accepted: false, reason: "Payment screenshot verification failed. Please upload a clear UPI/bank payment confirmation screenshot." };
   }
 
-  let parsed: any;
+  let p: any;
   try {
     const payload = JSON.parse(raw);
     const content = payload?.choices?.[0]?.message?.content ?? "{}";
-    parsed = typeof content === "string" ? JSON.parse(content) : content;
+    p = typeof content === "string" ? JSON.parse(content) : content;
   } catch {
-    throw new Error("Payment screenshot could not be verified. Please upload a clearer receipt from your payment app.");
+    return { accepted: false, reason: "Could not read the payment screenshot. Please upload a clearer receipt from your payment app." };
   }
 
-  if (parsed.is_payment_screenshot === true && parsed.payment_successful === true) {
-    return { accepted: true, reason: "Verified" };
+  const normUpi = (s: any) => String(s ?? "").toLowerCase().replace(/[^a-z0-9@._-]/g, "");
+  const normName = (s: any) => String(s ?? "").toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
+
+  if (!p.is_payment_screenshot) {
+    return { accepted: false, reason: "This doesn't look like a payment confirmation screenshot. Please upload the receipt from your UPI/bank app." };
+  }
+  if (p.is_screenshot_not_photo === false) {
+    return { accepted: false, reason: "Please upload the original payment screenshot from your app — not a photo of a screen." };
+  }
+  if (p.extraction_confidence === "low") {
+    return { accepted: false, reason: "The screenshot is unclear or missing key payment details. Please upload a full, uncropped payment confirmation screenshot." };
   }
 
-  return {
-    accepted: false,
-    reason: typeof parsed.reason === "string" && parsed.reason.trim()
-      ? parsed.reason
-      : "This doesn't look like a successful payment screenshot. Please upload the receipt from your UPI/bank app.",
-  };
+  const status = String(p.payment_status ?? "").toLowerCase();
+  const okStatus = ["successful", "success", "paid", "completed"];
+  const badStatus = ["failed", "pending", "processing", "cancelled", "canceled", "refunded", "reversed"];
+  if (badStatus.includes(status)) {
+    return { accepted: false, reason: `Payment status is "${status}". Only successful payments are accepted.` };
+  }
+  if (!okStatus.includes(status)) {
+    return { accepted: false, reason: "Could not confirm the payment was successful. Please upload the success receipt." };
+  }
+
+  const expectedName = normName(ctx.recipientName);
+  const gotName = normName(p.recipient_name);
+  if (!gotName || (gotName !== expectedName && !gotName.includes(expectedName) && !expectedName.includes(gotName))) {
+    return { accepted: false, reason: `Invalid payment screenshot. The payment must be made to ${ctx.recipientName}.` };
+  }
+
+  const expectedUpi = normUpi(ctx.officialUpi);
+  const gotUpi = normUpi(p.recipient_upi_id);
+  if (!gotUpi || gotUpi !== expectedUpi) {
+    return { accepted: false, reason: "The payment was not sent to the official UPI ID. Please make the payment to the correct UPI ID and upload the payment confirmation screenshot." };
+  }
+
+  const amt = Number(p.amount);
+  if (!Number.isFinite(amt) || Math.round(amt) !== Math.round(ctx.amountInr)) {
+    return { accepted: false, reason: `The paid amount (${p.amount ?? "unknown"}) does not match the required amount of ₹${ctx.amountInr}.` };
+  }
+
+  const payDate = String(p.payment_date ?? "").slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(payDate)) {
+    return { accepted: false, reason: "Could not read the payment date. Please upload a screenshot that clearly shows the payment date." };
+  }
+  const openOnStr = ctx.registrationOpenOn ? ctx.registrationOpenOn.slice(0, 10) : null;
+  const eventStr = ctx.eventDate ? ctx.eventDate.slice(0, 10) : null;
+  if (openOnStr && payDate < openOnStr) {
+    return { accepted: false, reason: `This payment (${payDate}) is dated before registration opened (${openOnStr}). Please pay again and upload the new screenshot.` };
+  }
+  if (eventStr && payDate > eventStr) {
+    return { accepted: false, reason: `This payment (${payDate}) is dated after the workshop (${eventStr}) and cannot be accepted.` };
+  }
+
+  return { accepted: true, reason: "Verified" };
 }
 
 
