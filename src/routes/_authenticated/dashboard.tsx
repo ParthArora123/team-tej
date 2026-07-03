@@ -90,7 +90,18 @@ function Dashboard() {
                   {open === r.id && (
                     <div className="mt-4 flex flex-col items-center bg-muted/40 rounded-xl p-5">
                       <div className="p-3 bg-white rounded-lg"><QRCodeSVG value={upiUrl} size={180} /></div>
-                      <p className="mt-3 text-xs text-muted-foreground">Scan with any UPI app and pay ₹{r.amount_inr.toLocaleString("en-IN")}</p>
+                      <div className="mt-3 text-center">
+                        <p className="text-xs text-muted-foreground">Scan with any UPI app and pay ₹{r.amount_inr.toLocaleString("en-IN")}</p>
+                        <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">Official UPI ID</p>
+                        <p className="font-mono text-sm">{upiId}</p>
+                        {r.program?.bank_account_holder && (
+                          <>
+                            <p className="mt-2 text-[11px] uppercase tracking-widest text-muted-foreground">Account holder</p>
+                            <p className="text-sm font-medium">{r.program.bank_account_holder}</p>
+                            <p className="mt-2 text-[11px] text-muted-foreground max-w-xs mx-auto">Please verify the recipient name in your UPI app matches the above before paying.</p>
+                          </>
+                        )}
+                      </div>
                       <Link
                         to="/pay/$enrollmentId"
                         params={{ enrollmentId: r.id }}

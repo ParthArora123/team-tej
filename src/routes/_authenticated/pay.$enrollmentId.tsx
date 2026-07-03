@@ -96,9 +96,21 @@ function PayUpload() {
       </Link>
       <h1 className="font-display text-3xl font-bold mt-4">Upload payment screenshot</h1>
       {enr && (
-        <p className="mt-2 text-sm text-muted-foreground">
-          {enr.program?.name} · ₹{(enr.amount_inr ?? 0).toLocaleString("en-IN")}
-        </p>
+        <>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {enr.program?.name} · ₹{(enr.amount_inr ?? 0).toLocaleString("en-IN")}
+          </p>
+          {(enr.program?.upi_id || enr.program?.bank_account_holder) && (
+            <div className="mt-4 rounded-lg border border-border/60 bg-muted/40 p-3 text-sm">
+              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Paid to</p>
+              {enr.program?.upi_id && <p className="font-mono">{enr.program.upi_id}</p>}
+              {enr.program?.bank_account_holder && (
+                <p className="mt-0.5 font-medium">{enr.program.bank_account_holder}</p>
+              )}
+              <p className="mt-1 text-[11px] text-muted-foreground">The screenshot must show this exact UPI ID and account holder name, otherwise it will be rejected.</p>
+            </div>
+          )}
+        </>
       )}
 
       <div className="mt-6 rounded-xl border border-border bg-card p-5">
