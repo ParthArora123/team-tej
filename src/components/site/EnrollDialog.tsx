@@ -31,25 +31,15 @@ export function EnrollDialog({ klass, onClose }: Props) {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [d, setD] = useState(initial);
   const [silver, setSilver] = useState(false);
-  const [saveDefault, setSaveDefault] = useState(false);
-  const [savedDefaults, setSavedDefaults] = useState<PayerDefaults | null>(null);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
     setSilver(false);
-    const def = readDefaults();
-    setSavedDefaults(def);
-    setSaveDefault(false);
     supabase.auth.getUser().then(({ data }) => {
       setSignedIn(!!data.user);
-      setD((s) => ({
-        ...s,
-        email: data.user?.email ?? s.email,
-        upiId: def?.upiId ?? "",
-        accountHolder: def?.accountHolder ?? "",
-      }));
+      if (data.user?.email) setD((s) => ({ ...s, email: data.user!.email! }));
     });
   }, [klass]);
 
@@ -69,13 +59,6 @@ export function EnrollDialog({ klass, onClose }: Props) {
         medicalInfo: d.medicalInfo || null,
         silverSeat: !!(klass.silverSeatEnabled && silver),
       }});
-      if (!savedDefaults && saveDefault && d.upiId.trim() && d.accountHolder.trim()) {
-        try {
-          localStorage.setItem(DEFAULTS_KEY, JSON.stringify({
-            upiId: d.upiId.trim(), accountHolder: d.accountHolder.trim(),
-          }));
-        } catch {}
-      }
       setDone(true);
     } catch (e: any) { setErr(e.message ?? "Failed"); }
     finally { setBusy(false); }
