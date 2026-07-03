@@ -27,7 +27,9 @@ export const createEnrollment = createServerFn({ method: "POST" })
     }).eq("id", userId);
 
     const { data: program, error: pErr } = await supabase
-      .from("programs").select("*").eq("id", data.programId).maybeSingle();
+      .from("programs")
+      .select("id, name, price_inr, capacity, seats_taken, silver_seat_enabled, silver_seat_price, published")
+      .eq("id", data.programId).maybeSingle();
     if (pErr || !program) throw new Error("Program not found");
     if (program.capacity != null && (program.seats_taken ?? 0) >= program.capacity) {
       throw new Error("Sorry, this workshop is full.");
