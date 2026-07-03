@@ -8,7 +8,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowUpRight, Sparkles, Calendar, MapPin } from "lucide-react";
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
-import aboutImg from "@/assets/about.jpg";
+// aboutImg no longer used on homepage after workshops teaser was replaced with dynamic grid
 import styleFusion from "@/assets/style-fusion.jpg";
 import styleHipHop from "@/assets/style-hiphop.jpg";
 import styleKathak from "@/assets/style-kathak.jpg";
