@@ -142,6 +142,20 @@ export function EnrollDialog({ klass, onClose }: Props) {
                     className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
                 </label>
 
+                {!savedDefaults && (
+                  <>
+                    <Field label="UPI ID (for payment)" v={d.upiId} on={(v) => setD({...d, upiId: v})} span2 />
+                    <Field label="Account holder name" v={d.accountHolder} on={(v) => setD({...d, accountHolder: v})} span2 />
+                    <label className="col-span-2 flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-3 cursor-pointer">
+                      <input type="checkbox" checked={saveDefault} onChange={(e) => setSaveDefault(e.target.checked)} className="mt-1" />
+                      <span className="flex-1 text-xs text-muted-foreground">
+                        <span className="block font-medium text-sm text-foreground">Set as default</span>
+                        Save this UPI ID and account holder name. Next time these fields will be hidden and used automatically.
+                      </span>
+                    </label>
+                  </>
+                )}
+
                 {klass.silverSeatEnabled && (
                   <label className="col-span-2 flex items-start gap-3 rounded-xl border border-primary/40 bg-primary/5 p-3 cursor-pointer">
                     <input type="checkbox" checked={silver} onChange={(e) => setSilver(e.target.checked)} className="mt-1" />
