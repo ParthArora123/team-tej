@@ -106,10 +106,16 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     let contentType = (blob.type || "").toLowerCase();
     if (!contentType || contentType === "application/octet-stream") {
       const ext = (data.proofPath.split(".").pop() || "").toLowerCase();
-      contentType = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : /jpe?g/.test(ext) ? "image/jpeg" : contentType;
+      contentType = ext === "png" ? "image/png"
+        : ext === "webp" ? "image/webp"
+        : ext === "gif" ? "image/gif"
+        : ext === "heic" ? "image/heic"
+        : ext === "heif" ? "image/heif"
+        : /jpe?g/.test(ext) ? "image/jpeg"
+        : contentType || "image/jpeg";
     }
-    if (!/^image\/(png|jpe?g|webp)$/.test(contentType)) {
-      throw new Error("Please upload a valid payment screenshot.");
+    if (!contentType.startsWith("image/")) {
+      throw new Error("Please upload a valid payment screenshot image.");
     }
     if (blob.size > 8 * 1024 * 1024) {
       throw new Error("Screenshot is too large. Max 8 MB.");

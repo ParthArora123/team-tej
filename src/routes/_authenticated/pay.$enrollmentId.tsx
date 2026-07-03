@@ -9,12 +9,17 @@ export const Route = createFileRoute("/_authenticated/pay/$enrollmentId")({
   component: PayUpload,
 });
 
-const ALLOWED = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+const ALLOWED_EXT = /\.(jpe?g|png|webp|heic|heif|gif|bmp|tiff?)$/i;
 
 const contentTypeFromExt = (name: string) => {
   const ext = (name.split(".").pop() || "jpg").toLowerCase();
   if (ext === "png") return "image/png";
   if (ext === "webp") return "image/webp";
+  if (ext === "gif") return "image/gif";
+  if (ext === "bmp") return "image/bmp";
+  if (ext === "tif" || ext === "tiff") return "image/tiff";
+  if (ext === "heic") return "image/heic";
+  if (ext === "heif") return "image/heif";
   return "image/jpeg";
 };
 
@@ -40,11 +45,11 @@ function PayUpload() {
     setErr("");
     if (!f) { setFile(null); setPreview(""); return; }
     const name = f.name.toLowerCase();
-    const okExt = /\.(jpe?g|png|webp)$/.test(name);
     const type = f.type.toLowerCase();
-    const okType = !type || ALLOWED.includes(type);
-    if (!okExt || !okType) {
-      setErr("Only .jpg, .jpeg, .png, or .webp images are allowed.");
+    const okExt = ALLOWED_EXT.test(name);
+    const okType = !type || type.startsWith("image/");
+    if (!okExt && !okType) {
+      setErr("Please upload an image file (JPG, PNG, WEBP, HEIC, etc.).");
       return;
     }
     if (f.size > 8 * 1024 * 1024) {
@@ -122,7 +127,7 @@ function PayUpload() {
         </div>
         <input
           type="file"
-          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+          accept="image/*"
           onChange={(e) => onPick(e.target.files?.[0] ?? null)}
           className="mt-2 block w-full cursor-pointer rounded-md border border-border bg-background text-sm text-foreground file:mr-3 file:cursor-pointer file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-foreground"
         />
