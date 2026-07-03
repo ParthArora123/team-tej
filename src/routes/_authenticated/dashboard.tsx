@@ -156,7 +156,15 @@ function Dashboard() {
                       <p className="mt-2 font-mono text-lg">{r.ticket_code}</p>
                       <p className="text-xs text-muted-foreground">Show this at the studio on your first day.</p>
                     </div>
-                    <div className="bg-white p-2 rounded"><QRCodeSVG value={verifyUrl} size={92} /></div>
+                    <div className="flex flex-col items-center gap-2">
+                      <div id={`ticket-qr-${r.id}`} className="bg-white p-2 rounded"><QRCodeSVG value={verifyUrl} size={92} /></div>
+                      <button
+                        type="button"
+                        onClick={() => downloadQrPng(`ticket-qr-${r.id}`, `ticket-${r.ticket_code}.png`)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary text-[11px] font-medium">
+                        <Download size={11} /> Download
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
