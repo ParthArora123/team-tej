@@ -64,6 +64,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          photo_path: string | null
           photo_url: string | null
           published: boolean
           role: string | null
@@ -74,6 +75,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          photo_path?: string | null
           photo_url?: string | null
           published?: boolean
           role?: string | null
@@ -84,6 +86,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          photo_path?: string | null
           photo_url?: string | null
           published?: boolean
           role?: string | null
