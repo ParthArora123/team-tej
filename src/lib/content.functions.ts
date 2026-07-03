@@ -19,14 +19,28 @@ async function assertAdmin(context: any) {
 }
 
 // ============== CELEBRITIES ==============
+const CELEB_BUCKET = "team-photos";
+const CELEB_TTL = 60 * 60 * 24 * 7; // 7 days
+
+async function decorateCelebrities(rows: any[]): Promise<any[]> {
+  if (!rows?.length) return rows ?? [];
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return Promise.all(rows.map(async (r: any) => {
+    if (r.photo_url) return r;
+    if (!r.photo_path) return r;
+    const { data } = await supabaseAdmin.storage.from(CELEB_BUCKET).createSignedUrl(r.photo_path, CELEB_TTL);
+    return { ...r, photo_url: data?.signedUrl ?? null };
+  }));
+}
+
 export const listPublicCelebrities = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await (pub() as any)
-    .from("celebrities").select("id,name,role,photo_url,sort_order")
+    .from("celebrities").select("id,name,role,photo_url,photo_path,sort_order")
     .eq("published", true)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
   if (error) throw error;
-  return data ?? [];
+  return decorateCelebrities(data ?? []);
 });
 
 export const adminListCelebrities = createServerFn({ method: "GET" })
@@ -37,7 +51,7 @@ export const adminListCelebrities = createServerFn({ method: "GET" })
     const { data, error } = await (supabaseAdmin as any).from("celebrities").select("*")
       .order("sort_order", { ascending: true }).order("created_at", { ascending: true });
     if (error) throw error;
-    return data ?? [];
+    return decorateCelebrities(data ?? []);
   });
 
 const celebSchema = z.object({
@@ -45,6 +59,7 @@ const celebSchema = z.object({
   name: z.string().min(1).max(120),
   role: z.string().max(160).optional().nullable(),
   photo_url: z.string().max(1000).optional().nullable(),
+  photo_path: z.string().max(500).optional().nullable(),
   sort_order: z.number().int().optional(),
   published: z.boolean().optional(),
 });
@@ -72,9 +87,45 @@ export const adminDeleteCelebrity = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: prev } = await (supabaseAdmin as any).from("celebrities").select("photo_path").eq("id", data.id).maybeSingle();
+    if (prev?.photo_path) {
+      await supabaseAdmin.storage.from(CELEB_BUCKET).remove([prev.photo_path]);
+    }
     const { error } = await (supabaseAdmin as any).from("celebrities").delete().eq("id", data.id);
     if (error) throw error;
     return { ok: true };
+  });
+
+export const adminUploadCelebrityPhoto = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({
+    celebrityId: z.string().uuid().optional(),
+    filename: z.string().min(1).max(200),
+    contentType: z.string().min(1).max(100),
+    dataBase64: z.string().min(1),
+  }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (!/^image\/(png|jpe?g|webp)$/.test(data.contentType)) {
+      throw new Error("Only JPG, PNG, or WebP images are allowed.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const bytes = Uint8Array.from(atob(data.dataBase64), (c) => c.charCodeAt(0));
+    const ext = (data.filename.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const key = `celebrities/${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabaseAdmin.storage.from(CELEB_BUCKET).upload(key, bytes, {
+      contentType: data.contentType, upsert: false,
+    });
+    if (upErr) throw upErr;
+    if (data.celebrityId) {
+      const { data: prev } = await (supabaseAdmin as any).from("celebrities").select("photo_path").eq("id", data.celebrityId).maybeSingle();
+      if (prev?.photo_path && prev.photo_path !== key) {
+        await supabaseAdmin.storage.from(CELEB_BUCKET).remove([prev.photo_path]);
+      }
+      await (supabaseAdmin as any).from("celebrities").update({ photo_path: key, photo_url: null }).eq("id", data.celebrityId);
+    }
+    const { data: signed } = await supabaseAdmin.storage.from(CELEB_BUCKET).createSignedUrl(key, CELEB_TTL);
+    return { path: key, url: signed?.signedUrl ?? null };
   });
 
 // ============== BRANDS ==============
