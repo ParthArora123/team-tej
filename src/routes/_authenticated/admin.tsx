@@ -25,16 +25,20 @@ import {
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan";
+type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
   { id: "team", label: "Team roles" },
   { id: "profiles", label: "Home profiles" },
   { id: "workshops", label: "Workshops" },
+  { id: "celebrities", label: "Celebrities" },
+  { id: "brands", label: "Brands" },
+  { id: "globe", label: "Globe" },
   { id: "students", label: "Students" },
   { id: "scan", label: "Scan" },
 ];
+
 
 
 
