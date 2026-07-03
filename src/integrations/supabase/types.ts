@@ -221,6 +221,7 @@ export type Database = {
       programs: {
         Row: {
           active: boolean
+          bank_account_holder: string | null
           banner_path: string | null
           banner_url: string | null
           capacity: number | null
@@ -248,6 +249,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          bank_account_holder?: string | null
           banner_path?: string | null
           banner_url?: string | null
           capacity?: number | null
@@ -275,6 +277,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          bank_account_holder?: string | null
           banner_path?: string | null
           banner_url?: string | null
           capacity?: number | null
@@ -414,6 +417,7 @@ export type Database = {
     Views: {
       programs_public: {
         Row: {
+          bank_account_holder: string | null
           banner_path: string | null
           banner_url: string | null
           capacity: number | null
@@ -437,6 +441,7 @@ export type Database = {
           venue: string | null
         }
         Insert: {
+          bank_account_holder?: string | null
           banner_path?: string | null
           banner_url?: string | null
           capacity?: number | null
@@ -460,6 +465,7 @@ export type Database = {
           venue?: string | null
         }
         Update: {
+          bank_account_holder?: string | null
           banner_path?: string | null
           banner_url?: string | null
           capacity?: number | null
