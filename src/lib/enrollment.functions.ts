@@ -229,9 +229,9 @@ Extract all fields precisely from the image. If any required field is not clearl
   if (p.is_screenshot_not_photo === false) {
     return { accepted: false, reason: "Please upload the original payment screenshot from your app — not a photo of a screen." };
   }
-  if (p.extraction_confidence === "low") {
-    return { accepted: false, reason: "The screenshot is unclear or missing key payment details. Please upload a full, uncropped payment confirmation screenshot." };
-  }
+  // Note: we intentionally don't hard-reject on "low" extraction_confidence,
+  // because users commonly mask/blur the recipient UPI ID for privacy. The
+  // individual field checks below (name, amount, status, date) are the source of truth.
 
   const status = String(p.payment_status ?? "").toLowerCase();
   const okStatus = ["successful", "success", "paid", "completed"];
