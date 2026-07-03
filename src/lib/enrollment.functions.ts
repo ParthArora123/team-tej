@@ -408,9 +408,9 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       banner_url: rest.banner_url || null,
       banner_path: rest.banner_path || null,
       event_date: rest.event_date || null,
-      registration_closes_on: rest.registration_closes_on || null,
       registration_open_on: rest.registration_open_on || null,
       silver_seat_enabled: !!rest.silver_seat_enabled,
+      silver_seat_price: rest.silver_seat_price ?? 1000,
     };
     if (clear_upi) {
       clean.upi_id_encrypted = null;
