@@ -49,10 +49,15 @@ function About() {
   const [selected, setSelected] = useState<TeamMember | null>(null);
 
   useEffect(() => {
-    listPublicTeamProfiles()
+    const load = () => listPublicTeamProfiles()
       .then((rows: any) => setTeam(rows ?? []))
       .catch(() => setTeam([]));
+    load();
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
   }, []);
+
 
   return (
     <>
