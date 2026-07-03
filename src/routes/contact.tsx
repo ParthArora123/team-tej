@@ -6,13 +6,13 @@ import { Mail, Phone, MapPin, Send, Check } from "lucide-react";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact — Team Tej" },
+      { title: "Contact — Tejas Dinesh Dhoke" },
       {
         name: "description",
         content:
-          "Get in touch with Team Tej for classes, performance bookings, or collaborations.",
+          "Get in touch with Tejas Dinesh Dhoke for classes, performance bookings, or collaborations.",
       },
-      { property: "og:title", content: "Contact — Team Tej" },
+      { property: "og:title", content: "Contact — Tejas Dinesh Dhoke" },
       {
         property: "og:description",
         content: "Reach out for classes, bookings, or collabs.",
