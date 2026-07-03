@@ -103,7 +103,10 @@ function Dashboard() {
           const payeeName = cleanText(r.program?.bank_account_holder || "Tejas Dhoke") || "Tejas Dhoke";
           const note = cleanText(r.program?.name || "Enrollment") || "Enrollment";
           const amount = Number(r.amount_inr || 0).toFixed(2);
-          const enc = (v: string) => encodeURIComponent(v).replace(/%20/g, "+");
+          // UPI spec: use standard percent-encoding (%20 for spaces).
+          // Some UPI apps (PhonePe/GPay on published/https origins) reject '+'
+          // as a space and show "Invalid format".
+          const enc = (v: string) => encodeURIComponent(v);
           const upiUrl = upiId
             ? `upi://pay?pa=${enc(upiId)}&pn=${enc(payeeName)}&am=${amount}&cu=INR&tn=${enc(note)}`
             : "";
