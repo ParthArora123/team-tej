@@ -252,7 +252,9 @@ Extract all fields precisely from the image. If any required field is not clearl
 
   const expectedUpi = normUpi(ctx.officialUpi);
   const gotUpi = normUpi(p.recipient_upi_id);
-  if (!gotUpi || gotUpi !== expectedUpi) {
+  // If a recipient UPI ID is visible, it must match. If it's masked/blurred out
+  // (common for privacy), fall back to the recipient-name match above.
+  if (gotUpi && gotUpi !== expectedUpi) {
     return { accepted: false, reason: "The payment was not sent to the official UPI ID. Please make the payment to the correct UPI ID and upload the payment confirmation screenshot." };
   }
 
