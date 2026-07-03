@@ -23,20 +23,7 @@ interface Props {
 const initial = {
   fullName: "", email: "", phone: "", age: "", gender: "Female",
   address: "", city: "", state: "", emergencyContact: "", medicalInfo: "",
-  upiId: "", accountHolder: "",
 };
-
-const DEFAULTS_KEY = "enroll:payerDefaults";
-type PayerDefaults = { upiId: string; accountHolder: string };
-function readDefaults(): PayerDefaults | null {
-  try {
-    const raw = localStorage.getItem(DEFAULTS_KEY);
-    if (!raw) return null;
-    const p = JSON.parse(raw);
-    if (p && typeof p.upiId === "string" && typeof p.accountHolder === "string" && p.upiId && p.accountHolder) return p;
-    return null;
-  } catch { return null; }
-}
 
 export function EnrollDialog({ klass, onClose }: Props) {
   const navigate = useNavigate();
