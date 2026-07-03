@@ -15,20 +15,30 @@ import {
   adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
   adminSetTeamProfilePublished, adminReorderTeamProfile, adminUploadTeamPhoto,
 } from "@/lib/team.functions";
+import {
+  adminListCelebrities, adminSaveCelebrity, adminDeleteCelebrity,
+  adminListBrands, adminSaveBrand, adminDeleteBrand,
+  adminListGlobe, adminSaveGlobe, adminDeleteGlobe,
+} from "@/lib/content.functions";
+
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan";
+type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
   { id: "team", label: "Team roles" },
   { id: "profiles", label: "Home profiles" },
   { id: "workshops", label: "Workshops" },
+  { id: "celebrities", label: "Celebrities" },
+  { id: "brands", label: "Brands" },
+  { id: "globe", label: "Globe" },
   { id: "students", label: "Students" },
   { id: "scan", label: "Scan" },
 ];
+
 
 
 
@@ -105,6 +115,12 @@ function AdminPage() {
       {tab === "team" && <TeamTab />}
 
       {tab === "profiles" && <ProfilesTab />}
+
+      {tab === "celebrities" && <CelebritiesTab />}
+
+      {tab === "brands" && <BrandsTab />}
+
+      {tab === "globe" && <GlobeTab />}
 
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
@@ -994,6 +1010,195 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ============ Celebrities / Brands / Globe admin tabs ============
+function CelebritiesTab() {
+  const list = useServerFn(adminListCelebrities);
+  const save = useServerFn(adminSaveCelebrity);
+  const del = useServerFn(adminDeleteCelebrity);
+  const [rows, setRows] = useState<any[]>([]);
+  const [edit, setEdit] = useState<any | null>(null);
+  const reload = async () => setRows(await list());
+  useEffect(() => { reload(); }, []);
+  const empty = { name: "", role: "", photo_url: "", sort_order: 0, published: true };
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await save({ data: { ...edit, sort_order: Number(edit.sort_order) || 0 } });
+      toast.success("Saved"); setEdit(null); reload();
+    } catch (e: any) { toast.error(e.message); }
+  };
+  return (
+    <div className="mt-8 space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="font-display text-2xl font-bold">Celebrities</h2>
+        <button onClick={() => setEdit({ ...empty })} className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm">Add celebrity</button>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {rows.map((r) => (
+          <div key={r.id} className="rounded-2xl border border-border bg-card p-4 flex gap-4">
+            <div className="w-20 h-20 rounded-xl bg-muted overflow-hidden shrink-0 flex items-center justify-center text-2xl font-display text-primary">
+              {r.photo_url ? <img src={r.photo_url} alt={r.name} className="w-full h-full object-cover" /> : r.name.charAt(0)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold truncate">{r.name}</p>
+              <p className="text-xs text-muted-foreground truncate">{r.role || "—"}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{r.published ? "Published" : "Hidden"} · order {r.sort_order}</p>
+              <div className="mt-2 flex gap-2">
+                <button onClick={() => setEdit({ ...r })} className="px-2 py-1 text-xs rounded bg-muted">Edit</button>
+                <button onClick={async () => { if (confirm("Delete?")) { await del({ data: { id: r.id } }); reload(); } }} className="px-2 py-1 text-xs rounded bg-destructive/10 text-destructive">Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {rows.length === 0 && <p className="text-muted-foreground text-sm">No celebrities yet.</p>}
+      </div>
+      <Dialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{edit?.id ? "Edit" : "Add"} celebrity</DialogTitle></DialogHeader>
+          {edit && (
+            <form onSubmit={submit} className="space-y-3">
+              <input required placeholder="Name" value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
+              <input placeholder="Role / description" value={edit.role ?? ""} onChange={(e) => setEdit({ ...edit, role: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
+              <input placeholder="Photo URL" value={edit.photo_url ?? ""} onChange={(e) => setEdit({ ...edit, photo_url: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
+              <div className="flex gap-3">
+                <input type="number" placeholder="Sort order" value={edit.sort_order ?? 0} onChange={(e) => setEdit({ ...edit, sort_order: e.target.value })} className="flex-1 px-3 py-2 rounded-lg bg-muted" />
+                <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!edit.published} onChange={(e) => setEdit({ ...edit, published: e.target.checked })} /> Published</label>
+              </div>
+              <button className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground">Save</button>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function BrandsTab() {
+  const list = useServerFn(adminListBrands);
+  const save = useServerFn(adminSaveBrand);
+  const del = useServerFn(adminDeleteBrand);
+  const [rows, setRows] = useState<any[]>([]);
+  const [edit, setEdit] = useState<any | null>(null);
+  const reload = async () => setRows(await list());
+  useEffect(() => { reload(); }, []);
+  const empty = { name: "", logo_url: "", sort_order: 0, published: true };
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await save({ data: { ...edit, sort_order: Number(edit.sort_order) || 0 } });
+      toast.success("Saved"); setEdit(null); reload();
+    } catch (e: any) { toast.error(e.message); }
+  };
+  return (
+    <div className="mt-8 space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="font-display text-2xl font-bold">Brands</h2>
+        <button onClick={() => setEdit({ ...empty })} className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm">Add brand</button>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {rows.map((r) => (
+          <div key={r.id} className="rounded-2xl border border-border bg-card p-4 flex gap-4">
+            <div className="w-20 h-20 rounded-xl bg-muted overflow-hidden shrink-0 flex items-center justify-center text-xl font-display text-primary">
+              {r.logo_url ? <img src={r.logo_url} alt={r.name} className="w-full h-full object-contain p-2" /> : r.name.charAt(0)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold truncate">{r.name}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{r.published ? "Published" : "Hidden"} · order {r.sort_order}</p>
+              <div className="mt-2 flex gap-2">
+                <button onClick={() => setEdit({ ...r })} className="px-2 py-1 text-xs rounded bg-muted">Edit</button>
+                <button onClick={async () => { if (confirm("Delete?")) { await del({ data: { id: r.id } }); reload(); } }} className="px-2 py-1 text-xs rounded bg-destructive/10 text-destructive">Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {rows.length === 0 && <p className="text-muted-foreground text-sm">No brands yet.</p>}
+      </div>
+      <Dialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{edit?.id ? "Edit" : "Add"} brand</DialogTitle></DialogHeader>
+          {edit && (
+            <form onSubmit={submit} className="space-y-3">
+              <input required placeholder="Brand name" value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
+              <input placeholder="Logo URL" value={edit.logo_url ?? ""} onChange={(e) => setEdit({ ...edit, logo_url: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
+              <div className="flex gap-3">
+                <input type="number" placeholder="Sort order" value={edit.sort_order ?? 0} onChange={(e) => setEdit({ ...edit, sort_order: e.target.value })} className="flex-1 px-3 py-2 rounded-lg bg-muted" />
+                <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!edit.published} onChange={(e) => setEdit({ ...edit, published: e.target.checked })} /> Published</label>
+              </div>
+              <button className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground">Save</button>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function GlobeTab() {
+  const list = useServerFn(adminListGlobe);
+  const save = useServerFn(adminSaveGlobe);
+  const del = useServerFn(adminDeleteGlobe);
+  const [rows, setRows] = useState<any[]>([]);
+  const [edit, setEdit] = useState<any | null>(null);
+  const reload = async () => setRows(await list());
+  useEffect(() => { reload(); }, []);
+  const empty = { city: "", country: "", status: "conducted" as const, event_date: "", sort_order: 0, published: true };
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await save({ data: { ...edit, sort_order: Number(edit.sort_order) || 0, event_date: edit.event_date || null } });
+      toast.success("Saved"); setEdit(null); reload();
+    } catch (e: any) { toast.error(e.message); }
+  };
+  return (
+    <div className="mt-8 space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="font-display text-2xl font-bold">Globe locations</h2>
+        <button onClick={() => setEdit({ ...empty })} className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm">Add location</button>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {rows.map((r) => (
+          <div key={r.id} className="rounded-2xl border border-border bg-card p-4">
+            <p className="font-semibold">{r.city}, {r.country}</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] ${r.status === "upcoming" ? "bg-amber-500/15 text-amber-500" : "bg-emerald-500/15 text-emerald-500"}`}>{r.status}</span>
+              {r.event_date && ` · ${new Date(r.event_date).toDateString()}`}
+            </p>
+            <p className="text-[10px] text-muted-foreground mt-1">{r.published ? "Published" : "Hidden"} · order {r.sort_order}</p>
+            <div className="mt-3 flex gap-2">
+              <button onClick={() => setEdit({ ...r })} className="px-2 py-1 text-xs rounded bg-muted">Edit</button>
+              <button onClick={async () => { if (confirm("Delete?")) { await del({ data: { id: r.id } }); reload(); } }} className="px-2 py-1 text-xs rounded bg-destructive/10 text-destructive">Delete</button>
+            </div>
+          </div>
+        ))}
+        {rows.length === 0 && <p className="text-muted-foreground text-sm">No locations yet.</p>}
+      </div>
+      <Dialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{edit?.id ? "Edit" : "Add"} location</DialogTitle></DialogHeader>
+          {edit && (
+            <form onSubmit={submit} className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <input required placeholder="City" value={edit.city} onChange={(e) => setEdit({ ...edit, city: e.target.value })} className="px-3 py-2 rounded-lg bg-muted" />
+                <input required placeholder="Country" value={edit.country} onChange={(e) => setEdit({ ...edit, country: e.target.value })} className="px-3 py-2 rounded-lg bg-muted" />
+              </div>
+              <select value={edit.status} onChange={(e) => setEdit({ ...edit, status: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted">
+                <option value="conducted">Conducted</option>
+                <option value="upcoming">Upcoming</option>
+              </select>
+              <input type="date" value={edit.event_date ?? ""} onChange={(e) => setEdit({ ...edit, event_date: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
+              <div className="flex gap-3">
+                <input type="number" placeholder="Sort order" value={edit.sort_order ?? 0} onChange={(e) => setEdit({ ...edit, sort_order: e.target.value })} className="flex-1 px-3 py-2 rounded-lg bg-muted" />
+                <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!edit.published} onChange={(e) => setEdit({ ...edit, published: e.target.checked })} /> Published</label>
+              </div>
+              <button className="w-full px-4 py-2 rounded-lg bg-primary text-primary-foreground">Save</button>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

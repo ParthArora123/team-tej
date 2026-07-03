@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { listPublicTeamProfiles } from "@/lib/team.functions";
 import { listPrograms } from "@/lib/catalog.functions";
+import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin } from "lucide-react";
@@ -82,12 +83,18 @@ function Index() {
 
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [workshops, setWorkshops] = useState<any[]>([]);
+  const [celebrities, setCelebrities] = useState<any[]>([]);
+  const [brands, setBrands] = useState<any[]>([]);
+  const [globe, setGlobe] = useState<any[]>([]);
   const fetchPrograms = useServerFn(listPrograms);
   useEffect(() => {
     listPublicTeamProfiles().then((rows: any) => setTeam(rows ?? [])).catch(() => setTeam([]));
     fetchPrograms({ data: { kind: "workshop" } })
       .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
       .catch(() => setWorkshops([]));
+    listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch(() => setCelebrities([]));
+    listPublicBrands().then((r: any) => setBrands(r ?? [])).catch(() => setBrands([]));
+    listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch(() => setGlobe([]));
   }, []);
 
 
@@ -484,43 +491,78 @@ function Index() {
         </motion.div>
       </section>
 
-      {/* Celebrities · Brands · India to the Globe */}
+      {/* Celebrities · Brands · India to the Globe — dynamic */}
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-24 space-y-20">
-        <div>
-          <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
-          <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
-          <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {["Shahid K.","Madhuri D.","Hrithik R.","Tiger S.","Nora F.","Prabhu D."].map((n) => (
-              <div key={n} className="aspect-square rounded-2xl bg-card border border-border flex items-center justify-center text-center p-3 text-sm font-display hover:border-primary transition">
-                {n}
-              </div>
-            ))}
+        {celebrities.length > 0 && (
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
+            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+              {celebrities.map((c) => (
+                <div key={c.id} className="aspect-square rounded-2xl bg-card border border-border overflow-hidden flex flex-col items-center justify-end text-center hover:border-primary transition">
+                  {c.photo_url ? (
+                    <img src={c.photo_url} alt={c.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : null}
+                  <div className={`relative w-full p-3 ${c.photo_url ? "bg-gradient-to-t from-background/90 to-transparent" : ""}`}>
+                    <p className="font-display text-sm">{c.name}</p>
+                    {c.role && <p className="text-[10px] text-muted-foreground">{c.role}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div>
-          <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
-          <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">Trusted partners</h2>
-          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-            {["Nike","Puma","Red Bull","Myntra","Spotify","Vogue"].map((n) => (
-              <div key={n} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition">
-                {n}
-              </div>
-            ))}
+        {brands.length > 0 && (
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
+            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">Trusted partners</h2>
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+              {brands.map((b) => (
+                <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
+                  {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
-          <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
-          <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
-          <p className="mt-4 text-muted-foreground max-w-2xl">From Mumbai to Dubai, London to New York — Team Tej has performed and taught on stages across 14 countries.</p>
-          <div className="mt-8 flex flex-wrap gap-2">
-            {["Mumbai","Delhi","Dubai","London","New York","Toronto","Singapore","Sydney","Berlin","Paris","Tokyo","Bangkok","Doha","Cape Town"].map((c) => (
-              <span key={c} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{c}</span>
-            ))}
-          </div>
-        </div>
+        {globe.length > 0 && (() => {
+          const conducted = globe.filter((g) => g.status === "conducted");
+          const upcoming = globe.filter((g) => g.status === "upcoming");
+          const countries = Array.from(new Set(globe.map((g) => g.country))).length;
+          return (
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
+              <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
+              <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
+              <p className="mt-4 text-muted-foreground max-w-2xl">Team Tej has performed and taught on stages across {countries} {countries === 1 ? "country" : "countries"}.</p>
+              {conducted.length > 0 && (
+                <div className="mt-8">
+                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
+                  <div className="flex flex-wrap gap-2">
+                    {conducted.map((g) => (
+                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{g.city}, {g.country}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {upcoming.length > 0 && (
+                <div className="mt-6">
+                  <p className="text-[11px] uppercase tracking-widest text-primary mb-3">Upcoming</p>
+                  <div className="flex flex-wrap gap-2">
+                    {upcoming.map((g) => (
+                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
+                        {g.city}, {g.country}{g.event_date ? ` · ${new Date(g.event_date).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : ""}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
       </section>
+
     </>
   );
 }
