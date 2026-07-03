@@ -91,11 +91,27 @@ function Dashboard() {
             : "";
           return (
             <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-card border border-border rounded-2xl p-6">
+              className="bg-card border border-border rounded-2xl overflow-hidden">
+              {r.program?.banner_url && (
+                <div className="aspect-[16/6] w-full overflow-hidden bg-muted">
+                  <img src={r.program.banner_url} alt={r.program?.name ?? ""} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              )}
+              <div className="p-6">
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                   <p className="font-display text-xl font-bold">{r.program?.name}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{r.program?.duration} · ₹{r.amount_inr.toLocaleString("en-IN")}</p>
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    {r.program?.event_date && <span>📅 {new Date(r.program.event_date).toDateString()}{r.program?.event_time ? ` · ${r.program.event_time}` : ""}</span>}
+                    {r.program?.venue && <span>📍 {r.program.venue}</span>}
+                    {r.program?.duration && <span>⏱ {r.program.duration}</span>}
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground">₹{r.amount_inr.toLocaleString("en-IN")}{r.silver_seat && " · includes Silver Seat"}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {r.silver_seat && (
+                      <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-primary/15 text-primary">🎥 Silver Seat</span>
+                    )}
+                  </div>
                 </div>
                 <StatusPill s={r.status} />
               </div>
