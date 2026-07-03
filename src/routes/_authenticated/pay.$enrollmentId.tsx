@@ -127,7 +127,7 @@ function PayUpload() {
         </div>
         <input
           type="file"
-          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+          accept="image/*"
           onChange={(e) => onPick(e.target.files?.[0] ?? null)}
           className="mt-2 block w-full cursor-pointer rounded-md border border-border bg-background text-sm text-foreground file:mr-3 file:cursor-pointer file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-foreground"
         />
