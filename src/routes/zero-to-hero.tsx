@@ -14,13 +14,13 @@ export const Route = createFileRoute("/zero-to-hero")({
   component: ZeroToHeroPage,
   head: () => ({
     meta: [
-      { title: "Zero to Hero · Tejas Dinesh Dhoke — Beginner Dance Confidence Program" },
+      { title: "Zero to Hero · Tejas Dhoke — Beginner Dance Confidence Program" },
       {
         name: "description",
         content:
-          "India's beginner dance confidence program. Learn dance from absolute zero and become the hero version of yourself — designed by Tejas Dinesh Dhoke.",
+          "India's beginner dance confidence program. Learn dance from absolute zero and become the hero version of yourself — designed by Tejas Dhoke.",
       },
-      { property: "og:title", content: "Zero to Hero · Tejas Dinesh Dhoke" },
+      { property: "og:title", content: "Zero to Hero · Tejas Dhoke" },
       {
         property: "og:description",
         content:
@@ -73,7 +73,7 @@ const features = [
   { icon: Clock, label: "Learn Anytime" },
   { icon: InfinityIcon, label: "Lifetime Access" },
   { icon: GraduationCap, label: "Certificate Included" },
-  { icon: User, label: "Designed by Tejas Dinesh Dhoke" },
+  { icon: User, label: "Designed by Tejas Dhoke" },
 ];
 
 const faqs = [
@@ -349,7 +349,7 @@ function ZeroToHeroPage() {
             </div>
             <div className="min-w-0">
               <p className="text-xs uppercase tracking-[0.3em] text-primary">Meet your mentor</p>
-              <h2 className="mt-2 font-display text-4xl sm:text-5xl font-black">Tejas Dinesh Dhoke</h2>
+              <h2 className="mt-2 font-display text-4xl sm:text-5xl font-black">Tejas Dhoke</h2>
               <p className="mt-1 text-muted-foreground">Founder — DanceFit Studio</p>
 
               <div className="mt-5 flex flex-wrap gap-2">

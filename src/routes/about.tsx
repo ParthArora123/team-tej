@@ -9,16 +9,16 @@ import { listPublicTeamProfiles } from "@/lib/team.functions";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — Tejas Dinesh Dhoke" },
+      { title: "About — Tejas Dhoke" },
       {
         name: "description",
         content:
-          "The story behind Tejas Dinesh Dhoke — a fusion dance company training movers and choreographing India's most expressive stages.",
+          "The story behind Tejas Dhoke — a fusion dance company training movers and choreographing India's most expressive stages.",
       },
-      { property: "og:title", content: "About — Tejas Dinesh Dhoke" },
+      { property: "og:title", content: "About — Tejas Dhoke" },
       {
         property: "og:description",
-        content: "Meet the company, the craft, and the people behind Tejas Dinesh Dhoke.",
+        content: "Meet the company, the craft, and the people behind Tejas Dhoke.",
       },
       { property: "og:image", content: "/og-about.jpg" },
     ],
@@ -68,11 +68,11 @@ function About() {
       <section className="max-w-7xl mx-auto px-6 lg:px-10 grid lg:grid-cols-5 gap-12 pb-24">
         <motion.div initial={{ opacity: 0, scale: 0.96 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
           className="lg:col-span-2 aspect-[4/5] rounded-2xl border border-border overflow-hidden">
-          <MotionImage src={aboutImg} alt="Founder of Tejas Dinesh Dhoke" width={1200} height={1400} className="h-full w-full" />
+          <MotionImage src={aboutImg} alt="Founder of Tejas Dhoke" width={1200} height={1400} className="h-full w-full" />
         </motion.div>
         <div className="lg:col-span-3 space-y-6 text-lg leading-relaxed text-muted-foreground">
           <p>
-            Tejas Dinesh Dhoke began in a borrowed studio in 2013 with six dancers and one stubborn belief — that Indian dance
+            Tejas Dhoke began in a borrowed studio in 2013 with six dancers and one stubborn belief — that Indian dance
             shouldn't have to pick a lane. Today it's a full company of performers, choreographers and students
             working across film, festivals and live productions.
           </p>
