@@ -88,14 +88,21 @@ function Index() {
   const [globe, setGlobe] = useState<any[]>([]);
   const fetchPrograms = useServerFn(listPrograms);
   useEffect(() => {
-    listPublicTeamProfiles().then((rows: any) => setTeam(rows ?? [])).catch(() => setTeam([]));
-    fetchPrograms({ data: { kind: "workshop" } })
-      .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
-      .catch(() => setWorkshops([]));
-    listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch(() => setCelebrities([]));
-    listPublicBrands().then((r: any) => setBrands(r ?? [])).catch(() => setBrands([]));
-    listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch(() => setGlobe([]));
+    const load = () => {
+      listPublicTeamProfiles().then((rows: any) => setTeam(rows ?? [])).catch(() => setTeam([]));
+      fetchPrograms({ data: { kind: "workshop" } })
+        .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
+        .catch(() => setWorkshops([]));
+      listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch(() => setCelebrities([]));
+      listPublicBrands().then((r: any) => setBrands(r ?? [])).catch(() => setBrands([]));
+      listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch(() => setGlobe([]));
+    };
+    load();
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
   }, []);
+
 
 
 
