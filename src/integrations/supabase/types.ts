@@ -114,6 +114,7 @@ export type Database = {
           payment_confirmed_at: string | null
           payment_note: string | null
           payment_proof_path: string | null
+          payment_reference: string | null
           phone: string | null
           program_id: string
           silver_seat: boolean
@@ -150,6 +151,7 @@ export type Database = {
           payment_confirmed_at?: string | null
           payment_note?: string | null
           payment_proof_path?: string | null
+          payment_reference?: string | null
           phone?: string | null
           program_id: string
           silver_seat?: boolean
@@ -186,6 +188,7 @@ export type Database = {
           payment_confirmed_at?: string | null
           payment_note?: string | null
           payment_proof_path?: string | null
+          payment_reference?: string | null
           phone?: string | null
           program_id?: string
           silver_seat?: boolean
