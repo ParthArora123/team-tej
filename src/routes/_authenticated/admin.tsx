@@ -451,7 +451,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 <button onClick={() => edit(r)} className="px-3 py-1 text-xs rounded bg-muted">Edit</button>
                 <button onClick={async () => { await onPub({ data: { id: r.id, published: !r.published }}); reload(); }}
                   className="px-3 py-1 text-xs rounded bg-muted">{r.published ? "Unpublish" : "Publish"}</button>
-                <button onClick={async () => { if (confirm("Delete?")) { await onDel({ data: { id: r.id }}); reload(); }}}
+                <button onClick={() => setToDelete(r)}
                   className="px-3 py-1 text-xs rounded bg-destructive text-white">Delete</button>
               </div>
             </div>
