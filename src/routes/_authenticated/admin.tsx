@@ -6,6 +6,10 @@ import { toast, Toaster } from "sonner";
 import { CalendarDays, Clock, ImageUp, Sparkles, Upload, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
   adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, adminGetProofUrl,
