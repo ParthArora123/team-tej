@@ -459,6 +459,42 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         ))}
         {rows.length === 0 && <p className="text-muted-foreground text-sm">No workshops yet.</p>}
       </div>
+
+      <AlertDialog open={!!toDelete} onOpenChange={(v) => { if (!v && !deleting) setToDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this workshop?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {toDelete?.name ? <><strong>{toDelete.name}</strong> and all its registrations will be permanently removed. </> : null}
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!toDelete) return;
+                setDeleting(true);
+                try {
+                  await onDel({ data: { id: toDelete.id } });
+                  toast.success(`"${toDelete.name}" deleted successfully.`);
+                  setToDelete(null);
+                  await reload();
+                } catch (err: any) {
+                  toast.error(err?.message ?? "Failed to delete workshop");
+                } finally {
+                  setDeleting(false);
+                }
+              }}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
