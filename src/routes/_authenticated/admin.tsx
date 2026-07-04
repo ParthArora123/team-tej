@@ -159,7 +159,7 @@ const emptyWs = () => ({
   duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
   category: "", style: "", published: false,
-  silver_seat_enabled: false,
+  silver_seat_enabled: true,
   silver_seat_price: "1000",
   upi_id: "", clear_upi: false, has_upi: false,
   bank_account_holder: "",
