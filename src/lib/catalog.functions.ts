@@ -32,7 +32,7 @@ async function decorateBanners(rows: any[]): Promise<any[]> {
 export const listPrograms = createServerFn({ method: "GET" })
   .inputValidator((input) => z.object({ kind: z.string().optional() }).parse(input ?? {}))
   .handler(async ({ data }) => {
-    let q = (pub() as any).from("programs_public").select(PUBLIC_COLS).order("event_date", { ascending: true, nullsFirst: false });
+    let q = (pub() as any).from("programs_public").select(PUBLIC_COLS).order("created_at", { ascending: false });
     if (data.kind) q = q.eq("kind", data.kind);
     const { data: rows, error } = await q;
     if (error) throw error;
