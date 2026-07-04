@@ -131,6 +131,23 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       throw new Error(verification.reason);
     }
 
+    // Duplicate-screenshot guard: reject if this transaction reference (UTR /
+    // transaction ID from the receipt) was already used to confirm another
+    // registration. Prevents sharing one payment across multiple people.
+    const ref = verification.reference ?? null;
+    if (ref) {
+      const { data: dupRef } = await supabaseAdmin
+        .from("enrollments")
+        .select("id")
+        .eq("status", "confirmed")
+        .ilike("payment_reference", ref)
+        .neq("id", existing.id)
+        .maybeSingle();
+      if (dupRef) {
+        throw new Error("This payment screenshot has already been used for another registration. Please make a new payment and upload that receipt.");
+      }
+    }
+
     const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
     let ticket = existing.ticket_code || genCode();
     if (!existing.ticket_code) {
