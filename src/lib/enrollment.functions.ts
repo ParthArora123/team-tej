@@ -131,6 +131,23 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       throw new Error(verification.reason);
     }
 
+    // Duplicate-screenshot guard: reject if this transaction reference (UTR /
+    // transaction ID from the receipt) was already used to confirm another
+    // registration. Prevents sharing one payment across multiple people.
+    const ref = verification.reference ?? null;
+    if (ref) {
+      const { data: dupRef } = await supabaseAdmin
+        .from("enrollments")
+        .select("id")
+        .eq("status", "confirmed")
+        .ilike("payment_reference", ref)
+        .neq("id", existing.id)
+        .maybeSingle();
+      if (dupRef) {
+        throw new Error("This payment screenshot has already been used for another registration. Please make a new payment and upload that receipt.");
+      }
+    }
+
     const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
     let ticket = existing.ticket_code || genCode();
     if (!existing.ticket_code) {
@@ -147,6 +164,7 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
         status: "confirmed",
         ticket_code: ticket,
         payment_proof_path: data.proofPath,
+        payment_reference: ref,
         payment_confirmed_at: now,
         ticket_generated_at: now,
         approved_at: now,
@@ -190,7 +208,7 @@ async function verifyPaymentScreenshot(dataUrl: string, ctx: VerifyCtx) {
         {
           role: "system",
           content:
-            "You are a strict OCR-based validator for Indian UPI/bank payment confirmation screenshots. Return ONLY valid JSON with keys: is_payment_screenshot (bool), is_screenshot_not_photo (bool), payment_status (one of successful|failed|pending|processing|cancelled|refunded|reversed|unknown), recipient_name (string or null), recipient_upi_id (string or null), payer_upi_id (string or null), amount (number or null), payment_date (YYYY-MM-DD or null), payment_time (HH:MM or null), extraction_confidence (low|medium|high), reason (short human-readable string). Extract the RECIPIENT (payee / To) UPI ID and name, never the payer's. Reject camera photos of screens, cropped images hiding key info, or non-payment images.",
+            "You are a strict OCR-based validator for Indian UPI/bank payment confirmation screenshots. Return ONLY valid JSON with keys: is_payment_screenshot (bool), is_screenshot_not_photo (bool), payment_status (one of successful|failed|pending|processing|cancelled|refunded|reversed|unknown), recipient_name (string or null), recipient_upi_id (string or null), payer_upi_id (string or null), amount (number or null), payment_date (YYYY-MM-DD or null), payment_time (HH:MM or null), transaction_reference (string or null — the UTR / UPI transaction ID / bank reference number / order ID shown on the receipt; return the longest unique alphanumeric ID visible, no spaces), extraction_confidence (low|medium|high), reason (short human-readable string). Extract the RECIPIENT (payee / To) UPI ID and name, never the payer's. Reject camera photos of screens, cropped images hiding key info, or non-payment images.",
         },
         {
           role: "user",
@@ -281,7 +299,10 @@ Extract all fields precisely from the image. If any required field is not clearl
     return { accepted: false, reason: `This payment (${payDate}) is dated after the workshop (${eventStr}) and cannot be accepted.` };
   }
 
-  return { accepted: true, reason: "Verified" };
+  const rawRef = String(p.transaction_reference ?? "").trim();
+  const reference = rawRef && rawRef.length >= 6 && rawRef.length <= 64 ? rawRef.replace(/\s+/g, "") : null;
+
+  return { accepted: true, reason: "Verified", reference };
 }
 
 
