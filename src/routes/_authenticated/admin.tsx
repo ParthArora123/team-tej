@@ -177,6 +177,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [payerDefaults, setPayerDefaults] = useState<WsPayerDefaults | null>(null);
+  const [toDelete, setToDelete] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const openAdd = () => {
