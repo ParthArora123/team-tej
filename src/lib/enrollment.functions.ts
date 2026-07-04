@@ -299,7 +299,10 @@ Extract all fields precisely from the image. If any required field is not clearl
     return { accepted: false, reason: `This payment (${payDate}) is dated after the workshop (${eventStr}) and cannot be accepted.` };
   }
 
-  return { accepted: true, reason: "Verified" };
+  const rawRef = String(p.transaction_reference ?? "").trim();
+  const reference = rawRef && rawRef.length >= 6 && rawRef.length <= 64 ? rawRef.replace(/\s+/g, "") : null;
+
+  return { accepted: true, reason: "Verified", reference };
 }
 
 
