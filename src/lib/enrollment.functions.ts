@@ -485,6 +485,9 @@ export const adminDeleteWorkshop = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Cascade delete: remove dependent enrollments first (FK is ON DELETE RESTRICT).
+    const { error: enrErr } = await supabaseAdmin.from("enrollments").delete().eq("program_id", data.id);
+    if (enrErr) throw enrErr;
     const { error } = await supabaseAdmin.from("programs").delete().eq("id", data.id);
     if (error) throw error;
     return { ok: true };

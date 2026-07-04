@@ -6,6 +6,10 @@ import { toast, Toaster } from "sonner";
 import { CalendarDays, Clock, ImageUp, Sparkles, Upload, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
   adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, adminGetProofUrl,
@@ -159,7 +163,7 @@ const emptyWs = () => ({
   duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
   category: "", style: "", published: false,
-  silver_seat_enabled: false,
+  silver_seat_enabled: true,
   silver_seat_price: "1000",
   upi_id: "", clear_upi: false, has_upi: false,
   bank_account_holder: "",
@@ -173,6 +177,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [payerDefaults, setPayerDefaults] = useState<WsPayerDefaults | null>(null);
+  const [toDelete, setToDelete] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const openAdd = () => {
@@ -445,7 +451,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 <button onClick={() => edit(r)} className="px-3 py-1 text-xs rounded bg-muted">Edit</button>
                 <button onClick={async () => { await onPub({ data: { id: r.id, published: !r.published }}); reload(); }}
                   className="px-3 py-1 text-xs rounded bg-muted">{r.published ? "Unpublish" : "Publish"}</button>
-                <button onClick={async () => { if (confirm("Delete?")) { await onDel({ data: { id: r.id }}); reload(); }}}
+                <button onClick={() => setToDelete(r)}
                   className="px-3 py-1 text-xs rounded bg-destructive text-white">Delete</button>
               </div>
             </div>
@@ -453,6 +459,42 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         ))}
         {rows.length === 0 && <p className="text-muted-foreground text-sm">No workshops yet.</p>}
       </div>
+
+      <AlertDialog open={!!toDelete} onOpenChange={(v) => { if (!v && !deleting) setToDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this workshop?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {toDelete?.name ? <><strong>{toDelete.name}</strong> and all its registrations will be permanently removed. </> : null}
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!toDelete) return;
+                setDeleting(true);
+                try {
+                  await onDel({ data: { id: toDelete.id } });
+                  toast.success(`"${toDelete.name}" deleted successfully.`);
+                  setToDelete(null);
+                  await reload();
+                } catch (err: any) {
+                  toast.error(err?.message ?? "Failed to delete workshop");
+                } finally {
+                  setDeleting(false);
+                }
+              }}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
