@@ -30,6 +30,17 @@ function Contact() {
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const send = useServerFn(submitContactMessage);
+  const loadContent = useServerFn(getSiteContent);
+  const [info, setInfo] = useState<any>({
+    email: "hello@teamtej.com", phone: "+91 98765 43210", whatsapp: "+91 98765 43210",
+    address: "12 Linking Road, Bandra West, Mumbai 400050",
+    hours_line1: "Monday – Saturday · 9:00 AM – 10:00 PM",
+    hours_line2: "Sunday · By appointment",
+  });
+  useEffect(() => {
+    loadContent({ data: { key: "contact" } }).then((v: any) => v && setInfo({ ...info, ...v })).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
