@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { listPublicTeamProfiles } from "@/lib/team.functions";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
-import { listDanceStyles } from "@/lib/site-content.functions";
+import { listDanceStyles, getSiteContent } from "@/lib/site-content.functions";
+import { listChoreographies } from "@/lib/choreographies.functions";
 import { useServerFn } from "@tanstack/react-start";
 
-import { ArrowUpRight, Sparkles, Calendar, MapPin } from "lucide-react";
+import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin } from "lucide-react";
+
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
 // aboutImg no longer used on homepage after workshops teaser was replaced with dynamic grid
@@ -55,13 +56,16 @@ const stats = [
   { value: "40+", label: "Live productions" },
 ];
 
-type TeamMember = {
+type Choreo = {
   id: string;
-  name: string;
-  designation?: string | null;
-  short_description?: string | null;
-  photo_url?: string | null;
+  title: string;
+  description?: string | null;
+  thumbnail_url?: string | null;
+  video_url?: string | null;
+  youtube_url?: string | null;
+  uploaded_at: string;
 };
+
 
 
 const stagger = {
@@ -83,7 +87,6 @@ function Index() {
   const heroScale = useTransform(heroProgress, [0, 1], [1, 1.15]);
   const heroOpacity = useTransform(heroProgress, [0, 1], [1, 0.2]);
 
-  const [team, setTeam] = useState<TeamMember[]>([]);
   const [workshops, setWorkshops] = useState<any[]>([]);
   const [celebrities, setCelebrities] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
@@ -92,11 +95,12 @@ function Index() {
   const [featured, setFeatured] = useState<any | null>(null);
   const [gallery, setGallery] = useState<any[]>([]);
   const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
+  const [choreos, setChoreos] = useState<Choreo[]>([]);
+  const [founder, setFounder] = useState<any | null>(null);
   const [slideIdx, setSlideIdx] = useState(0);
   const fetchPrograms = useServerFn(listPrograms);
   useEffect(() => {
     const load = () => {
-      listPublicTeamProfiles().then((rows: any) => setTeam(rows ?? [])).catch(() => setTeam([]));
       fetchPrograms({ data: { kind: "workshop" } })
         .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
         .catch(() => setWorkshops([]));
@@ -107,12 +111,15 @@ function Index() {
       getFeaturedExperience().then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
       listGalleryItems().then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
       listDanceStyles().then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
+      listChoreographies().then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
+      getSiteContent({ data: { key: "founder" } }).then((r: any) => setFounder(r)).catch(() => setFounder(null));
     };
     load();
     const onFocus = () => load();
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, []);
+
 
   useEffect(() => {
     if (heroSlides.length < 2) return;
@@ -426,83 +433,12 @@ function Index() {
         </div>
       </section>
 
-      {/* TEAM */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Meet the team</p>
-            <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance">
-              The people on the floor.
-            </h2>
-          </div>
-          <Link to="/about" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition">
-            See full faculty <ArrowUpRight size={14} />
-          </Link>
-        </div>
+      {/* FOUNDER */}
+      <FounderSection founder={founder} />
 
-        {/* Mobile: horizontal snap carousel */}
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
-          className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {team.map((m) => (
-            <motion.div
-              key={m.id}
-              variants={item}
-              className="snap-start shrink-0 w-[78%] p-6 rounded-2xl border border-border bg-card"
-            >
-              <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-gradient-to-br from-muted to-secondary">
-                {m.photo_url ? (
-                  <img src={m.photo_url} alt={m.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-7xl font-display font-bold text-primary">
-                    {m.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <p className="mt-5 font-display text-xl font-bold">{m.name}</p>
-              {m.designation && <p className="text-xs uppercase tracking-widest text-primary mt-1">{m.designation}</p>}
-              {m.short_description && <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.short_description}</p>}
-            </motion.div>
-          ))}
-        </motion.div>
+      {/* LATEST CHOREOGRAPHIES */}
+      <LatestChoreographies items={choreos} />
 
-        {/* Desktop: grid */}
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
-          className="hidden md:grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          {team.map((m) => (
-            <motion.div
-              key={m.id}
-              variants={item}
-              whileHover={{ y: -6 }}
-              className="group p-6 rounded-2xl border border-border bg-card hover:border-primary transition-colors"
-            >
-              <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-gradient-to-br from-muted to-secondary">
-                {m.photo_url ? (
-                  <img src={m.photo_url} alt={m.name} loading="lazy" className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-7xl font-display font-bold text-primary group-hover:scale-105 transition-transform duration-500">
-                    {m.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <p className="mt-5 font-display text-xl font-bold">{m.name}</p>
-              {m.designation && <p className="text-xs uppercase tracking-widest text-primary mt-1">{m.designation}</p>}
-              {m.short_description && <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{m.short_description}</p>}
-            </motion.div>
-          ))}
-        </motion.div>
-
-
-      </section>
 
       {/* DANCE STYLES */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
@@ -710,5 +646,234 @@ function Index() {
       </section>
 
     </>
+  );
+}
+
+function youtubeEmbed(url?: string | null): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtu.be")) return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    if (u.hostname.includes("youtube.com")) {
+      const v = u.searchParams.get("v");
+      if (v) return `https://www.youtube.com/embed/${v}`;
+      if (u.pathname.startsWith("/embed/")) return url;
+      if (u.pathname.startsWith("/shorts/")) return `https://www.youtube.com/embed/${u.pathname.split("/")[2]}`;
+    }
+  } catch {}
+  return null;
+}
+
+function ChoreoCard({ c }: { c: Choreo }) {
+  const [playing, setPlaying] = useState(false);
+  const embed = youtubeEmbed(c.youtube_url);
+  const hasVideo = !!(c.video_url || embed);
+
+  return (
+    <motion.article variants={item}
+      className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
+      <div className="relative aspect-video bg-muted overflow-hidden">
+        {playing && embed ? (
+          <iframe src={`${embed}?autoplay=1`} title={c.title}
+            allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen
+            className="absolute inset-0 w-full h-full" />
+        ) : playing && c.video_url ? (
+          <video src={c.video_url} controls autoPlay className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <>
+            {c.thumbnail_url ? (
+              <img src={c.thumbnail_url} alt={c.title} loading="lazy"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            ) : c.video_url ? (
+              <video src={c.video_url} muted loop playsInline
+                className="absolute inset-0 w-full h-full object-cover" />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
+            )}
+            {hasVideo && (
+              <button
+                type="button"
+                onClick={() => setPlaying(true)}
+                aria-label={`Play ${c.title}`}
+                className="absolute inset-0 grid place-items-center bg-black/20 hover:bg-black/40 transition-colors">
+                <span className="h-14 w-14 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-lg group-hover:scale-110 transition-transform">
+                  <Play size={22} className="translate-x-0.5" />
+                </span>
+              </button>
+            )}
+          </>
+        )}
+      </div>
+      <div className="p-5 flex-1 flex flex-col">
+        <p className="font-display text-lg font-bold leading-snug">{c.title}</p>
+        {c.description && <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{c.description}</p>}
+        <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">
+          {new Date(c.uploaded_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+        </p>
+      </div>
+    </motion.article>
+  );
+}
+
+function LatestChoreographies({ items }: { items: Choreo[] }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+      <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+            <Sparkles size={12} /> Fresh from the floor
+          </p>
+          <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance">
+            Latest Choreographies by <span className="italic font-light">Tejas D Dhoke</span>
+          </h2>
+        </div>
+      </div>
+
+      {/* Mobile: snap carousel */}
+      <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
+        className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {items.map((c) => (
+          <div key={c.id} className="snap-start shrink-0 w-[86%]">
+            <ChoreoCard c={c} />
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Desktop: grid */}
+      <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
+        className="hidden md:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {items.map((c) => <ChoreoCard key={c.id} c={c} />)}
+      </motion.div>
+    </section>
+  );
+}
+
+function FounderSection({ founder }: { founder: any | null }) {
+  const name = founder?.name || "Tejas D Dhoke";
+  const title = founder?.title || "Founder";
+  const intro = founder?.intro || "";
+  const image = founder?.image_url || "";
+  const biography = founder?.biography || "";
+  const achievements: string[] = Array.isArray(founder?.achievements) ? founder.achievements : [];
+  const vision = founder?.vision || "";
+  const mission = founder?.mission || "";
+  const socials = founder?.socials || {};
+  const ctaText = founder?.cta_text || "Register for Workshops";
+  const ctaLink = founder?.cta_link || "/workshops";
+
+  const socialLinks: Array<[string, string, any]> = [
+    ["Instagram", socials.instagram, Instagram],
+    ["YouTube", socials.youtube, Youtube],
+    ["Facebook", socials.facebook, Facebook],
+    ["Twitter", socials.twitter, Twitter],
+    ["LinkedIn", socials.linkedin, Linkedin],
+  ];
+
+  return (
+    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+      <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
+        {/* Portrait */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="lg:col-span-2"
+        >
+          <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/40 border border-border">
+            {image ? (
+              <img src={image} alt={name} className="absolute inset-0 h-full w-full object-cover" />
+            ) : (
+              <div className="absolute inset-0 grid place-items-center text-8xl font-display font-bold text-primary">
+                {name.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-background/95 via-background/60 to-transparent">
+              <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
+              <p className="font-display text-2xl font-bold mt-1">{name}</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Content */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="lg:col-span-3 space-y-6"
+        >
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
+            <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance leading-[1.05]">
+              Meet <span className="italic font-light">{name}.</span>
+            </h2>
+            {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
+          </div>
+
+          {biography && (
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary mb-2">About</p>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{biography}</p>
+            </div>
+          )}
+
+          {achievements.length > 0 && (
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary mb-3">Dance journey & achievements</p>
+              <ul className="grid sm:grid-cols-2 gap-2">
+                {achievements.map((a, i) => (
+                  <li key={i} className="flex gap-2 text-sm text-muted-foreground">
+                    <Sparkles size={14} className="text-primary shrink-0 mt-0.5" />
+                    <span>{a}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {(vision || mission) && (
+            <div className="grid sm:grid-cols-2 gap-4">
+              {vision && (
+                <div className="rounded-2xl border border-border bg-card p-5">
+                  <p className="text-xs uppercase tracking-widest text-primary">Vision</p>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{vision}</p>
+                </div>
+              )}
+              {mission && (
+                <div className="rounded-2xl border border-border bg-card p-5">
+                  <p className="text-xs uppercase tracking-widest text-primary">Mission</p>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{mission}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-wrap items-center gap-4 pt-2">
+            {ctaText && ctaLink && (
+              ctaLink.startsWith("/") ? (
+                <Link to={ctaLink} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition">
+                  {ctaText} <ArrowUpRight size={18} />
+                </Link>
+              ) : (
+                <a href={ctaLink} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition">
+                  {ctaText} <ArrowUpRight size={18} />
+                </a>
+              )
+            )}
+            <div className="flex items-center gap-2">
+              {socialLinks.filter(([, url]) => !!url).map(([label, url, Icon]) => (
+                <a key={label} href={url as string} target="_blank" rel="noopener noreferrer"
+                  aria-label={label}
+                  className="p-2.5 rounded-full border border-border hover:border-primary hover:text-primary transition">
+                  <Icon size={16} />
+                </a>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
   );
 }

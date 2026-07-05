@@ -26,14 +26,14 @@ import {
 } from "@/lib/content.functions";
 import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/admin/CmsTabs";
 import { MessagesTab } from "@/components/admin/MessagesTab";
-import { ContactInfoTab, AboutContentTab, DanceStylesTab } from "@/components/admin/SiteContentTabs";
+import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab } from "@/components/admin/SiteContentTabs";
 import { BundlesTab, BundlePurchasesTab } from "@/components/admin/BundlesTab";
 
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "bundles" | "bundle_purchases" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles";
+type Tab = "overview" | "workshops" | "bundles" | "bundle_purchases" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
@@ -44,8 +44,11 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "featured", label: "Featured experience" },
   { id: "gallery", label: "Gallery" },
   { id: "styles", label: "Dance styles" },
+  { id: "choreographies", label: "Choreographies", emphasis: true },
+  { id: "founder", label: "Founder section" },
   { id: "contact_info", label: "Contact info" },
   { id: "about_page", label: "About page" },
+
   { id: "workshops", label: "Workshops" },
   { id: "bundles", label: "Bundle offers", emphasis: true },
   { id: "bundle_purchases", label: "Bundle purchases" },
@@ -152,6 +155,11 @@ function AdminPage() {
       {tab === "about_page" && <AboutContentTab />}
 
       {tab === "styles" && <DanceStylesTab />}
+
+      {tab === "choreographies" && <ChoreographiesTab />}
+
+      {tab === "founder" && <FounderTab />}
+
 
       {tab === "bundles" && <BundlesTab />}
 

@@ -7,6 +7,11 @@ import {
   adminListDanceStyles, adminSaveDanceStyle, adminDeleteDanceStyle,
   adminUploadStyleMedia,
 } from "@/lib/site-content.functions";
+import {
+  adminListChoreographies, adminSaveChoreography, adminDeleteChoreography,
+  adminUploadChoreographyMedia,
+} from "@/lib/choreographies.functions";
+
 
 async function fileToBase64(file: File): Promise<string> {
   const buf = await file.arrayBuffer();
@@ -298,5 +303,311 @@ export function DanceStylesTab() {
         ))}
       </div>
     </div>
+  );
+}
+
+// ============ CHOREOGRAPHIES TAB ============
+function ChoreoMediaPicker({ kind, value, preview, onChange }: {
+  kind: "image" | "video"; value: string; preview: string | null;
+  onChange: (ref: string, preview: string | null) => void;
+}) {
+  const upload = useServerFn(adminUploadChoreographyMedia);
+  const ref = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+
+  const pick = async (file: File) => {
+    if (file.size > 30 * 1024 * 1024) return toast.error("Max 30 MB");
+    setBusy(true);
+    try {
+      const dataBase64 = await fileToBase64(file);
+      const res = await upload({ data: { kind, filename: file.name, contentType: file.type, dataBase64 } });
+      onChange(res.url, res.preview_url ?? URL.createObjectURL(file));
+      toast.success(`${kind === "video" ? "Video" : "Image"} uploaded`);
+    } catch (e: any) { toast.error(e.message ?? "Upload failed"); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2 items-center">
+        <button type="button" onClick={() => ref.current?.click()}
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm hover:border-primary">
+          <Upload size={14} /> {busy ? "Uploading…" : `Upload ${kind}`}
+        </button>
+        <input ref={ref} hidden type="file"
+          accept={kind === "image" ? "image/*" : "video/mp4,video/webm,video/quicktime"}
+          onChange={(e) => e.target.files?.[0] && pick(e.target.files[0])} />
+        <input value={value} onChange={(e) => onChange(e.target.value, null)}
+          placeholder={`or paste ${kind} URL`}
+          className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+      </div>
+      {(preview || value) && (
+        <div className="w-full max-w-xs aspect-video rounded-lg overflow-hidden bg-muted border border-border">
+          {kind === "image"
+            ? <img src={preview || value} alt="" className="w-full h-full object-cover" />
+            : <video src={preview || value} muted loop playsInline autoPlay className="w-full h-full object-cover" />}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function ChoreographiesTab() {
+  const list = useServerFn(adminListChoreographies);
+  const save = useServerFn(adminSaveChoreography);
+  const del = useServerFn(adminDeleteChoreography);
+  const [rows, setRows] = useState<any[]>([]);
+  const empty = {
+    id: undefined as string | undefined,
+    title: "", description: "", thumbnail_url: "", video_url: "", youtube_url: "",
+    published: true, sort_order: 0,
+    thumb_preview: null as string | null, video_preview: null as string | null,
+  };
+  const [f, setF] = useState<any>(empty);
+  const reload = () => list().then(setRows).catch(() => {});
+  useEffect(() => { reload(); }, []);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!f.title) return toast.error("Title required");
+    try {
+      await save({ data: {
+        id: f.id, title: f.title, description: f.description || null,
+        thumbnail_url: f.thumbnail_url || null,
+        video_url: f.video_url || null,
+        youtube_url: f.youtube_url || null,
+        published: !!f.published, sort_order: Number(f.sort_order) || 0,
+      }});
+      setF(empty); toast.success("Saved"); reload();
+    } catch (e: any) { toast.error(e.message ?? "Save failed"); }
+  };
+  const remove = async (id: string) => {
+    if (!confirm("Delete this choreography?")) return;
+    try { await del({ data: { id } }); toast.success("Deleted"); reload(); } catch (e: any) { toast.error(e.message); }
+  };
+
+  return (
+    <div className="mt-8 space-y-8">
+      <form onSubmit={submit} className="p-5 rounded-2xl border border-border bg-card space-y-4">
+        <p className="font-display text-lg">{f.id ? "Edit choreography" : "Add choreography"}</p>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })}
+            placeholder="Title" className="px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          <input value={f.youtube_url} onChange={(e) => setF({ ...f, youtube_url: e.target.value })}
+            placeholder="YouTube URL (optional)" className="px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        </div>
+        <textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
+          placeholder="Short description (optional)" rows={2}
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Thumbnail image</p>
+          <ChoreoMediaPicker kind="image" value={f.thumbnail_url} preview={f.thumb_preview}
+            onChange={(ref, prev) => setF({ ...f, thumbnail_url: ref, thumb_preview: prev })} />
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Video upload (leave blank if using YouTube URL)</p>
+          <ChoreoMediaPicker kind="video" value={f.video_url} preview={f.video_preview}
+            onChange={(ref, prev) => setF({ ...f, video_url: ref, video_preview: prev })} />
+        </div>
+        <div className="flex gap-3 items-center flex-wrap">
+          <input type="number" value={f.sort_order} onChange={(e) => setF({ ...f, sort_order: e.target.value })}
+            placeholder="Sort" className="w-24 px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={!!f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} /> Published
+          </label>
+        </div>
+        <div className="flex gap-2">
+          <button className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">{f.id ? "Update" : "Add"}</button>
+          {f.id && <button type="button" onClick={() => setF(empty)} className="px-4 py-2 rounded-lg border border-border text-sm">Cancel</button>}
+        </div>
+      </form>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {rows.map((r) => (
+          <div key={r.id} className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="aspect-video bg-muted relative">
+              {r.thumbnail_url
+                ? <img src={r.thumbnail_url} alt={r.title} className="w-full h-full object-cover" />
+                : r.video_url
+                  ? <video src={r.video_url} muted loop playsInline className="w-full h-full object-cover" />
+                  : <div className="w-full h-full grid place-items-center text-xs text-muted-foreground">No thumbnail</div>}
+            </div>
+            <div className="p-3 flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="font-display truncate">{r.title}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {new Date(r.uploaded_at).toLocaleDateString()} · #{r.sort_order} · {r.published ? "Published" : "Hidden"}
+                </p>
+              </div>
+              <div className="flex gap-1 shrink-0">
+                <button onClick={() => setF({
+                  id: r.id, title: r.title, description: r.description ?? "",
+                  thumbnail_url: r.thumbnail_url ?? "", video_url: r.video_url ?? "",
+                  youtube_url: r.youtube_url ?? "", published: !!r.published, sort_order: r.sort_order ?? 0,
+                  thumb_preview: r.thumbnail_url, video_preview: r.video_url,
+                })}
+                  className="px-2 py-1 text-xs rounded border border-border">Edit</button>
+                <button onClick={() => remove(r.id)} className="p-1.5 rounded border border-border text-destructive"><Trash2 size={14} /></button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {rows.length === 0 && <p className="text-sm text-muted-foreground">No choreographies yet.</p>}
+      </div>
+    </div>
+  );
+}
+
+// ============ FOUNDER TAB ============
+export function FounderTab() {
+  const load = useServerFn(getSiteContent);
+  const save = useServerFn(adminSaveSiteContent);
+  const upload = useServerFn(adminUploadChoreographyMedia); // reuse media uploader (image)
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [f, setF] = useState<any>({
+    name: "Tejas D Dhoke",
+    title: "Founder",
+    intro: "",
+    image_url: "",
+    image_preview: null as string | null,
+    biography: "",
+    achievements: [] as string[],
+    vision: "",
+    mission: "",
+    socials: { instagram: "", youtube: "", facebook: "", twitter: "", linkedin: "" },
+    cta_text: "Register for Workshops",
+    cta_link: "/workshops",
+  });
+
+  useEffect(() => {
+    load({ data: { key: "founder" } }).then((v: any) => {
+      if (!v) return;
+      setF({
+        name: v.name ?? "Tejas D Dhoke",
+        title: v.title ?? "Founder",
+        intro: v.intro ?? "",
+        image_url: v.image_url ?? "",
+        image_preview: v.image_url ?? null,
+        biography: v.biography ?? "",
+        achievements: Array.isArray(v.achievements) ? v.achievements : [],
+        vision: v.vision ?? "",
+        mission: v.mission ?? "",
+        socials: { instagram: "", youtube: "", facebook: "", twitter: "", linkedin: "", ...(v.socials ?? {}) },
+        cta_text: v.cta_text ?? "Register for Workshops",
+        cta_link: v.cta_link ?? "/workshops",
+      });
+    }).catch(() => {});
+  }, []);
+
+  const pickImage = async (file: File) => {
+    if (file.size > 30 * 1024 * 1024) return toast.error("Max 30 MB");
+    setUploading(true);
+    try {
+      const dataBase64 = await fileToBase64(file);
+      const res = await upload({ data: { kind: "image", filename: file.name, contentType: file.type, dataBase64 } });
+      setF((s: any) => ({ ...s, image_url: res.url, image_preview: res.preview_url ?? URL.createObjectURL(file) }));
+      toast.success("Image uploaded");
+    } catch (e: any) { toast.error(e.message ?? "Upload failed"); }
+    finally { setUploading(false); }
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      const { image_preview: _p, ...rest } = f;
+      await save({ data: { key: "founder", value: {
+        ...rest,
+        achievements: (f.achievements as string[]).map((s) => s.trim()).filter(Boolean),
+      }}});
+      toast.success("Founder section saved");
+    } catch (e: any) { toast.error(e.message ?? "Save failed"); }
+    finally { setBusy(false); }
+  };
+
+  const Input = ({ label, value, onChange, placeholder, rows }: any) => (
+    <div>
+      <label className="text-xs uppercase tracking-widest text-muted-foreground">{label}</label>
+      {rows ? (
+        <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows} placeholder={placeholder}
+          className="mt-2 w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+      ) : (
+        <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+          className="mt-2 w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+      )}
+    </div>
+  );
+
+  return (
+    <form onSubmit={submit} className="mt-8 max-w-3xl space-y-5 p-6 rounded-2xl border border-border bg-card">
+      <p className="font-display text-lg">Founder section</p>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        <Input label="Name" value={f.name} onChange={(v: string) => setF({ ...f, name: v })} />
+        <Input label="Title" value={f.title} onChange={(v: string) => setF({ ...f, title: v })} placeholder="Founder" />
+      </div>
+
+      <Input label="Short intro" value={f.intro} onChange={(v: string) => setF({ ...f, intro: v })} rows={2} placeholder="One-line introduction" />
+
+      <div>
+        <label className="text-xs uppercase tracking-widest text-muted-foreground">Founder photo</label>
+        <div className="mt-2 flex gap-3 items-start flex-wrap">
+          <button type="button" onClick={() => fileRef.current?.click()}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm hover:border-primary">
+            <Upload size={14} /> {uploading ? "Uploading…" : "Upload photo"}
+          </button>
+          <input ref={fileRef} hidden type="file" accept="image/*"
+            onChange={(e) => e.target.files?.[0] && pickImage(e.target.files[0])} />
+          <input value={f.image_url} onChange={(e) => setF({ ...f, image_url: e.target.value, image_preview: e.target.value })}
+            placeholder="or paste image URL"
+            className="flex-1 min-w-[200px] px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+          {(f.image_preview || f.image_url) && (
+            <div className="w-32 aspect-[4/5] rounded-lg overflow-hidden border border-border">
+              <img src={f.image_preview || f.image_url} alt="" className="w-full h-full object-cover" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Input label="Biography / About" value={f.biography} onChange={(v: string) => setF({ ...f, biography: v })} rows={5} />
+      <Input label="Vision" value={f.vision} onChange={(v: string) => setF({ ...f, vision: v })} rows={3} />
+      <Input label="Mission" value={f.mission} onChange={(v: string) => setF({ ...f, mission: v })} rows={3} />
+
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <p className="text-sm font-medium">Achievements / Dance journey</p>
+          <button type="button" onClick={() => setF({ ...f, achievements: [...f.achievements, ""] })}
+            className="px-3 py-1 text-xs rounded border border-border">+ Achievement</button>
+        </div>
+        {(f.achievements as string[]).map((a, i) => (
+          <div key={i} className="flex gap-2">
+            <input value={a} placeholder="e.g. Choreographed for major brands"
+              onChange={(e) => { const arr = [...f.achievements]; arr[i] = e.target.value; setF({ ...f, achievements: arr }); }}
+              className="flex-1 px-3 py-2 rounded border border-border bg-background text-sm" />
+            <button type="button" onClick={() => setF({ ...f, achievements: f.achievements.filter((_: any, x: number) => x !== i) })}
+              className="p-2 rounded border border-border text-destructive"><Trash2 size={14} /></button>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Input label="Instagram URL" value={f.socials.instagram} onChange={(v: string) => setF({ ...f, socials: { ...f.socials, instagram: v } })} placeholder="https://instagram.com/…" />
+        <Input label="YouTube URL" value={f.socials.youtube} onChange={(v: string) => setF({ ...f, socials: { ...f.socials, youtube: v } })} placeholder="https://youtube.com/…" />
+        <Input label="Facebook URL" value={f.socials.facebook} onChange={(v: string) => setF({ ...f, socials: { ...f.socials, facebook: v } })} />
+        <Input label="Twitter/X URL" value={f.socials.twitter} onChange={(v: string) => setF({ ...f, socials: { ...f.socials, twitter: v } })} />
+        <Input label="LinkedIn URL" value={f.socials.linkedin} onChange={(v: string) => setF({ ...f, socials: { ...f.socials, linkedin: v } })} />
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Input label="CTA button text" value={f.cta_text} onChange={(v: string) => setF({ ...f, cta_text: v })} />
+        <Input label="CTA link" value={f.cta_link} onChange={(v: string) => setF({ ...f, cta_link: v })} placeholder="/workshops" />
+      </div>
+
+      <button disabled={busy} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">
+        {busy ? "Saving…" : "Save founder section"}
+      </button>
+    </form>
   );
 }
