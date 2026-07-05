@@ -237,15 +237,22 @@ export const createBundleCheckout = createServerFn({ method: "POST" })
     } as any).select("*").single();
     if (pErr) throw pErr;
 
-    // Allocate the discount proportionally over the base prices so each
-    // enrollment carries its share; silver-seat addon stays on top.
-    const totalBase = items.reduce((s, i) => s + i.basePrice, 0) || 1;
+    // Allocate the discount proportionally over the base prices of ONLY the
+    // bundled items so each enrollment carries its share; silver-seat addon
+    // stays on top. Non-bundled items pay their full base price.
+    const bundleSet = new Set(pricing.bundleProgramIds);
+    const bundledItems = items.filter((i) => bundleSet.has(i.programId));
+    const totalBundleBase = bundledItems.reduce((s, i) => s + i.basePrice, 0) || 1;
     let allocated = 0;
-    const rows = items.map((it, idx) => {
-      const share = idx === items.length - 1
-        ? pricing.discountAmount - allocated
-        : Math.round((it.basePrice / totalBase) * pricing.discountAmount);
-      allocated += share;
+    const rows = items.map((it) => {
+      let share = 0;
+      if (bundleSet.has(it.programId)) {
+        const isLast = it.programId === bundledItems[bundledItems.length - 1].programId;
+        share = isLast
+          ? pricing.discountAmount - allocated
+          : Math.round((it.basePrice / totalBundleBase) * pricing.discountAmount);
+        allocated += share;
+      }
       const amount = it.basePrice - share + it.silverAddon;
       return {
         user_id: userId, program_id: it.programId, amount_inr: amount,
@@ -257,6 +264,7 @@ export const createBundleCheckout = createServerFn({ method: "POST" })
         bundle_purchase_id: purchase.id,
       };
     });
+
     const { error: eErr } = await supabaseAdmin.from("enrollments").insert(rows as any);
     if (eErr) throw eErr;
 
