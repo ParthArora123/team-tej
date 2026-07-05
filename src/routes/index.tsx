@@ -214,6 +214,59 @@ function Index() {
         </div>
       </section>
 
+      {/* FEATURED EXPERIENCE */}
+      {featured && (
+        <section className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="relative overflow-hidden rounded-3xl border border-border bg-card"
+          >
+            <div className="grid lg:grid-cols-2">
+              <div className="relative aspect-[4/3] lg:aspect-auto bg-muted">
+                {featured.banner_url && (
+                  <img src={featured.banner_url} alt={featured.title} className="absolute inset-0 w-full h-full object-cover" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent lg:hidden" />
+              </div>
+              <div className="p-8 lg:p-12">
+                <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+                  <Sparkles size={12} /> Featured experience
+                </p>
+                <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold leading-tight">{featured.title}</h2>
+                {(featured.city || featured.start_date) && (
+                  <p className="mt-2 text-sm text-muted-foreground inline-flex items-center gap-2">
+                    {featured.city && <><MapPin size={12} /> {featured.city}</>}
+                    {featured.start_date && <><Calendar size={12} /> {new Date(featured.start_date).toDateString()}{featured.end_date ? ` – ${new Date(featured.end_date).toDateString()}` : ""}</>}
+                  </p>
+                )}
+                {featured.description && <p className="mt-4 text-muted-foreground leading-relaxed whitespace-pre-line">{featured.description}</p>}
+                {Array.isArray(featured.day_schedule) && featured.day_schedule.length > 0 && (
+                  <div className="mt-6 space-y-2">
+                    {featured.day_schedule.map((d: any, i: number) => (
+                      <div key={i} className="border-l-2 border-primary/50 pl-3">
+                        <p className="text-xs uppercase tracking-widest text-primary">{d.day}</p>
+                        <p className="text-sm text-muted-foreground">{d.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {featured.cta_text && featured.cta_link && (
+                  <a href={featured.cta_link}
+                    className="mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition">
+                    {featured.cta_text} <ArrowUpRight size={18} />
+                  </a>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </section>
+      )}
+
+
+
       {/* STATS */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
         <motion.div
