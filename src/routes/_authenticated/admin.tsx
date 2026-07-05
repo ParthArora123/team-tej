@@ -121,7 +121,7 @@ function AdminPage() {
       )}
 
       {tab === "workshops" && (
-        <WorkshopsTab rows={workshops} onSave={saveWorkshop} onDel={delWorkshop} onPub={setPublished} reload={reload} />
+        <WorkshopsTab rows={workshops.filter((w: any) => (w.kind ?? "workshop") === "workshop")} onSave={saveWorkshop} onDel={delWorkshop} onPub={setPublished} reload={reload} />
       )}
 
       
