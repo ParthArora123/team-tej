@@ -190,7 +190,7 @@ const emptyWs = () => ({
   id: undefined as string | undefined,
   kind: "workshop", name: "", description: "", banner_url: "", banner_path: "",
   banner_preview: "" as string,
-  event_date: "", event_time: "", venue: "", instructor: "",
+  event_date: "", event_time: "", venue: "", city: "", instructor: "",
   duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
   category: "", style: "", published: true,
