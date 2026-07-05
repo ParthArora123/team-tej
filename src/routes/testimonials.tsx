@@ -6,16 +6,16 @@ import { Upload, Trash2, Quote, Play, Video } from "lucide-react";
 export const Route = createFileRoute("/testimonials")({
   head: () => ({
     meta: [
-      { title: "Testimonials — Tejas Dhoke" },
+      { title: "Testimonials — Tejas D Dhoke" },
       {
         name: "description",
         content:
-          "Stories from Tejas Dhoke dancers — share your own video testimonial about your journey.",
+          "Stories from Tejas D Dhoke dancers — share your own video testimonial about your journey.",
       },
-      { property: "og:title", content: "Testimonials — Tejas Dhoke" },
+      { property: "og:title", content: "Testimonials — Tejas D Dhoke" },
       {
         property: "og:description",
-        content: "Hear from the movers who built their craft at Tejas Dhoke.",
+        content: "Hear from the movers who built their craft at Tejas D Dhoke.",
       },
     ],
   }),
@@ -32,7 +32,7 @@ interface Testimonial {
 }
 
 const STORAGE_KEY = "tt_testimonials_v1";
-const MAX_SIZE = 25 * 1024 * 1024; // 25 MB
+const MAX_SIZE = 500 * 1024 * 1024; // 500 MB
 
 const seed: Testimonial[] = [
   {
@@ -40,7 +40,7 @@ const seed: Testimonial[] = [
     name: "Riya Menon",
     role: "Fusion · 2 years",
     quote:
-      "Tejas Dhoke re-taught me how to listen to music with my body. The fusion batch is unlike anything else in the city.",
+      "Tejas D Dhoke re-taught me how to listen to music with my body. The fusion batch is unlike anything else in the city.",
     video: "",
     createdAt: 0,
   },
@@ -92,7 +92,7 @@ function Testimonials() {
       return;
     }
     if (f.size > MAX_SIZE) {
-      setError("Video must be under 25 MB.");
+      setError("Video must be under 500 MB.");
       return;
     }
     const reader = new FileReader();
@@ -201,7 +201,7 @@ function Testimonials() {
             <textarea
               value={quote}
               onChange={(e) => setQuote(e.target.value)}
-              placeholder="What changed for you at Tejas Dhoke?"
+              placeholder="What changed for you at Tejas D Dhoke?"
               rows={3}
               className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border focus:border-primary outline-none text-sm resize-none"
             />
@@ -209,7 +209,7 @@ function Testimonials() {
 
           <div className="mt-3">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Video (max 25 MB)
+              Video (max 500 MB)
             </span>
             <div className="mt-1 flex items-center gap-3">
               <button

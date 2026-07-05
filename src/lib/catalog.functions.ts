@@ -36,7 +36,17 @@ export const listPrograms = createServerFn({ method: "GET" })
     if (data.kind) q = q.eq("kind", data.kind);
     const { data: rows, error } = await q;
     if (error) throw error;
-    return decorateBanners(rows ?? []);
+    // Auto-hide expired workshops from the public site. Workshops with an
+    // event_date strictly in the past (based on UTC date) drop off; anything
+    // without an event_date, or dated today/future, stays visible. Admin views
+    // read from the base `programs` table so history is preserved.
+    const today = new Date().toISOString().slice(0, 10);
+    const filtered = (rows ?? []).filter((r: any) => {
+      if (r.kind !== "workshop") return true;
+      if (!r.event_date) return true;
+      return String(r.event_date).slice(0, 10) >= today;
+    });
+    return decorateBanners(filtered);
   });
 
 export const getProgram = createServerFn({ method: "GET" })

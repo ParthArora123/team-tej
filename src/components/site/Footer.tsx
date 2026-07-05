@@ -8,7 +8,7 @@ export function Footer() {
         <div className="md:col-span-2">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-primary" />
-            <span className="font-display font-bold text-lg">TEJAS DHOKE</span>
+            <span className="font-display font-bold text-lg">TEJAS D DHOKE</span>
           </div>
           <p className="mt-4 text-sm text-muted-foreground max-w-sm">
             A fusion dance company training movers, choreographing stages, and shaping
@@ -48,7 +48,7 @@ export function Footer() {
       </div>
       <div className="border-t border-border">
         <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6 flex flex-wrap gap-2 justify-between text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} Tejas Dhoke Dance Company</span>
+          <span>© {new Date().getFullYear()} Tejas D Dhoke Dance Company</span>
           <span>Crafted with movement.</span>
         </div>
       </div>

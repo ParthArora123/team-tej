@@ -7,13 +7,11 @@ const detailsSchema = z.object({
   fullName: z.string().min(2).max(100),
   email: z.string().email(),
   phone: z.string().min(7).max(20),
-  age: z.number().int().min(4).max(95),
   gender: z.string().min(1).max(20),
   address: z.string().min(2).max(300),
   city: z.string().min(1).max(80),
   state: z.string().min(1).max(80),
   emergencyContact: z.string().min(5).max(60),
-  medicalInfo: z.string().max(500).optional().nullable(),
   silverSeat: z.boolean().optional(),
 });
 
@@ -23,7 +21,7 @@ export const createEnrollment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     await supabase.from("profiles").update({
-      full_name: data.fullName, phone: data.phone, age: data.age,
+      full_name: data.fullName, phone: data.phone,
     }).eq("id", userId);
 
     const { data: program, error: pErr } = await supabase
@@ -39,9 +37,9 @@ export const createEnrollment = createServerFn({ method: "POST" })
     const { data: enr, error } = await supabase.from("enrollments").insert({
       user_id: userId, program_id: program.id, amount_inr: program.price_inr,
       status: "awaiting_payment",
-      full_name: data.fullName, email: data.email, phone: data.phone, age: data.age,
+      full_name: data.fullName, email: data.email, phone: data.phone,
       gender: data.gender, address: data.address, city: data.city, state: data.state,
-      emergency_contact: data.emergencyContact, medical_info: data.medicalInfo ?? null,
+      emergency_contact: data.emergencyContact,
       silver_seat: wantSilver,
     } as any).select("*").single();
     if (error) throw error;

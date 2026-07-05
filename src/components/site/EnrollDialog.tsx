@@ -21,8 +21,8 @@ interface Props {
 }
 
 const initial = {
-  fullName: "", email: "", phone: "", age: "", gender: "Female",
-  address: "", city: "", state: "", emergencyContact: "", medicalInfo: "",
+  fullName: "", email: "", phone: "", gender: "Female",
+  address: "", city: "", state: "", emergencyContact: "",
 };
 
 export function EnrollDialog({ klass, onClose }: Props) {
@@ -54,9 +54,8 @@ export function EnrollDialog({ klass, onClose }: Props) {
     try {
       await create({ data: {
         programId: klass.id, fullName: d.fullName, email: d.email, phone: d.phone,
-        age: Number(d.age), gender: d.gender, address: d.address, city: d.city,
+        gender: d.gender, address: d.address, city: d.city,
         state: d.state, emergencyContact: d.emergencyContact,
-        medicalInfo: d.medicalInfo || null,
         silverSeat: !!(klass.silverSeatEnabled && silver),
       }});
       setDone(true);
@@ -94,7 +93,6 @@ export function EnrollDialog({ klass, onClose }: Props) {
                 <Field label="Full name" v={d.fullName} on={(v) => setD({...d, fullName: v})} span2 />
                 <Field label="Email" type="email" v={d.email} on={(v) => setD({...d, email: v})} />
                 <Field label="Mobile" v={d.phone} on={(v) => setD({...d, phone: v})} />
-                <Field label="Age" type="number" v={d.age} on={(v) => setD({...d, age: v})} />
                 <label className="block">
                   <span className="text-xs uppercase tracking-wider text-muted-foreground">Gender</span>
                   <select value={d.gender} onChange={(e) => setD({...d, gender: e.target.value})}
@@ -106,11 +104,6 @@ export function EnrollDialog({ klass, onClose }: Props) {
                 <Field label="City" v={d.city} on={(v) => setD({...d, city: v})} />
                 <Field label="State" v={d.state} on={(v) => setD({...d, state: v})} />
                 <Field label="Emergency contact" v={d.emergencyContact} on={(v) => setD({...d, emergencyContact: v})} span2 />
-                <label className="block col-span-2">
-                  <span className="text-xs uppercase tracking-wider text-muted-foreground">Medical info (optional)</span>
-                  <textarea value={d.medicalInfo} onChange={(e) => setD({...d, medicalInfo: e.target.value})} rows={2}
-                    className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
-                </label>
 
 
 

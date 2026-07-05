@@ -80,21 +80,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Tejas Dhoke — Fusion Dance Company" },
+      { title: "Tejas D Dhoke — Fusion Dance Company" },
       {
         name: "description",
         content:
-          "Tejas Dhoke is a fusion dance company training movers and crafting stages — classes, workshops and live performances.",
+          "Tejas D Dhoke is a fusion dance company training movers and crafting stages — classes, workshops and live performances.",
       },
-      { property: "og:title", content: "Tejas Dhoke — Fusion Dance Company" },
+      { property: "og:title", content: "Tejas D Dhoke — Fusion Dance Company" },
       {
         property: "og:description",
         content:
-          "Train, perform, transform. Join Tejas Dhoke's fusion dance classes, workshops and live shows.",
+          "Train, perform, transform. Join Tejas D Dhoke's fusion dance classes, workshops and live shows.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Tejas Dhoke — Fusion Dance Company" },
+      { name: "twitter:title", content: "Tejas D Dhoke — Fusion Dance Company" },
       { name: "description", content: "Tej Dance Hub is a comprehensive web platform for a dance company, facilitating class bookings and payments." },
       { property: "og:description", content: "Tej Dance Hub is a comprehensive web platform for a dance company, facilitating class bookings and payments." },
       { name: "twitter:description", content: "Tej Dance Hub is a comprehensive web platform for a dance company, facilitating class bookings and payments." },
