@@ -5,6 +5,7 @@ import { listPublicTeamProfiles } from "@/lib/team.functions";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
+import { listDanceStyles } from "@/lib/site-content.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin } from "lucide-react";
@@ -21,11 +22,11 @@ import styleKathakVid from "@/assets/style-kathak.mp4.asset.json";
 import styleBollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
 import { MotionImage } from "@/components/site/MotionImage";
 
-const styles = [
-  { name: "Fusion", tagline: "Our signature blend.", img: styleFusion, video: styleFusionVid.url },
-  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", img: styleHipHop, video: styleHipHopVid.url },
-  { name: "Kathak", tagline: "Tatkar and storytelling.", img: styleKathak, video: styleKathakVid.url },
-  { name: "Bollywood", tagline: "Built for the camera.", img: styleBollywood, video: styleBollywoodVid.url },
+const defaultStyles = [
+  { name: "Fusion", tagline: "Our signature blend.", image_url: styleFusion, video_url: styleFusionVid.url },
+  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", image_url: styleHipHop, video_url: styleHipHopVid.url },
+  { name: "Kathak", tagline: "Tatkar and storytelling.", image_url: styleKathak, video_url: styleKathakVid.url },
+  { name: "Bollywood", tagline: "Built for the camera.", image_url: styleBollywood, video_url: styleBollywoodVid.url },
 ];
 
 
@@ -90,6 +91,7 @@ function Index() {
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [featured, setFeatured] = useState<any | null>(null);
   const [gallery, setGallery] = useState<any[]>([]);
+  const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
   const [slideIdx, setSlideIdx] = useState(0);
   const fetchPrograms = useServerFn(listPrograms);
   useEffect(() => {
@@ -104,6 +106,7 @@ function Index() {
       listHeroSlides().then((r: any) => setHeroSlides(r ?? [])).catch(() => setHeroSlides([]));
       getFeaturedExperience().then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
       listGalleryItems().then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
+      listDanceStyles().then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
     };
     load();
     const onFocus = () => load();
@@ -513,69 +516,60 @@ function Index() {
           </p>
         </div>
 
-        {/* Mobile: snap carousel */}
-        <div className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {styles.map((s) => (
-            <article
-              key={s.name}
-              className="snap-start shrink-0 w-[78%] relative aspect-[4/5] rounded-2xl overflow-hidden border border-border group"
-            >
-              <video
-                src={s.video}
-                poster={s.img}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
-              <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_18s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
-              <div className="absolute bottom-5 left-5 right-5 z-10">
-                <p className="font-display text-2xl font-bold">{s.name}</p>
-                <p className="text-xs text-muted-foreground mt-1">{s.tagline}</p>
+        {(() => {
+          const stylesToRender: Array<{ name: string; tagline: string; image_url: string; video_url: string }> =
+            danceStyles && danceStyles.length > 0
+              ? danceStyles.map((s: any) => ({ name: s.name, tagline: s.tagline ?? "", image_url: s.image_url ?? "", video_url: s.video_url ?? "" }))
+              : defaultStyles;
+          return (
+            <>
+              {/* Mobile: snap carousel */}
+              <div className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {stylesToRender.map((s) => (
+                  <article key={s.name}
+                    className="snap-start shrink-0 w-[78%] relative aspect-[4/5] rounded-2xl overflow-hidden border border-border group">
+                    {s.video_url ? (
+                      <video src={s.video_url} poster={s.image_url || undefined} autoPlay muted loop playsInline preload="metadata"
+                        className="absolute inset-0 h-full w-full object-cover" />
+                    ) : s.image_url ? (
+                      <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover" />
+                    ) : null}
+                    <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
+                    <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_18s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+                    <div className="absolute bottom-5 left-5 right-5 z-10">
+                      <p className="font-display text-2xl font-bold">{s.name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{s.tagline}</p>
+                    </div>
+                  </article>
+                ))}
               </div>
-            </article>
-          ))}
-        </div>
 
-        {/* Desktop: grid */}
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
-          className="hidden md:grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          {styles.map((s) => (
-            <motion.article
-              key={s.name}
-              variants={item}
-              whileHover={{ y: -6 }}
-              className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-border hover:border-primary transition-colors"
-            >
-              <video
-                src={s.video}
-                poster={s.img}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
-              <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_22s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-              <div className="absolute bottom-5 left-5 right-5 z-10">
-                <p className="font-display text-2xl font-bold">{s.name}</p>
-                <p className="text-xs text-muted-foreground mt-1">{s.tagline}</p>
-              </div>
-            </motion.article>
-          ))}
-        </motion.div>
+              {/* Desktop: grid */}
+              <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
+                className="hidden md:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {stylesToRender.map((s) => (
+                  <motion.article key={s.name} variants={item} whileHover={{ y: -6 }}
+                    className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-border hover:border-primary transition-colors">
+                    {s.video_url ? (
+                      <video src={s.video_url} poster={s.image_url || undefined} autoPlay muted loop playsInline preload="metadata"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    ) : s.image_url ? (
+                      <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    ) : null}
+                    <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
+                    <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_22s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                    <div className="absolute bottom-5 left-5 right-5 z-10">
+                      <p className="font-display text-2xl font-bold">{s.name}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{s.tagline}</p>
+                    </div>
+                  </motion.article>
+                ))}
+              </motion.div>
+            </>
+          );
+        })()}
       </section>
 
 
