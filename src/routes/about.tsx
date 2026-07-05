@@ -79,9 +79,9 @@ function About() {
     <>
       <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-20 pb-12">
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-          <p className="text-xs uppercase tracking-widest text-primary">About</p>
+          <p className="text-xs uppercase tracking-widest text-primary">{content.eyebrow}</p>
           <h1 className="mt-3 font-display text-5xl lg:text-7xl font-bold leading-[1.05] text-balance max-w-4xl">
-            Twelve years of teaching India to move differently.
+            {content.headline}
           </h1>
         </motion.div>
       </section>
@@ -92,33 +92,28 @@ function About() {
           <MotionImage src={aboutImg} alt="Founder of Tejas D Dhoke" width={1200} height={1400} className="h-full w-full" />
         </motion.div>
         <div className="lg:col-span-3 space-y-6 text-lg leading-relaxed text-muted-foreground">
-          <p>
-            Tejas D Dhoke began in a borrowed studio in 2013 with six dancers and one stubborn belief — that Indian dance
-            shouldn't have to pick a lane. Today it's a full company of performers, choreographers and students
-            working across film, festivals and live productions.
-          </p>
-          <p>
-            Our fusion approach pulls from Kathak's footwork, contemporary's release, Bollywood's expression, and
-            hip-hop's groove. The result isn't a style — it's a vocabulary.
-          </p>
-          <p>We train roughly 300 students a year across five batches, and our performance wing has toured 12 cities.</p>
+          {(content.paragraphs ?? []).map((p: string, i: number) => (
+            <p key={i} className="whitespace-pre-line">{p}</p>
+          ))}
         </div>
       </section>
 
       {/* VALUES */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-16 border-t border-border">
-        <p className="text-xs uppercase tracking-widest text-primary">What we stand on</p>
-        <div className="mt-10 grid md:grid-cols-3 gap-8">
-          {values.map((v, i) => (
-            <motion.div key={v.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              className="p-8 rounded-2xl border border-border bg-card hover:border-primary transition-colors">
-              <p className="font-display text-3xl font-bold">{v.title}</p>
-              <p className="mt-3 text-muted-foreground">{v.body}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      {(content.values ?? []).length > 0 && (
+        <section className="max-w-7xl mx-auto px-6 lg:px-10 py-16 border-t border-border">
+          <p className="text-xs uppercase tracking-widest text-primary">{content.values_title}</p>
+          <div className="mt-10 grid md:grid-cols-3 gap-8">
+            {content.values.map((v: { title: string; body: string }, i: number) => (
+              <motion.div key={`${v.title}-${i}`} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="p-8 rounded-2xl border border-border bg-card hover:border-primary transition-colors">
+                <p className="font-display text-3xl font-bold">{v.title}</p>
+                <p className="mt-3 text-muted-foreground whitespace-pre-line">{v.body}</p>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* TEAM — dynamic profiles from database */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
