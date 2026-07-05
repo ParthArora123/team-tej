@@ -31,109 +31,95 @@ async function signIfNeeded(url: string | null | undefined): Promise<string | nu
   return data?.signedUrl ?? null;
 }
 
-// ============= SITE CONTENT (key/value) =============
-export const getSiteContent = createServerFn({ method: "GET" })
-  .inputValidator((i) => z.object({ key: z.enum(["contact", "about", "founder"]) }).parse(i))
-  .handler(async ({ data }) => {
-    const { data: row, error } = await (pub() as any)
-      .from("site_content").select("value").eq("key", data.key).maybeSingle();
-    if (error) throw error;
-    return row?.value ?? null;
-  });
-
-export const adminSaveSiteContent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i) => z.object({
-    key: z.enum(["contact", "about", "founder"]),
-    value: z.any(),
-  }).parse(i))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await (supabaseAdmin as any)
-      .from("site_content")
-      .upsert({ key: data.key, value: data.value, updated_at: new Date().toISOString() }, { onConflict: "key" });
-    if (error) throw error;
-    return { ok: true };
-  });
-
-
-// ============= DANCE STYLES =============
-async function decorateStyles(rows: any[]) {
+async function decorate(rows: any[]) {
   return Promise.all((rows ?? []).map(async (r) => ({
     ...r,
-    image_url: await signIfNeeded(r.image_url),
+    thumbnail_url: await signIfNeeded(r.thumbnail_url),
     video_url: await signIfNeeded(r.video_url),
   })));
 }
 
-export const listDanceStyles = createServerFn({ method: "GET" }).handler(async () => {
-  const { data, error } = await (pub() as any).from("dance_styles")
-    .select("id,name,tagline,image_url,video_url,sort_order")
-    .eq("active", true).order("sort_order", { ascending: true });
+// PUBLIC
+export const listChoreographies = createServerFn({ method: "GET" }).handler(async () => {
+  const { data, error } = await (pub() as any).from("choreographies")
+    .select("id,title,description,thumbnail_url,video_url,youtube_url,uploaded_at,sort_order")
+    .eq("published", true)
+    .order("sort_order", { ascending: true })
+    .order("uploaded_at", { ascending: false });
   if (error) throw error;
-  return decorateStyles(data ?? []);
+  return decorate(data ?? []);
 });
 
-export const adminListDanceStyles = createServerFn({ method: "GET" })
+// ADMIN
+export const adminListChoreographies = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await (supabaseAdmin as any).from("dance_styles").select("*")
-      .order("sort_order", { ascending: true });
+    const { data, error } = await (supabaseAdmin as any).from("choreographies").select("*")
+      .order("sort_order", { ascending: true })
+      .order("uploaded_at", { ascending: false });
     if (error) throw error;
-    return decorateStyles(data ?? []);
+    return decorate(data ?? []);
   });
 
-const styleSchema = z.object({
+const choreoSchema = z.object({
   id: z.string().uuid().optional(),
-  name: z.string().min(1).max(120),
-  tagline: z.string().max(240).optional().default(""),
-  image_url: z.string().max(1000).optional().nullable(),
+  title: z.string().min(1).max(200),
+  description: z.string().max(2000).optional().nullable(),
+  thumbnail_url: z.string().max(1000).optional().nullable(),
   video_url: z.string().max(1000).optional().nullable(),
+  youtube_url: z.string().max(1000).optional().nullable(),
+  published: z.boolean().optional(),
   sort_order: z.number().int().optional(),
-  active: z.boolean().optional(),
+  uploaded_at: z.string().optional().nullable(),
 });
 
-export const adminSaveDanceStyle = createServerFn({ method: "POST" })
+export const adminSaveChoreography = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i) => styleSchema.parse(i))
+  .inputValidator((i) => choreoSchema.parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { id, ...rest } = data;
+    const row: any = {
+      ...rest,
+      description: rest.description || null,
+      thumbnail_url: rest.thumbnail_url || null,
+      video_url: rest.video_url || null,
+      youtube_url: rest.youtube_url || null,
+      uploaded_at: rest.uploaded_at || new Date().toISOString(),
+    };
     if (id) {
-      const { error } = await (supabaseAdmin as any).from("dance_styles").update(rest).eq("id", id);
+      const { error } = await (supabaseAdmin as any).from("choreographies").update(row).eq("id", id);
       if (error) throw error;
       return { ok: true, id };
     }
-    const { data: row, error } = await (supabaseAdmin as any).from("dance_styles").insert(rest).select("id").single();
+    const { data: ins, error } = await (supabaseAdmin as any).from("choreographies").insert(row).select("id").single();
     if (error) throw error;
-    return { ok: true, id: row.id };
+    return { ok: true, id: ins.id };
   });
 
-export const adminDeleteDanceStyle = createServerFn({ method: "POST" })
+export const adminDeleteChoreography = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({ id: z.string().uuid() }).parse(i))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: prev } = await (supabaseAdmin as any).from("dance_styles")
-      .select("image_url,video_url").eq("id", data.id).maybeSingle();
-    for (const url of [prev?.image_url, prev?.video_url]) {
+    const { data: prev } = await (supabaseAdmin as any).from("choreographies")
+      .select("thumbnail_url,video_url").eq("id", data.id).maybeSingle();
+    for (const url of [prev?.thumbnail_url, prev?.video_url]) {
       if (url && !/^https?:\/\//i.test(url)) {
         const [bucket, ...rest] = url.split(":");
         if (bucket && rest.length) await supabaseAdmin.storage.from(bucket).remove([rest.join(":")]);
       }
     }
-    const { error } = await (supabaseAdmin as any).from("dance_styles").delete().eq("id", data.id);
+    const { error } = await (supabaseAdmin as any).from("choreographies").delete().eq("id", data.id);
     if (error) throw error;
     return { ok: true };
   });
 
-// ============= MEDIA UPLOAD (image OR video) — writes to workshop-images bucket which is already provisioned =============
-export const adminUploadStyleMedia = createServerFn({ method: "POST" })
+export const adminUploadChoreographyMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
     kind: z.enum(["image", "video"]),
@@ -151,11 +137,10 @@ export const adminUploadStyleMedia = createServerFn({ method: "POST" })
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const bytes = Uint8Array.from(atob(data.dataBase64), (c) => c.charCodeAt(0));
-    // 30 MB cap on server (base64 RPC size limit)
     if (bytes.byteLength > 30 * 1024 * 1024) throw new Error("File too large. Max 30 MB.");
     const ext = (data.filename.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "") || (data.kind === "video" ? "mp4" : "jpg");
-    const bucket = "workshop-images"; // reuse existing bucket (admin-only writes; public read via signed URL)
-    const key = `styles/${crypto.randomUUID()}.${ext}`;
+    const bucket = "workshop-images";
+    const key = `choreographies/${crypto.randomUUID()}.${ext}`;
     const { error: upErr } = await supabaseAdmin.storage.from(bucket).upload(key, bytes, {
       contentType: data.contentType, upsert: false,
     });
