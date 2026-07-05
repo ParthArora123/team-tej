@@ -254,6 +254,84 @@ export type Database = {
         }
         Relationships: []
       }
+      featured_experience: {
+        Row: {
+          active: boolean
+          banner_url: string | null
+          city: string | null
+          created_at: string
+          cta_link: string
+          cta_text: string
+          day_schedule: Json
+          description: string
+          end_date: string | null
+          id: string
+          start_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          banner_url?: string | null
+          city?: string | null
+          created_at?: string
+          cta_link?: string
+          cta_text?: string
+          day_schedule?: Json
+          description?: string
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          banner_url?: string | null
+          city?: string | null
+          created_at?: string
+          cta_link?: string
+          cta_text?: string
+          day_schedule?: Json
+          description?: string
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gallery_items: {
+        Row: {
+          active: boolean
+          caption: string
+          created_at: string
+          id: string
+          image_url: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          caption?: string
+          created_at?: string
+          id?: string
+          image_url: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          caption?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       globe_locations: {
         Row: {
           city: string
@@ -286,6 +364,36 @@ export type Database = {
           published?: boolean
           sort_order?: number
           status?: Database["public"]["Enums"]["globe_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hero_slides: {
+        Row: {
+          active: boolean
+          alt: string
+          created_at: string
+          id: string
+          image_url: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          alt?: string
+          created_at?: string
+          id?: string
+          image_url: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          alt?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          sort_order?: number
           updated_at?: string
         }
         Relationships: []
