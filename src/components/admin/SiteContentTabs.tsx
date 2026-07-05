@@ -316,7 +316,8 @@ function ChoreoMediaPicker({ kind, value, preview, onChange }: {
   const [busy, setBusy] = useState(false);
 
   const pick = async (file: File) => {
-    if (file.size > 30 * 1024 * 1024) return toast.error("Max 30 MB");
+    const maxMB = kind === "video" ? 500 : 30;
+    if (file.size > maxMB * 1024 * 1024) return toast.error(`Max ${maxMB} MB`);
     setBusy(true);
     try {
       const dataBase64 = await fileToBase64(file);
@@ -359,7 +360,7 @@ export function ChoreographiesTab() {
   const [rows, setRows] = useState<any[]>([]);
   const empty = {
     id: undefined as string | undefined,
-    title: "", description: "", thumbnail_url: "", video_url: "", youtube_url: "",
+    title: "", description: "", thumbnail_url: "", video_url: "", youtube_url: "", instagram_url: "",
     published: true, sort_order: 0,
     thumb_preview: null as string | null, video_preview: null as string | null,
   };
@@ -370,12 +371,17 @@ export function ChoreographiesTab() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!f.title) return toast.error("Title required");
+    const ig = (f.instagram_url || "").trim();
+    if (ig && !/^https?:\/\/(www\.)?(instagram\.com|instagr\.am)\/.+/i.test(ig)) {
+      return toast.error("Instagram link must be a valid instagram.com URL");
+    }
     try {
       await save({ data: {
         id: f.id, title: f.title, description: f.description || null,
         thumbnail_url: f.thumbnail_url || null,
         video_url: f.video_url || null,
         youtube_url: f.youtube_url || null,
+        instagram_url: ig || null,
         published: !!f.published, sort_order: Number(f.sort_order) || 0,
       }});
       setF(empty); toast.success("Saved"); reload();
@@ -396,6 +402,9 @@ export function ChoreographiesTab() {
           <input value={f.youtube_url} onChange={(e) => setF({ ...f, youtube_url: e.target.value })}
             placeholder="YouTube URL (optional)" className="px-3 py-2 rounded-lg border border-border bg-background text-sm" />
         </div>
+        <input value={f.instagram_url} onChange={(e) => setF({ ...f, instagram_url: e.target.value })}
+          placeholder="Instagram post/reel URL (optional, e.g. https://www.instagram.com/reel/XXXX/)"
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
         <textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
           placeholder="Short description (optional)" rows={2}
           className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
@@ -443,7 +452,8 @@ export function ChoreographiesTab() {
                 <button onClick={() => setF({
                   id: r.id, title: r.title, description: r.description ?? "",
                   thumbnail_url: r.thumbnail_url ?? "", video_url: r.video_url ?? "",
-                  youtube_url: r.youtube_url ?? "", published: !!r.published, sort_order: r.sort_order ?? 0,
+                  youtube_url: r.youtube_url ?? "", instagram_url: r.instagram_url ?? "",
+                  published: !!r.published, sort_order: r.sort_order ?? 0,
                   thumb_preview: r.thumbnail_url, video_preview: r.video_url,
                 })}
                   className="px-2 py-1 text-xs rounded border border-border">Edit</button>

@@ -259,6 +259,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          instagram_url: string | null
           published: boolean
           sort_order: number
           thumbnail_url: string | null
@@ -272,6 +273,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          instagram_url?: string | null
           published?: boolean
           sort_order?: number
           thumbnail_url?: string | null
@@ -285,6 +287,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          instagram_url?: string | null
           published?: boolean
           sort_order?: number
           thumbnail_url?: string | null

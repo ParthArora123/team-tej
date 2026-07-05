@@ -42,7 +42,7 @@ async function decorate(rows: any[]) {
 // PUBLIC
 export const listChoreographies = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await (pub() as any).from("choreographies")
-    .select("id,title,description,thumbnail_url,video_url,youtube_url,uploaded_at,sort_order")
+    .select("id,title,description,thumbnail_url,video_url,youtube_url,instagram_url,uploaded_at,sort_order")
     .eq("published", true)
     .order("sort_order", { ascending: true })
     .order("uploaded_at", { ascending: false });
@@ -63,6 +63,16 @@ export const adminListChoreographies = createServerFn({ method: "GET" })
     return decorate(data ?? []);
   });
 
+const instagramUrlSchema = z
+  .string()
+  .trim()
+  .max(1000)
+  .url({ message: "Instagram link must be a valid URL" })
+  .refine(
+    (u) => /^https?:\/\/(www\.)?(instagram\.com|instagr\.am)\/.+/i.test(u),
+    { message: "Must be an instagram.com URL" },
+  );
+
 const choreoSchema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().min(1).max(200),
@@ -70,6 +80,7 @@ const choreoSchema = z.object({
   thumbnail_url: z.string().max(1000).optional().nullable(),
   video_url: z.string().max(1000).optional().nullable(),
   youtube_url: z.string().max(1000).optional().nullable(),
+  instagram_url: z.union([instagramUrlSchema, z.literal(""), z.null()]).optional(),
   published: z.boolean().optional(),
   sort_order: z.number().int().optional(),
   uploaded_at: z.string().optional().nullable(),
@@ -88,6 +99,7 @@ export const adminSaveChoreography = createServerFn({ method: "POST" })
       thumbnail_url: rest.thumbnail_url || null,
       video_url: rest.video_url || null,
       youtube_url: rest.youtube_url || null,
+      instagram_url: rest.instagram_url || null,
       uploaded_at: rest.uploaded_at || new Date().toISOString(),
     };
     if (id) {
@@ -137,7 +149,8 @@ export const adminUploadChoreographyMedia = createServerFn({ method: "POST" })
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const bytes = Uint8Array.from(atob(data.dataBase64), (c) => c.charCodeAt(0));
-    if (bytes.byteLength > 30 * 1024 * 1024) throw new Error("File too large. Max 30 MB.");
+    const maxBytes = data.kind === "video" ? 500 * 1024 * 1024 : 30 * 1024 * 1024;
+    if (bytes.byteLength > maxBytes) throw new Error(`File too large. Max ${data.kind === "video" ? "500" : "30"} MB.`);
     const ext = (data.filename.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "") || (data.kind === "video" ? "mp4" : "jpg");
     const bucket = "workshop-images";
     const key = `choreographies/${crypto.randomUUID()}.${ext}`;
