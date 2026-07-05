@@ -711,6 +711,16 @@ function ChoreoCard({ c }: { c: Choreo }) {
         <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">
           {new Date(c.uploaded_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
         </p>
+        {c.instagram_url && (
+          <a
+            href={c.instagram_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-[#f09433] via-[#e6683c] via-40% via-[#dc2743] via-60% via-[#cc2366] to-[#bc1888] text-white hover:opacity-90 transition-opacity self-start"
+          >
+            <Instagram size={16} /> Watch on Instagram
+          </a>
+        )}
       </div>
     </motion.article>
   );
