@@ -59,6 +59,162 @@ export type Database = {
         }
         Relationships: []
       }
+      bundle_offer_programs: {
+        Row: {
+          bundle_id: string
+          program_id: string
+        }
+        Insert: {
+          bundle_id: string
+          program_id: string
+        }
+        Update: {
+          bundle_id?: string
+          program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_offer_programs_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "bundle_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_offer_programs_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_offer_programs_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bundle_offers: {
+        Row: {
+          active: boolean
+          applies_to_all_workshops: boolean
+          created_at: string
+          description: string | null
+          discount_type: Database["public"]["Enums"]["bundle_discount_type"]
+          discount_value: number
+          id: string
+          max_workshops: number | null
+          min_workshops: number
+          name: string
+          priority: number
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          active?: boolean
+          applies_to_all_workshops?: boolean
+          created_at?: string
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["bundle_discount_type"]
+          discount_value?: number
+          id?: string
+          max_workshops?: number | null
+          min_workshops?: number
+          name: string
+          priority?: number
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          active?: boolean
+          applies_to_all_workshops?: boolean
+          created_at?: string
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["bundle_discount_type"]
+          discount_value?: number
+          id?: string
+          max_workshops?: number | null
+          min_workshops?: number
+          name?: string
+          priority?: number
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      bundle_purchases: {
+        Row: {
+          bundle_id: string | null
+          bundle_name: string | null
+          created_at: string
+          discount_amount_inr: number
+          email: string | null
+          final_amount_inr: number
+          full_name: string | null
+          id: string
+          original_amount_inr: number
+          payment_confirmed_at: string | null
+          payment_proof_path: string | null
+          payment_reference: string | null
+          phone: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          workshop_count: number
+        }
+        Insert: {
+          bundle_id?: string | null
+          bundle_name?: string | null
+          created_at?: string
+          discount_amount_inr?: number
+          email?: string | null
+          final_amount_inr: number
+          full_name?: string | null
+          id?: string
+          original_amount_inr: number
+          payment_confirmed_at?: string | null
+          payment_proof_path?: string | null
+          payment_reference?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          workshop_count: number
+        }
+        Update: {
+          bundle_id?: string | null
+          bundle_name?: string | null
+          created_at?: string
+          discount_amount_inr?: number
+          email?: string | null
+          final_amount_inr?: number
+          full_name?: string | null
+          id?: string
+          original_amount_inr?: number
+          payment_confirmed_at?: string | null
+          payment_proof_path?: string | null
+          payment_reference?: string | null
+          phone?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          workshop_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_purchases_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "bundle_offers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       celebrities: {
         Row: {
           created_at: string
@@ -171,6 +327,7 @@ export type Database = {
           amount_inr: number
           approved_at: string | null
           approved_by: string | null
+          bundle_purchase_id: string | null
           city: string | null
           created_at: string
           email: string | null
@@ -208,6 +365,7 @@ export type Database = {
           amount_inr: number
           approved_at?: string | null
           approved_by?: string | null
+          bundle_purchase_id?: string | null
           city?: string | null
           created_at?: string
           email?: string | null
@@ -245,6 +403,7 @@ export type Database = {
           amount_inr?: number
           approved_at?: string | null
           approved_by?: string | null
+          bundle_purchase_id?: string | null
           city?: string | null
           created_at?: string
           email?: string | null
@@ -277,6 +436,13 @@ export type Database = {
           whatsapp_status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "enrollments_bundle_purchase_id_fkey"
+            columns: ["bundle_purchase_id"]
+            isOneToOne: false
+            referencedRelation: "bundle_purchases"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "enrollments_program_id_fkey"
             columns: ["program_id"]
@@ -805,6 +971,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      bundle_discount_type: "fixed_bundle_price" | "percentage" | "fixed_amount"
       enrollment_status:
         | "awaiting_payment"
         | "payment_submitted"
@@ -944,6 +1111,11 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      bundle_discount_type: [
+        "fixed_bundle_price",
+        "percentage",
+        "fixed_amount",
+      ],
       enrollment_status: [
         "awaiting_payment",
         "payment_submitted",
