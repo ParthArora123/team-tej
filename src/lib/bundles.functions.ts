@@ -14,6 +14,8 @@ export type PricedItem = {
   silverSeat: boolean;
   itemTotal: number;
   eligible: boolean;
+  city: string;
+  inBundle: boolean;
 };
 
 export type PricingResult = {
@@ -29,9 +31,12 @@ export type PricingResult = {
     discountValue: number;
     min_workshops: number;
     max_workshops: number | null;
+    city: string;
   } | null;
   eligibleCount: number;
+  bundleProgramIds: string[];
 };
+
 
 const selectionSchema = z.object({
   programId: z.string().uuid(),
