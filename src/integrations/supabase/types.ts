@@ -104,6 +104,7 @@ export type Database = {
           description: string | null
           discount_type: Database["public"]["Enums"]["bundle_discount_type"]
           discount_value: number
+          eligible_cities: string[]
           id: string
           max_workshops: number | null
           min_workshops: number
@@ -120,6 +121,7 @@ export type Database = {
           description?: string | null
           discount_type?: Database["public"]["Enums"]["bundle_discount_type"]
           discount_value?: number
+          eligible_cities?: string[]
           id?: string
           max_workshops?: number | null
           min_workshops?: number
@@ -136,6 +138,7 @@ export type Database = {
           description?: string | null
           discount_type?: Database["public"]["Enums"]["bundle_discount_type"]
           discount_value?: number
+          eligible_cities?: string[]
           id?: string
           max_workshops?: number | null
           min_workshops?: number
@@ -674,6 +677,7 @@ export type Database = {
           banner_url: string | null
           capacity: number | null
           category: string | null
+          city: string | null
           created_at: string
           description: string | null
           duration: string | null
@@ -702,6 +706,7 @@ export type Database = {
           banner_url?: string | null
           capacity?: number | null
           category?: string | null
+          city?: string | null
           created_at?: string
           description?: string | null
           duration?: string | null
@@ -730,6 +735,7 @@ export type Database = {
           banner_url?: string | null
           capacity?: number | null
           category?: string | null
+          city?: string | null
           created_at?: string
           description?: string | null
           duration?: string | null
