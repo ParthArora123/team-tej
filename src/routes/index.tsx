@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { listPublicTeamProfiles } from "@/lib/team.functions";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
+import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin } from "lucide-react";
@@ -86,6 +87,10 @@ function Index() {
   const [celebrities, setCelebrities] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const [globe, setGlobe] = useState<any[]>([]);
+  const [heroSlides, setHeroSlides] = useState<any[]>([]);
+  const [featured, setFeatured] = useState<any | null>(null);
+  const [gallery, setGallery] = useState<any[]>([]);
+  const [slideIdx, setSlideIdx] = useState(0);
   const fetchPrograms = useServerFn(listPrograms);
   useEffect(() => {
     const load = () => {
@@ -96,12 +101,21 @@ function Index() {
       listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch(() => setCelebrities([]));
       listPublicBrands().then((r: any) => setBrands(r ?? [])).catch(() => setBrands([]));
       listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch(() => setGlobe([]));
+      listHeroSlides().then((r: any) => setHeroSlides(r ?? [])).catch(() => setHeroSlides([]));
+      getFeaturedExperience().then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
+      listGalleryItems().then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
     };
     load();
     const onFocus = () => load();
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, []);
+
+  useEffect(() => {
+    if (heroSlides.length < 2) return;
+    const t = setInterval(() => setSlideIdx((i) => (i + 1) % heroSlides.length), 5000);
+    return () => clearInterval(t);
+  }, [heroSlides.length]);
 
 
 
