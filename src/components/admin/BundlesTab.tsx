@@ -188,7 +188,9 @@ export function BundlesTab() {
                 <p className="text-[11px] text-muted-foreground mt-1">
                   {r.active ? "Active" : "Inactive"}
                   {r.valid_until ? ` · until ${new Date(r.valid_until).toLocaleDateString()}` : ""}
+                  {r.eligible_cities?.length ? ` · cities: ${r.eligible_cities.join(", ")}` : " · any city"}
                 </p>
+
               </div>
               <div className="flex gap-2">
                 <button onClick={() => startEdit(r)} className="p-2 rounded hover:bg-muted"><Edit3 size={14}/></button>
