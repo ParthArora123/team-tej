@@ -83,10 +83,11 @@ function Contact() {
       <div className="mt-16 grid lg:grid-cols-5 gap-12 lg:gap-20">
         <div className="lg:col-span-2 space-y-8">
           {[
-            { icon: Mail, label: "Email", value: "hello@teamtej.com" },
-            { icon: Phone, label: "Phone", value: "+91 98765 43210" },
-            { icon: MapPin, label: "Studio", value: "12 Linking Road, Bandra West, Mumbai 400050" },
-          ].map((c, i) => (
+            { icon: Mail, label: "Email", value: info.email, href: info.email ? `mailto:${info.email}` : undefined },
+            { icon: Phone, label: "Phone", value: info.phone, href: info.phone ? `tel:${String(info.phone).replace(/[^+\d]/g, "")}` : undefined },
+            { icon: MessageCircle, label: "WhatsApp", value: info.whatsapp, href: info.whatsapp ? `https://wa.me/${String(info.whatsapp).replace(/[^\d]/g, "")}` : undefined },
+            { icon: MapPin, label: "Studio", value: info.address },
+          ].filter((c) => c.value).map((c, i) => (
             <motion.div
               key={c.label}
               initial={{ opacity: 0, x: -20 }}
@@ -102,7 +103,12 @@ function Contact() {
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   {c.label}
                 </p>
-                <p className="mt-1 text-base">{c.value}</p>
+                {c.href ? (
+                  <a href={c.href} target={c.label === "WhatsApp" ? "_blank" : undefined} rel="noreferrer"
+                    className="mt-1 text-base hover:text-primary transition break-words">{c.value}</a>
+                ) : (
+                  <p className="mt-1 text-base">{c.value}</p>
+                )}
               </div>
             </motion.div>
           ))}
@@ -112,8 +118,7 @@ function Contact() {
               Studio hours
             </p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Monday – Saturday · 9:00 AM – 10:00 PM<br />
-              Sunday · By appointment
+              {info.hours_line1}{info.hours_line2 ? <><br />{info.hours_line2}</> : null}
             </p>
           </div>
         </div>
