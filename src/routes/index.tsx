@@ -577,6 +577,33 @@ function Index() {
 
       </section>
 
+      {/* GALLERY */}
+      {gallery.length > 0 && (
+        <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+          <div className="mb-10">
+            <p className="text-xs uppercase tracking-widest text-primary">Moments</p>
+            <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance">From the floor.</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {gallery.map((g, i) => (
+              <motion.figure
+                key={g.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: (i % 4) * 0.05 }}
+                className={`relative overflow-hidden rounded-2xl border border-border bg-muted ${i % 5 === 0 ? "row-span-2 aspect-[3/4]" : "aspect-square"}`}
+              >
+                {g.image_url && <img src={g.image_url} alt={g.caption ?? ""} loading="lazy" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-500" />}
+                {g.caption && (
+                  <figcaption className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-background/80 to-transparent text-xs">{g.caption}</figcaption>
+                )}
+              </motion.figure>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
         <motion.div
