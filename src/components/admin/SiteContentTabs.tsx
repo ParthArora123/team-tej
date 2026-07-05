@@ -452,7 +452,8 @@ export function ChoreographiesTab() {
                 <button onClick={() => setF({
                   id: r.id, title: r.title, description: r.description ?? "",
                   thumbnail_url: r.thumbnail_url ?? "", video_url: r.video_url ?? "",
-                  youtube_url: r.youtube_url ?? "", published: !!r.published, sort_order: r.sort_order ?? 0,
+                  youtube_url: r.youtube_url ?? "", instagram_url: r.instagram_url ?? "",
+                  published: !!r.published, sort_order: r.sort_order ?? 0,
                   thumb_preview: r.thumbnail_url, video_preview: r.video_url,
                 })}
                   className="px-2 py-1 text-xs rounded border border-border">Edit</button>
