@@ -227,7 +227,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       banner_url: r.banner_url ?? "", banner_path: r.banner_path ?? "",
       banner_preview: r.banner_signed_url ?? r.banner_url ?? "",
       event_date: r.event_date ?? "", event_time: r.event_time ?? "",
-      venue: r.venue ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
+      venue: r.venue ?? "", city: r.city ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
       capacity: r.capacity ?? "", price_inr: r.price_inr ?? "",
       registration_open_on: r.registration_open_on ?? todayISO(),
       category: r.category ?? "",
