@@ -371,12 +371,17 @@ export function ChoreographiesTab() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!f.title) return toast.error("Title required");
+    const ig = (f.instagram_url || "").trim();
+    if (ig && !/^https?:\/\/(www\.)?(instagram\.com|instagr\.am)\/.+/i.test(ig)) {
+      return toast.error("Instagram link must be a valid instagram.com URL");
+    }
     try {
       await save({ data: {
         id: f.id, title: f.title, description: f.description || null,
         thumbnail_url: f.thumbnail_url || null,
         video_url: f.video_url || null,
         youtube_url: f.youtube_url || null,
+        instagram_url: ig || null,
         published: !!f.published, sort_order: Number(f.sort_order) || 0,
       }});
       setF(empty); toast.success("Saved"); reload();
