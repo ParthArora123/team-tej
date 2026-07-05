@@ -63,6 +63,7 @@ type Choreo = {
   thumbnail_url?: string | null;
   video_url?: string | null;
   youtube_url?: string | null;
+  instagram_url?: string | null;
   uploaded_at: string;
 };
 
