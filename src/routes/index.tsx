@@ -5,6 +5,7 @@ import { listPublicTeamProfiles } from "@/lib/team.functions";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
+import { listDanceStyles } from "@/lib/site-content.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin } from "lucide-react";
@@ -21,11 +22,11 @@ import styleKathakVid from "@/assets/style-kathak.mp4.asset.json";
 import styleBollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
 import { MotionImage } from "@/components/site/MotionImage";
 
-const styles = [
-  { name: "Fusion", tagline: "Our signature blend.", img: styleFusion, video: styleFusionVid.url },
-  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", img: styleHipHop, video: styleHipHopVid.url },
-  { name: "Kathak", tagline: "Tatkar and storytelling.", img: styleKathak, video: styleKathakVid.url },
-  { name: "Bollywood", tagline: "Built for the camera.", img: styleBollywood, video: styleBollywoodVid.url },
+const defaultStyles = [
+  { name: "Fusion", tagline: "Our signature blend.", image_url: styleFusion, video_url: styleFusionVid.url },
+  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", image_url: styleHipHop, video_url: styleHipHopVid.url },
+  { name: "Kathak", tagline: "Tatkar and storytelling.", image_url: styleKathak, video_url: styleKathakVid.url },
+  { name: "Bollywood", tagline: "Built for the camera.", image_url: styleBollywood, video_url: styleBollywoodVid.url },
 ];
 
 
@@ -90,6 +91,7 @@ function Index() {
   const [heroSlides, setHeroSlides] = useState<any[]>([]);
   const [featured, setFeatured] = useState<any | null>(null);
   const [gallery, setGallery] = useState<any[]>([]);
+  const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
   const [slideIdx, setSlideIdx] = useState(0);
   const fetchPrograms = useServerFn(listPrograms);
   useEffect(() => {
@@ -104,6 +106,7 @@ function Index() {
       listHeroSlides().then((r: any) => setHeroSlides(r ?? [])).catch(() => setHeroSlides([]));
       getFeaturedExperience().then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
       listGalleryItems().then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
+      listDanceStyles().then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
     };
     load();
     const onFocus = () => load();
