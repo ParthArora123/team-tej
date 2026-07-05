@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 const links = [
   { to: "/", label: "Home" },
   { to: "/workshops", label: "Workshops" },
-  { to: "/nritya-sadhana", label: "Nritya Sadhana" },
+  // { to: "/nritya-sadhana", label: "Nritya Sadhana" }, // Temporarily hidden — route stays active
   { to: "/zero-to-hero", label: "Zero to Hero" },
   { to: "/online-trainings", label: "Online Trainings" },
   { to: "/testimonials", label: "Testimonials" },

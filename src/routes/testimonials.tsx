@@ -32,7 +32,7 @@ interface Testimonial {
 }
 
 const STORAGE_KEY = "tt_testimonials_v1";
-const MAX_SIZE = 25 * 1024 * 1024; // 25 MB
+const MAX_SIZE = 500 * 1024 * 1024; // 500 MB
 
 const seed: Testimonial[] = [
   {
@@ -92,7 +92,7 @@ function Testimonials() {
       return;
     }
     if (f.size > MAX_SIZE) {
-      setError("Video must be under 25 MB.");
+      setError("Video must be under 500 MB.");
       return;
     }
     const reader = new FileReader();
@@ -209,7 +209,7 @@ function Testimonials() {
 
           <div className="mt-3">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Video (max 25 MB)
+              Video (max 500 MB)
             </span>
             <div className="mt-1 flex items-center gap-3">
               <button
