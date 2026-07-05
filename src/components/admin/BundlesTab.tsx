@@ -57,6 +57,7 @@ export function BundlesTab() {
       discount_type: r.discount_type, discount_value: Number(r.discount_value),
       applies_to_all_workshops: r.applies_to_all_workshops,
       program_ids: (r.bundle_offer_programs ?? []).map((p: any) => p.program_id),
+      eligible_cities_text: (r.eligible_cities ?? []).join(", "),
       valid_from: r.valid_from ? r.valid_from.slice(0, 10) : "",
       valid_until: r.valid_until ? r.valid_until.slice(0, 10) : "",
       active: r.active, priority: r.priority ?? 0,
@@ -68,12 +69,14 @@ export function BundlesTab() {
     e.preventDefault();
     setBusy(true);
     try {
+      const { eligible_cities_text, ...rest } = f;
       await save({ data: {
-        ...f,
+        ...rest,
         max_workshops: f.max_workshops || null,
         discount_value: Number(f.discount_value),
         valid_from: f.valid_from || null,
         valid_until: f.valid_until || null,
+        eligible_cities: eligible_cities_text.split(",").map((s) => s.trim()).filter(Boolean),
       }});
       toast.success("Bundle saved");
       setEditing(false);
@@ -81,6 +84,7 @@ export function BundlesTab() {
     } catch (e: any) { toast.error(e.message ?? "Save failed"); }
     finally { setBusy(false); }
   };
+
 
   const doDelete = async (id: string) => {
     if (!confirm("Delete this bundle?")) return;
