@@ -149,7 +149,8 @@ export const adminUploadChoreographyMedia = createServerFn({ method: "POST" })
     }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const bytes = Uint8Array.from(atob(data.dataBase64), (c) => c.charCodeAt(0));
-    if (bytes.byteLength > 30 * 1024 * 1024) throw new Error("File too large. Max 30 MB.");
+    const maxBytes = data.kind === "video" ? 500 * 1024 * 1024 : 30 * 1024 * 1024;
+    if (bytes.byteLength > maxBytes) throw new Error(`File too large. Max ${data.kind === "video" ? "500" : "30"} MB.`);
     const ext = (data.filename.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "") || (data.kind === "video" ? "mp4" : "jpg");
     const bucket = "workshop-images";
     const key = `choreographies/${crypto.randomUUID()}.${ext}`;
