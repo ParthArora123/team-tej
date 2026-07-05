@@ -129,21 +129,22 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       throw new Error(verification.reason);
     }
 
-    // Duplicate-screenshot guard: reject if this transaction reference (UTR /
-    // transaction ID from the receipt) was already used to confirm another
-    // registration. Prevents sharing one payment across multiple people.
+    // Require a UPI Reference ID (UTR / transaction ID) to be present on
+    // every accepted screenshot. Without it we cannot enforce uniqueness.
     const ref = verification.reference ?? null;
-    if (ref) {
-      const { data: dupRef } = await supabaseAdmin
-        .from("enrollments")
-        .select("id")
-        .eq("status", "confirmed")
-        .ilike("payment_reference", ref)
-        .neq("id", existing.id)
-        .maybeSingle();
-      if (dupRef) {
-        throw new Error("This payment screenshot has already been used for another registration. Please make a new payment and upload that receipt.");
-      }
+    if (!ref) {
+      throw new Error("Could not read the UPI Reference ID (UTR / Transaction ID) from this screenshot. Please upload a clearer payment confirmation that shows the transaction reference.");
+    }
+    // Uniqueness: reject if this UPI Reference ID was ever used on any prior
+    // registration or payment record — regardless of status.
+    const { data: dupRef } = await supabaseAdmin
+      .from("enrollments")
+      .select("id")
+      .ilike("payment_reference", ref)
+      .neq("id", existing.id)
+      .maybeSingle();
+    if (dupRef) {
+      throw new Error("This UPI Reference ID has already been used. Please verify your payment details.");
     }
 
     const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -206,7 +207,7 @@ async function verifyPaymentScreenshot(dataUrl: string, ctx: VerifyCtx) {
         {
           role: "system",
           content:
-            "You are a strict OCR-based validator for Indian UPI/bank payment confirmation screenshots. Return ONLY valid JSON with keys: is_payment_screenshot (bool), is_screenshot_not_photo (bool), payment_status (one of successful|failed|pending|processing|cancelled|refunded|reversed|unknown), recipient_name (string or null), recipient_upi_id (string or null), payer_upi_id (string or null), amount (number or null), payment_date (YYYY-MM-DD or null), payment_time (HH:MM or null), transaction_reference (string or null — the UTR / UPI transaction ID / bank reference number / order ID shown on the receipt; return the longest unique alphanumeric ID visible, no spaces), extraction_confidence (low|medium|high), reason (short human-readable string). Extract the RECIPIENT (payee / To) UPI ID and name, never the payer's. Reject camera photos of screens, cropped images hiding key info, or non-payment images.",
+            "You are a strict forensic validator for Indian UPI payment confirmation screenshots (Google Pay, PhonePe, Paytm, BHIM, Amazon Pay, Cred, WhatsApp Pay, or a bank UPI app). Return ONLY valid JSON with keys: is_payment_screenshot (bool), is_screenshot_not_photo (bool), is_supported_upi_app (bool), detected_app (string or null), appears_manipulated (bool — true if the image looks edited, cropped to hide key fields, has inconsistent fonts/alignment/pixelation around numbers/status, mismatched anti-aliasing, cloned regions, or is AI/synthetically generated), manipulation_reason (string or null), payment_status (one of successful|failed|pending|processing|cancelled|refunded|reversed|unknown), recipient_name (string or null), recipient_upi_id (string or null), payer_upi_id (string or null), amount (number or null), payment_date (YYYY-MM-DD or null), payment_time (HH:MM or null), transaction_reference (string or null — the UTR / UPI Reference ID / bank reference number shown on the receipt; return the longest unique alphanumeric ID visible, no spaces), has_all_required_fields (bool — true only if UPI Reference ID, payment status, amount, and date/time are all clearly visible), extraction_confidence (low|medium|high), reason (short human-readable string). Extract the RECIPIENT (payee / To) UPI ID and name, never the payer's. Reject camera photos of screens, cropped images hiding key info, screenshots from non-UPI apps, and any image that looks edited or AI-generated.",
         },
         {
           role: "user",
@@ -218,7 +219,7 @@ Expected recipient name (any one of these is acceptable): ${ctx.recipientNames.m
 Expected recipient UPI ID: "${ctx.officialUpi}"
 Expected amount: INR ${ctx.amountInr}
 Payment must be dated between ${openOn} and ${eventOn} (inclusive).
-Extract all fields precisely from the image. If any required field is not clearly visible, set extraction_confidence to "low".`,
+Inspect the image forensically for signs of tampering, editing, cropping that hides required fields, or AI generation, and set appears_manipulated accordingly. If any required field (UPI Reference ID, status, amount, date/time) is missing or not clearly visible, set has_all_required_fields to false.`,
             },
             { type: "image_url", image_url: { url: dataUrl } },
           ],
@@ -249,6 +250,15 @@ Extract all fields precisely from the image. If any required field is not clearl
   }
   if (p.is_screenshot_not_photo === false) {
     return { accepted: false, reason: "Please upload the original payment screenshot from your app — not a photo of a screen." };
+  }
+  if (p.appears_manipulated === true) {
+    return { accepted: false, reason: `This screenshot appears to be edited, cropped, or AI-generated${p.manipulation_reason ? ` (${p.manipulation_reason})` : ""}. Please upload an unedited payment confirmation screenshot from your UPI app.` };
+  }
+  if (p.is_supported_upi_app === false) {
+    return { accepted: false, reason: "Please upload a payment confirmation from a supported UPI app (Google Pay, PhonePe, Paytm, BHIM, etc.)." };
+  }
+  if (p.has_all_required_fields === false) {
+    return { accepted: false, reason: "The screenshot is missing required payment details (UPI Reference ID, status, amount, or date/time). Please upload a complete payment confirmation." };
   }
   // Note: we intentionally don't hard-reject on "low" extraction_confidence,
   // because users commonly mask/blur the recipient UPI ID for privacy. The
