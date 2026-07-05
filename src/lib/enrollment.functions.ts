@@ -129,21 +129,22 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       throw new Error(verification.reason);
     }
 
-    // Duplicate-screenshot guard: reject if this transaction reference (UTR /
-    // transaction ID from the receipt) was already used to confirm another
-    // registration. Prevents sharing one payment across multiple people.
+    // Require a UPI Reference ID (UTR / transaction ID) to be present on
+    // every accepted screenshot. Without it we cannot enforce uniqueness.
     const ref = verification.reference ?? null;
-    if (ref) {
-      const { data: dupRef } = await supabaseAdmin
-        .from("enrollments")
-        .select("id")
-        .eq("status", "confirmed")
-        .ilike("payment_reference", ref)
-        .neq("id", existing.id)
-        .maybeSingle();
-      if (dupRef) {
-        throw new Error("This payment screenshot has already been used for another registration. Please make a new payment and upload that receipt.");
-      }
+    if (!ref) {
+      throw new Error("Could not read the UPI Reference ID (UTR / Transaction ID) from this screenshot. Please upload a clearer payment confirmation that shows the transaction reference.");
+    }
+    // Uniqueness: reject if this UPI Reference ID was ever used on any prior
+    // registration or payment record — regardless of status.
+    const { data: dupRef } = await supabaseAdmin
+      .from("enrollments")
+      .select("id")
+      .ilike("payment_reference", ref)
+      .neq("id", existing.id)
+      .maybeSingle();
+    if (dupRef) {
+      throw new Error("This UPI Reference ID has already been used. Please verify your payment details.");
     }
 
     const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
