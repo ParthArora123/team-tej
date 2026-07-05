@@ -1,0 +1,1 @@
+ALTER TABLE public.choreographies ADD COLUMN IF NOT EXISTS instagram_url text;
