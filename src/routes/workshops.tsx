@@ -1,19 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Calendar, MapPin, User, Users, Clock } from "lucide-react";
+import { Calendar, MapPin, User, Users, Clock, ShoppingBag, Check } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import { useCart } from "@/lib/workshop-cart";
+import { listActiveBundles } from "@/lib/bundles.functions";
 
 export const Route = createFileRoute("/workshops")({ component: WorkshopsPage });
 
 function WorkshopsPage() {
   const fetchPrograms = useServerFn(listPrograms);
+  const fetchBundles = useServerFn(listActiveBundles);
+  const cart = useCart();
   const [rows, setRows] = useState<any[]>([]);
+  const [bundles, setBundles] = useState<any[]>([]);
   const [sel, setSel] = useState<EnrollClass | null>(null);
 
-  const load = () => fetchPrograms({ data: { kind: "workshop" } }).then(setRows);
+  const load = () => {
+    fetchPrograms({ data: { kind: "workshop" } }).then(setRows);
+    fetchBundles().then(setBundles).catch(() => {});
+  };
   useEffect(() => {
     load();
     const onFocus = () => load();
@@ -26,8 +34,23 @@ function WorkshopsPage() {
       <p className="text-xs uppercase tracking-widest text-primary">Workshops</p>
       <h1 className="font-display text-5xl font-bold mt-2">Register for a workshop</h1>
       <p className="text-muted-foreground mt-3 max-w-2xl">
-        Browse upcoming intensives. Register, pay via UPI, and get your ticket after admin verification.
+        Browse upcoming intensives. Register for one, or add multiple workshops to your cart to unlock bundle savings.
       </p>
+
+      {bundles.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-primary/40 bg-primary/5 p-4">
+          <p className="text-xs uppercase tracking-widest text-primary font-semibold">✨ Bundle offers live</p>
+          <ul className="mt-2 space-y-1 text-sm">
+            {bundles.map((b) => (
+              <li key={b.id}>
+                <strong>{b.name}:</strong> {b.discount_type === "fixed_bundle_price" ? `Get ${b.min_workshops}${b.max_workshops ? `–${b.max_workshops}` : "+"} workshops for ₹${Number(b.discount_value).toLocaleString("en-IN")}` : b.discount_type === "percentage" ? `${b.discount_value}% off ${b.min_workshops}+ workshops` : `Save ₹${Number(b.discount_value).toLocaleString("en-IN")} on ${b.min_workshops}+ workshops`}
+                {b.description && <span className="text-muted-foreground"> — {b.description}</span>}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-muted-foreground">Add {bundles[0]?.min_workshops ?? 2} or more eligible workshops to your cart to auto-apply the best bundle.</p>
+        </div>
+      )}
 
       <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {rows.map((r, i) => {
@@ -64,19 +87,27 @@ function WorkshopsPage() {
                   </div>
                 )}
 
-                <div className="mt-5 flex items-end justify-between">
+                <div className="mt-5 flex items-end justify-between gap-2">
                   <div>
                     <p className="font-display text-2xl">₹{r.price_inr.toLocaleString("en-IN")}</p>
                     {r.silver_seat_enabled && (
                       <p className="text-[11px] text-primary mt-0.5">+ ₹{silverPrice.toLocaleString("en-IN")} for Silver Seat</p>
                     )}
                   </div>
-                  <button
-                    disabled={full}
-                    onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled, silverSeatPrice: silverPrice })}
-                    className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50">
-                    {full ? "Full" : "Register"}
-                  </button>
+                  <div className="flex flex-col gap-2 items-end">
+                    <button
+                      disabled={full}
+                      onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled, silverSeatPrice: silverPrice })}
+                      className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50">
+                      {full ? "Full" : "Register"}
+                    </button>
+                    <button
+                      disabled={full}
+                      onClick={() => cart.has(r.id) ? cart.remove(r.id) : cart.add(r.id)}
+                      className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1 border ${cart.has(r.id) ? "bg-primary/10 text-primary border-primary/40" : "bg-muted text-foreground border-border"} disabled:opacity-50`}>
+                      {cart.has(r.id) ? <><Check size={12}/> In cart</> : <><ShoppingBag size={12}/> Add to cart</>}
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>

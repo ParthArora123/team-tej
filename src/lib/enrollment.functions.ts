@@ -187,7 +187,7 @@ type VerifyCtx = {
   eventDate: string | null;
 };
 
-async function verifyPaymentScreenshot(dataUrl: string, ctx: VerifyCtx) {
+export async function verifyPaymentScreenshot(dataUrl: string, ctx: VerifyCtx) {
   const apiKey = process.env.LOVABLE_API_KEY;
   if (!apiKey) {
     throw new Error("Payment screenshot verification is not configured yet.");
