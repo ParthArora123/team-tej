@@ -128,6 +128,42 @@ export type Database = {
         }
         Relationships: []
       }
+      dance_styles: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          sort_order: number
+          tagline: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          sort_order?: number
+          tagline?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          sort_order?: number
+          tagline?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       enrollments: {
         Row: {
           address: string | null
@@ -548,6 +584,24 @@ export type Database = {
           style?: string | null
           upi_id_encrypted?: string | null
           venue?: string | null
+        }
+        Relationships: []
+      }
+      site_content: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
         }
         Relationships: []
       }
