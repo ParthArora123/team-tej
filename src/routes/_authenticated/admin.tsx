@@ -24,17 +24,21 @@ import {
   adminListBrands, adminSaveBrand, adminDeleteBrand,
   adminListGlobe, adminSaveGlobe, adminDeleteGlobe,
 } from "@/lib/content.functions";
+import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/admin/CmsTabs";
 
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe";
+type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
   { id: "team", label: "Team roles" },
   { id: "profiles", label: "Home profiles" },
+  { id: "hero", label: "Hero carousel" },
+  { id: "featured", label: "Featured experience" },
+  { id: "gallery", label: "Gallery" },
   { id: "workshops", label: "Workshops" },
   { id: "celebrities", label: "Celebrities" },
   { id: "brands", label: "Brands" },
@@ -125,6 +129,12 @@ function AdminPage() {
       {tab === "brands" && <BrandsTab />}
 
       {tab === "globe" && <GlobeTab />}
+
+      {tab === "hero" && <HeroSlidesTab />}
+
+      {tab === "featured" && <FeaturedExperienceTab />}
+
+      {tab === "gallery" && <GalleryTab />}
 
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
