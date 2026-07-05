@@ -1,19 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Calendar, MapPin, User, Users, Clock } from "lucide-react";
+import { Calendar, MapPin, User, Users, Clock, ShoppingBag, Check } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import { useCart } from "@/lib/workshop-cart";
+import { listActiveBundles } from "@/lib/bundles.functions";
 
 export const Route = createFileRoute("/workshops")({ component: WorkshopsPage });
 
 function WorkshopsPage() {
   const fetchPrograms = useServerFn(listPrograms);
+  const fetchBundles = useServerFn(listActiveBundles);
+  const cart = useCart();
   const [rows, setRows] = useState<any[]>([]);
+  const [bundles, setBundles] = useState<any[]>([]);
   const [sel, setSel] = useState<EnrollClass | null>(null);
 
-  const load = () => fetchPrograms({ data: { kind: "workshop" } }).then(setRows);
+  const load = () => {
+    fetchPrograms({ data: { kind: "workshop" } }).then(setRows);
+    fetchBundles().then(setBundles).catch(() => {});
+  };
   useEffect(() => {
     load();
     const onFocus = () => load();
