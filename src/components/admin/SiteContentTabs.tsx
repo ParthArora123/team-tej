@@ -402,6 +402,9 @@ export function ChoreographiesTab() {
           <input value={f.youtube_url} onChange={(e) => setF({ ...f, youtube_url: e.target.value })}
             placeholder="YouTube URL (optional)" className="px-3 py-2 rounded-lg border border-border bg-background text-sm" />
         </div>
+        <input value={f.instagram_url} onChange={(e) => setF({ ...f, instagram_url: e.target.value })}
+          placeholder="Instagram post/reel URL (optional, e.g. https://www.instagram.com/reel/XXXX/)"
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
         <textarea value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
           placeholder="Short description (optional)" rows={2}
           className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
