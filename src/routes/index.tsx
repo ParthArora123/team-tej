@@ -128,13 +128,26 @@ function Index() {
           style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
           className="absolute inset-0"
         >
-          <img
-            src={heroImg}
-            alt="Tejas D Dhoke dancers in performance"
-            width={1600}
-            height={1200}
-            className="h-full w-full object-cover opacity-55"
-          />
+          {heroSlides.length > 0 ? (
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={heroSlides[slideIdx]?.id}
+                src={heroSlides[slideIdx]?.image_url}
+                alt={heroSlides[slideIdx]?.alt ?? "Hero"}
+                initial={{ opacity: 0 }} animate={{ opacity: 0.6 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                className="h-full w-full object-cover absolute inset-0"
+              />
+            </AnimatePresence>
+          ) : (
+            <img
+              src={heroImg}
+              alt="Tejas D Dhoke dancers in performance"
+              width={1600}
+              height={1200}
+              className="h-full w-full object-cover opacity-55"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
         </motion.div>
 
