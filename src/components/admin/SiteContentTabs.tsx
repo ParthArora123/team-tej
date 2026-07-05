@@ -360,7 +360,7 @@ export function ChoreographiesTab() {
   const [rows, setRows] = useState<any[]>([]);
   const empty = {
     id: undefined as string | undefined,
-    title: "", description: "", thumbnail_url: "", video_url: "", youtube_url: "",
+    title: "", description: "", thumbnail_url: "", video_url: "", youtube_url: "", instagram_url: "",
     published: true, sort_order: 0,
     thumb_preview: null as string | null, video_preview: null as string | null,
   };
