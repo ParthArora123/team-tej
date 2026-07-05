@@ -49,15 +49,29 @@ type TeamMember = {
 function About() {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [selected, setSelected] = useState<TeamMember | null>(null);
+  const loadContent = useServerFn(getSiteContent);
+  const [content, setContent] = useState<any>({
+    eyebrow: "About",
+    headline: "Twelve years of teaching India to move differently.",
+    paragraphs: [
+      "Tejas D Dhoke began in a borrowed studio in 2013 with six dancers and one stubborn belief — that Indian dance shouldn't have to pick a lane. Today it's a full company of performers, choreographers and students working across film, festivals and live productions.",
+      "Our fusion approach pulls from Kathak's footwork, contemporary's release, Bollywood's expression, and hip-hop's groove. The result isn't a style — it's a vocabulary.",
+      "We train roughly 300 students a year across five batches, and our performance wing has toured 12 cities.",
+    ],
+    values_title: "What we stand on",
+    values: defaultValues,
+  });
 
   useEffect(() => {
     const load = () => listPublicTeamProfiles()
       .then((rows: any) => setTeam(rows ?? []))
       .catch(() => setTeam([]));
     load();
+    loadContent({ data: { key: "about" } }).then((v: any) => v && setContent((c: any) => ({ ...c, ...v }))).catch(() => {});
     const onFocus = () => load();
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
 
