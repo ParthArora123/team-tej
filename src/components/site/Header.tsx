@@ -35,7 +35,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
           <span className="h-2 w-2 rounded-full bg-primary group-hover:scale-150 transition-transform" />
-          <span className="font-display font-bold tracking-tight text-lg">TEJAS&nbsp;DHOKE</span>
+          <span className="font-display font-bold tracking-tight text-lg">Tejas&nbsp;D&nbsp;Dhoke</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-6">
