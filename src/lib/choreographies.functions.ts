@@ -42,7 +42,7 @@ async function decorate(rows: any[]) {
 // PUBLIC
 export const listChoreographies = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await (pub() as any).from("choreographies")
-    .select("id,title,description,thumbnail_url,video_url,youtube_url,uploaded_at,sort_order")
+    .select("id,title,description,thumbnail_url,video_url,youtube_url,instagram_url,uploaded_at,sort_order")
     .eq("published", true)
     .order("sort_order", { ascending: true })
     .order("uploaded_at", { ascending: false });
