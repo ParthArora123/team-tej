@@ -25,6 +25,7 @@ import {
   adminListGlobe, adminSaveGlobe, adminDeleteGlobe,
 } from "@/lib/content.functions";
 import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/admin/CmsTabs";
+import { MessagesTab } from "@/components/admin/MessagesTab";
 
 
 
