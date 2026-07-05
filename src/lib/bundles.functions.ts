@@ -439,6 +439,7 @@ const bundleSchema = z.object({
   valid_until: z.string().nullable().optional(),
   active: z.boolean(),
   priority: z.number().int().optional(),
+  eligible_cities: z.array(z.string().min(1).max(80)).optional().default([]),
 });
 
 export const adminSaveBundle = createServerFn({ method: "POST" })
@@ -459,7 +460,9 @@ export const adminSaveBundle = createServerFn({ method: "POST" })
       valid_until: data.valid_until || null,
       active: data.active,
       priority: data.priority ?? 0,
+      eligible_cities: (data.eligible_cities ?? []).map((c) => c.trim()).filter(Boolean),
     };
+
     let id = data.id;
     if (id) {
       const { error } = await supabaseAdmin.from("bundle_offers").update(row).eq("id", id);
