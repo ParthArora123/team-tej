@@ -26,12 +26,13 @@ import {
 } from "@/lib/content.functions";
 import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/admin/CmsTabs";
 import { MessagesTab } from "@/components/admin/MessagesTab";
+import { ContactInfoTab, AboutContentTab, DanceStylesTab } from "@/components/admin/SiteContentTabs";
 
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages";
+type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
@@ -41,6 +42,9 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "hero", label: "Hero carousel" },
   { id: "featured", label: "Featured experience" },
   { id: "gallery", label: "Gallery" },
+  { id: "styles", label: "Dance styles" },
+  { id: "contact_info", label: "Contact info" },
+  { id: "about_page", label: "About page" },
   { id: "workshops", label: "Workshops" },
   { id: "celebrities", label: "Celebrities" },
   { id: "brands", label: "Brands" },
@@ -139,6 +143,12 @@ function AdminPage() {
       {tab === "gallery" && <GalleryTab />}
 
       {tab === "messages" && <MessagesTab />}
+
+      {tab === "contact_info" && <ContactInfoTab />}
+
+      {tab === "about_page" && <AboutContentTab />}
+
+      {tab === "styles" && <DanceStylesTab />}
 
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
