@@ -193,7 +193,7 @@ const emptyWs = () => ({
   event_date: "", event_time: "", venue: "", instructor: "",
   duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
-  category: "", style: "", published: false,
+  category: "", style: "", published: true,
   silver_seat_enabled: true,
   silver_seat_price: "1000",
   upi_id: "", clear_upi: false, has_upi: false,
