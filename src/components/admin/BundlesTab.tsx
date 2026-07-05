@@ -124,7 +124,20 @@ export function BundlesTab() {
             </Fld>
             <Fld label="Valid from"><input type="date" value={f.valid_from} onChange={(e) => setF({...f, valid_from: e.target.value})} className={inputCls}/></Fld>
             <Fld label="Valid until"><input type="date" value={f.valid_until} onChange={(e) => setF({...f, valid_until: e.target.value})} className={inputCls}/></Fld>
+            <Fld label="Eligible cities (comma-separated, blank = any city)" span2>
+              <input
+                type="text"
+                value={f.eligible_cities_text}
+                onChange={(e) => setF({ ...f, eligible_cities_text: e.target.value })}
+                placeholder="e.g. Mumbai, Pune, Delhi"
+                className={inputCls}
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                The bundle only applies when 2+ selected workshops share the same city. Leave blank to allow any city.
+              </p>
+            </Fld>
           </div>
+
 
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={f.applies_to_all_workshops} onChange={(e) => setF({...f, applies_to_all_workshops: e.target.checked})} />
