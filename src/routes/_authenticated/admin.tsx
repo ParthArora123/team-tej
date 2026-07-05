@@ -363,6 +363,10 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               <FieldRow label="Workshop Location">
                 <In placeholder="Enter workshop location" v={f.venue} on={(v) => setF({ ...f, venue: v })} />
               </FieldRow>
+              <FieldRow label="City (for bundle eligibility)">
+                <In placeholder="e.g. Mumbai" v={f.city} on={(v) => setF({ ...f, city: v })} />
+              </FieldRow>
+
               <FieldRow label="Instructor">
                 <In placeholder="Enter instructor name" v={f.instructor} on={(v) => setF({ ...f, instructor: v })} />
               </FieldRow>
