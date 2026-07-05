@@ -251,6 +251,15 @@ Inspect the image forensically for signs of tampering, editing, cropping that hi
   if (p.is_screenshot_not_photo === false) {
     return { accepted: false, reason: "Please upload the original payment screenshot from your app — not a photo of a screen." };
   }
+  if (p.appears_manipulated === true) {
+    return { accepted: false, reason: `This screenshot appears to be edited, cropped, or AI-generated${p.manipulation_reason ? ` (${p.manipulation_reason})` : ""}. Please upload an unedited payment confirmation screenshot from your UPI app.` };
+  }
+  if (p.is_supported_upi_app === false) {
+    return { accepted: false, reason: "Please upload a payment confirmation from a supported UPI app (Google Pay, PhonePe, Paytm, BHIM, etc.)." };
+  }
+  if (p.has_all_required_fields === false) {
+    return { accepted: false, reason: "The screenshot is missing required payment details (UPI Reference ID, status, amount, or date/time). Please upload a complete payment confirmation." };
+  }
   // Note: we intentionally don't hard-reject on "low" extraction_confidence,
   // because users commonly mask/blur the recipient UPI ID for privacy. The
   // individual field checks below (name, amount, status, date) are the source of truth.
