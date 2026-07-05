@@ -134,17 +134,20 @@ function Contact() {
                   Message
                 </label>
                 <textarea
+                  name="message"
                   required
                   rows={5}
+                  maxLength={4000}
                   className="mt-2 w-full bg-background border border-border rounded-lg px-4 py-3 focus:border-primary outline-none transition resize-none"
                   placeholder="Tell us what you're after — a class, a booking, a collab..."
                 />
               </div>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
+                disabled={busy}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition disabled:opacity-60"
               >
-                <Send size={16} /> Send message
+                <Send size={16} /> {busy ? "Sending..." : "Send message"}
               </button>
             </>
           )}
