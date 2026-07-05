@@ -316,7 +316,8 @@ function ChoreoMediaPicker({ kind, value, preview, onChange }: {
   const [busy, setBusy] = useState(false);
 
   const pick = async (file: File) => {
-    if (file.size > 30 * 1024 * 1024) return toast.error("Max 30 MB");
+    const maxMB = kind === "video" ? 500 : 30;
+    if (file.size > maxMB * 1024 * 1024) return toast.error(`Max ${maxMB} MB`);
     setBusy(true);
     try {
       const dataBase64 = await fileToBase64(file);
