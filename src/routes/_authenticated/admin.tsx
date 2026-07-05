@@ -389,7 +389,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                       v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
                   </FieldRow>
                   <FieldRow label="Bank Account Holder Name *">
-                    <In placeholder="Enter bank account holder name (e.g. Tejas Dhoke)"
+                    <In placeholder="Enter bank account holder name (e.g. Tejas D Dhoke)"
                       v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
                   </FieldRow>
                   <p className="text-[11px] text-muted-foreground">UPI ID stored encrypted. Holder name is shown below the UPI ID on the payment page so students can verify the recipient before paying.</p>

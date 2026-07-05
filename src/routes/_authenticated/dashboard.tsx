@@ -119,7 +119,7 @@ function Dashboard() {
               .replace(/\s+/g, " ")
               .trim()
               .slice(0, 40);
-          const payeeName = cleanText(r.program?.bank_account_holder || "Tejas Dhoke") || "Tejas Dhoke";
+          const payeeName = cleanText(r.program?.bank_account_holder || "Tejas D Dhoke") || "Tejas D Dhoke";
           const note = cleanText(r.program?.name || "Enrollment") || "Enrollment";
           const amount = Number(r.amount_inr || 0).toFixed(2);
           const enc = (v: string) => encodeURIComponent(v);

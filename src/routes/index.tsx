@@ -31,16 +31,16 @@ const styles = [
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Tejas Dhoke — Fusion Dance Company" },
+      { title: "Tejas D Dhoke — Fusion Dance Company" },
       {
         name: "description",
         content:
           "A fusion dance company shaping India's next generation of performers. Train, perform, transform.",
       },
-      { property: "og:title", content: "Tejas Dhoke — Fusion Dance Company" },
+      { property: "og:title", content: "Tejas D Dhoke — Fusion Dance Company" },
       {
         property: "og:description",
-        content: "Train, perform, transform with Tejas Dhoke.",
+        content: "Train, perform, transform with Tejas D Dhoke.",
       },
     ],
   }),
@@ -116,7 +116,7 @@ function Index() {
         >
           <img
             src={heroImg}
-            alt="Tejas Dhoke dancers in performance"
+            alt="Tejas D Dhoke dancers in performance"
             width={1600}
             height={1200}
             className="h-full w-full object-cover opacity-55"
@@ -145,7 +145,7 @@ function Index() {
             </motion.h1>
 
             <motion.p variants={item} className="mt-6 text-lg text-muted-foreground max-w-xl">
-              Tejas Dhoke is a fusion dance company blending classical roots with
+              Tejas D Dhoke is a fusion dance company blending classical roots with
               contemporary, hip-hop and Bollywood — built for dancers who want
               to move with intention.
             </motion.p>
@@ -221,7 +221,7 @@ function Index() {
               We train movers, not just dancers.
             </h2>
             <p className="mt-6 text-muted-foreground leading-relaxed">
-              Every Tejas Dhoke class is built around a fusion philosophy — strong
+              Every Tejas D Dhoke class is built around a fusion philosophy — strong
               technique, emotional storytelling, and the freedom to break form.
               From first-time learners to performance-track artists, our
               programs scale with you.
@@ -230,7 +230,7 @@ function Index() {
               to="/about"
               className="mt-8 inline-flex items-center gap-2 text-primary hover:gap-3 transition-all"
             >
-              The Tejas Dhoke story <ArrowUpRight size={16} />
+              The Tejas D Dhoke story <ArrowUpRight size={16} />
             </Link>
           </motion.div>
 
@@ -345,7 +345,7 @@ function Index() {
             Styles on the floor.
           </h2>
           <p className="mt-4 text-muted-foreground max-w-xl">
-            Four core vocabularies. They cross, collide, and become the Tejas Dhoke fusion.
+            Four core vocabularies. They cross, collide, and become the Tejas D Dhoke fusion.
           </p>
         </div>
 
@@ -580,7 +580,7 @@ function Index() {
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
               <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
               <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
-              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas Dhoke has performed and taught on stages across {countries} {countries === 1 ? "country" : "countries"}.</p>
+              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across {countries} {countries === 1 ? "country" : "countries"}.</p>
               {conducted.length > 0 && (
                 <div className="mt-8">
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
