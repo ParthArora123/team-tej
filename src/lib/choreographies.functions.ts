@@ -99,6 +99,7 @@ export const adminSaveChoreography = createServerFn({ method: "POST" })
       thumbnail_url: rest.thumbnail_url || null,
       video_url: rest.video_url || null,
       youtube_url: rest.youtube_url || null,
+      instagram_url: rest.instagram_url || null,
       uploaded_at: rest.uploaded_at || new Date().toISOString(),
     };
     if (id) {
