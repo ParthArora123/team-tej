@@ -38,8 +38,13 @@ export const getSiteContent = createServerFn({ method: "GET" })
     const { data: row, error } = await (pub() as any)
       .from("site_content").select("value").eq("key", data.key).maybeSingle();
     if (error) throw error;
-    return row?.value ?? null;
+    const value = row?.value ?? null;
+    if (value && data.key === "founder" && value.image_url) {
+      value.image_url = await signIfNeeded(value.image_url);
+    }
+    return value;
   });
+
 
 export const adminSaveSiteContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
