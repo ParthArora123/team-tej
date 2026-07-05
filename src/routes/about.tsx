@@ -5,6 +5,8 @@ import { X } from "lucide-react";
 import aboutImg from "@/assets/about.jpg";
 import { MotionImage } from "@/components/site/MotionImage";
 import { listPublicTeamProfiles } from "@/lib/team.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { getSiteContent } from "@/lib/site-content.functions";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -26,7 +28,7 @@ export const Route = createFileRoute("/about")({
   component: About,
 });
 
-const values = [
+const defaultValues = [
   { title: "Discipline", body: "Every form starts with foundation. We drill until it's muscle memory." },
   { title: "Fusion", body: "Classical, contemporary, urban — borders are where the best work happens." },
   { title: "Stage-first", body: "We train for performance, not just for class. Every batch performs." },
