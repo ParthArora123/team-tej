@@ -27,12 +27,13 @@ import {
 import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/admin/CmsTabs";
 import { MessagesTab } from "@/components/admin/MessagesTab";
 import { ContactInfoTab, AboutContentTab, DanceStylesTab } from "@/components/admin/SiteContentTabs";
+import { BundlesTab, BundlePurchasesTab } from "@/components/admin/BundlesTab";
 
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles";
+type Tab = "overview" | "workshops" | "bundles" | "bundle_purchases" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
@@ -46,6 +47,8 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "contact_info", label: "Contact info" },
   { id: "about_page", label: "About page" },
   { id: "workshops", label: "Workshops" },
+  { id: "bundles", label: "Bundle offers", emphasis: true },
+  { id: "bundle_purchases", label: "Bundle purchases" },
   { id: "celebrities", label: "Celebrities" },
   { id: "brands", label: "Brands" },
   { id: "globe", label: "Globe" },
@@ -149,6 +152,10 @@ function AdminPage() {
       {tab === "about_page" && <AboutContentTab />}
 
       {tab === "styles" && <DanceStylesTab />}
+
+      {tab === "bundles" && <BundlesTab />}
+
+      {tab === "bundle_purchases" && <BundlePurchasesTab />}
 
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
