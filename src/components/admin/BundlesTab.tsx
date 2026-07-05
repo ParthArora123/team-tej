@@ -18,6 +18,7 @@ type BundleForm = {
   discount_value: number;
   applies_to_all_workshops: boolean;
   program_ids: string[];
+  eligible_cities_text: string;
   valid_from: string;
   valid_until: string;
   active: boolean;
@@ -28,8 +29,10 @@ const empty = (): BundleForm => ({
   name: "", description: "", min_workshops: 2, max_workshops: null,
   discount_type: "fixed_bundle_price", discount_value: 0,
   applies_to_all_workshops: true, program_ids: [],
+  eligible_cities_text: "",
   valid_from: "", valid_until: "", active: true, priority: 0,
 });
+
 
 export function BundlesTab() {
   const list = useServerFn(adminListBundles);
