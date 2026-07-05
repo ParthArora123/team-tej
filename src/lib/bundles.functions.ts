@@ -14,6 +14,8 @@ export type PricedItem = {
   silverSeat: boolean;
   itemTotal: number;
   eligible: boolean;
+  city: string;
+  inBundle: boolean;
 };
 
 export type PricingResult = {
@@ -29,9 +31,12 @@ export type PricingResult = {
     discountValue: number;
     min_workshops: number;
     max_workshops: number | null;
+    city: string;
   } | null;
   eligibleCount: number;
+  bundleProgramIds: string[];
 };
+
 
 const selectionSchema = z.object({
   programId: z.string().uuid(),
@@ -45,17 +50,21 @@ async function loadPricingContext(selections: CartSelection[]) {
   const ids = Array.from(new Set(selections.map((s) => s.programId)));
   if (ids.length === 0) return { programs: [] as any[], bundles: [] as any[], bundlePrograms: [] as any[] };
   const [{ data: programs }, { data: bundles }, { data: bp }] = await Promise.all([
-    supabaseAdmin.from("programs").select("id, name, price_inr, silver_seat_enabled, silver_seat_price, capacity, seats_taken, published, kind, upi_id_encrypted, bank_account_holder, event_date, registration_open_on").in("id", ids),
+    supabaseAdmin.from("programs").select("id, name, price_inr, silver_seat_enabled, silver_seat_price, capacity, seats_taken, published, kind, upi_id_encrypted, bank_account_holder, event_date, registration_open_on, city, venue").in("id", ids),
     supabaseAdmin.from("bundle_offers").select("*").eq("active", true).order("priority", { ascending: false }),
     supabaseAdmin.from("bundle_offer_programs").select("bundle_id, program_id"),
   ]);
   return { programs: programs ?? [], bundles: bundles ?? [], bundlePrograms: bp ?? [] };
 }
 
+function normCity(v: any): string {
+  return String(v ?? "").trim().toLowerCase();
+}
+
 function priceItems(selections: CartSelection[], programs: any[]): PricedItem[] {
   return selections.map((s) => {
     const p = programs.find((x) => x.id === s.programId);
-    if (!p) return { programId: s.programId, name: "Unknown", basePrice: 0, silverAddon: 0, silverSeat: false, itemTotal: 0, eligible: false };
+    if (!p) return { programId: s.programId, name: "Unknown", basePrice: 0, silverAddon: 0, silverSeat: false, itemTotal: 0, eligible: false, city: "", inBundle: false };
     const silverEnabled = !!p.silver_seat_enabled;
     const silverPrice = Number(p.silver_seat_price ?? 1000);
     const wantSilver = !!s.silverSeat && silverEnabled;
@@ -68,6 +77,8 @@ function priceItems(selections: CartSelection[], programs: any[]): PricedItem[] 
       silverSeat: wantSilver,
       itemTotal: Number(p.price_inr) + addon,
       eligible: p.kind === "workshop" && p.published !== false,
+      city: normCity(p.city || p.venue),
+      inBundle: false,
     };
   });
 }
@@ -77,6 +88,7 @@ function pickBestBundle(items: PricedItem[], bundles: any[], bundlePrograms: any
   const original = items.reduce((s, i) => s + i.itemTotal, 0);
   let best: PricingResult["bundle"] = null;
   let bestDiscount = 0;
+  let bestProgramIds: string[] = [];
 
   for (const b of bundles) {
     if (b.valid_from && new Date(b.valid_from) > now) continue;
@@ -84,39 +96,60 @@ function pickBestBundle(items: PricedItem[], bundles: any[], bundlePrograms: any
     const eligibleIds = b.applies_to_all_workshops
       ? new Set(items.filter((i) => i.eligible).map((i) => i.programId))
       : new Set(bundlePrograms.filter((r: any) => r.bundle_id === b.id).map((r: any) => r.program_id));
-    const eligibleItems = items.filter((i) => i.eligible && eligibleIds.has(i.programId));
-    if (eligibleItems.length < b.min_workshops) continue;
-    if (b.max_workshops && eligibleItems.length > b.max_workshops) continue;
+    const pool = items.filter((i) => i.eligible && eligibleIds.has(i.programId) && i.city);
 
-    const baseSubtotal = eligibleItems.reduce((s, i) => s + i.basePrice, 0);
-    const dv = Number(b.discount_value);
-    let discount = 0;
-    if (b.discount_type === "fixed_bundle_price") {
-      discount = Math.max(0, baseSubtotal - dv);
-    } else if (b.discount_type === "percentage") {
-      discount = Math.round((baseSubtotal * Math.min(100, Math.max(0, dv))) / 100);
-    } else if (b.discount_type === "fixed_amount") {
-      discount = Math.min(baseSubtotal, dv);
+    // City restriction on the bundle itself (empty list = any city).
+    const allowedCities: string[] = Array.isArray(b.eligible_cities) ? b.eligible_cities.map(normCity).filter(Boolean) : [];
+
+    // Group by city and evaluate per city — a bundle only applies to workshops sharing a city.
+    const byCity = new Map<string, PricedItem[]>();
+    for (const it of pool) {
+      if (allowedCities.length > 0 && !allowedCities.includes(it.city)) continue;
+      const arr = byCity.get(it.city) ?? [];
+      arr.push(it);
+      byCity.set(it.city, arr);
     }
-    if (discount > bestDiscount) {
-      bestDiscount = Math.round(discount);
-      best = {
-        id: b.id, name: b.name, description: b.description,
-        discountType: b.discount_type, discountValue: dv,
-        min_workshops: b.min_workshops, max_workshops: b.max_workshops,
-      };
+
+    for (const [city, cityItems] of byCity) {
+      if (cityItems.length < b.min_workshops) continue;
+      const use = b.max_workshops ? cityItems.slice(0, b.max_workshops) : cityItems;
+      const baseSubtotal = use.reduce((s, i) => s + i.basePrice, 0);
+      const dv = Number(b.discount_value);
+      let discount = 0;
+      if (b.discount_type === "fixed_bundle_price") {
+        discount = Math.max(0, baseSubtotal - dv);
+      } else if (b.discount_type === "percentage") {
+        discount = Math.round((baseSubtotal * Math.min(100, Math.max(0, dv))) / 100);
+      } else if (b.discount_type === "fixed_amount") {
+        discount = Math.min(baseSubtotal, dv);
+      }
+      if (discount > bestDiscount) {
+        bestDiscount = Math.round(discount);
+        best = {
+          id: b.id, name: b.name, description: b.description,
+          discountType: b.discount_type, discountValue: dv,
+          min_workshops: b.min_workshops, max_workshops: b.max_workshops,
+          city,
+        };
+        bestProgramIds = use.map((i) => i.programId);
+      }
     }
   }
 
+  const bundleSet = new Set(bestProgramIds);
+  const markedItems = items.map((i) => ({ ...i, inBundle: bundleSet.has(i.programId) }));
+
   return {
-    items,
+    items: markedItems,
     originalAmount: Math.round(original),
     discountAmount: bestDiscount,
     finalAmount: Math.round(original) - bestDiscount,
     bundle: best,
     eligibleCount: items.filter((i) => i.eligible).length,
+    bundleProgramIds: bestProgramIds,
   };
 }
+
 
 // ---------- Public server fns ----------
 
@@ -204,15 +237,22 @@ export const createBundleCheckout = createServerFn({ method: "POST" })
     } as any).select("*").single();
     if (pErr) throw pErr;
 
-    // Allocate the discount proportionally over the base prices so each
-    // enrollment carries its share; silver-seat addon stays on top.
-    const totalBase = items.reduce((s, i) => s + i.basePrice, 0) || 1;
+    // Allocate the discount proportionally over the base prices of ONLY the
+    // bundled items so each enrollment carries its share; silver-seat addon
+    // stays on top. Non-bundled items pay their full base price.
+    const bundleSet = new Set(pricing.bundleProgramIds);
+    const bundledItems = items.filter((i) => bundleSet.has(i.programId));
+    const totalBundleBase = bundledItems.reduce((s, i) => s + i.basePrice, 0) || 1;
     let allocated = 0;
-    const rows = items.map((it, idx) => {
-      const share = idx === items.length - 1
-        ? pricing.discountAmount - allocated
-        : Math.round((it.basePrice / totalBase) * pricing.discountAmount);
-      allocated += share;
+    const rows = items.map((it) => {
+      let share = 0;
+      if (bundleSet.has(it.programId)) {
+        const isLast = it.programId === bundledItems[bundledItems.length - 1].programId;
+        share = isLast
+          ? pricing.discountAmount - allocated
+          : Math.round((it.basePrice / totalBundleBase) * pricing.discountAmount);
+        allocated += share;
+      }
       const amount = it.basePrice - share + it.silverAddon;
       return {
         user_id: userId, program_id: it.programId, amount_inr: amount,
@@ -224,6 +264,7 @@ export const createBundleCheckout = createServerFn({ method: "POST" })
         bundle_purchase_id: purchase.id,
       };
     });
+
     const { error: eErr } = await supabaseAdmin.from("enrollments").insert(rows as any);
     if (eErr) throw eErr;
 
@@ -398,6 +439,7 @@ const bundleSchema = z.object({
   valid_until: z.string().nullable().optional(),
   active: z.boolean(),
   priority: z.number().int().optional(),
+  eligible_cities: z.array(z.string().min(1).max(80)).optional().default([]),
 });
 
 export const adminSaveBundle = createServerFn({ method: "POST" })
@@ -418,7 +460,9 @@ export const adminSaveBundle = createServerFn({ method: "POST" })
       valid_until: data.valid_until || null,
       active: data.active,
       priority: data.priority ?? 0,
+      eligible_cities: (data.eligible_cities ?? []).map((c) => c.trim()).filter(Boolean),
     };
+
     let id = data.id;
     if (id) {
       const { error } = await supabaseAdmin.from("bundle_offers").update(row).eq("id", id);

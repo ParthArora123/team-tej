@@ -190,7 +190,7 @@ const emptyWs = () => ({
   id: undefined as string | undefined,
   kind: "workshop", name: "", description: "", banner_url: "", banner_path: "",
   banner_preview: "" as string,
-  event_date: "", event_time: "", venue: "", instructor: "",
+  event_date: "", event_time: "", venue: "", city: "", instructor: "",
   duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
   category: "", style: "", published: true,
@@ -227,7 +227,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       banner_url: r.banner_url ?? "", banner_path: r.banner_path ?? "",
       banner_preview: r.banner_signed_url ?? r.banner_url ?? "",
       event_date: r.event_date ?? "", event_time: r.event_time ?? "",
-      venue: r.venue ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
+      venue: r.venue ?? "", city: r.city ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
       capacity: r.capacity ?? "", price_inr: r.price_inr ?? "",
       registration_open_on: r.registration_open_on ?? todayISO(),
       category: r.category ?? "",
@@ -363,6 +363,10 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               <FieldRow label="Workshop Location">
                 <In placeholder="Enter workshop location" v={f.venue} on={(v) => setF({ ...f, venue: v })} />
               </FieldRow>
+              <FieldRow label="City (for bundle eligibility)">
+                <In placeholder="e.g. Mumbai" v={f.city} on={(v) => setF({ ...f, city: v })} />
+              </FieldRow>
+
               <FieldRow label="Instructor">
                 <In placeholder="Enter instructor name" v={f.instructor} on={(v) => setF({ ...f, instructor: v })} />
               </FieldRow>

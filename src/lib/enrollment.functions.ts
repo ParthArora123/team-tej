@@ -424,6 +424,8 @@ const workshopSchema = z.object({
   event_date: z.string().optional(),
   event_time: z.string().optional(),
   venue: z.string().optional(),
+  city: z.string().max(80).optional().or(z.literal("")),
+
   instructor: z.string().optional(),
   duration: z.string().optional(),
   capacity: z.number().int().optional(),

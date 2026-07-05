@@ -18,6 +18,7 @@ type BundleForm = {
   discount_value: number;
   applies_to_all_workshops: boolean;
   program_ids: string[];
+  eligible_cities_text: string;
   valid_from: string;
   valid_until: string;
   active: boolean;
@@ -28,8 +29,10 @@ const empty = (): BundleForm => ({
   name: "", description: "", min_workshops: 2, max_workshops: null,
   discount_type: "fixed_bundle_price", discount_value: 0,
   applies_to_all_workshops: true, program_ids: [],
+  eligible_cities_text: "",
   valid_from: "", valid_until: "", active: true, priority: 0,
 });
+
 
 export function BundlesTab() {
   const list = useServerFn(adminListBundles);
@@ -54,6 +57,7 @@ export function BundlesTab() {
       discount_type: r.discount_type, discount_value: Number(r.discount_value),
       applies_to_all_workshops: r.applies_to_all_workshops,
       program_ids: (r.bundle_offer_programs ?? []).map((p: any) => p.program_id),
+      eligible_cities_text: (r.eligible_cities ?? []).join(", "),
       valid_from: r.valid_from ? r.valid_from.slice(0, 10) : "",
       valid_until: r.valid_until ? r.valid_until.slice(0, 10) : "",
       active: r.active, priority: r.priority ?? 0,
@@ -65,12 +69,14 @@ export function BundlesTab() {
     e.preventDefault();
     setBusy(true);
     try {
+      const { eligible_cities_text, ...rest } = f;
       await save({ data: {
-        ...f,
+        ...rest,
         max_workshops: f.max_workshops || null,
         discount_value: Number(f.discount_value),
         valid_from: f.valid_from || null,
         valid_until: f.valid_until || null,
+        eligible_cities: eligible_cities_text.split(",").map((s) => s.trim()).filter(Boolean),
       }});
       toast.success("Bundle saved");
       setEditing(false);
@@ -78,6 +84,7 @@ export function BundlesTab() {
     } catch (e: any) { toast.error(e.message ?? "Save failed"); }
     finally { setBusy(false); }
   };
+
 
   const doDelete = async (id: string) => {
     if (!confirm("Delete this bundle?")) return;
@@ -117,7 +124,20 @@ export function BundlesTab() {
             </Fld>
             <Fld label="Valid from"><input type="date" value={f.valid_from} onChange={(e) => setF({...f, valid_from: e.target.value})} className={inputCls}/></Fld>
             <Fld label="Valid until"><input type="date" value={f.valid_until} onChange={(e) => setF({...f, valid_until: e.target.value})} className={inputCls}/></Fld>
+            <Fld label="Eligible cities (comma-separated, blank = any city)" span2>
+              <input
+                type="text"
+                value={f.eligible_cities_text}
+                onChange={(e) => setF({ ...f, eligible_cities_text: e.target.value })}
+                placeholder="e.g. Mumbai, Pune, Delhi"
+                className={inputCls}
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">
+                The bundle only applies when 2+ selected workshops share the same city. Leave blank to allow any city.
+              </p>
+            </Fld>
           </div>
+
 
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={f.applies_to_all_workshops} onChange={(e) => setF({...f, applies_to_all_workshops: e.target.checked})} />
@@ -168,7 +188,9 @@ export function BundlesTab() {
                 <p className="text-[11px] text-muted-foreground mt-1">
                   {r.active ? "Active" : "Inactive"}
                   {r.valid_until ? ` · until ${new Date(r.valid_until).toLocaleDateString()}` : ""}
+                  {r.eligible_cities?.length ? ` · cities: ${r.eligible_cities.join(", ")}` : " · any city"}
                 </p>
+
               </div>
               <div className="flex gap-2">
                 <button onClick={() => startEdit(r)} className="p-2 rounded hover:bg-muted"><Edit3 size={14}/></button>
