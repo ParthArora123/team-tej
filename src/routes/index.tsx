@@ -138,31 +138,29 @@ function Index() {
 
             <motion.h1
               variants={item}
-              className="mt-6 font-display font-bold text-5xl sm:text-6xl lg:text-8xl leading-[0.95] text-balance"
+              className="mt-6 font-display font-bold text-5xl sm:text-6xl lg:text-7xl leading-[0.95] text-balance"
             >
-              Movement,{" "}
-              <span className="italic font-light">unscripted.</span>
+              Live Movement Experiences with{" "}
+              <span className="italic font-light">Tejas D Dhoke.</span>
             </motion.h1>
 
             <motion.p variants={item} className="mt-6 text-lg text-muted-foreground max-w-xl">
-              Tejas D Dhoke is a fusion dance company blending classical roots with
-              contemporary, hip-hop and Bollywood — built for dancers who want
-              to move with intention.
+              Workshops, Dance Experiences, Nritya Sadhana, and Online Training—created to help you express, grow, and feel alive through movement.
             </motion.p>
 
             <motion.div variants={item} className="mt-10 flex flex-wrap gap-4">
               <Link
-                to="/nritya-sadhana"
+                to="/workshops"
                 className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
               >
-                Explore classes
+                Register for workshops
                 <ArrowUpRight size={18} className="group-hover:rotate-45 transition-transform" />
               </Link>
               <Link
-                to="/workshops"
+                to="/nritya-sadhana"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border hover:border-primary hover:text-primary transition"
               >
-                Register for workshops
+                Explore classes
               </Link>
             </motion.div>
           </motion.div>
