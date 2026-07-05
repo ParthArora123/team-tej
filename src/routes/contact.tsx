@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { useState, type FormEvent } from "react";
-import { Mail, Phone, MapPin, Send, Check } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
+import { Mail, Phone, MapPin, MessageCircle, Send, Check } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { submitContactMessage } from "@/lib/contact.functions";
+import { getSiteContent } from "@/lib/site-content.functions";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
