@@ -89,9 +89,11 @@ function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
                 </div>
                 {pricing.bundle && (
                   <>
-                    <div className="rounded-lg bg-primary/10 border border-primary/30 p-2.5 text-xs">
-                      <p className="font-semibold text-primary flex items-center gap-1"><Sparkles size={12}/> Bundle Offer Applied</p>
-                      <p className="mt-0.5 text-muted-foreground">"{pricing.bundle.name}" — save ₹{pricing.discountAmount.toLocaleString("en-IN")}.</p>
+                    <div className="rounded-lg bg-primary/10 border border-primary/30 p-3 text-xs">
+                      <p className="font-semibold text-primary flex items-center gap-1.5">🎉 Bundle Offer Applied!</p>
+                      <p className="mt-1 text-foreground/80 leading-relaxed">
+                        You're registering for {pricing.items.length} workshops and have received the special bundle price — <strong className="text-primary">{pricing.bundle.name}</strong>. You save ₹{pricing.discountAmount.toLocaleString("en-IN")}.
+                      </p>
                     </div>
                     <div className="flex justify-between text-sm text-primary">
                       <span>Bundle discount</span>
