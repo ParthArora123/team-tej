@@ -2,6 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useState, type FormEvent } from "react";
 import { Mail, Phone, MapPin, Send, Check } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { submitContactMessage } from "@/lib/contact.functions";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -24,10 +27,32 @@ export const Route = createFileRoute("/contact")({
 
 function Contact() {
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const send = useServerFn(submitContactMessage);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setSent(true);
+    if (busy) return;
+    const fd = new FormData(e.currentTarget);
+    const payload = {
+      name: String(fd.get("name") ?? "").trim(),
+      email: String(fd.get("email") ?? "").trim(),
+      subject: String(fd.get("subject") ?? "").trim() || null,
+      message: String(fd.get("message") ?? "").trim(),
+    };
+    if (!payload.name || !payload.email || !payload.message) {
+      toast.error("Name, email, and message are required.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await send({ data: payload });
+      setSent(true);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Could not send message. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
