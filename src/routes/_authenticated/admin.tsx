@@ -25,15 +25,17 @@ import {
   adminListGlobe, adminSaveGlobe, adminDeleteGlobe,
 } from "@/lib/content.functions";
 import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/admin/CmsTabs";
+import { MessagesTab } from "@/components/admin/MessagesTab";
 
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery";
+type Tab = "overview" | "workshops" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
+  { id: "messages", label: "Messages" },
   { id: "team", label: "Team roles" },
   { id: "profiles", label: "Home profiles" },
   { id: "hero", label: "Hero carousel" },
@@ -135,6 +137,8 @@ function AdminPage() {
       {tab === "featured" && <FeaturedExperienceTab />}
 
       {tab === "gallery" && <GalleryTab />}
+
+      {tab === "messages" && <MessagesTab />}
 
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
