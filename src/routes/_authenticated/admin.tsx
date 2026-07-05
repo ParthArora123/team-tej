@@ -138,6 +138,8 @@ function AdminPage() {
 
       {tab === "gallery" && <GalleryTab />}
 
+      {tab === "messages" && <MessagesTab />}
+
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
   );
