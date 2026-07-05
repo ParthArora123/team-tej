@@ -63,6 +63,16 @@ export const adminListChoreographies = createServerFn({ method: "GET" })
     return decorate(data ?? []);
   });
 
+const instagramUrlSchema = z
+  .string()
+  .trim()
+  .max(1000)
+  .url({ message: "Instagram link must be a valid URL" })
+  .refine(
+    (u) => /^https?:\/\/(www\.)?(instagram\.com|instagr\.am)\/.+/i.test(u),
+    { message: "Must be an instagram.com URL" },
+  );
+
 const choreoSchema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().min(1).max(200),
@@ -70,6 +80,7 @@ const choreoSchema = z.object({
   thumbnail_url: z.string().max(1000).optional().nullable(),
   video_url: z.string().max(1000).optional().nullable(),
   youtube_url: z.string().max(1000).optional().nullable(),
+  instagram_url: z.union([instagramUrlSchema, z.literal(""), z.null()]).optional(),
   published: z.boolean().optional(),
   sort_order: z.number().int().optional(),
   uploaded_at: z.string().optional().nullable(),
