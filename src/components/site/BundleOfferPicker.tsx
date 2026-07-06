@@ -72,7 +72,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
 
   const eligibleSecond = useMemo(() => {
     if (!first) return [] as Workshop[];
-    return cityWorkshops.filter((w) => w.id !== first.id && dayDiff(w.event_date, first.event_date) <= 1);
+    return cityWorkshops.filter((w) => w.id !== first.id);
   }, [first, cityWorkshops]);
 
   // Reset second when first changes.
