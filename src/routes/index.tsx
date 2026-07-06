@@ -636,12 +636,12 @@ function Index() {
         {globe.length > 0 && (() => {
           const conducted = globe.filter((g) => g.status === "conducted");
           const upcoming = globe.filter((g) => g.status === "upcoming");
-          const countries = Array.from(new Set(globe.map((g) => g.country))).length;
+          const continents = Array.from(new Set(globe.map((g) => countryToContinent(g.country)).filter(Boolean))).length;
           return (
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
               <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
               <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
-              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across {countries} {countries === 1 ? "country" : "countries"}.</p>
+              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across {continents} {continents === 1 ? "continent" : "continents"}.</p>
               {conducted.length > 0 && (
                 <div className="mt-8">
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
@@ -671,6 +671,31 @@ function Index() {
 
     </>
   );
+}
+
+function countryToContinent(country: string): string | null {
+  const c = (country || "").trim().toLowerCase();
+  const map: Record<string, string> = {
+    india: "Asia", "sri lanka": "Asia", nepal: "Asia", bhutan: "Asia", bangladesh: "Asia", pakistan: "Asia",
+    china: "Asia", japan: "Asia", "south korea": "Asia", korea: "Asia", singapore: "Asia", malaysia: "Asia",
+    thailand: "Asia", indonesia: "Asia", vietnam: "Asia", philippines: "Asia", "hong kong": "Asia", taiwan: "Asia",
+    uae: "Asia", "united arab emirates": "Asia", "saudi arabia": "Asia", qatar: "Asia", bahrain: "Asia",
+    kuwait: "Asia", oman: "Asia", israel: "Asia", turkey: "Asia",
+    uk: "Europe", "united kingdom": "Europe", england: "Europe", scotland: "Europe", ireland: "Europe",
+    france: "Europe", germany: "Europe", spain: "Europe", italy: "Europe", portugal: "Europe",
+    netherlands: "Europe", belgium: "Europe", switzerland: "Europe", austria: "Europe", sweden: "Europe",
+    norway: "Europe", denmark: "Europe", finland: "Europe", poland: "Europe", greece: "Europe",
+    "czech republic": "Europe", hungary: "Europe", romania: "Europe", russia: "Europe",
+    usa: "North America", "united states": "North America", "united states of america": "North America",
+    "u.s.a.": "North America", "u.s.": "North America", america: "North America",
+    canada: "North America", mexico: "North America",
+    brazil: "South America", argentina: "South America", chile: "South America", colombia: "South America",
+    peru: "South America",
+    "south africa": "Africa", nigeria: "Africa", kenya: "Africa", egypt: "Africa", morocco: "Africa",
+    ghana: "Africa", tanzania: "Africa", uganda: "Africa", mauritius: "Africa",
+    australia: "Oceania", "new zealand": "Oceania", fiji: "Oceania",
+  };
+  return map[c] ?? null;
 }
 
 function youtubeEmbed(url?: string | null): string | null {
