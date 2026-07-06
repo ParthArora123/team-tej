@@ -1,10 +1,28 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { Upload, ArrowLeft, Sparkles } from "lucide-react";
+import { Upload, ArrowLeft, Sparkles, Download } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getBundlePurchase, submitBundlePayment } from "@/lib/bundles.functions";
 import { supabase } from "@/integrations/supabase/client";
+
+async function downloadQrPng(containerId: string, filename: string, size = 720) {
+  const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
+  if (!sourceCanvas) return;
+  const padding = Math.round(size * 0.08);
+  const qrSize = size - padding * 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, size, size);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(sourceCanvas, padding, padding, qrSize, qrSize);
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = filename;
+  a.click();
+}
 
 export const Route = createFileRoute("/_authenticated/pay-bundle/$purchaseId")({ component: PayBundle });
 
@@ -99,8 +117,14 @@ function PayBundle() {
       <div className="mt-6 rounded-2xl border border-border bg-card p-5 flex flex-col items-center">
         {upiUrl ? (
           <>
-            <div className="p-3 bg-white rounded-lg"><QRCodeCanvas value={upiUrl} size={220} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" /></div>
-            <a href={upiUrl} className="mt-3 text-[11px] text-primary underline underline-offset-2">Or tap here to open in your UPI app</a>
+            <div id={`pay-qr-bundle-${purchaseId}`} className="p-3 bg-white rounded-lg"><QRCodeCanvas value={upiUrl} size={220} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" /></div>
+            <button
+              type="button"
+              onClick={() => downloadQrPng(`pay-qr-bundle-${purchaseId}`, `bundle-payment-qr-${purchaseId}.png`)}
+              className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-medium text-primary hover:underline">
+              <Download size={12} /> Download QR
+            </button>
+            <a href={upiUrl} className="mt-2 text-[11px] text-primary underline underline-offset-2">Or tap here to open in your UPI app</a>
           </>
         ) : (
           <p className="text-xs text-destructive">UPI ID missing. Contact admin.</p>
