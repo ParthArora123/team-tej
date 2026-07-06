@@ -9,8 +9,9 @@ import {
 } from "@/lib/site-content.functions";
 import {
   adminListChoreographies, adminSaveChoreography, adminDeleteChoreography,
-  adminUploadChoreographyMedia,
+  adminUploadChoreographyMedia, adminCreateChoreographyUploadUrl,
 } from "@/lib/choreographies.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 
 async function fileToBase64(file: File): Promise<string> {
