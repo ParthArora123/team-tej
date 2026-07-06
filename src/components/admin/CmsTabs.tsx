@@ -12,10 +12,17 @@ import {
 type Bucket = "hero-images" | "gallery" | "featured-banners";
 
 async function fileToBase64(file: File): Promise<string> {
-  const buf = await file.arrayBuffer();
-  let binary = ""; const bytes = new Uint8Array(buf);
-  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
-  return btoa(binary);
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error("Failed to read file"));
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result !== "string") return reject(new Error("Unexpected file reader result"));
+      const comma = result.indexOf(",");
+      resolve(comma >= 0 ? result.slice(comma + 1) : result);
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function ImageUploader({ bucket, value, previewUrl, onChange }:
