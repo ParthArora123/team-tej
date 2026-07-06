@@ -130,8 +130,8 @@ function pickBestBundle(items: PricedItem[], bundles: any[], bundlePrograms: any
   return {
     items: markedItems,
     originalAmount: Math.round(original),
-    discountAmount: bestDiscount,
-    finalAmount: Math.round(original) - bestDiscount,
+    discountAmount: finalDiscount,
+    finalAmount: Math.round(original) - finalDiscount,
     bundle: best,
     eligibleCount: items.filter((i) => i.eligible).length,
     bundleProgramIds: bestProgramIds,
