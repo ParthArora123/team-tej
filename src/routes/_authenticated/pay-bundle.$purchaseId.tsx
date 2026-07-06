@@ -1,10 +1,28 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { Upload, ArrowLeft, Sparkles } from "lucide-react";
+import { Upload, ArrowLeft, Sparkles, Download } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getBundlePurchase, submitBundlePayment } from "@/lib/bundles.functions";
 import { supabase } from "@/integrations/supabase/client";
+
+async function downloadQrPng(containerId: string, filename: string, size = 720) {
+  const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
+  if (!sourceCanvas) return;
+  const padding = Math.round(size * 0.08);
+  const qrSize = size - padding * 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, size, size);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(sourceCanvas, padding, padding, qrSize, qrSize);
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = filename;
+  a.click();
+}
 
 export const Route = createFileRoute("/_authenticated/pay-bundle/$purchaseId")({ component: PayBundle });
 
