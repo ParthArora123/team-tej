@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CartButton } from "./CartDrawer";
+
 
 const links = [
   { to: "/", label: "Home" },
@@ -54,7 +54,6 @@ export function Header() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
-          <CartButton />
           {signedIn ? (
             <Link to="/dashboard" className="text-sm font-medium px-4 py-2 rounded-full bg-primary text-primary-foreground hover:opacity-90">
               My dashboard
@@ -67,7 +66,6 @@ export function Header() {
         </div>
 
         <div className="flex lg:hidden items-center gap-1">
-          <CartButton />
 
         <button onClick={() => setOpen((o) => !o)} className="lg:hidden p-2" aria-label="Toggle menu">
           {open ? <X size={20} /> : <Menu size={20} />}

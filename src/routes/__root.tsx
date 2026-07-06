@@ -16,7 +16,7 @@ import { Footer } from "../components/site/Footer";
 import { ScrollProgress } from "../components/site/ScrollProgress";
 import { CursorGlow } from "../components/site/CursorGlow";
 import { AmbientBlobs } from "../components/site/AmbientBlobs";
-import { CartProvider } from "../lib/workshop-cart";
+
 
 function NotFoundComponent() {
   return (
@@ -129,18 +129,16 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider>
-        <div className="min-h-screen grain-bg relative">
-          <AmbientBlobs />
-          <CursorGlow />
-          <ScrollProgress />
-          <Header />
-          <main className="pt-16">
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
-      </CartProvider>
+      <div className="min-h-screen grain-bg relative">
+        <AmbientBlobs />
+        <CursorGlow />
+        <ScrollProgress />
+        <Header />
+        <main className="pt-16">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
     </QueryClientProvider>
   );
 }
