@@ -120,8 +120,12 @@ function Dashboard() {
               .trim()
               .slice(0, 40);
           const payeeName = cleanText(r.program?.bank_account_holder || "Tejas D Dhoke") || "Tejas D Dhoke";
-          const note = cleanText(r.program?.name || "Enrollment") || "Enrollment";
-          const amount = Number(r.amount_inr || 0).toFixed(2);
+          const isBundle = !!r.bundle_purchase?.id;
+          const payAmountInr = isBundle ? Number(r.bundle_purchase.final_amount_inr || 0) : Number(r.amount_inr || 0);
+          const note = isBundle
+            ? cleanText(`Bundle ${r.bundle_purchase.workshop_count || ""} workshops`) || "Bundle"
+            : cleanText(r.program?.name || "Enrollment") || "Enrollment";
+          const amount = payAmountInr.toFixed(2);
           const enc = (v: string) => encodeURIComponent(v);
           const upiUrl = upiId
             ? `upi://pay?pa=${upiId}&pn=${enc(payeeName)}&am=${amount}&cu=INR&tn=${enc(note)}`
