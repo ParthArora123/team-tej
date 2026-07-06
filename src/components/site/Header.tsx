@@ -66,7 +66,6 @@ export function Header() {
         </div>
 
         <div className="flex lg:hidden items-center gap-1">
-          <CartButton />
 
         <button onClick={() => setOpen((o) => !o)} className="lg:hidden p-2" aria-label="Toggle menu">
           {open ? <X size={20} /> : <Menu size={20} />}
