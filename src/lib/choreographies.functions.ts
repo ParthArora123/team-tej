@@ -131,6 +131,7 @@ export const adminDeleteChoreography = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// Legacy base64 upload (kept for compatibility, no longer used by client).
 export const adminUploadChoreographyMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
@@ -160,4 +161,30 @@ export const adminUploadChoreographyMedia = createServerFn({ method: "POST" })
     if (upErr) throw upErr;
     const { data: signed } = await supabaseAdmin.storage.from(bucket).createSignedUrl(key, SIGN_TTL);
     return { url: `${bucket}:${key}`, preview_url: signed?.signedUrl ?? null };
+  });
+
+// Preferred path: create a signed upload URL; client uploads the file bytes directly to storage.
+export const adminCreateChoreographyUploadUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({
+    kind: z.enum(["image", "video"]),
+    filename: z.string().min(1).max(200),
+    contentType: z.string().min(1).max(100),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.kind === "image" && !/^image\/(png|jpe?g|webp|gif)$/.test(data.contentType)) {
+      throw new Error("Image must be JPG, PNG, WebP or GIF.");
+    }
+    if (data.kind === "video" && !/^video\/(mp4|webm|quicktime|x-matroska)$/.test(data.contentType)) {
+      throw new Error("Video must be MP4, MOV or WebM.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const ext = (data.filename.split(".").pop() ?? "").toLowerCase().replace(/[^a-z0-9]/g, "")
+      || (data.kind === "video" ? "mp4" : "jpg");
+    const bucket = "workshop-images";
+    const key = `choreographies/${crypto.randomUUID()}.${ext}`;
+    const { data: signed, error } = await supabaseAdmin.storage.from(bucket).createSignedUploadUrl(key);
+    if (error || !signed) throw error ?? new Error("Failed to create upload URL");
+    return { bucket, key, path: signed.path, token: signed.token, ref: `${bucket}:${key}` };
   });
