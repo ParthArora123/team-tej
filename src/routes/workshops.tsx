@@ -33,7 +33,7 @@ function WorkshopsPage() {
       <p className="text-xs uppercase tracking-widest text-primary">Workshops</p>
       <h1 className="font-display text-5xl font-bold mt-2">Register for a workshop</h1>
       <p className="text-muted-foreground mt-3 max-w-2xl">
-        Browse upcoming intensives. Register for a single workshop, or use the Bundle Offer to register for any 2 workshops at a special price.
+        Browse upcoming intensives. Register for a single workshop, or use Bundle Registration to sign up for 2 workshops in the same city on the same day (or within 1 day) at a special price.
       </p>
 
       <BundleOfferPicker workshops={rows} hasActiveBundles={bundles.length > 0} />

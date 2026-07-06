@@ -29,12 +29,20 @@ const initialForm = {
   address: "", city: "", state: "", emergencyContact: "",
 };
 
+const cityOf = (w: Workshop) => (w.city || w.venue || "").trim();
+const dayDiff = (a?: string | null, b?: string | null) => {
+  if (!a || !b) return Infinity;
+  const da = new Date(a).setHours(0, 0, 0, 0);
+  const db = new Date(b).setHours(0, 0, 0, 0);
+  return Math.abs(Math.round((da - db) / 86400000));
+};
+
 export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
   const navigate = useNavigate();
   const compute = useServerFn(computeCartPricing);
   const checkout = useServerFn(createBundleCheckout);
 
-  const [enabled, setEnabled] = useState(false);
+  const [city, setCity] = useState<string>("");
   const [firstId, setFirstId] = useState<string | null>(null);
   const [secondId, setSecondId] = useState<string | null>(null);
   const [pricing, setPricing] = useState<{ originalAmount: number; discountAmount: number; finalAmount: number; bundleName: string | null } | null>(null);
@@ -44,19 +52,34 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
-  const eligibleFirst = useMemo(
+  const available = useMemo(
     () => workshops.filter((w) => w.capacity == null || (w.seats_taken ?? 0) < w.capacity),
     [workshops],
   );
 
+  const cities = useMemo(() => {
+    const set = new Set<string>();
+    available.forEach((w) => { const c = cityOf(w); if (c) set.add(c); });
+    return Array.from(set).sort();
+  }, [available]);
+
+  const cityWorkshops = useMemo(
+    () => (city ? available.filter((w) => cityOf(w).toLowerCase() === city.toLowerCase()) : []),
+    [available, city],
+  );
+
   const first = firstId ? workshops.find((w) => w.id === firstId) ?? null : null;
+
   const eligibleSecond = useMemo(() => {
     if (!first) return [] as Workshop[];
-    return eligibleFirst.filter((w) => w.id !== first.id);
-  }, [first, eligibleFirst]);
+    return cityWorkshops.filter((w) => w.id !== first.id && dayDiff(w.event_date, first.event_date) <= 1);
+  }, [first, cityWorkshops]);
 
+  // Reset second when first changes.
+  useEffect(() => { setSecondId(null); setPricing(null); setPricingErr(""); }, [firstId]);
+  // Reset first & second when city changes.
+  useEffect(() => { setFirstId(null); }, [city]);
 
-  // Compute pricing when both selected.
   useEffect(() => {
     if (!firstId || !secondId) { setPricing(null); setPricingErr(""); return; }
     let cancelled = false;
@@ -65,7 +88,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
         if (cancelled) return;
         if (!res.bundle) {
           setPricing(null);
-            setPricingErr("These workshops don't currently qualify for a bundle offer. Please select exactly 2 workshops covered by an active bundle.");
+          setPricingErr("No active bundle offer covers these workshops yet. Please check back soon.");
         } else {
           setPricing({
             originalAmount: res.originalAmount,
@@ -86,10 +109,6 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
       if (data.user?.email) setF((s) => ({ ...s, email: s.email || data.user!.email! }));
     });
   }, [showForm]);
-
-  const reset = () => { setFirstId(null); setSecondId(null); setPricing(null); setPricingErr(""); };
-  const removeFirst = () => reset();
-  const removeSecond = () => { setSecondId(null); setPricing(null); setPricingErr(""); };
 
   const openForm = async () => {
     const { data } = await supabase.auth.getUser();
@@ -113,77 +132,85 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
   };
 
   return (
-    <div className="mt-6 rounded-2xl border border-primary/40 bg-primary/5 p-4">
-      <label className="flex items-start gap-3 cursor-pointer">
-        <input type="checkbox" checked={enabled} onChange={(e) => { setEnabled(e.target.checked); if (!e.target.checked) reset(); }} className="mt-1" />
-        <span className="flex-1">
-          <span className="flex items-center gap-2 font-semibold text-sm">
-            <Sparkles size={14} className="text-primary" /> Bundle Offer — register for 2 workshops at a special price
-          </span>
-          <span className="block text-xs text-muted-foreground mt-1">
-            Pick any 2 workshops — if they're covered by an active bundle, the special price is applied automatically.
-            {!hasActiveBundles && " (No active bundle offers right now — please check back soon.)"}
-          </span>
-        </span>
-      </label>
+    <div className="mt-6 rounded-2xl border border-primary/40 bg-primary/5 p-4 sm:p-5">
+      <div className="flex items-center gap-2 font-semibold">
+        <Sparkles size={16} className="text-primary" />
+        <h2 className="text-base">Bundle Registration (2 Workshops)</h2>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Register for any 2 workshops in the same city, scheduled on the same day or within 1 day, and get the special bundle price automatically.
+        {!hasActiveBundles && " (No active bundle offers right now — please check back soon.)"}
+      </p>
 
-      {enabled && (
-        <div className="mt-4 space-y-4">
-          {/* Slot 1 */}
+      <div className="mt-4 space-y-4">
+        {/* City */}
+        <div>
+          <label className="block">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">Select city</span>
+            <select value={city} onChange={(e) => setCity(e.target.value)}
+              className="mt-1 w-full px-3 py-2 rounded-lg bg-background border border-border text-sm">
+              <option value="">— Choose a city —</option>
+              {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </label>
+          {city && cityWorkshops.length === 0 && (
+            <p className="mt-2 text-xs text-muted-foreground">No workshops available in {city}.</p>
+          )}
+        </div>
+
+        {/* Workshop 1 */}
+        {city && cityWorkshops.length > 0 && (
           <div>
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Workshop 1</p>
             {first ? (
-              <SelectedRow w={first} onRemove={removeFirst} />
+              <SelectedRow w={first} onRemove={() => setFirstId(null)} />
             ) : (
-              <WorkshopList workshops={eligibleFirst} onPick={setFirstId} />
+              <WorkshopList workshops={cityWorkshops} onPick={setFirstId} />
             )}
           </div>
+        )}
 
-          {/* Slot 2 */}
-          {first && (
-            <div>
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                Workshop 2 <span className="normal-case tracking-normal text-[11px] text-muted-foreground">(pick another workshop to unlock the bundle price)</span>
+        {/* Workshop 2 */}
+        {first && (
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+              Workshop 2 <span className="normal-case tracking-normal text-[11px] text-muted-foreground">(same city · same day or within 1 day)</span>
+            </p>
+            {secondId ? (
+              <SelectedRow w={workshops.find((w) => w.id === secondId)!} onRemove={() => setSecondId(null)} />
+            ) : eligibleSecond.length > 0 ? (
+              <WorkshopList workshops={eligibleSecond} onPick={setSecondId} />
+            ) : (
+              <p className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-3">
+                No eligible workshop within 1 day in {city}. Try a different first workshop.
               </p>
-              {secondId ? (
-                <SelectedRow
-                  w={workshops.find((w) => w.id === secondId)!}
-                  onRemove={removeSecond}
-                />
-              ) : eligibleSecond.length > 0 ? (
-                <WorkshopList workshops={eligibleSecond} onPick={setSecondId} />
-              ) : (
-                <p className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-3">
-                  No other workshops are available. Try a different first workshop.
-                </p>
-              )}
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
-          {pricingErr && <p className="text-xs text-destructive">{pricingErr}</p>}
+        {pricingErr && <p className="text-xs text-destructive">{pricingErr}</p>}
 
-          {pricing && first && secondId && (
-            <div className="rounded-xl bg-background border border-primary/30 p-4">
-              <p className="text-sm text-primary font-semibold">🎉 Bundle Offer Applied — {pricing.bundleName}</p>
-              <p className="text-xs text-muted-foreground mt-1">You're registering for 2 workshops and have received the special bundle price.</p>
-              <div className="mt-3 flex items-end justify-between">
-                <div className="text-xs text-muted-foreground">
-                  <span className="line-through">₹{pricing.originalAmount.toLocaleString("en-IN")}</span>
-                  <span className="ml-2 text-primary">save ₹{pricing.discountAmount.toLocaleString("en-IN")}</span>
-                </div>
-                <div className="text-right">
-                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Bundle price</p>
-                  <p className="font-display text-2xl font-bold">₹{pricing.finalAmount.toLocaleString("en-IN")}</p>
-                </div>
+        {pricing && first && secondId && (
+          <div className="rounded-xl bg-background border border-primary/30 p-4">
+            <p className="text-sm text-primary font-semibold">🎉 Bundle Offer Applied — {pricing.bundleName}</p>
+            <p className="text-xs text-muted-foreground mt-1">You're registering for 2 workshops and have received the special bundle price.</p>
+            <div className="mt-3 flex items-end justify-between">
+              <div className="text-xs text-muted-foreground">
+                <span className="line-through">₹{pricing.originalAmount.toLocaleString("en-IN")}</span>
+                <span className="ml-2 text-primary">save ₹{pricing.discountAmount.toLocaleString("en-IN")}</span>
               </div>
-              <button onClick={openForm}
-                className="mt-4 w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium">
-                Continue to registration
-              </button>
+              <div className="text-right">
+                <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Bundle price</p>
+                <p className="font-display text-2xl font-bold">₹{pricing.finalAmount.toLocaleString("en-IN")}</p>
+              </div>
             </div>
-          )}
-        </div>
-      )}
+            <button onClick={openForm}
+              className="mt-4 w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium">
+              Continue to registration
+            </button>
+          </div>
+        )}
+      </div>
 
       <AnimatePresence>
         {showForm && first && secondId && pricing && (
