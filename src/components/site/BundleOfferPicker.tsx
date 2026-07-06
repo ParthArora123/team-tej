@@ -47,6 +47,8 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
   const [city, setCity] = useState<string>("");
   const [firstId, setFirstId] = useState<string | null>(null);
   const [secondId, setSecondId] = useState<string | null>(null);
+  const [firstSilver, setFirstSilver] = useState(false);
+  const [secondSilver, setSecondSilver] = useState(false);
   const [pricing, setPricing] = useState<{ originalAmount: number; discountAmount: number; finalAmount: number; bundleName: string | null } | null>(null);
   const [pricingErr, setPricingErr] = useState<string>("");
   const [showForm, setShowForm] = useState(false);
