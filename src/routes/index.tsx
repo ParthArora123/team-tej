@@ -156,7 +156,7 @@ function Index() {
               alt="Tejas D Dhoke dancers in performance"
               width={1600}
               height={1200}
-              className="h-full w-full object-cover opacity-55"
+              className="h-full w-full object-contain opacity-55"
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
