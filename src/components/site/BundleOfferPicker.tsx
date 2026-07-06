@@ -80,14 +80,15 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
   }, [first, cityWorkshops]);
 
   // Reset second when first changes.
-  useEffect(() => { setSecondId(null); setPricing(null); setPricingErr(""); }, [firstId]);
+  useEffect(() => { setSecondId(null); setFirstSilver(false); setSecondSilver(false); setPricing(null); setPricingErr(""); }, [firstId]);
+  useEffect(() => { setSecondSilver(false); }, [secondId]);
   // Reset first & second when city changes.
   useEffect(() => { setFirstId(null); }, [city]);
 
   useEffect(() => {
     if (!firstId || !secondId) { setPricing(null); setPricingErr(""); return; }
     let cancelled = false;
-    compute({ data: { selections: [{ programId: firstId, silverSeat: false }, { programId: secondId, silverSeat: false }] } })
+    compute({ data: { selections: [{ programId: firstId, silverSeat: firstSilver }, { programId: secondId, silverSeat: secondSilver }] } })
       .then((res: any) => {
         if (cancelled) return;
         if (!res.bundle) {
@@ -105,7 +106,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
       })
       .catch((e: any) => { if (!cancelled) setPricingErr(e.message ?? "Pricing failed"); });
     return () => { cancelled = true; };
-  }, [firstId, secondId]);
+  }, [firstId, secondId, firstSilver, secondSilver]);
 
   useEffect(() => {
     if (!showForm) return;
