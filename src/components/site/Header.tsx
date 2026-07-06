@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { CartButton } from "./CartDrawer";
+
 
 const links = [
   { to: "/", label: "Home" },
