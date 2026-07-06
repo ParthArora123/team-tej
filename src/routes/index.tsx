@@ -636,12 +636,12 @@ function Index() {
         {globe.length > 0 && (() => {
           const conducted = globe.filter((g) => g.status === "conducted");
           const upcoming = globe.filter((g) => g.status === "upcoming");
-          const countries = Array.from(new Set(globe.map((g) => g.country))).length;
+          const continents = Array.from(new Set(globe.map((g) => countryToContinent(g.country)).filter(Boolean))).length;
           return (
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
               <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
               <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
-              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across {countries} {countries === 1 ? "country" : "countries"}.</p>
+              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across {continents} {continents === 1 ? "continent" : "continents"}.</p>
               {conducted.length > 0 && (
                 <div className="mt-8">
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
