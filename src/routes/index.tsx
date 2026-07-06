@@ -721,21 +721,21 @@ function ChoreoCard({ c }: { c: Choreo }) {
   return (
     <motion.article variants={item}
       className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
-      <div className="relative aspect-video bg-muted overflow-hidden">
+      <div className="relative aspect-video bg-black overflow-hidden">
         {playing && embed ? (
           <iframe src={`${embed}?autoplay=1`} title={c.title}
             allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen
             className="absolute inset-0 w-full h-full" />
         ) : playing && c.video_url ? (
-          <video src={c.video_url} controls autoPlay className="absolute inset-0 w-full h-full object-cover" />
+          <video src={c.video_url} controls autoPlay className="absolute inset-0 w-full h-full object-contain" />
         ) : (
           <>
             {c.thumbnail_url ? (
               <img src={c.thumbnail_url} alt={c.title} loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                className="absolute inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
             ) : c.video_url ? (
               <video src={c.video_url} muted loop playsInline
-                className="absolute inset-0 w-full h-full object-cover" />
+                className="absolute inset-0 w-full h-full object-contain" />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
             )}
