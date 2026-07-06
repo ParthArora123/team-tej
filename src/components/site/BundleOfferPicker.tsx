@@ -17,6 +17,8 @@ type Workshop = {
   capacity?: number | null;
   seats_taken?: number | null;
   banner_url?: string | null;
+  silver_seat_enabled?: boolean | null;
+  silver_seat_price?: number | null;
 };
 
 interface Props {
