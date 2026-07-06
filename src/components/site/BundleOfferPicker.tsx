@@ -182,7 +182,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
               Workshop 2 <span className="normal-case tracking-normal text-[11px] text-muted-foreground">(same city)</span>
             </p>
             {secondId ? (
-              <SelectedRow w={workshops.find((w) => w.id === secondId)!} onRemove={() => setSecondId(null)} />
+              <SelectedRow w={workshops.find((w) => w.id === secondId)!} onRemove={() => setSecondId(null)} silver={secondSilver} onSilver={setSecondSilver} />
             ) : eligibleSecond.length > 0 ? (
               <WorkshopList workshops={eligibleSecond} onPick={setSecondId} />
             ) : (
