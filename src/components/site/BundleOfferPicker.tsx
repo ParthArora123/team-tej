@@ -143,7 +143,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
           {first && (
             <div>
               <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-                Workshop 2 <span className="normal-case tracking-normal text-[11px] text-muted-foreground">(same city, ≤1 day apart)</span>
+                Workshop 2 <span className="normal-case tracking-normal text-[11px] text-muted-foreground">(pick another workshop to unlock the bundle price)</span>
               </p>
               {secondId ? (
                 <SelectedRow
