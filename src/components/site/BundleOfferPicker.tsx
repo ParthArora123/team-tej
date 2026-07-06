@@ -121,7 +121,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
             <Sparkles size={14} className="text-primary" /> Bundle Offer — register for 2 workshops at a special price
           </span>
           <span className="block text-xs text-muted-foreground mt-1">
-            Pick 2 workshops in the same city scheduled on the same day or one day apart to unlock the bundle price.
+            Pick any 2 workshops — if they're covered by an active bundle, the special price is applied automatically.
             {!hasActiveBundles && " (No active bundle offers right now — please check back soon.)"}
           </span>
         </span>
