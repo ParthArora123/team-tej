@@ -673,6 +673,31 @@ function Index() {
   );
 }
 
+function countryToContinent(country: string): string | null {
+  const c = (country || "").trim().toLowerCase();
+  const map: Record<string, string> = {
+    india: "Asia", "sri lanka": "Asia", nepal: "Asia", bhutan: "Asia", bangladesh: "Asia", pakistan: "Asia",
+    china: "Asia", japan: "Asia", "south korea": "Asia", korea: "Asia", singapore: "Asia", malaysia: "Asia",
+    thailand: "Asia", indonesia: "Asia", vietnam: "Asia", philippines: "Asia", "hong kong": "Asia", taiwan: "Asia",
+    uae: "Asia", "united arab emirates": "Asia", "saudi arabia": "Asia", qatar: "Asia", bahrain: "Asia",
+    kuwait: "Asia", oman: "Asia", israel: "Asia", turkey: "Asia",
+    uk: "Europe", "united kingdom": "Europe", england: "Europe", scotland: "Europe", ireland: "Europe",
+    france: "Europe", germany: "Europe", spain: "Europe", italy: "Europe", portugal: "Europe",
+    netherlands: "Europe", belgium: "Europe", switzerland: "Europe", austria: "Europe", sweden: "Europe",
+    norway: "Europe", denmark: "Europe", finland: "Europe", poland: "Europe", greece: "Europe",
+    "czech republic": "Europe", hungary: "Europe", romania: "Europe", russia: "Europe",
+    usa: "North America", "united states": "North America", "united states of america": "North America",
+    "u.s.a.": "North America", "u.s.": "North America", america: "North America",
+    canada: "North America", mexico: "North America",
+    brazil: "South America", argentina: "South America", chile: "South America", colombia: "South America",
+    peru: "South America",
+    "south africa": "Africa", nigeria: "Africa", kenya: "Africa", egypt: "Africa", morocco: "Africa",
+    ghana: "Africa", tanzania: "Africa", uganda: "Africa", mauritius: "Africa",
+    australia: "Oceania", "new zealand": "Oceania", fiji: "Oceania",
+  };
+  return map[c] ?? null;
+}
+
 function youtubeEmbed(url?: string | null): string | null {
   if (!url) return null;
   try {
