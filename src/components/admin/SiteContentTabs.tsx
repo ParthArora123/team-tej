@@ -319,7 +319,7 @@ function ChoreoMediaPicker({ kind, value, preview, onChange }: {
   kind: "image" | "video"; value: string; preview: string | null;
   onChange: (ref: string, preview: string | null) => void;
 }) {
-  const upload = useServerFn(adminUploadChoreographyMedia);
+  const createUploadUrl = useServerFn(adminCreateChoreographyUploadUrl);
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
 
@@ -328,9 +328,14 @@ function ChoreoMediaPicker({ kind, value, preview, onChange }: {
     if (file.size > maxMB * 1024 * 1024) return toast.error(`Max ${maxMB} MB`);
     setBusy(true);
     try {
-      const dataBase64 = await fileToBase64(file);
-      const res = await upload({ data: { kind, filename: file.name, contentType: file.type, dataBase64 } });
-      onChange(res.url, res.preview_url ?? URL.createObjectURL(file));
+      const { bucket, path, token, ref: storageRef } = await createUploadUrl({
+        data: { kind, filename: file.name, contentType: file.type },
+      });
+      const { error } = await supabase.storage.from(bucket).uploadToSignedUrl(path, token, file, {
+        contentType: file.type, upsert: false,
+      });
+      if (error) throw error;
+      onChange(storageRef, URL.createObjectURL(file));
       toast.success(`${kind === "video" ? "Video" : "Image"} uploaded`);
     } catch (e: any) { toast.error(e.message ?? "Upload failed"); }
     finally { setBusy(false); }
