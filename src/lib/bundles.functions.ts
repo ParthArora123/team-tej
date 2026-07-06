@@ -87,7 +87,7 @@ function pickBestBundle(items: PricedItem[], bundles: any[], bundlePrograms: any
   const now = new Date();
   const original = items.reduce((s, i) => s + i.itemTotal, 0);
   let best: PricingResult["bundle"] = null;
-  let bestDiscount = 0;
+  let bestDiscount = -1;
   let bestProgramIds: string[] = [];
 
   for (const b of bundles) {
@@ -121,6 +121,8 @@ function pickBestBundle(items: PricedItem[], bundles: any[], bundlePrograms: any
       bestProgramIds = use.map((i) => i.programId);
     }
   }
+
+  const finalDiscount = Math.max(0, bestDiscount);
 
   const bundleSet = new Set(bestProgramIds);
   const markedItems = items.map((i) => ({ ...i, inBundle: bundleSet.has(i.programId) }));
