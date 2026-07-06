@@ -72,7 +72,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
 
   const eligibleSecond = useMemo(() => {
     if (!first) return [] as Workshop[];
-    return cityWorkshops.filter((w) => w.id !== first.id && dayDiff(w.event_date, first.event_date) <= 1);
+    return cityWorkshops.filter((w) => w.id !== first.id);
   }, [first, cityWorkshops]);
 
   // Reset second when first changes.
@@ -174,7 +174,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
         {first && (
           <div>
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-              Workshop 2 <span className="normal-case tracking-normal text-[11px] text-muted-foreground">(same city · same day or within 1 day)</span>
+              Workshop 2 <span className="normal-case tracking-normal text-[11px] text-muted-foreground">(same city)</span>
             </p>
             {secondId ? (
               <SelectedRow w={workshops.find((w) => w.id === secondId)!} onRemove={() => setSecondId(null)} />
@@ -182,7 +182,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
               <WorkshopList workshops={eligibleSecond} onPick={setSecondId} />
             ) : (
               <p className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-3">
-                No eligible workshop within 1 day in {city}. Try a different first workshop.
+                No other workshops available in {city}.
               </p>
             )}
           </div>
