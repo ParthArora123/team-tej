@@ -189,7 +189,10 @@ function Dashboard() {
                         </p>
                       )}
                       <div className="mt-3 text-center">
-                        <p className="text-xs text-muted-foreground">Scan with any UPI app and pay ₹{r.amount_inr.toLocaleString("en-IN")}</p>
+                        {isBundle && (
+                          <p className="text-[11px] uppercase tracking-widest text-primary">Bundle payment · {r.bundle_purchase.workshop_count} workshops</p>
+                        )}
+                        <p className="text-xs text-muted-foreground">Scan with any UPI app and pay ₹{payAmountInr.toLocaleString("en-IN")}</p>
                         <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">Official UPI ID</p>
                         <p className="font-mono text-sm">{upiId || "—"}</p>
                         {r.program?.bank_account_holder && (
@@ -201,12 +204,21 @@ function Dashboard() {
                         )}
                       </div>
 
-                      <Link
-                        to="/pay/$enrollmentId"
-                        params={{ enrollmentId: r.id }}
-                        className="mt-5 w-full max-w-sm text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium">
-                        I have completed the payment
-                      </Link>
+                      {isBundle ? (
+                        <Link
+                          to="/pay-bundle/$purchaseId"
+                          params={{ purchaseId: r.bundle_purchase.id }}
+                          className="mt-5 w-full max-w-sm text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium">
+                          I have completed the payment
+                        </Link>
+                      ) : (
+                        <Link
+                          to="/pay/$enrollmentId"
+                          params={{ enrollmentId: r.id }}
+                          className="mt-5 w-full max-w-sm text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium">
+                          I have completed the payment
+                        </Link>
+                      )}
                     </div>
                   )}
                 </div>
