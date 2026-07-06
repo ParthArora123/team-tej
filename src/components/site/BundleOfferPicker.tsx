@@ -29,27 +29,6 @@ const initialForm = {
   address: "", city: "", state: "", emergencyContact: "",
 };
 
-function cityOf(w: Workshop): string {
-  return String(w.city || w.venue || "").trim().toLowerCase();
-}
-
-function dayDiff(a?: string | null, b?: string | null): number | null {
-  if (!a || !b) return null;
-  const da = new Date(String(a).slice(0, 10) + "T00:00:00Z").getTime();
-  const db = new Date(String(b).slice(0, 10) + "T00:00:00Z").getTime();
-  if (Number.isNaN(da) || Number.isNaN(db)) return null;
-  return Math.round(Math.abs(da - db) / (1000 * 60 * 60 * 24));
-}
-
-function isEligiblePair(a: Workshop, b: Workshop): boolean {
-  if (a.id === b.id) return false;
-  const ca = cityOf(a), cb = cityOf(b);
-  if (!ca || ca !== cb) return false;
-  const diff = dayDiff(a.event_date, b.event_date);
-  if (diff == null) return false;
-  return diff <= 1;
-}
-
 export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
   const navigate = useNavigate();
   const compute = useServerFn(computeCartPricing);
@@ -66,25 +45,16 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
   const [err, setErr] = useState("");
 
   const eligibleFirst = useMemo(
-    () => workshops.filter((w) => cityOf(w) && w.event_date && (w.capacity == null || (w.seats_taken ?? 0) < w.capacity)),
+    () => workshops.filter((w) => w.capacity == null || (w.seats_taken ?? 0) < w.capacity),
     [workshops],
   );
 
   const first = firstId ? workshops.find((w) => w.id === firstId) ?? null : null;
   const eligibleSecond = useMemo(() => {
     if (!first) return [] as Workshop[];
-    return eligibleFirst.filter((w) => isEligiblePair(first, w));
+    return eligibleFirst.filter((w) => w.id !== first.id);
   }, [first, eligibleFirst]);
 
-  // Reset second if it no longer qualifies.
-  useEffect(() => {
-    if (!first) { setSecondId(null); return; }
-    if (secondId && !eligibleSecond.some((w) => w.id === secondId)) {
-      setSecondId(null);
-      setPricing(null);
-      setPricingErr("The previously selected second workshop no longer qualifies. Please pick another.");
-    }
-  }, [first?.id]);
 
   // Compute pricing when both selected.
   useEffect(() => {
