@@ -54,7 +54,6 @@ export function Header() {
         </nav>
 
         <div className="hidden lg:flex items-center gap-3">
-          <CartButton />
           {signedIn ? (
             <Link to="/dashboard" className="text-sm font-medium px-4 py-2 rounded-full bg-primary text-primary-foreground hover:opacity-90">
               My dashboard
