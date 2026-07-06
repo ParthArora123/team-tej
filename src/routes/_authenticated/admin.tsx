@@ -371,7 +371,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               <FieldRow label="Workshop Location">
                 <In placeholder="Enter workshop location" v={f.venue} on={(v) => setF({ ...f, venue: v })} />
               </FieldRow>
-              <FieldRow label="City (for bundle eligibility)">
+              <FieldRow label="City">
                 <In placeholder="e.g. Mumbai" v={f.city} on={(v) => setF({ ...f, city: v })} />
               </FieldRow>
 

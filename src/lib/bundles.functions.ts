@@ -96,43 +96,29 @@ function pickBestBundle(items: PricedItem[], bundles: any[], bundlePrograms: any
     const eligibleIds = b.applies_to_all_workshops
       ? new Set(items.filter((i) => i.eligible).map((i) => i.programId))
       : new Set(bundlePrograms.filter((r: any) => r.bundle_id === b.id).map((r: any) => r.program_id));
-    const pool = items.filter((i) => i.eligible && eligibleIds.has(i.programId) && i.city);
+    const pool = items.filter((i) => i.eligible && eligibleIds.has(i.programId));
 
-    // City restriction on the bundle itself (empty list = any city).
-    const allowedCities: string[] = Array.isArray(b.eligible_cities) ? b.eligible_cities.map(normCity).filter(Boolean) : [];
-
-    // Group by city and evaluate per city — a bundle only applies to workshops sharing a city.
-    const byCity = new Map<string, PricedItem[]>();
-    for (const it of pool) {
-      if (allowedCities.length > 0 && !allowedCities.includes(it.city)) continue;
-      const arr = byCity.get(it.city) ?? [];
-      arr.push(it);
-      byCity.set(it.city, arr);
+    if (pool.length < b.min_workshops) continue;
+    const use = b.max_workshops ? pool.slice(0, b.max_workshops) : pool;
+    const baseSubtotal = use.reduce((s, i) => s + i.basePrice, 0);
+    const dv = Number(b.discount_value);
+    let discount = 0;
+    if (b.discount_type === "fixed_bundle_price") {
+      discount = Math.max(0, baseSubtotal - dv);
+    } else if (b.discount_type === "percentage") {
+      discount = Math.round((baseSubtotal * Math.min(100, Math.max(0, dv))) / 100);
+    } else if (b.discount_type === "fixed_amount") {
+      discount = Math.min(baseSubtotal, dv);
     }
-
-    for (const [city, cityItems] of byCity) {
-      if (cityItems.length < b.min_workshops) continue;
-      const use = b.max_workshops ? cityItems.slice(0, b.max_workshops) : cityItems;
-      const baseSubtotal = use.reduce((s, i) => s + i.basePrice, 0);
-      const dv = Number(b.discount_value);
-      let discount = 0;
-      if (b.discount_type === "fixed_bundle_price") {
-        discount = Math.max(0, baseSubtotal - dv);
-      } else if (b.discount_type === "percentage") {
-        discount = Math.round((baseSubtotal * Math.min(100, Math.max(0, dv))) / 100);
-      } else if (b.discount_type === "fixed_amount") {
-        discount = Math.min(baseSubtotal, dv);
-      }
-      if (discount > bestDiscount) {
-        bestDiscount = Math.round(discount);
-        best = {
-          id: b.id, name: b.name, description: b.description,
-          discountType: b.discount_type, discountValue: dv,
-          min_workshops: b.min_workshops, max_workshops: b.max_workshops,
-          city,
-        };
-        bestProgramIds = use.map((i) => i.programId);
-      }
+    if (discount > bestDiscount) {
+      bestDiscount = Math.round(discount);
+      best = {
+        id: b.id, name: b.name, description: b.description,
+        discountType: b.discount_type, discountValue: dv,
+        min_workshops: b.min_workshops, max_workshops: b.max_workshops,
+        city: "",
+      };
+      bestProgramIds = use.map((i) => i.programId);
     }
   }
 
@@ -439,7 +425,6 @@ const bundleSchema = z.object({
   valid_until: z.string().nullable().optional(),
   active: z.boolean(),
   priority: z.number().int().optional(),
-  eligible_cities: z.array(z.string().min(1).max(80)).optional().default([]),
 });
 
 export const adminSaveBundle = createServerFn({ method: "POST" })
@@ -460,7 +445,6 @@ export const adminSaveBundle = createServerFn({ method: "POST" })
       valid_until: data.valid_until || null,
       active: data.active,
       priority: data.priority ?? 0,
-      eligible_cities: (data.eligible_cities ?? []).map((c) => c.trim()).filter(Boolean),
     };
 
     let id = data.id;

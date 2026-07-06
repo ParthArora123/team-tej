@@ -65,7 +65,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
         if (cancelled) return;
         if (!res.bundle) {
           setPricing(null);
-          setPricingErr("These workshops don't currently qualify for a bundle offer. Ask the admin to configure a bundle covering this city.");
+            setPricingErr("These workshops don't currently qualify for a bundle offer. Please select exactly 2 workshops covered by an active bundle.");
         } else {
           setPricing({
             originalAmount: res.originalAmount,
@@ -154,7 +154,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
                 <WorkshopList workshops={eligibleSecond} onPick={setSecondId} />
               ) : (
                 <p className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-3">
-                  No other workshops match this city and date window. Try a different first workshop.
+                  No other workshops are available. Try a different first workshop.
                 </p>
               )}
             </div>
