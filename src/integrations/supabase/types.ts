@@ -940,6 +940,7 @@ export type Database = {
           banner_url: string | null
           capacity: number | null
           category: string | null
+          city: string | null
           created_at: string | null
           description: string | null
           duration: string | null
@@ -967,6 +968,7 @@ export type Database = {
           banner_url?: string | null
           capacity?: number | null
           category?: string | null
+          city?: string | null
           created_at?: string | null
           description?: string | null
           duration?: string | null
@@ -994,6 +996,7 @@ export type Database = {
           banner_url?: string | null
           capacity?: number | null
           category?: string | null
+          city?: string | null
           created_at?: string | null
           description?: string | null
           duration?: string | null
