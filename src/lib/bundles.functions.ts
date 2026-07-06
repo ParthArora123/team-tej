@@ -197,8 +197,15 @@ export const createBundleCheckout = createServerFn({ method: "POST" })
       }
     }
     // All workshops in a bundle checkout must share the same UPI recipient.
+    // Ciphertext differs per-encryption (random IV), so we must decrypt to compare.
     if (data.selections.length > 1) {
-      const upiSet = new Set(programs.map((p) => p.upi_id_encrypted || ""));
+      const { decryptSecret, sanitizeUpiId } = await import("./crypto.server");
+      const upiSet = new Set(
+        programs.map((p) => {
+          const dec = decryptSecret(p.upi_id_encrypted) || "";
+          try { return sanitizeUpiId(dec).toLowerCase(); } catch { return dec.trim().toLowerCase(); }
+        }),
+      );
       const holderSet = new Set(programs.map((p) => (p.bank_account_holder || "").trim().toLowerCase()));
       if (upiSet.size !== 1 || holderSet.size !== 1) {
         throw new Error("These workshops have different UPI recipients and can't be bundled in a single payment. Please register for them separately.");
