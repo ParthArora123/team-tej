@@ -162,27 +162,27 @@ function Index() {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
         </motion.div>
 
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-32 pb-40 lg:pt-48 lg:pb-56">
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-20 pb-24 lg:pt-28 lg:pb-32">
           <motion.div
             variants={stagger}
             initial="hidden"
             animate="show"
-            className="max-w-3xl"
+            className="max-w-2xl"
           >
-            <motion.div variants={item} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-background/50 backdrop-blur text-xs uppercase tracking-widest text-muted-foreground">
+            <motion.div variants={item} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-background/50 backdrop-blur text-[10px] uppercase tracking-widest text-muted-foreground">
               <Sparkles size={12} className="text-primary" />
               Fusion Dance Company · Est. 2013
             </motion.div>
 
             <motion.h1
               variants={item}
-              className="mt-6 font-display font-bold text-5xl sm:text-6xl lg:text-7xl leading-[0.95] text-balance"
+              className="mt-4 font-display font-bold text-2xl sm:text-3xl lg:text-4xl leading-tight text-balance"
             >
               Live Movement Experiences with{" "}
               <span className="italic font-light">Tejas D Dhoke.</span>
             </motion.h1>
 
-            <motion.p variants={item} className="mt-6 text-lg text-muted-foreground max-w-xl">
+            <motion.p variants={item} className="mt-3 text-sm sm:text-base text-muted-foreground max-w-xl">
               Workshops, Dance Experiences, Nritya Sadhana, and Online Training—created to help you express, grow, and feel alive through movement.
             </motion.p>
 
