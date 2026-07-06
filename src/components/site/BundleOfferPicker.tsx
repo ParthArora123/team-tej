@@ -168,7 +168,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
           <div>
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Workshop 1</p>
             {first ? (
-              <SelectedRow w={first} onRemove={() => setFirstId(null)} />
+              <SelectedRow w={first} onRemove={() => setFirstId(null)} silver={firstSilver} onSilver={setFirstSilver} />
             ) : (
               <WorkshopList workshops={cityWorkshops} onPick={setFirstId} />
             )}
