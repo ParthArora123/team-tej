@@ -135,9 +135,32 @@ function Index() {
     <>
       {/* HERO */}
       <section ref={heroRef} className="relative overflow-hidden">
+        {/* Mobile: image sits at top in its own aspect box so it's fully visible */}
+        <div className="lg:hidden relative w-full aspect-[4/5] bg-background overflow-hidden">
+          {heroSlides.length > 0 ? (
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={heroSlides[slideIdx]?.id}
+                src={heroSlides[slideIdx]?.image_url}
+                alt={heroSlides[slideIdx]?.alt ?? "Hero"}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                className="h-full w-full object-contain absolute inset-0"
+              />
+            </AnimatePresence>
+          ) : (
+            <img
+              src={heroImg}
+              alt="Tejas D Dhoke dancers in performance"
+              className="h-full w-full object-contain"
+            />
+          )}
+        </div>
+
+        {/* Desktop: parallax image behind text */}
         <motion.div
           style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
-          className="absolute inset-0"
+          className="absolute inset-0 hidden lg:block"
         >
           {heroSlides.length > 0 ? (
             <AnimatePresence mode="wait">
@@ -162,7 +185,7 @@ function Index() {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
         </motion.div>
 
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-20 pb-24 lg:pt-28 lg:pb-32">
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:pt-28 lg:pb-32">
           <motion.div
             variants={stagger}
             initial="hidden"
@@ -176,27 +199,27 @@ function Index() {
 
             <motion.h1
               variants={item}
-              className="mt-4 font-display font-bold text-2xl sm:text-3xl lg:text-4xl leading-tight text-balance"
+              className="mt-4 font-display font-bold text-xl sm:text-2xl lg:text-4xl leading-tight text-balance"
             >
               Live Movement Experiences with{" "}
               <span className="italic font-light">Tejas D Dhoke.</span>
             </motion.h1>
 
-            <motion.p variants={item} className="mt-3 text-sm sm:text-base text-muted-foreground max-w-xl">
+            <motion.p variants={item} className="mt-2 text-xs sm:text-sm lg:text-base text-muted-foreground max-w-xl">
               Workshops, Dance Experiences, Nritya Sadhana, and Online Training—created to help you express, grow, and feel alive through movement.
             </motion.p>
 
-            <motion.div variants={item} className="mt-6 flex flex-wrap gap-3">
+            <motion.div variants={item} className="mt-5 flex flex-wrap gap-3">
               <Link
                 to="/workshops"
-                className="group inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
+                className="group inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full bg-primary text-primary-foreground text-sm lg:text-base font-medium hover:opacity-90 transition"
               >
                 Register for workshops
-                <ArrowUpRight size={18} className="group-hover:rotate-45 transition-transform" />
+                <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
               </Link>
               <Link
                 to="/nritya-sadhana"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border hover:border-primary hover:text-primary transition"
+                className="inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full border border-border text-sm lg:text-base hover:border-primary hover:text-primary transition"
               >
                 Explore classes
               </Link>
