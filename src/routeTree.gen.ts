@@ -21,7 +21,6 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
-import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedPayEnrollmentIdRouteImport } from './routes/_authenticated/pay.$enrollmentId'
 import { Route as AuthenticatedPayBundlePurchaseIdRouteImport } from './routes/_authenticated/pay-bundle.$purchaseId'
@@ -85,11 +84,6 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -120,7 +114,6 @@ export interface FileRoutesByFullPath {
   '/workshops': typeof WorkshopsRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/checkout': typeof AuthenticatedCheckoutRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/pay-bundle/$purchaseId': typeof AuthenticatedPayBundlePurchaseIdRoute
   '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
@@ -137,7 +130,6 @@ export interface FileRoutesByTo {
   '/workshops': typeof WorkshopsRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
-  '/checkout': typeof AuthenticatedCheckoutRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/pay-bundle/$purchaseId': typeof AuthenticatedPayBundlePurchaseIdRoute
   '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
@@ -156,7 +148,6 @@ export interface FileRoutesById {
   '/workshops': typeof WorkshopsRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
-  '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/pay-bundle/$purchaseId': typeof AuthenticatedPayBundlePurchaseIdRoute
   '/_authenticated/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
@@ -175,7 +166,6 @@ export interface FileRouteTypes {
     | '/workshops'
     | '/zero-to-hero'
     | '/admin'
-    | '/checkout'
     | '/dashboard'
     | '/pay-bundle/$purchaseId'
     | '/pay/$enrollmentId'
@@ -192,7 +182,6 @@ export interface FileRouteTypes {
     | '/workshops'
     | '/zero-to-hero'
     | '/admin'
-    | '/checkout'
     | '/dashboard'
     | '/pay-bundle/$purchaseId'
     | '/pay/$enrollmentId'
@@ -210,7 +199,6 @@ export interface FileRouteTypes {
     | '/workshops'
     | '/zero-to-hero'
     | '/_authenticated/admin'
-    | '/_authenticated/checkout'
     | '/_authenticated/dashboard'
     | '/_authenticated/pay-bundle/$purchaseId'
     | '/_authenticated/pay/$enrollmentId'
@@ -316,13 +304,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/checkout': {
-      id: '/_authenticated/checkout'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -349,7 +330,6 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
-  AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedPayBundlePurchaseIdRoute: typeof AuthenticatedPayBundlePurchaseIdRoute
   AuthenticatedPayEnrollmentIdRoute: typeof AuthenticatedPayEnrollmentIdRoute
@@ -357,7 +337,6 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
-  AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedPayBundlePurchaseIdRoute: AuthenticatedPayBundlePurchaseIdRoute,
   AuthenticatedPayEnrollmentIdRoute: AuthenticatedPayEnrollmentIdRoute,

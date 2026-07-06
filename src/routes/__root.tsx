@@ -16,7 +16,7 @@ import { Footer } from "../components/site/Footer";
 import { ScrollProgress } from "../components/site/ScrollProgress";
 import { CursorGlow } from "../components/site/CursorGlow";
 import { AmbientBlobs } from "../components/site/AmbientBlobs";
-import { CartProvider } from "../lib/workshop-cart";
+
 
 function NotFoundComponent() {
   return (
