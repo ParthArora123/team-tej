@@ -17,6 +17,8 @@ type Workshop = {
   capacity?: number | null;
   seats_taken?: number | null;
   banner_url?: string | null;
+  silver_seat_enabled?: boolean | null;
+  silver_seat_price?: number | null;
 };
 
 interface Props {
@@ -45,6 +47,8 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
   const [city, setCity] = useState<string>("");
   const [firstId, setFirstId] = useState<string | null>(null);
   const [secondId, setSecondId] = useState<string | null>(null);
+  const [firstSilver, setFirstSilver] = useState(false);
+  const [secondSilver, setSecondSilver] = useState(false);
   const [pricing, setPricing] = useState<{ originalAmount: number; discountAmount: number; finalAmount: number; bundleName: string | null } | null>(null);
   const [pricingErr, setPricingErr] = useState<string>("");
   const [showForm, setShowForm] = useState(false);
@@ -76,14 +80,15 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
   }, [first, cityWorkshops]);
 
   // Reset second when first changes.
-  useEffect(() => { setSecondId(null); setPricing(null); setPricingErr(""); }, [firstId]);
+  useEffect(() => { setSecondId(null); setFirstSilver(false); setSecondSilver(false); setPricing(null); setPricingErr(""); }, [firstId]);
+  useEffect(() => { setSecondSilver(false); }, [secondId]);
   // Reset first & second when city changes.
   useEffect(() => { setFirstId(null); }, [city]);
 
   useEffect(() => {
     if (!firstId || !secondId) { setPricing(null); setPricingErr(""); return; }
     let cancelled = false;
-    compute({ data: { selections: [{ programId: firstId, silverSeat: false }, { programId: secondId, silverSeat: false }] } })
+    compute({ data: { selections: [{ programId: firstId, silverSeat: firstSilver }, { programId: secondId, silverSeat: secondSilver }] } })
       .then((res: any) => {
         if (cancelled) return;
         if (!res.bundle) {
@@ -101,7 +106,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
       })
       .catch((e: any) => { if (!cancelled) setPricingErr(e.message ?? "Pricing failed"); });
     return () => { cancelled = true; };
-  }, [firstId, secondId]);
+  }, [firstId, secondId, firstSilver, secondSilver]);
 
   useEffect(() => {
     if (!showForm) return;
@@ -122,7 +127,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
     setErr(""); setBusy(true);
     try {
       const res = await checkout({ data: {
-        selections: [{ programId: firstId, silverSeat: false }, { programId: secondId, silverSeat: false }],
+        selections: [{ programId: firstId, silverSeat: firstSilver }, { programId: secondId, silverSeat: secondSilver }],
         fullName: f.fullName, email: f.email, phone: f.phone, gender: f.gender,
         address: f.address, city: f.city, state: f.state, emergencyContact: f.emergencyContact,
       }});
@@ -163,7 +168,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
           <div>
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Workshop 1</p>
             {first ? (
-              <SelectedRow w={first} onRemove={() => setFirstId(null)} />
+              <SelectedRow w={first} onRemove={() => setFirstId(null)} silver={firstSilver} onSilver={setFirstSilver} />
             ) : (
               <WorkshopList workshops={cityWorkshops} onPick={setFirstId} />
             )}
@@ -177,7 +182,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
               Workshop 2 <span className="normal-case tracking-normal text-[11px] text-muted-foreground">(same city)</span>
             </p>
             {secondId ? (
-              <SelectedRow w={workshops.find((w) => w.id === secondId)!} onRemove={() => setSecondId(null)} />
+              <SelectedRow w={workshops.find((w) => w.id === secondId)!} onRemove={() => setSecondId(null)} silver={secondSilver} onSilver={setSecondSilver} />
             ) : eligibleSecond.length > 0 ? (
               <WorkshopList workshops={eligibleSecond} onPick={setSecondId} />
             ) : (
@@ -279,19 +284,31 @@ function WorkshopList({ workshops, onPick }: { workshops: Workshop[]; onPick: (i
   );
 }
 
-function SelectedRow({ w, onRemove }: { w: Workshop; onRemove: () => void }) {
+function SelectedRow({ w, onRemove, silver, onSilver }: { w: Workshop; onRemove: () => void; silver: boolean; onSilver: (v: boolean) => void }) {
+  const silverPrice = Number(w.silver_seat_price ?? 1000);
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-primary/40 bg-background p-3">
-      <div className="min-w-0">
-        <p className="font-medium text-sm truncate flex items-center gap-1.5"><Check size={12} className="text-primary"/> {w.name}</p>
-        <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-          {w.event_date ? new Date(w.event_date).toDateString() : ""}
-          {w.city || w.venue ? ` · ${w.city || w.venue}` : ""} · ₹{w.price_inr.toLocaleString("en-IN")}
-        </p>
+    <div className="rounded-lg border border-primary/40 bg-background p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-medium text-sm truncate flex items-center gap-1.5"><Check size={12} className="text-primary"/> {w.name}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+            {w.event_date ? new Date(w.event_date).toDateString() : ""}
+            {w.city || w.venue ? ` · ${w.city || w.venue}` : ""} · ₹{w.price_inr.toLocaleString("en-IN")}
+          </p>
+        </div>
+        <button type="button" onClick={onRemove} className="text-xs px-2 py-1 rounded bg-muted hover:bg-destructive/10 hover:text-destructive shrink-0">
+          Remove / Change
+        </button>
       </div>
-      <button type="button" onClick={onRemove} className="text-xs px-2 py-1 rounded bg-muted hover:bg-destructive/10 hover:text-destructive">
-        Remove / Change
-      </button>
+      {w.silver_seat_enabled && (
+        <label className="mt-3 flex items-start gap-2 text-xs rounded-md border border-primary/30 bg-primary/5 p-2 cursor-pointer">
+          <input type="checkbox" checked={silver} onChange={(e) => onSilver(e.target.checked)} className="mt-0.5" />
+          <span>
+            <span className="font-semibold text-primary">🎥 Add Silver Seat (+₹{silverPrice.toLocaleString("en-IN")})</span>
+            <span className="block text-muted-foreground mt-0.5">Professionally shot & edited solo dance video.</span>
+          </span>
+        </label>
+      )}
     </div>
   );
 }
