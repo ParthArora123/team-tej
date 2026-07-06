@@ -284,19 +284,31 @@ function WorkshopList({ workshops, onPick }: { workshops: Workshop[]; onPick: (i
   );
 }
 
-function SelectedRow({ w, onRemove }: { w: Workshop; onRemove: () => void }) {
+function SelectedRow({ w, onRemove, silver, onSilver }: { w: Workshop; onRemove: () => void; silver: boolean; onSilver: (v: boolean) => void }) {
+  const silverPrice = Number(w.silver_seat_price ?? 1000);
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-primary/40 bg-background p-3">
-      <div className="min-w-0">
-        <p className="font-medium text-sm truncate flex items-center gap-1.5"><Check size={12} className="text-primary"/> {w.name}</p>
-        <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
-          {w.event_date ? new Date(w.event_date).toDateString() : ""}
-          {w.city || w.venue ? ` · ${w.city || w.venue}` : ""} · ₹{w.price_inr.toLocaleString("en-IN")}
-        </p>
+    <div className="rounded-lg border border-primary/40 bg-background p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="font-medium text-sm truncate flex items-center gap-1.5"><Check size={12} className="text-primary"/> {w.name}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
+            {w.event_date ? new Date(w.event_date).toDateString() : ""}
+            {w.city || w.venue ? ` · ${w.city || w.venue}` : ""} · ₹{w.price_inr.toLocaleString("en-IN")}
+          </p>
+        </div>
+        <button type="button" onClick={onRemove} className="text-xs px-2 py-1 rounded bg-muted hover:bg-destructive/10 hover:text-destructive shrink-0">
+          Remove / Change
+        </button>
       </div>
-      <button type="button" onClick={onRemove} className="text-xs px-2 py-1 rounded bg-muted hover:bg-destructive/10 hover:text-destructive">
-        Remove / Change
-      </button>
+      {w.silver_seat_enabled && (
+        <label className="mt-3 flex items-start gap-2 text-xs rounded-md border border-primary/30 bg-primary/5 p-2 cursor-pointer">
+          <input type="checkbox" checked={silver} onChange={(e) => onSilver(e.target.checked)} className="mt-0.5" />
+          <span>
+            <span className="font-semibold text-primary">🎥 Add Silver Seat (+₹{silverPrice.toLocaleString("en-IN")})</span>
+            <span className="block text-muted-foreground mt-0.5">Professionally shot & edited solo dance video.</span>
+          </span>
+        </label>
+      )}
     </div>
   );
 }
