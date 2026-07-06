@@ -127,7 +127,7 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
     setErr(""); setBusy(true);
     try {
       const res = await checkout({ data: {
-        selections: [{ programId: firstId, silverSeat: false }, { programId: secondId, silverSeat: false }],
+        selections: [{ programId: firstId, silverSeat: firstSilver }, { programId: secondId, silverSeat: secondSilver }],
         fullName: f.fullName, email: f.email, phone: f.phone, gender: f.gender,
         address: f.address, city: f.city, state: f.state, emergencyContact: f.emergencyContact,
       }});
