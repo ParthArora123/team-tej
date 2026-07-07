@@ -453,10 +453,10 @@ function ZeroToHeroPage() {
           </div>
 
           <div className="mt-10">
-            <Link to="/workshops"
+            <a href="https://studio.dancefit.in/l/41aa93491f" target="_blank" rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-10 py-5 rounded-full bg-primary text-primary-foreground font-bold text-lg shadow-[0_12px_50px_-8px] shadow-primary/60 hover:scale-[1.03] transition">
               ENROL NOW <ArrowRight size={18} />
-            </Link>
+            </a>
           </div>
         </div>
       </section>
