@@ -225,13 +225,15 @@ export function StyleAnimation({ name }: { name: string }) {
       <DancerFigure variant={variant} primary={primary} accent={secondary} />
       {videoSrc && !videoFailed && (
         <video
+          ref={videoRef}
           className="absolute inset-0 h-full w-full object-cover saturate-110 contrast-110"
           src={videoSrc}
           autoPlay
           loop
           muted
+          defaultMuted
           playsInline
-          preload="metadata"
+          preload="auto"
           aria-label={`${name} dancer video`}
           onError={() => setVideoFailed(true)}
         />
