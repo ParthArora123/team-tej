@@ -116,15 +116,16 @@ function ZeroToHeroPage() {
           </div>
 
           <div className="mt-9 flex flex-wrap gap-3">
-            <Link to="/workshops"
+            <a href="https://studio.dancefit.in/l/41aa93491f" target="_blank" rel="noopener noreferrer"
               className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold shadow-[0_8px_40px_-8px] shadow-primary/60 hover:scale-[1.02] transition">
               Enrol Now <ArrowRight size={16} className="group-hover:translate-x-1 transition" />
-            </Link>
+            </a>
             <a href="#method"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-border bg-card/60 backdrop-blur hover:border-primary/40 transition">
               <Play size={14} /> Learn More
             </a>
           </div>
+
 
           <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl">
             {[
