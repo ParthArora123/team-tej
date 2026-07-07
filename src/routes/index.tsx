@@ -485,11 +485,8 @@ function Index() {
             image_url: s.image_url ?? null,
             video_url: s.video_url ?? null,
           }));
-          const seen = new Set(defaultStyles.map((s) => normalizeStyleName(s.name)));
-          const stylesToRender: RenderStyle[] = [
-            ...defaultStyles,
-            ...backend.filter((s) => !seen.has(normalizeStyleName(s.name))),
-          ];
+          // If admin has added any dance styles, show ONLY those. Otherwise fall back to defaults.
+          const stylesToRender: RenderStyle[] = backend.length > 0 ? backend : defaultStyles;
 
           const renderMedia = (s: RenderStyle) => {
             if (s.video_url) {
