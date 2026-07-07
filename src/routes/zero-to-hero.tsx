@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import {
   Sparkles, Music, HeartHandshake, Flame, PartyPopper, Award, Play,
