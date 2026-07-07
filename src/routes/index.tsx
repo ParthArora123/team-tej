@@ -480,8 +480,10 @@ function Index() {
           const defaultByName = new Map(defaultStyles.map((d) => [d.name.trim().toLowerCase(), d]));
           const stylesToRender: Array<{ name: string; tagline: string; image_url: string; video_url: string }> =
             danceStyles && danceStyles.length > 0
-              ? danceStyles.map((s: any) => {
-                  const fallback = defaultByName.get(String(s.name ?? "").trim().toLowerCase());
+              ? danceStyles.map((s: any, i: number) => {
+                  const fallback =
+                    defaultByName.get(String(s.name ?? "").trim().toLowerCase()) ??
+                    defaultStyles[i % defaultStyles.length];
                   return {
                     name: s.name,
                     tagline: s.tagline ?? "",
