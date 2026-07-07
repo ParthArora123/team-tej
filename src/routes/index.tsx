@@ -477,9 +477,18 @@ function Index() {
         </div>
 
         {(() => {
+          const defaultByName = new Map(defaultStyles.map((d) => [d.name.trim().toLowerCase(), d]));
           const stylesToRender: Array<{ name: string; tagline: string; image_url: string; video_url: string }> =
             danceStyles && danceStyles.length > 0
-              ? danceStyles.map((s: any) => ({ name: s.name, tagline: s.tagline ?? "", image_url: s.image_url ?? "", video_url: s.video_url ?? "" }))
+              ? danceStyles.map((s: any) => {
+                  const fallback = defaultByName.get(String(s.name ?? "").trim().toLowerCase());
+                  return {
+                    name: s.name,
+                    tagline: s.tagline ?? "",
+                    image_url: s.image_url || fallback?.image_url || "",
+                    video_url: s.video_url || fallback?.video_url || "",
+                  };
+                })
               : defaultStyles;
           return (
             <>
