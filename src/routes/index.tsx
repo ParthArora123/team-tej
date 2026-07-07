@@ -22,6 +22,8 @@ import styleHipHopVid from "@/assets/style-hiphop.mp4.asset.json";
 import styleKathakVid from "@/assets/style-kathak.mp4.asset.json";
 import styleBollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
 import { MotionImage } from "@/components/site/MotionImage";
+import { StyleAnimation } from "@/components/site/StyleAnimation";
+
 
 const defaultStyles = [
   { name: "Fusion", tagline: "Our signature blend.", image_url: styleFusion, video_url: styleFusionVid.url },
