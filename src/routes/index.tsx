@@ -13,23 +13,18 @@ import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Fac
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
 // aboutImg no longer used on homepage after workshops teaser was replaced with dynamic grid
-import styleFusion from "@/assets/style-fusion.jpg";
-import styleHipHop from "@/assets/style-hiphop.jpg";
-import styleKathak from "@/assets/style-kathak.jpg";
-import styleBollywood from "@/assets/style-bollywood.jpg";
-import styleFusionVid from "@/assets/style-fusion.mp4.asset.json";
-import styleHipHopVid from "@/assets/style-hiphop.mp4.asset.json";
-import styleKathakVid from "@/assets/style-kathak.mp4.asset.json";
-import styleBollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
 import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
 
 
 const defaultStyles = [
-  { name: "Fusion", tagline: "Our signature blend.", image_url: styleFusion, video_url: styleFusionVid.url },
-  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", image_url: styleHipHop, video_url: styleHipHopVid.url },
-  { name: "Kathak", tagline: "Tatkar and storytelling.", image_url: styleKathak, video_url: styleKathakVid.url },
-  { name: "Bollywood", tagline: "Built for the camera.", image_url: styleBollywood, video_url: styleBollywoodVid.url },
+  { name: "Fusion", tagline: "Our signature blend." },
+  { name: "Hip-Hop", tagline: "Bounce, groove, attitude." },
+  { name: "Jazz", tagline: "Sharp lines, rhythm, and stage energy." },
+  { name: "Contemporary", tagline: "Fluid, expressive, lyrical movement." },
+  { name: "Semi-Classical", tagline: "Grace, mudras, and rooted expression." },
+  { name: "Kathak", tagline: "Tatkar and storytelling." },
+  { name: "Bollywood", tagline: "Built for the camera." },
 ];
 
 
@@ -479,27 +474,17 @@ function Index() {
         </div>
 
         {(() => {
-          // Only the four baseline styles (matched by exact name) use their
-          // shipped video/image. Every other admin-added style ALWAYS renders
-          // its own procedural StyleAnimation seeded by name — we ignore any
-          // uploaded media for custom styles because it can misrepresent the
-          // style. This guarantees each dance style shows a unique, correct
-          // default animation.
-          const defaultByName = new Map(defaultStyles.map((d) => [d.name.trim().toLowerCase(), d]));
-          type RenderStyle = { name: string; tagline: string; image_url: string; video_url: string; isBaseline: boolean };
+          // Every style card renders its own procedural dance animation seeded
+          // by the style name. No video/image index mapping is used here, so a
+          // custom upload or changed order cannot show the wrong style media.
+          type RenderStyle = { name: string; tagline: string };
           const stylesToRender: RenderStyle[] =
             danceStyles && danceStyles.length > 0
-              ? danceStyles.map((s: any) => {
-                  const exact = defaultByName.get(String(s.name ?? "").trim().toLowerCase());
-                  return {
-                    name: s.name,
-                    tagline: s.tagline ?? "",
-                    image_url: exact ? exact.image_url : "",
-                    video_url: exact ? exact.video_url : "",
-                    isBaseline: Boolean(exact),
-                  };
-                })
-              : defaultStyles.map((d) => ({ ...d, isBaseline: true }));
+              ? danceStyles.map((s: any) => ({
+                  name: String(s.name ?? "Dance Style").trim() || "Dance Style",
+                  tagline: s.tagline ?? "",
+                }))
+              : defaultStyles;
 
           return (
             <>
@@ -508,14 +493,7 @@ function Index() {
                 {stylesToRender.map((s) => (
                   <article key={s.name}
                     className="snap-start shrink-0 w-[78%] relative aspect-[4/5] rounded-2xl overflow-hidden border border-border group">
-                    {s.isBaseline && s.video_url ? (
-                      <video src={s.video_url} poster={s.image_url || undefined} autoPlay muted loop playsInline preload="metadata"
-                        className="absolute inset-0 h-full w-full object-cover" />
-                    ) : s.isBaseline && s.image_url ? (
-                      <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover" />
-                    ) : (
-                      <StyleAnimation name={s.name} />
-                    )}
+                    <StyleAnimation name={s.name} />
                     <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
                     <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_18s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
@@ -533,14 +511,7 @@ function Index() {
                 {stylesToRender.map((s) => (
                   <motion.article key={s.name} variants={item} whileHover={{ y: -6 }}
                     className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-border hover:border-primary transition-colors">
-                    {s.isBaseline && s.video_url ? (
-                      <video src={s.video_url} poster={s.image_url || undefined} autoPlay muted loop playsInline preload="metadata"
-                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    ) : s.isBaseline && s.image_url ? (
-                      <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    ) : (
-                      <StyleAnimation name={s.name} />
-                    )}
+                    <StyleAnimation name={s.name} />
                     <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
                     <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_22s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
