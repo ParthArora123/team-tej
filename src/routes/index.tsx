@@ -474,30 +474,20 @@ function Index() {
         </div>
 
         {(() => {
-          // Admin-managed styles are the source of truth. When none exist yet
-          // (fresh install), fall back to the built-in defaults so the section
-          // never renders empty.
-          type RenderStyle = { name: string; tagline: string; image_url?: string | null; video_url?: string | null };
+          // Always show the restored live dance animations first. Backend style
+          // names are merged only when they are truly custom, so variants like
+          // "Hip hop" do not hide the canonical Hip-Hop dancer video.
+          type RenderStyle = { name: string; tagline: string };
+          const normalizeStyleName = (value: string) => value.trim().toLowerCase().replace(/[–—_-]+/g, " ").replace(/\s+/g, " ");
           const backend: RenderStyle[] = (danceStyles ?? []).map((s: any) => ({
             name: String(s.name ?? "Dance Style").trim() || "Dance Style",
             tagline: s.tagline ?? "",
-            image_url: s.image_url ?? null,
-            video_url: s.video_url ?? null,
           }));
-          const stylesToRender: RenderStyle[] = backend.length > 0 ? backend : defaultStyles;
-
-          const StyleMedia = ({ s }: { s: RenderStyle }) => {
-            if (s.video_url) {
-              return (
-                <video src={s.video_url} poster={s.image_url ?? undefined} muted loop playsInline autoPlay
-                  className="absolute inset-0 h-full w-full object-cover" />
-              );
-            }
-            if (s.image_url) {
-              return <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover" />;
-            }
-            return <StyleAnimation name={s.name} />;
-          };
+          const seen = new Set(defaultStyles.map((s) => normalizeStyleName(s.name)));
+          const stylesToRender: RenderStyle[] = [
+            ...defaultStyles,
+            ...backend.filter((s) => !seen.has(normalizeStyleName(s.name))),
+          ];
 
           return (
             <>
@@ -506,7 +496,7 @@ function Index() {
                 {stylesToRender.map((s) => (
                   <article key={s.name}
                     className="snap-start shrink-0 w-[78%] relative aspect-[4/5] rounded-2xl overflow-hidden border border-border group">
-                    <StyleMedia s={s} />
+                    <StyleAnimation name={s.name} />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
                     <div className="absolute bottom-5 left-5 right-5 z-10">
                       <p className="font-display text-2xl font-bold">{s.name}</p>
@@ -522,7 +512,7 @@ function Index() {
                 {stylesToRender.map((s) => (
                   <motion.article key={s.name} variants={item} whileHover={{ y: -6 }}
                     className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-border hover:border-primary transition-colors">
-                    <StyleMedia s={s} />
+                    <StyleAnimation name={s.name} />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
                     <div className="absolute bottom-5 left-5 right-5 z-10">
                       <p className="font-display text-2xl font-bold">{s.name}</p>
@@ -534,7 +524,6 @@ function Index() {
             </>
           );
         })()}
-
 
       </section>
 
@@ -699,6 +688,7 @@ function countryToContinent(country: string): string | null {
     peru: "South America",
     "south africa": "Africa", nigeria: "Africa", kenya: "Africa", egypt: "Africa", morocco: "Africa",
     ghana: "Africa", tanzania: "Africa", uganda: "Africa", mauritius: "Africa",
+    australia: "Oceania", "new zealand": "Oceania", fiji: "Oceania",
   };
   return map[c] ?? null;
 }
