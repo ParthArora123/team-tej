@@ -699,10 +699,6 @@ function countryToContinent(country: string): string | null {
     peru: "South America",
     "south africa": "Africa", nigeria: "Africa", kenya: "Africa", egypt: "Africa", morocco: "Africa",
     ghana: "Africa", tanzania: "Africa", uganda: "Africa", mauritius: "Africa",
-    australia: "Australia/Oceania", "new zealand": "Australia/Oceania", fiji: "Australia/Oceania",
-    "papua new guinea": "Australia/Oceania", samoa: "Australia/Oceania", tonga: "Australia/Oceania",
-    antarctica: "Antarctica",
-
   };
   return map[c] ?? null;
 }
