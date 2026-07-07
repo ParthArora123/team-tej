@@ -22,6 +22,8 @@ import styleHipHopVid from "@/assets/style-hiphop.mp4.asset.json";
 import styleKathakVid from "@/assets/style-kathak.mp4.asset.json";
 import styleBollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
 import { MotionImage } from "@/components/site/MotionImage";
+import { StyleAnimation } from "@/components/site/StyleAnimation";
+
 
 const defaultStyles = [
   { name: "Fusion", tagline: "Our signature blend.", image_url: styleFusion, video_url: styleFusionVid.url },
@@ -477,36 +479,25 @@ function Index() {
         </div>
 
         {(() => {
-          // Map admin-entered style names to a known default animation by keyword.
-          // Only styles we actually ship assets for get a video fallback — everything
-          // else shows the animated overlay placeholder (never the wrong style's video).
-          const styleAliases: Array<{ match: RegExp; key: string }> = [
-            { match: /bollywood|filmy/i, key: "Bollywood" },
-            { match: /hip[\s-]?hop|street|krump|popping|locking|jazz|funk|hype/i, key: "Hip-Hop" },
-            { match: /semi[\s-]?classical|kathak|classical|bharat|odissi|folk/i, key: "Kathak" },
-            { match: /contemporary|lyrical|fusion|modern|expressive/i, key: "Fusion" },
-          ];
-
-
+          // Each style must show its OWN animation. We only reuse a shipped
+          // video when the admin-entered name EXACTLY matches one of the four
+          // baseline assets. Everything else renders a unique procedural
+          // StyleAnimation seeded by its name.
           const defaultByName = new Map(defaultStyles.map((d) => [d.name.trim().toLowerCase(), d]));
-          const resolveFallback = (name: string) => {
-            const exact = defaultByName.get(name.trim().toLowerCase());
-            if (exact) return exact;
-            const alias = styleAliases.find((a) => a.match.test(name));
-            return alias ? defaultByName.get(alias.key.toLowerCase()) : undefined;
-          };
           const stylesToRender: Array<{ name: string; tagline: string; image_url: string; video_url: string }> =
             danceStyles && danceStyles.length > 0
               ? danceStyles.map((s: any) => {
-                  const fallback = resolveFallback(String(s.name ?? ""));
+                  const exact = defaultByName.get(String(s.name ?? "").trim().toLowerCase());
+                  const hasOwnMedia = Boolean(s.video_url || s.image_url);
                   return {
                     name: s.name,
                     tagline: s.tagline ?? "",
-                    image_url: s.image_url || fallback?.image_url || "",
-                    video_url: s.video_url || fallback?.video_url || "",
+                    image_url: s.image_url || (!hasOwnMedia && exact ? exact.image_url : ""),
+                    video_url: s.video_url || (!hasOwnMedia && exact ? exact.video_url : ""),
                   };
                 })
               : defaultStyles;
+
           return (
             <>
               {/* Mobile: snap carousel */}
@@ -519,7 +510,9 @@ function Index() {
                         className="absolute inset-0 h-full w-full object-cover" />
                     ) : s.image_url ? (
                       <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover" />
-                    ) : null}
+                    ) : (
+                      <StyleAnimation name={s.name} />
+                    )}
                     <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
                     <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_18s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
@@ -542,7 +535,9 @@ function Index() {
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     ) : s.image_url ? (
                       <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    ) : null}
+                    ) : (
+                      <StyleAnimation name={s.name} />
+                    )}
                     <div className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-60" style={{ background: "radial-gradient(60% 60% at 30% 40%, hsl(var(--primary)/0.35), transparent 60%)" }} />
                     <div className="pointer-events-none absolute -top-1/2 -left-1/2 h-[200%] w-[200%] mix-blend-overlay opacity-40 animate-[spin_22s_linear_infinite]" style={{ background: "conic-gradient(from 0deg, transparent 60%, rgba(255,255,255,0.15) 75%, transparent 90%)" }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
