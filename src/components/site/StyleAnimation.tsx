@@ -231,7 +231,7 @@ export function StyleAnimation({ name }: { name: string }) {
           autoPlay
           loop
           muted
-          defaultMuted
+          muted
           playsInline
           preload="auto"
           aria-label={`${name} dancer video`}
