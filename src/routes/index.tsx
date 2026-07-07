@@ -482,10 +482,11 @@ function Index() {
           // else shows the animated overlay placeholder (never the wrong style's video).
           const styleAliases: Array<{ match: RegExp; key: string }> = [
             { match: /bollywood|filmy/i, key: "Bollywood" },
-            { match: /hip[\s-]?hop|street|krump|popping|locking/i, key: "Hip-Hop" },
-            { match: /kathak|semi[\s-]?classical|classical|bharat|odissi|folk/i, key: "Kathak" },
-            { match: /fusion|contemporary|lyrical|jazz|modern/i, key: "Fusion" },
+            { match: /hip[\s-]?hop|street|krump|popping|locking|jazz|funk/i, key: "Hip-Hop" },
+            { match: /kathak|semi[\s-]?classical|classical|bharat|odissi|folk|contemporary|lyrical/i, key: "Kathak" },
+            { match: /fusion|modern/i, key: "Fusion" },
           ];
+
           const defaultByName = new Map(defaultStyles.map((d) => [d.name.trim().toLowerCase(), d]));
           const resolveFallback = (name: string) => {
             const exact = defaultByName.get(name.trim().toLowerCase());
