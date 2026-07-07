@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { useState } from "react";
 
 type DanceVariant = "semiClassical" | "hipHop" | "jazz" | "contemporary" | "fusion" | "bollywood" | "kathak";
 
@@ -52,6 +53,16 @@ function getConfig(name: string) {
     accent: (hash + 96) % 360,
   };
 }
+
+const LIVE_DANCE_VIDEOS: Record<DanceVariant, string> = {
+  semiClassical: "/__l5e/assets-v1/ad716622-8b8b-47fa-9d88-66f217fc7efe/style-kathak.mp4",
+  hipHop: "/__l5e/assets-v1/cad6d097-4f59-459d-b19c-8db9e0eed26d/style-hiphop.mp4",
+  jazz: "/__l5e/assets-v1/95e01660-cb8d-46b7-9d5c-8e8a46589f28/style-fusion.mp4",
+  contemporary: "/__l5e/assets-v1/95e01660-cb8d-46b7-9d5c-8e8a46589f28/style-fusion.mp4",
+  fusion: "/__l5e/assets-v1/95e01660-cb8d-46b7-9d5c-8e8a46589f28/style-fusion.mp4",
+  bollywood: "/__l5e/assets-v1/aa2890bd-6731-4850-be7e-6aabfc1b504d/style-bollywood.mp4",
+  kathak: "/__l5e/assets-v1/ad716622-8b8b-47fa-9d88-66f217fc7efe/style-kathak.mp4",
+};
 
 function DancerFigure({ variant, primary, accent }: { variant: DanceVariant; primary: string; accent: string }) {
   const bodyMotion = {
@@ -182,8 +193,10 @@ function DanceMotionLines({ variant, primary, accent }: { variant: DanceVariant;
 
 export function StyleAnimation({ name }: { name: string }) {
   const { variant, hue, accent } = getConfig(name);
+  const [videoFailed, setVideoFailed] = useState(false);
   const primary = `hsl(${hue} 88% 58%)`;
   const secondary = `hsl(${accent} 88% 58%)`;
+  const videoSrc = LIVE_DANCE_VIDEOS[variant];
 
   return (
     <div
@@ -192,14 +205,28 @@ export function StyleAnimation({ name }: { name: string }) {
         background:
           "linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)",
       }}
-      aria-label={`${name} dance animation`}
+      aria-label={`${name} live dance animation`}
     >
+      <DanceMotionLines variant={variant} primary={primary} accent={secondary} />
+      <DancerFigure variant={variant} primary={primary} accent={secondary} />
+      {videoSrc && !videoFailed && (
+        <video
+          className="absolute inset-0 h-full w-full object-cover saturate-110 contrast-110"
+          src={videoSrc}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          aria-label={`${name} dancer video`}
+          onError={() => setVideoFailed(true)}
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-background/10" />
       <div
         className="absolute inset-x-6 bottom-8 h-10 rounded-[50%] blur-md"
         style={{ background: `linear-gradient(90deg, transparent, ${primary}, ${secondary}, transparent)`, opacity: 0.28 }}
       />
-      <DanceMotionLines variant={variant} primary={primary} accent={secondary} />
-      <DancerFigure variant={variant} primary={primary} accent={secondary} />
       <motion.div
         className="absolute inset-x-8 bottom-9 h-px"
         style={{ background: `linear-gradient(90deg, transparent, ${secondary}, transparent)` }}
