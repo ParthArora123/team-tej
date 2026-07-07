@@ -25,16 +25,18 @@ async function fileToBase64(file: File): Promise<string> {
   });
 }
 
-function ImageUploader({ bucket, value, previewUrl, onChange }:
-  { bucket: Bucket; value: string; previewUrl?: string | null; onChange: (ref: string, preview: string | null) => void }) {
+function ImageUploader({ bucket, value, previewUrl, onChange, maxMb }:
+  { bucket: Bucket; value: string; previewUrl?: string | null; onChange: (ref: string, preview: string | null) => void; maxMb?: number }) {
   const upload = useServerFn(adminUploadCmsImage);
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const limit = maxMb ?? 8;
 
   const pick = async (file: File) => {
     if (!/^image\/(png|jpe?g|webp|gif)$/.test(file.type)) return toast.error("Only JPG/PNG/WebP/GIF");
-    if (file.size > 8 * 1024 * 1024) return toast.error("Max 8 MB");
+    if (file.size > limit * 1024 * 1024) return toast.error(`Max ${limit} MB`);
     setBusy(true);
+
     try {
       const dataBase64 = await fileToBase64(file);
       const res = await upload({ data: { bucket, filename: file.name, contentType: file.type, dataBase64 } });
@@ -93,7 +95,7 @@ export function HeroSlidesTab() {
     <div className="mt-8 space-y-8">
       <form onSubmit={submit} className="p-5 rounded-2xl border border-border bg-card space-y-3">
         <p className="font-display text-lg">{f.id ? "Edit slide" : "Add hero slide"}</p>
-        <ImageUploader bucket="hero-images" value={f.image_url} previewUrl={f.preview}
+        <ImageUploader bucket="hero-images" value={f.image_url} previewUrl={f.preview} maxMb={500}
           onChange={(ref, preview) => setF({ ...f, image_url: ref, preview })} />
         <div className="grid sm:grid-cols-2 gap-3">
           <input value={f.alt ?? ""} onChange={(e) => setF({ ...f, alt: e.target.value })}
