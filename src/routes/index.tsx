@@ -13,23 +13,18 @@ import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Fac
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
 // aboutImg no longer used on homepage after workshops teaser was replaced with dynamic grid
-import styleFusion from "@/assets/style-fusion.jpg";
-import styleHipHop from "@/assets/style-hiphop.jpg";
-import styleKathak from "@/assets/style-kathak.jpg";
-import styleBollywood from "@/assets/style-bollywood.jpg";
-import styleFusionVid from "@/assets/style-fusion.mp4.asset.json";
-import styleHipHopVid from "@/assets/style-hiphop.mp4.asset.json";
-import styleKathakVid from "@/assets/style-kathak.mp4.asset.json";
-import styleBollywoodVid from "@/assets/style-bollywood.mp4.asset.json";
 import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
 
 
 const defaultStyles = [
-  { name: "Fusion", tagline: "Our signature blend.", image_url: styleFusion, video_url: styleFusionVid.url },
-  { name: "Hip-Hop", tagline: "Bounce, groove, attitude.", image_url: styleHipHop, video_url: styleHipHopVid.url },
-  { name: "Kathak", tagline: "Tatkar and storytelling.", image_url: styleKathak, video_url: styleKathakVid.url },
-  { name: "Bollywood", tagline: "Built for the camera.", image_url: styleBollywood, video_url: styleBollywoodVid.url },
+  { name: "Fusion", tagline: "Our signature blend." },
+  { name: "Hip-Hop", tagline: "Bounce, groove, attitude." },
+  { name: "Jazz", tagline: "Sharp lines, rhythm, and stage energy." },
+  { name: "Contemporary", tagline: "Fluid, expressive, lyrical movement." },
+  { name: "Semi-Classical", tagline: "Grace, mudras, and rooted expression." },
+  { name: "Kathak", tagline: "Tatkar and storytelling." },
+  { name: "Bollywood", tagline: "Built for the camera." },
 ];
 
 
