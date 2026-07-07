@@ -477,13 +477,26 @@ function Index() {
         </div>
 
         {(() => {
+          // Map admin-entered style names to a known default animation by keyword.
+          // Only styles we actually ship assets for get a video fallback — everything
+          // else shows the animated overlay placeholder (never the wrong style's video).
+          const styleAliases: Array<{ match: RegExp; key: string }> = [
+            { match: /bollywood|filmy/i, key: "Bollywood" },
+            { match: /hip[\s-]?hop|street|krump|popping|locking/i, key: "Hip-Hop" },
+            { match: /kathak|semi[\s-]?classical|classical|bharat|odissi|folk/i, key: "Kathak" },
+            { match: /fusion|contemporary|lyrical|jazz|modern/i, key: "Fusion" },
+          ];
           const defaultByName = new Map(defaultStyles.map((d) => [d.name.trim().toLowerCase(), d]));
+          const resolveFallback = (name: string) => {
+            const exact = defaultByName.get(name.trim().toLowerCase());
+            if (exact) return exact;
+            const alias = styleAliases.find((a) => a.match.test(name));
+            return alias ? defaultByName.get(alias.key.toLowerCase()) : undefined;
+          };
           const stylesToRender: Array<{ name: string; tagline: string; image_url: string; video_url: string }> =
             danceStyles && danceStyles.length > 0
-              ? danceStyles.map((s: any, i: number) => {
-                  const fallback =
-                    defaultByName.get(String(s.name ?? "").trim().toLowerCase()) ??
-                    defaultStyles[i % defaultStyles.length];
+              ? danceStyles.map((s: any) => {
+                  const fallback = resolveFallback(String(s.name ?? ""));
                   return {
                     name: s.name,
                     tagline: s.tagline ?? "",
