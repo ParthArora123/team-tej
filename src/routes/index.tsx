@@ -475,16 +475,21 @@ function Index() {
 
         {(() => {
           // Every style card renders its own procedural dance animation seeded
-          // by the style name. No video/image index mapping is used here, so a
-          // custom upload or changed order cannot show the wrong style media.
+          // by the style name. We always render the full default set (Fusion,
+          // Hip-Hop, Jazz, Contemporary, Semi-Classical, Kathak, Bollywood)
+          // so each dance style shows its own unique dance animation. Any
+          // backend-supplied styles are merged in front (de-duplicated by
+          // name) so custom entries appear without hiding the rest.
           type RenderStyle = { name: string; tagline: string };
-          const stylesToRender: RenderStyle[] =
-            danceStyles && danceStyles.length > 0
-              ? danceStyles.map((s: any) => ({
-                  name: String(s.name ?? "Dance Style").trim() || "Dance Style",
-                  tagline: s.tagline ?? "",
-                }))
-              : defaultStyles;
+          const backend: RenderStyle[] = (danceStyles ?? []).map((s: any) => ({
+            name: String(s.name ?? "Dance Style").trim() || "Dance Style",
+            tagline: s.tagline ?? "",
+          }));
+          const seen = new Set(backend.map((s) => s.name.toLowerCase()));
+          const stylesToRender: RenderStyle[] = [
+            ...backend,
+            ...defaultStyles.filter((s) => !seen.has(s.name.toLowerCase())),
+          ];
 
           return (
             <>
