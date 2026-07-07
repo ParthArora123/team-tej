@@ -479,24 +479,27 @@ function Index() {
         </div>
 
         {(() => {
-          // Each style must show its OWN animation. We only reuse a shipped
-          // video when the admin-entered name EXACTLY matches one of the four
-          // baseline assets. Everything else renders a unique procedural
-          // StyleAnimation seeded by its name.
+          // Only the four baseline styles (matched by exact name) use their
+          // shipped video/image. Every other admin-added style ALWAYS renders
+          // its own procedural StyleAnimation seeded by name — we ignore any
+          // uploaded media for custom styles because it can misrepresent the
+          // style. This guarantees each dance style shows a unique, correct
+          // default animation.
           const defaultByName = new Map(defaultStyles.map((d) => [d.name.trim().toLowerCase(), d]));
-          const stylesToRender: Array<{ name: string; tagline: string; image_url: string; video_url: string }> =
+          type RenderStyle = { name: string; tagline: string; image_url: string; video_url: string; isBaseline: boolean };
+          const stylesToRender: RenderStyle[] =
             danceStyles && danceStyles.length > 0
               ? danceStyles.map((s: any) => {
                   const exact = defaultByName.get(String(s.name ?? "").trim().toLowerCase());
-                  const hasOwnMedia = Boolean(s.video_url || s.image_url);
                   return {
                     name: s.name,
                     tagline: s.tagline ?? "",
-                    image_url: s.image_url || (!hasOwnMedia && exact ? exact.image_url : ""),
-                    video_url: s.video_url || (!hasOwnMedia && exact ? exact.video_url : ""),
+                    image_url: exact ? exact.image_url : "",
+                    video_url: exact ? exact.video_url : "",
+                    isBaseline: Boolean(exact),
                   };
                 })
-              : defaultStyles;
+              : defaultStyles.map((d) => ({ ...d, isBaseline: true }));
 
           return (
             <>
@@ -505,10 +508,10 @@ function Index() {
                 {stylesToRender.map((s) => (
                   <article key={s.name}
                     className="snap-start shrink-0 w-[78%] relative aspect-[4/5] rounded-2xl overflow-hidden border border-border group">
-                    {s.video_url ? (
+                    {s.isBaseline && s.video_url ? (
                       <video src={s.video_url} poster={s.image_url || undefined} autoPlay muted loop playsInline preload="metadata"
                         className="absolute inset-0 h-full w-full object-cover" />
-                    ) : s.image_url ? (
+                    ) : s.isBaseline && s.image_url ? (
                       <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover" />
                     ) : (
                       <StyleAnimation name={s.name} />
@@ -530,10 +533,10 @@ function Index() {
                 {stylesToRender.map((s) => (
                   <motion.article key={s.name} variants={item} whileHover={{ y: -6 }}
                     className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-border hover:border-primary transition-colors">
-                    {s.video_url ? (
+                    {s.isBaseline && s.video_url ? (
                       <video src={s.video_url} poster={s.image_url || undefined} autoPlay muted loop playsInline preload="metadata"
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    ) : s.image_url ? (
+                    ) : s.isBaseline && s.image_url ? (
                       <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     ) : (
                       <StyleAnimation name={s.name} />
@@ -551,6 +554,7 @@ function Index() {
             </>
           );
         })()}
+
       </section>
 
 
