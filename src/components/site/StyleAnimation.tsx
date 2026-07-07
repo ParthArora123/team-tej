@@ -198,9 +198,19 @@ function DanceMotionLines({ variant, primary, accent }: { variant: DanceVariant;
 export function StyleAnimation({ name }: { name: string }) {
   const { variant, hue, accent } = getConfig(name);
   const [videoFailed, setVideoFailed] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const primary = `hsl(${hue} 88% 58%)`;
   const secondary = `hsl(${accent} 88% 58%)`;
   const videoSrc = LIVE_DANCE_VIDEOS[variant];
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !videoSrc) return;
+    const tryPlay = () => v.play().catch(() => {});
+    tryPlay();
+    v.addEventListener("canplay", tryPlay);
+    return () => v.removeEventListener("canplay", tryPlay);
+  }, [videoSrc]);
 
   return (
     <div
