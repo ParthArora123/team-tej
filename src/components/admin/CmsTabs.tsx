@@ -25,16 +25,18 @@ async function fileToBase64(file: File): Promise<string> {
   });
 }
 
-function ImageUploader({ bucket, value, previewUrl, onChange }:
-  { bucket: Bucket; value: string; previewUrl?: string | null; onChange: (ref: string, preview: string | null) => void }) {
+function ImageUploader({ bucket, value, previewUrl, onChange, maxMb }:
+  { bucket: Bucket; value: string; previewUrl?: string | null; onChange: (ref: string, preview: string | null) => void; maxMb?: number }) {
   const upload = useServerFn(adminUploadCmsImage);
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
+  const limit = maxMb ?? 8;
 
   const pick = async (file: File) => {
     if (!/^image\/(png|jpe?g|webp|gif)$/.test(file.type)) return toast.error("Only JPG/PNG/WebP/GIF");
-    if (file.size > 8 * 1024 * 1024) return toast.error("Max 8 MB");
+    if (file.size > limit * 1024 * 1024) return toast.error(`Max ${limit} MB`);
     setBusy(true);
+
     try {
       const dataBase64 = await fileToBase64(file);
       const res = await upload({ data: { bucket, filename: file.name, contentType: file.type, dataBase64 } });
