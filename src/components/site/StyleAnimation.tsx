@@ -1,5 +1,9 @@
 import { motion } from "motion/react";
 import { useState } from "react";
+import bollywoodVideo from "@/assets/style-bollywood.webm";
+import fusionVideo from "@/assets/style-fusion.webm";
+import hipHopVideo from "@/assets/style-hiphop.webm";
+import kathakVideo from "@/assets/style-kathak.webm";
 
 type DanceVariant = "semiClassical" | "hipHop" | "jazz" | "contemporary" | "fusion" | "bollywood" | "kathak";
 
@@ -55,13 +59,13 @@ function getConfig(name: string) {
 }
 
 const LIVE_DANCE_VIDEOS: Record<DanceVariant, string> = {
-  semiClassical: "/__l5e/assets-v1/ad716622-8b8b-47fa-9d88-66f217fc7efe/style-kathak.mp4",
-  hipHop: "/__l5e/assets-v1/cad6d097-4f59-459d-b19c-8db9e0eed26d/style-hiphop.mp4",
-  jazz: "/__l5e/assets-v1/95e01660-cb8d-46b7-9d5c-8e8a46589f28/style-fusion.mp4",
-  contemporary: "/__l5e/assets-v1/95e01660-cb8d-46b7-9d5c-8e8a46589f28/style-fusion.mp4",
-  fusion: "/__l5e/assets-v1/95e01660-cb8d-46b7-9d5c-8e8a46589f28/style-fusion.mp4",
-  bollywood: "/__l5e/assets-v1/aa2890bd-6731-4850-be7e-6aabfc1b504d/style-bollywood.mp4",
-  kathak: "/__l5e/assets-v1/ad716622-8b8b-47fa-9d88-66f217fc7efe/style-kathak.mp4",
+  semiClassical: kathakVideo,
+  hipHop: hipHopVideo,
+  jazz: fusionVideo,
+  contemporary: fusionVideo,
+  fusion: fusionVideo,
+  bollywood: bollywoodVideo,
+  kathak: kathakVideo,
 };
 
 function DancerFigure({ variant, primary, accent }: { variant: DanceVariant; primary: string; accent: string }) {
