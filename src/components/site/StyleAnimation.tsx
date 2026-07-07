@@ -15,6 +15,11 @@ const VARIANTS: Variant[] = ["waves", "orbits", "ribbons", "pulse", "shards", "a
 
 // Curated overrides so common style names always get a fitting vibe.
 const OVERRIDES: Record<string, { variant: Variant; hue: number; hue2: number }> = {
+  "bollywood": { variant: "aurora", hue: 345, hue2: 48 },
+  "hip-hop": { variant: "pulse", hue: 155, hue2: 205 },
+  "hip hop": { variant: "pulse", hue: 155, hue2: 205 },
+  "kathak": { variant: "orbits", hue: 28, hue2: 335 },
+  "fusion": { variant: "waves", hue: 310, hue2: 175 },
   "semi-classical": { variant: "orbits", hue: 32, hue2: 350 }, // amber / rose — temple gold
   "semi classical": { variant: "orbits", hue: 32, hue2: 350 },
   "contemporary": { variant: "ribbons", hue: 200, hue2: 280 }, // cool blue → violet, lyrical flow
