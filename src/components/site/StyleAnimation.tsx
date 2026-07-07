@@ -150,8 +150,8 @@ function DancerFigure({ variant, primary, accent }: { variant: DanceVariant; pri
   );
 }
 
-function MovementTrails({ variant, primary, accent }: { variant: DanceVariant; primary: string; accent: string }) {
-  const trails = {
+function DanceMotionLines({ variant, primary, accent }: { variant: DanceVariant; primary: string; accent: string }) {
+  const motionLines = {
     semiClassical: ["M48 58 C72 38, 128 38, 152 58", "M54 211 C78 226, 122 226, 146 211"],
     hipHop: ["M42 108 L78 108", "M122 72 L166 72", "M46 172 L84 172"],
     jazz: ["M34 155 C78 128, 116 98, 166 58", "M52 220 C94 202, 132 198, 170 210"],
@@ -163,7 +163,7 @@ function MovementTrails({ variant, primary, accent }: { variant: DanceVariant; p
 
   return (
     <svg className="absolute inset-0 h-full w-full" viewBox="0 0 200 250" preserveAspectRatio="none">
-      {trails.map((d, index) => (
+      {motionLines.map((d, index) => (
         <motion.path
           key={d}
           d={d}
@@ -198,7 +198,7 @@ export function StyleAnimation({ name }: { name: string }) {
         className="absolute inset-x-6 bottom-8 h-10 rounded-[50%] blur-md"
         style={{ background: `linear-gradient(90deg, transparent, ${primary}, ${secondary}, transparent)`, opacity: 0.28 }}
       />
-      <MovementTrails variant={variant} primary={primary} accent={secondary} />
+      <DanceMotionLines variant={variant} primary={primary} accent={secondary} />
       <DancerFigure variant={variant} primary={primary} accent={secondary} />
       <motion.div
         className="absolute inset-x-8 bottom-9 h-px"
