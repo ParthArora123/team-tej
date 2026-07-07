@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import bollywoodVideo from "@/assets/style-bollywood.webm";
 import fusionVideo from "@/assets/style-fusion.webm";
 import hipHopVideo from "@/assets/style-hiphop.webm";
@@ -198,9 +198,19 @@ function DanceMotionLines({ variant, primary, accent }: { variant: DanceVariant;
 export function StyleAnimation({ name }: { name: string }) {
   const { variant, hue, accent } = getConfig(name);
   const [videoFailed, setVideoFailed] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const primary = `hsl(${hue} 88% 58%)`;
   const secondary = `hsl(${accent} 88% 58%)`;
   const videoSrc = LIVE_DANCE_VIDEOS[variant];
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !videoSrc) return;
+    const tryPlay = () => v.play().catch(() => {});
+    tryPlay();
+    v.addEventListener("canplay", tryPlay);
+    return () => v.removeEventListener("canplay", tryPlay);
+  }, [videoSrc]);
 
   return (
     <div
@@ -215,13 +225,14 @@ export function StyleAnimation({ name }: { name: string }) {
       <DancerFigure variant={variant} primary={primary} accent={secondary} />
       {videoSrc && !videoFailed && (
         <video
+          ref={videoRef}
           className="absolute inset-0 h-full w-full object-cover saturate-110 contrast-110"
           src={videoSrc}
           autoPlay
           loop
           muted
           playsInline
-          preload="metadata"
+          preload="auto"
           aria-label={`${name} dancer video`}
           onError={() => setVideoFailed(true)}
         />
