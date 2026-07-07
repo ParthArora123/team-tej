@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import bollywoodVideo from "@/assets/style-bollywood.webm";
 import fusionVideo from "@/assets/style-fusion.webm";
 import hipHopVideo from "@/assets/style-hiphop.webm";
