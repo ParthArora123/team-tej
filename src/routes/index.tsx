@@ -477,36 +477,25 @@ function Index() {
         </div>
 
         {(() => {
-          // Map admin-entered style names to a known default animation by keyword.
-          // Only styles we actually ship assets for get a video fallback — everything
-          // else shows the animated overlay placeholder (never the wrong style's video).
-          const styleAliases: Array<{ match: RegExp; key: string }> = [
-            { match: /bollywood|filmy/i, key: "Bollywood" },
-            { match: /hip[\s-]?hop|street|krump|popping|locking|jazz|funk|hype/i, key: "Hip-Hop" },
-            { match: /semi[\s-]?classical|kathak|classical|bharat|odissi|folk/i, key: "Kathak" },
-            { match: /contemporary|lyrical|fusion|modern|expressive/i, key: "Fusion" },
-          ];
-
-
+          // Each style must show its OWN animation. We only reuse a shipped
+          // video when the admin-entered name EXACTLY matches one of the four
+          // baseline assets. Everything else renders a unique procedural
+          // StyleAnimation seeded by its name.
           const defaultByName = new Map(defaultStyles.map((d) => [d.name.trim().toLowerCase(), d]));
-          const resolveFallback = (name: string) => {
-            const exact = defaultByName.get(name.trim().toLowerCase());
-            if (exact) return exact;
-            const alias = styleAliases.find((a) => a.match.test(name));
-            return alias ? defaultByName.get(alias.key.toLowerCase()) : undefined;
-          };
           const stylesToRender: Array<{ name: string; tagline: string; image_url: string; video_url: string }> =
             danceStyles && danceStyles.length > 0
               ? danceStyles.map((s: any) => {
-                  const fallback = resolveFallback(String(s.name ?? ""));
+                  const exact = defaultByName.get(String(s.name ?? "").trim().toLowerCase());
+                  const hasOwnMedia = Boolean(s.video_url || s.image_url);
                   return {
                     name: s.name,
                     tagline: s.tagline ?? "",
-                    image_url: s.image_url || fallback?.image_url || "",
-                    video_url: s.video_url || fallback?.video_url || "",
+                    image_url: s.image_url || (!hasOwnMedia && exact ? exact.image_url : ""),
+                    video_url: s.video_url || (!hasOwnMedia && exact ? exact.video_url : ""),
                   };
                 })
               : defaultStyles;
+
           return (
             <>
               {/* Mobile: snap carousel */}
