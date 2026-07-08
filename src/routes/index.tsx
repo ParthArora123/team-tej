@@ -31,15 +31,97 @@ const defaultStyles = [
 
 const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
 
-function HeroMedia({ src, alt, className }: { src?: string | null; alt?: string; className?: string }) {
+function HeroMedia({
+  src,
+  alt,
+  className,
+  priority = false,
+  onLoad,
+}: {
+  src?: string | null;
+  alt?: string;
+  className?: string;
+  priority?: boolean;
+  onLoad?: () => void;
+}) {
   if (!src) return null;
   if (isVideoUrl(src)) {
     return (
-      <video src={src} autoPlay muted loop playsInline preload="metadata"
+      <video src={src} autoPlay muted loop playsInline preload={priority ? "auto" : "metadata"} onLoadedData={onLoad}
         className={className} />
     );
   }
-  return <img src={src} alt={alt ?? ""} className={className} loading="eager" />;
+  return <img src={src} alt={alt ?? ""} className={className} loading={priority ? "eager" : "lazy"} decoding="async" fetchPriority={priority ? "high" : "auto"} onLoad={onLoad} />;
+}
+
+function HeroSlideMedia({
+  src,
+  alt,
+  priority = false,
+}: {
+  src?: string | null;
+  alt?: string;
+  priority?: boolean;
+}) {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(false);
+    if (!src || isVideoUrl(src)) return;
+
+    let cancelled = false;
+    const img = new Image();
+    img.src = src;
+    const markReady = () => {
+      if (!cancelled) setIsReady(true);
+    };
+
+    if (img.complete) {
+      markReady();
+    } else if (img.decode) {
+      img.decode().then(markReady).catch(markReady);
+    } else {
+      img.onload = markReady;
+      img.onerror = markReady;
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [src]);
+
+  if (!src) return null;
+
+  if (isVideoUrl(src)) {
+    return (
+      <HeroMedia
+        src={src}
+        alt={alt}
+        priority={priority}
+        onLoad={() => setIsReady(true)}
+        className={`absolute inset-0 h-full w-full object-contain bg-background transition-opacity duration-500 ${isReady ? "opacity-100" : "opacity-0"}`}
+      />
+    );
+  }
+
+  return (
+    <>
+      <div className={`absolute inset-0 bg-muted transition-opacity duration-300 ${isReady ? "opacity-0" : "opacity-100"}`} />
+      <HeroMedia
+        src={src}
+        alt=""
+        priority={priority}
+        className={`absolute inset-0 h-full w-full object-cover scale-110 blur-2xl transition-opacity duration-500 ${isReady ? "opacity-60" : "opacity-0"}`}
+      />
+      <HeroMedia
+        src={src}
+        alt={alt}
+        priority={priority}
+        onLoad={() => setIsReady(true)}
+        className={`relative z-10 h-full w-full object-contain transition-opacity duration-500 ${isReady ? "opacity-100" : "opacity-0"}`}
+      />
+    </>
+  );
 }
 
 function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
