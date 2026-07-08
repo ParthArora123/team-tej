@@ -12,6 +12,7 @@ import {
   adminUploadChoreographyMedia, adminCreateChoreographyUploadUrl,
 } from "@/lib/choreographies.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImageFile } from "@/lib/compress-image";
 
 
 async function fileToBase64(file: File): Promise<string> {
