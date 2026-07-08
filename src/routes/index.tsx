@@ -15,6 +15,8 @@ import classesImg from "@/assets/classes.jpg";
 // aboutImg no longer used on homepage after workshops teaser was replaced with dynamic grid
 import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
+import { MagneticButton } from "@/components/site/MagneticButton";
+import { TiltCard } from "@/components/site/TiltCard";
 
 
 const defaultStyles = [
