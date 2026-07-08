@@ -13,19 +13,24 @@ function pub() {
 
 // Public reads go through the `programs_public` view, which excludes upi_id_encrypted.
 const PUBLIC_COLS =
-  "id,kind,name,description,banner_url,banner_path,event_date,event_time,venue,city,instructor,duration,capacity,seats_taken,price_inr,registration_open_on,category,style,published,silver_seat_enabled,silver_seat_price,bank_account_holder,created_at";
+  "id,kind,name,description,banner_url,banner_path,banner_video_path,banner_gif_path,event_date,event_time,venue,city,instructor,duration,capacity,seats_taken,price_inr,registration_open_on,category,style,published,silver_seat_enabled,silver_seat_price,bank_account_holder,created_at";
 
-const BANNER_BUCKET = "workshop-images";
 const BANNER_TTL = 60 * 60 * 24 * 7; // 7 days
+
+async function signBucketPath(bucket: string, key: string | null | undefined) {
+  if (!key) return null;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(key, BANNER_TTL);
+  return data?.signedUrl ?? null;
+}
 
 async function decorateBanners(rows: any[]): Promise<any[]> {
   if (!rows?.length) return rows ?? [];
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return Promise.all(rows.map(async (r: any) => {
-    if (r.banner_url) return r;
-    if (!r.banner_path) return r;
-    const { data } = await supabaseAdmin.storage.from(BANNER_BUCKET).createSignedUrl(r.banner_path, BANNER_TTL);
-    return { ...r, banner_url: data?.signedUrl ?? null };
+    const banner_url = r.banner_url || await signBucketPath("workshop-images", r.banner_path);
+    const banner_video_url = await signBucketPath("workshop-videos", r.banner_video_path);
+    const banner_gif_url = await signBucketPath("workshop-images", r.banner_gif_path);
+    return { ...r, banner_url, banner_video_url, banner_gif_url };
   }));
 }
 

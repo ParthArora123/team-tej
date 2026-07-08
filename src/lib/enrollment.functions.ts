@@ -421,6 +421,8 @@ const workshopSchema = z.object({
   description: z.string().optional(),
   banner_url: z.string().url().optional().or(z.literal("")),
   banner_path: z.string().max(500).optional().or(z.literal("")),
+  banner_video_path: z.string().max(500).optional().or(z.literal("")).nullable(),
+  banner_gif_path: z.string().max(500).optional().or(z.literal("")).nullable(),
   event_date: z.string().optional(),
   event_time: z.string().optional(),
   venue: z.string().optional(),
@@ -452,6 +454,8 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       ...rest,
       banner_url: rest.banner_url || null,
       banner_path: rest.banner_path || null,
+      banner_video_path: rest.banner_video_path || null,
+      banner_gif_path: rest.banner_gif_path || null,
       event_date: rest.event_date || null,
       registration_open_on: rest.registration_open_on || null,
       silver_seat_enabled: !!rest.silver_seat_enabled,
@@ -540,7 +544,17 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
         const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_path, 60 * 60 * 24 * 7);
         banner_signed_url = s?.signedUrl ?? null;
       }
-      return { ...rest, has_upi: !!upi_id_encrypted, banner_signed_url };
+      let banner_video_signed_url: string | null = null;
+      if (rest.banner_video_path) {
+        const { data: s } = await supabaseAdmin.storage.from("workshop-videos").createSignedUrl(rest.banner_video_path, 60 * 60 * 24 * 7);
+        banner_video_signed_url = s?.signedUrl ?? null;
+      }
+      let banner_gif_signed_url: string | null = null;
+      if (rest.banner_gif_path) {
+        const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_gif_path, 60 * 60 * 24 * 7);
+        banner_gif_signed_url = s?.signedUrl ?? null;
+      }
+      return { ...rest, has_upi: !!upi_id_encrypted, banner_signed_url, banner_video_signed_url, banner_gif_signed_url };
     }));
   });
 

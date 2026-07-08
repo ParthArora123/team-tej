@@ -718,8 +718,10 @@ export type Database = {
         Row: {
           active: boolean
           bank_account_holder: string | null
+          banner_gif_path: string | null
           banner_path: string | null
           banner_url: string | null
+          banner_video_path: string | null
           capacity: number | null
           category: string | null
           city: string | null
@@ -747,8 +749,10 @@ export type Database = {
         Insert: {
           active?: boolean
           bank_account_holder?: string | null
+          banner_gif_path?: string | null
           banner_path?: string | null
           banner_url?: string | null
+          banner_video_path?: string | null
           capacity?: number | null
           category?: string | null
           city?: string | null
@@ -776,8 +780,10 @@ export type Database = {
         Update: {
           active?: boolean
           bank_account_holder?: string | null
+          banner_gif_path?: string | null
           banner_path?: string | null
           banner_url?: string | null
+          banner_video_path?: string | null
           capacity?: number | null
           category?: string | null
           city?: string | null
@@ -930,14 +936,120 @@ export type Database = {
         }
         Relationships: []
       }
+      workshop_hero_slides: {
+        Row: {
+          active: boolean
+          created_at: string
+          cta_link: string | null
+          cta_text: string | null
+          description: string | null
+          end_at: string | null
+          id: string
+          media_kind: string
+          media_path: string
+          poster_path: string | null
+          sort_order: number
+          start_at: string | null
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string | null
+          description?: string | null
+          end_at?: string | null
+          id?: string
+          media_kind?: string
+          media_path: string
+          poster_path?: string | null
+          sort_order?: number
+          start_at?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string | null
+          description?: string | null
+          end_at?: string | null
+          id?: string
+          media_kind?: string
+          media_path?: string
+          poster_path?: string | null
+          sort_order?: number
+          start_at?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      workshop_media: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          media_kind: string
+          media_path: string
+          poster_path: string | null
+          program_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          media_kind: string
+          media_path: string
+          poster_path?: string | null
+          program_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          media_kind?: string
+          media_path?: string
+          poster_path?: string | null
+          program_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workshop_media_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workshop_media_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       programs_public: {
         Row: {
-          active: boolean | null
           bank_account_holder: string | null
+          banner_gif_path: string | null
           banner_path: string | null
           banner_url: string | null
+          banner_video_path: string | null
           capacity: number | null
           category: string | null
           city: string | null
@@ -953,19 +1065,18 @@ export type Database = {
           price_inr: number | null
           published: boolean | null
           registration_open_on: string | null
-          seats: number | null
           seats_taken: number | null
           silver_seat_enabled: boolean | null
           silver_seat_price: number | null
-          starts_on: string | null
           style: string | null
           venue: string | null
         }
         Insert: {
-          active?: boolean | null
           bank_account_holder?: string | null
+          banner_gif_path?: string | null
           banner_path?: string | null
           banner_url?: string | null
+          banner_video_path?: string | null
           capacity?: number | null
           category?: string | null
           city?: string | null
@@ -981,19 +1092,18 @@ export type Database = {
           price_inr?: number | null
           published?: boolean | null
           registration_open_on?: string | null
-          seats?: number | null
           seats_taken?: number | null
           silver_seat_enabled?: boolean | null
           silver_seat_price?: number | null
-          starts_on?: string | null
           style?: string | null
           venue?: string | null
         }
         Update: {
-          active?: boolean | null
           bank_account_holder?: string | null
+          banner_gif_path?: string | null
           banner_path?: string | null
           banner_url?: string | null
+          banner_video_path?: string | null
           capacity?: number | null
           category?: string | null
           city?: string | null
@@ -1009,11 +1119,9 @@ export type Database = {
           price_inr?: number | null
           published?: boolean | null
           registration_open_on?: string | null
-          seats?: number | null
           seats_taken?: number | null
           silver_seat_enabled?: boolean | null
           silver_seat_price?: number | null
-          starts_on?: string | null
           style?: string | null
           venue?: string | null
         }

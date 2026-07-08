@@ -1,55 +1,60 @@
+## Workshop admin enhancements — plan
 
-This is a large multi-part update. I'll break it into phases so we agree on scope before I write code. All existing sections/functionality not listed here stay intact.
+Three new capabilities in the admin portal, wired to the /workshops page.
 
-## Phase 1 — Backend & Admin foundations
-New DB tables + admin CRUD:
-- `hero_slides` — up to 5 images, `sort_order`, `active`. Admin tab: upload/replace/delete/reorder.
-- `featured_experience` — single active row (title, banner, description, city, dates, day_schedule JSON, cta_text, cta_link, active). Admin tab enforces one-active.
-- `gallery_items` — for "Feel The Room" (image or short video, caption, sort). Admin tab.
-- Storage bucket `hero-images`, `gallery` (private + signed URLs like `workshop-images`).
-- Server functions: `listHeroSlides`, `getFeaturedExperience`, `listGalleryItems` (public reads via `programs_public`-style pattern).
+### 1. Workshop Hero Carousel (new)
 
-## Phase 2 — Workshop form + backend
-- Remove `age` and `medical_history` from `EnrollDialog` UI + `createEnrollment` validator. Existing DB columns left as-is (nullable) so history is preserved.
-- Add `skill_level` (text) and `dance_style` (already `style`) surfaced on cards.
-- Auto-hide expired workshops from public `listPrograms` (`event_date < today` OR `event_date is null` shown). Admin still sees all.
-- Workshop card gets: Register, Get Details (opens modal or program page), WhatsApp button (uses admin phone from `app_settings`), Instagram DM button (admin IG handle from `app_settings`).
+- New table `workshop_hero_slides` — separate from the existing homepage `hero_slides` so nothing on the home page changes.
+- Each slide: media (image / video / GIF), title, subtitle, description, CTA text, CTA link, sort order, active toggle, optional start & end dates.
+- Admin UI: new "Workshop Hero" tab in the admin portal with add / edit / delete, drag-and-drop reordering (arrow buttons + drag handle), preview thumbnail, active toggle, date range pickers.
+- Frontend: new hero carousel at the top of `/workshops`, auto-advancing every 6s, fade transition, keyboard + swipe navigation, respects active flag and date window. Videos autoplay muted + loop + `playsInline`. Uses existing `poster` while loading.
 
-## Phase 3 — Homepage rebuild (`src/routes/index.tsx`)
-Rewrite in this order, keeping the 3 preserved sections (Movers, On Stage, India→Globe) untouched:
-1. Hero — dynamic next-event overlay + background carousel (fade, arrows, dots, autoplay 5s) driven by `hero_slides`. Buttons: "Join Next Workshop", "View All Upcoming Events". Swap the "Movement Unscripted" CTA order (Register a Workshop first, Classes second).
-2. Upcoming Workshops & Events — rich cards (banner, name, city, date, venue, style, level, description, 4 buttons).
-3. Featured Experience of the Month — from `featured_experience`, fallback to next premium upcoming program.
-4. What We Do — 4 cards linking to /workshops, /experiences (or existing), /nritya-sadhana, /online-trainings.
-5. Feel The Room — masonry gallery from `gallery_items`.
-6. Preserved: We Train Movers.
-7. Nritya Sadhana Preview + CTA.
-8. Preserved: On Stage With The Best.
-9. Learn Online With Tej — 5 items list + CTA.
-10. The Tej Method — short block + CTA.
-11. Preserved: India To The Globe.
-12. Stories From The Room — video + text stories (heading changed, not "Testimonials").
-13. About Tej / Founder — replaces Team section site-wide: large image, founder bio, "Know The Journey" → `/about`.
-14. Final CTA — "Come Dance With Us" + 3 buttons.
+### 2. Per-workshop banner (video / image / GIF)
 
-Hero headline/subheading updated to the specified copy.
+- Extend existing `programs` table with three optional columns: `banner_video_url`, `banner_video_path`, `banner_gif_url` (the current `banner_url` becomes the image fallback — no data migration needed).
+- Admin workshop dialog gains a "Banner media" section with three uploaders (image / video / GIF). Video uploader accepts up to 500 MB, MP4 / WebM / MOV.
+- Selection order at render time: video → GIF → image → nothing.
+- `/workshops` cards render the chosen banner: `<video>` with `preload="metadata"`, `autoPlay muted loop playsInline`, poster set to the image if present so the card never shows a blank frame while loading.
 
-## Phase 4 — Navigation, branding, uploads
-- `Header.tsx`: hide "Nritya Sadhana" link (route stays).
-- Global find/replace `Tejas Dhoke` → `Tejas D Dhoke` (routes, meta, footer, alt text). Route metadata updated.
-- About page: remove Team grid + modal, keep Founder-only block.
-- Testimonial video upload: raise client + server cap to 500 MB, add upload progress. Existing videos untouched.
+### 3. Per-workshop media gallery (new)
 
-## Technical notes
-- Migrations create tables + GRANTs + RLS (`anon SELECT` on hero/featured/gallery; admin write via `has_role`). Storage RLS mirrors `workshop-images`.
-- All admin writes go through `createServerFn` with `requireSupabaseAuth` + admin role check.
-- Homepage reads use public server fns to keep SSR simple.
-- No changes to `programs_public` view schema — expiry filter applied at query time.
-- Video upload progress needs `XMLHttpRequest` to `supabase.storage` signed upload URL (server issues URL via admin fn) so we can report progress.
+- New table `workshop_media` (workshop_id fk, kind image|video|gif, url, path, sort_order, caption). Deleting a workshop cascades.
+- Admin gets a "Media" panel inside each workshop's edit dialog: multi-upload, thumbnail grid, reorder (drag/arrows), delete, replace, live preview before saving.
+- Frontend workshop detail block on `/workshops` shows the gallery as a lazy-loaded strip below the card; clicking opens a lightbox (existing motion). Videos in the strip lazy-load with a play overlay and only start on user click; the muted autoplay is limited to the banner slot to preserve performance.
 
-## Out of scope / assumptions
-- I'll add sensible placeholder copy for The Tej Method / Learn Online items — you can edit later; no separate CMS for them unless you want it.
-- "Get Details" opens a modal with the workshop's full description (no new route) unless you'd prefer a `/workshops/$id` page.
-- WhatsApp/Instagram handles come from `app_settings` (`whatsapp_number`, `instagram_handle`) — I'll add fields to the admin Settings tab.
+### Storage
 
-This is roughly a full-day scope. Confirm and I'll ship it, or tell me which phases to do first (I'd suggest 2 + 4 first since they're quick wins, then 1 + 3).
+- Reuse existing private `workshop-images` bucket for images/GIFs.
+- Create a new private `workshop-videos` bucket for videos (500 MB per object, mp4/webm/mov). Signed URLs at read time via existing helpers.
+- All image uploads run through `src/lib/compress-image.ts` (already in place). Videos are not re-encoded client-side (would be too slow / lossy in-browser); we serve them with `preload="metadata"` and byte-range playback so only the initial fragment loads until the user hits play.
+
+### Server functions (new / edited)
+
+- `src/lib/workshop-hero.functions.ts` — `listPublicWorkshopHero`, `adminListWorkshopHero`, `adminSaveWorkshopHero`, `adminDeleteWorkshopHero`, `adminReorderWorkshopHero`, `adminUploadWorkshopHeroMedia`.
+- `src/lib/workshop-media.functions.ts` — same shape for gallery items.
+- Extend `catalog.functions.ts` / `admin` workshop functions to persist the three new banner columns and return signed URLs.
+- Admin-only calls guarded via `requireSupabaseAuth` + `has_role('admin')`.
+
+### RLS
+
+- `workshop_hero_slides` and `workshop_media`: public SELECT for rows where `active = true` (and, for hero, within date window); admin full access via `has_role`.
+- `GRANT` blocks in the same migration for `anon`, `authenticated`, `service_role`.
+
+### Frontend polish
+
+- Carousel: motion fade + subtle Ken-Burns zoom on images, magnetic CTA button (reuses `MagneticButton`).
+- All media lazy-loaded (`loading="lazy"` on `<img>`, `preload="metadata"` on `<video>`, IntersectionObserver-gated play).
+- Skeleton placeholder while media loads.
+- `prefers-reduced-motion` disables autoplay + auto-advance.
+
+### Out of scope (call out)
+
+- Server-side video transcoding / automatic thumbnail extraction from uploaded videos requires a Node/ffmpeg host — the Cloudflare Worker runtime that hosts server functions does not support it (see server-runtime constraints). Workaround built into the UI: the admin can optionally upload a poster image beside each video slide; if none is provided we render the workshop's existing banner image as the poster. If you want true auto-thumbnail extraction, we'd add an external worker (e.g. Cloudflare Stream) as a follow-up.
+
+### Files touched (technical)
+
+- **Migrations**: create `workshop_hero_slides`, `workshop_media`; add three columns to `programs`; create `workshop-videos` bucket + storage policies.
+- **New server fns**: `src/lib/workshop-hero.functions.ts`, `src/lib/workshop-media.functions.ts`.
+- **Edited server fns**: `src/lib/catalog.functions.ts` (banner columns), `src/lib/enrollment.functions.ts` (unchanged, referenced only), admin save/list in `admin.tsx`.
+- **Admin UI**: new `WorkshopHeroTab` component, extend `WorkshopsTab` dialog with banner-media + gallery sections in `src/routes/_authenticated/admin.tsx`.
+- **Public UI**: `src/routes/workshops.tsx` — mount hero carousel, upgrade banner rendering, add gallery strip + lightbox.

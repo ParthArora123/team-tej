@@ -28,13 +28,16 @@ import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/a
 import { MessagesTab } from "@/components/admin/MessagesTab";
 import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab } from "@/components/admin/SiteContentTabs";
 import { BundlesTab, BundlePurchasesTab } from "@/components/admin/BundlesTab";
+import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
+import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
+import { MediaUploader } from "@/components/admin/MediaUploader";
 import { compressImageFile } from "@/lib/compress-image";
 
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "bundles" | "bundle_purchases" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder";
+type Tab = "overview" | "workshops" | "workshop_hero" | "bundles" | "bundle_purchases" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
@@ -51,6 +54,7 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "about_page", label: "About page" },
 
   { id: "workshops", label: "Workshops" },
+  { id: "workshop_hero", label: "Workshop hero", emphasis: true },
   { id: "bundles", label: "Bundle offers", emphasis: true },
   { id: "bundle_purchases", label: "Bundle purchases" },
   { id: "celebrities", label: "Celebrities" },
@@ -145,6 +149,8 @@ function AdminPage() {
 
       {tab === "hero" && <HeroSlidesTab />}
 
+      {tab === "workshop_hero" && <WorkshopHeroTab />}
+
       {tab === "featured" && <FeaturedExperienceTab />}
 
       {tab === "gallery" && <GalleryTab />}
@@ -199,6 +205,10 @@ const emptyWs = () => ({
   id: undefined as string | undefined,
   kind: "workshop", name: "", description: "", banner_url: "", banner_path: "",
   banner_preview: "" as string,
+  banner_video_path: "" as string,
+  banner_video_preview: null as string | null,
+  banner_gif_path: "" as string,
+  banner_gif_preview: null as string | null,
   event_date: "", event_time: "", venue: "", city: "", instructor: "",
   duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
@@ -235,6 +245,10 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       id: r.id, kind: r.kind, name: r.name ?? "", description: r.description ?? "",
       banner_url: r.banner_url ?? "", banner_path: r.banner_path ?? "",
       banner_preview: r.banner_signed_url ?? r.banner_url ?? "",
+      banner_video_path: r.banner_video_path ?? "",
+      banner_video_preview: r.banner_video_signed_url ?? null,
+      banner_gif_path: r.banner_gif_path ?? "",
+      banner_gif_preview: r.banner_gif_signed_url ?? null,
       event_date: r.event_date ?? "", event_time: r.event_time ?? "",
       venue: r.venue ?? "", city: r.city ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
       capacity: r.capacity ?? "", price_inr: r.price_inr ?? "",
@@ -291,6 +305,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         silver_seat_enabled: !!f.silver_seat_enabled,
         banner_url: f.banner_url || undefined,
         banner_path: f.banner_path || undefined,
+        banner_video_path: f.banner_video_path || null,
+        banner_gif_path: f.banner_gif_path || null,
         registration_open_on: f.registration_open_on || undefined,
       }});
       if (!payerDefaults && f.save_payer_default && f.upi_id?.trim() && f.bank_account_holder?.trim()) {
@@ -356,6 +372,22 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                   onChange={(e) => { const f0 = e.target.files?.[0]; if (f0) handleFile(f0); e.currentTarget.value = ""; }} />
               </div>
             </FieldRow>
+
+            <FieldRow label="Banner Video (optional, up to 500 MB)">
+              <MediaUploader kind="video" path={f.banner_video_path || null} previewUrl={f.banner_video_preview}
+                onChange={(p, pv) => setF({ ...f, banner_video_path: p ?? "", banner_video_preview: pv })} />
+            </FieldRow>
+
+            <FieldRow label="Banner GIF (optional)">
+              <MediaUploader kind="gif" path={f.banner_gif_path || null} previewUrl={f.banner_gif_preview}
+                onChange={(p, pv) => setF({ ...f, banner_gif_path: p ?? "", banner_gif_preview: pv })} />
+            </FieldRow>
+
+            {f.id && (
+              <FieldRow label="Workshop Media Gallery">
+                <WorkshopMediaPanel programId={f.id} />
+              </FieldRow>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FieldRow label="Registration Open Date">
