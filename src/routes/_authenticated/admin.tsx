@@ -149,6 +149,8 @@ function AdminPage() {
 
       {tab === "hero" && <HeroSlidesTab />}
 
+      {tab === "workshop_hero" && <WorkshopHeroTab />}
+
       {tab === "featured" && <FeaturedExperienceTab />}
 
       {tab === "gallery" && <GalleryTab />}
