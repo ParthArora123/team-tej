@@ -198,7 +198,7 @@ function Index() {
     <>
       {/* HERO */}
       <section ref={heroRef} className="relative overflow-hidden lg:min-h-screen">
-        {/* Mobile: fixed aspect box with slide-in from right */}
+        {/* Mobile: slide-in from right, image fits fully (no crop) over blurred backdrop */}
         <div className="lg:hidden relative w-full aspect-[3/4] bg-background overflow-hidden">
           {heroSlides.length > 0 ? (
             <AnimatePresence initial={false}>
@@ -210,10 +210,17 @@ function Index() {
                 transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
                 className="absolute inset-0"
               >
+                {/* Blurred fill backdrop to remove empty bars */}
+                <HeroMedia
+                  src={heroSlides[slideIdx]?.image_url}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl opacity-60"
+                />
+                {/* Foreground image — full, uncropped */}
                 <HeroMedia
                   src={heroSlides[slideIdx]?.image_url}
                   alt={heroSlides[slideIdx]?.alt ?? "Hero"}
-                  className="h-full w-full object-cover"
+                  className="relative h-full w-full object-contain"
                 />
               </motion.div>
             </AnimatePresence>
@@ -225,6 +232,7 @@ function Index() {
             />
           )}
         </div>
+
 
 
 
