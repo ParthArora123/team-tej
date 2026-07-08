@@ -269,3 +269,22 @@ export const adminUploadCmsImage = createServerFn({ method: "POST" })
     // Return storage reference (persist this in image_url/banner_url) and a signed URL for immediate preview.
     return { image_url: `${data.bucket}:${key}`, preview_url: signed?.signedUrl ?? null };
   });
+
+// Direct-to-storage signed upload URL for large hero videos (up to 500 MB).
+// Client requests a signed URL, then PUTs the file to storage directly.
+export const adminCreateHeroVideoUpload = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({
+    filename: z.string().min(1).max(200),
+  }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const bucket = "hero-videos";
+    const ext = (data.filename.split(".").pop() ?? "mp4").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 8) || "mp4";
+    const key = `hero/${crypto.randomUUID()}.${ext}`;
+    const { data: signed, error } = await (supabaseAdmin as any).storage.from(bucket).createSignedUploadUrl(key);
+    if (error) throw error;
+    return { bucket, key, path: `${bucket}:${key}`, uploadUrl: signed.signedUrl, token: signed.token };
+  });
+

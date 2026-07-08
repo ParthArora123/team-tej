@@ -6,7 +6,7 @@ import {
   adminListHeroSlides, adminSaveHeroSlide, adminDeleteHeroSlide,
   adminListFeaturedExperiences, adminSaveFeaturedExperience, adminDeleteFeaturedExperience,
   adminListGalleryItems, adminSaveGalleryItem, adminDeleteGalleryItem,
-  adminUploadCmsImage,
+  adminUploadCmsImage, adminCreateHeroVideoUpload,
 } from "@/lib/cms.functions";
 import { compressImageFile } from "@/lib/compress-image";
 
@@ -74,14 +74,46 @@ export function HeroSlidesTab() {
   const list = useServerFn(adminListHeroSlides);
   const save = useServerFn(adminSaveHeroSlide);
   const del = useServerFn(adminDeleteHeroSlide);
+  const createVideoUpload = useServerFn(adminCreateHeroVideoUpload);
   const [rows, setRows] = useState<any[]>([]);
   const [f, setF] = useState<any>({ image_url: "", alt: "", sort_order: 0, active: true, preview: null });
+  const [videoBusy, setVideoBusy] = useState(false);
+  const [videoProgress, setVideoProgress] = useState<number | null>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const reload = () => list().then(setRows).catch(() => {});
   useEffect(() => { reload(); }, []);
 
+  const isVideoRef = (v: string) => /^hero-videos:/.test(v) || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(v);
+
+  const uploadVideo = async (file: File) => {
+    if (!/^video\/(mp4|webm|quicktime|x-m4v)$/.test(file.type) && !/\.(mp4|webm|mov|m4v)$/i.test(file.name)) {
+      return toast.error("Only MP4, WebM or MOV videos");
+    }
+    if (file.size > 500 * 1024 * 1024) return toast.error("Max 500 MB");
+    setVideoBusy(true);
+    setVideoProgress(0);
+    try {
+      const signed = await createVideoUpload({ data: { filename: file.name } });
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("PUT", signed.uploadUrl);
+        xhr.setRequestHeader("Content-Type", file.type || "video/mp4");
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) setVideoProgress(Math.round((e.loaded / e.total) * 100));
+        };
+        xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(`Upload failed (${xhr.status})`));
+        xhr.onerror = () => reject(new Error("Network error during upload"));
+        xhr.send(file);
+      });
+      setF((prev: any) => ({ ...prev, image_url: signed.path, preview: URL.createObjectURL(file) }));
+      toast.success("Video uploaded");
+    } catch (e: any) { toast.error(e.message ?? "Upload failed"); }
+    finally { setVideoBusy(false); setVideoProgress(null); }
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!f.image_url) return toast.error("Image required");
+    if (!f.image_url) return toast.error("Media required");
     try {
       await save({ data: { id: f.id, image_url: f.image_url, alt: f.alt || null, sort_order: Number(f.sort_order) || 0, active: !!f.active } });
       setF({ image_url: "", alt: "", sort_order: 0, active: true, preview: null });
@@ -93,15 +125,37 @@ export function HeroSlidesTab() {
     try { await del({ data: { id } }); toast.success("Deleted"); reload(); } catch (e: any) { toast.error(e.message); }
   };
 
+  const previewIsVideo = f.image_url && isVideoRef(f.image_url);
+
   return (
     <div className="mt-8 space-y-8">
       <form onSubmit={submit} className="p-5 rounded-2xl border border-border bg-card space-y-3">
         <p className="font-display text-lg">{f.id ? "Edit slide" : "Add hero slide"}</p>
-        <ImageUploader bucket="hero-images" value={f.image_url} previewUrl={f.preview} maxMb={500}
+
+        <ImageUploader bucket="hero-images" value={previewIsVideo ? "" : f.image_url} previewUrl={previewIsVideo ? null : f.preview} maxMb={20}
           onChange={(ref, preview) => setF({ ...f, image_url: ref, preview })} />
+
+        <div className="pt-1 border-t border-border/50">
+          <p className="text-xs text-muted-foreground mb-2">Or upload a video (MP4/WebM/MOV, up to 500 MB)</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => videoInputRef.current?.click()} disabled={videoBusy}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm hover:border-primary disabled:opacity-60">
+              <Upload size={14} /> {videoBusy ? `Uploading… ${videoProgress ?? 0}%` : "Upload video"}
+            </button>
+            <input ref={videoInputRef} type="file" hidden accept="video/mp4,video/webm,video/quicktime,video/x-m4v"
+              onChange={(e) => e.target.files?.[0] && uploadVideo(e.target.files[0])} />
+            {previewIsVideo && <span className="text-xs text-muted-foreground truncate max-w-xs">{f.image_url}</span>}
+          </div>
+          {previewIsVideo && f.preview && (
+            <div className="mt-2 w-full max-w-md aspect-video rounded-lg border border-border overflow-hidden bg-black">
+              <video src={f.preview} controls muted className="w-full h-full object-contain" />
+            </div>
+          )}
+        </div>
+
         <div className="grid sm:grid-cols-2 gap-3">
           <input value={f.alt ?? ""} onChange={(e) => setF({ ...f, alt: e.target.value })}
-            placeholder="Alt text" className="px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+            placeholder="Alt text / caption" className="px-3 py-2 rounded-lg border border-border bg-background text-sm" />
           <input type="number" value={f.sort_order ?? 0} onChange={(e) => setF({ ...f, sort_order: e.target.value })}
             placeholder="Sort order" className="px-3 py-2 rounded-lg border border-border bg-background text-sm" />
         </div>
@@ -116,25 +170,33 @@ export function HeroSlidesTab() {
       </form>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {rows.map((r) => (
-          <div key={r.id} className="rounded-2xl border border-border bg-card overflow-hidden">
-            <div className="aspect-[16/9] bg-muted">{r.image_url && <img src={r.image_url} alt={r.alt ?? ""} className="w-full h-full object-cover" />}</div>
-            <div className="p-3 flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-sm truncate">{r.alt || "—"}</p>
-                <p className="text-xs text-muted-foreground">#{r.sort_order} · {r.active ? "Active" : "Hidden"}</p>
+        {rows.map((r) => {
+          const rowIsVideo = r.image_url && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(r.image_url);
+          return (
+            <div key={r.id} className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="aspect-[16/9] bg-muted">
+                {r.image_url && (rowIsVideo
+                  ? <video src={r.image_url} muted playsInline preload="metadata" className="w-full h-full object-cover" />
+                  : <img src={r.image_url} alt={r.alt ?? ""} className="w-full h-full object-cover" />)}
               </div>
-              <div className="flex gap-1">
-                <button onClick={() => setF({ ...r, preview: r.image_url })} className="px-2 py-1 text-xs rounded border border-border">Edit</button>
-                <button onClick={() => remove(r.id)} className="p-1.5 rounded border border-border text-destructive"><Trash2 size={14} /></button>
+              <div className="p-3 flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-sm truncate">{r.alt || "—"}</p>
+                  <p className="text-xs text-muted-foreground">#{r.sort_order} · {rowIsVideo ? "Video" : "Image"} · {r.active ? "Active" : "Hidden"}</p>
+                </div>
+                <div className="flex gap-1">
+                  <button onClick={() => setF({ ...r, preview: r.image_url })} className="px-2 py-1 text-xs rounded border border-border">Edit</button>
+                  <button onClick={() => remove(r.id)} className="p-1.5 rounded border border-border text-destructive"><Trash2 size={14} /></button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
+
 
 // =========== FEATURED EXPERIENCE ===========
 export function FeaturedExperienceTab() {
