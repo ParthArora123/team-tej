@@ -30,15 +30,36 @@ const defaultStyles = [
 ];
 
 function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [muted, setMuted] = useState(true);
+
   if (w.banner_video_url) {
+    const toggle = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const v = videoRef.current;
+      if (!v) return;
+      v.muted = !v.muted;
+      setMuted(v.muted);
+      if (!v.muted) v.play().catch(() => {});
+    };
     return (
-      <div className="w-full overflow-hidden bg-black flex items-center justify-center">
-        <video src={w.banner_video_url} poster={w.banner_url ?? undefined}
+      <div className="w-full overflow-hidden bg-black flex items-center justify-center relative">
+        <video ref={videoRef} src={w.banner_video_url} poster={w.banner_url ?? undefined}
           autoPlay muted loop playsInline preload="metadata"
           className={`w-full h-auto max-h-[70vh] object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+        <button type="button" onClick={toggle} aria-label={muted ? "Unmute video" : "Mute video"}
+          className="absolute bottom-3 right-3 z-10 h-9 w-9 flex items-center justify-center rounded-full bg-background/70 backdrop-blur border border-border text-foreground hover:bg-background transition">
+          {muted ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          )}
+        </button>
       </div>
     );
   }
+
   if (w.banner_gif_url) {
     return (
       <div className="w-full aspect-video overflow-hidden bg-muted">
