@@ -651,19 +651,44 @@ function Index() {
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
             <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <motion.div
+              variants={stagger}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-80px" }}
+              className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"
+            >
               {celebrities.map((c) => (
-                <div key={c.id} className="relative aspect-square rounded-2xl bg-card border border-border overflow-hidden flex flex-col items-center justify-end text-center hover:border-primary transition">
+                <motion.div
+                  key={c.id}
+                  variants={item}
+                  whileHover={{ y: -4 }}
+                  className="group relative aspect-square rounded-2xl bg-card border border-border overflow-hidden flex flex-col items-center justify-end text-center hover:border-primary/60 transition-colors"
+                >
                   {c.photo_url ? (
-                    <img src={c.photo_url} alt={c.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover object-center" />
+                    <img
+                      src={c.photo_url}
+                      alt={c.name}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
+                    />
                   ) : null}
+                  {/* shine sweep on hover */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
+                    style={{
+                      background:
+                        "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%)",
+                    }}
+                  />
                   <div className={`relative w-full p-3 ${c.photo_url ? "bg-gradient-to-t from-background/90 via-background/60 to-transparent" : ""}`}>
                     <p className="font-display text-sm">{c.name}</p>
                     {c.role && <p className="text-[10px] text-muted-foreground">{c.role}</p>}
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         )}
 
