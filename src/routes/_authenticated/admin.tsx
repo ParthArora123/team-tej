@@ -960,9 +960,10 @@ function ProfilesTab() {
     } catch (e: any) { setErr(e.message); }
   };
 
-  const onFile = async (file: File) => {
+  const onFile = async (rawFile: File) => {
     setErr(""); setMsg(""); setUploading(true);
     try {
+      const file = await compressImageFile(rawFile);
       const buf = await file.arrayBuffer();
       let bin = "";
       const bytes = new Uint8Array(buf);
