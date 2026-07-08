@@ -51,6 +51,7 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "styles", label: "Dance styles" },
   { id: "choreographies", label: "Choreographies", emphasis: true },
   { id: "founder", label: "Founder section" },
+  { id: "zero_to_hero", label: "Zero to Hero media", emphasis: true },
   { id: "contact_info", label: "Contact info" },
   { id: "about_page", label: "About page" },
 
