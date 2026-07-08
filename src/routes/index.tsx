@@ -735,7 +735,7 @@ function ChoreoCard({ c }: { c: Choreo }) {
             allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen
             className="absolute inset-0 w-full h-full" />
         ) : playing && c.video_url ? (
-          <video src={c.video_url} controls autoPlay className="absolute inset-0 w-full h-full object-contain" />
+          <video src={c.video_url} controls autoPlay preload="metadata" className="absolute inset-0 w-full h-full object-contain" />
         ) : (
           <>
             {c.thumbnail_url ? (
