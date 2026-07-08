@@ -273,6 +273,15 @@ function Index() {
     return () => clearInterval(t);
   }, [heroSlides.length]);
 
+  useEffect(() => {
+    heroSlides.forEach((slide) => {
+      const src = slide?.image_url;
+      if (!src || isVideoUrl(src)) return;
+      const img = new Image();
+      img.src = src;
+    });
+  }, [heroSlides]);
+
 
 
 
