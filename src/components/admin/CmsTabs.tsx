@@ -6,7 +6,7 @@ import {
   adminListHeroSlides, adminSaveHeroSlide, adminDeleteHeroSlide,
   adminListFeaturedExperiences, adminSaveFeaturedExperience, adminDeleteFeaturedExperience,
   adminListGalleryItems, adminSaveGalleryItem, adminDeleteGalleryItem,
-  adminUploadCmsImage,
+  adminUploadCmsImage, adminCreateHeroVideoUpload,
 } from "@/lib/cms.functions";
 import { compressImageFile } from "@/lib/compress-image";
 
