@@ -454,6 +454,8 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       ...rest,
       banner_url: rest.banner_url || null,
       banner_path: rest.banner_path || null,
+      banner_video_path: rest.banner_video_path || null,
+      banner_gif_path: rest.banner_gif_path || null,
       event_date: rest.event_date || null,
       registration_open_on: rest.registration_open_on || null,
       silver_seat_enabled: !!rest.silver_seat_enabled,
