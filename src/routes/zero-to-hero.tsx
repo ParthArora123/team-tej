@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import {
   Sparkles, Music, HeartHandshake, Flame, PartyPopper, Award, Play,
   Clock, Infinity as InfinityIcon, GraduationCap, Smartphone, Video, User,
@@ -9,6 +10,8 @@ import { Reveal, SplitText } from "@/components/site/Reveal";
 import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent,
 } from "@/components/ui/accordion";
+import { listZeroToHeroMedia } from "@/lib/zero-to-hero.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/zero-to-hero")({
   component: ZeroToHeroPage,
