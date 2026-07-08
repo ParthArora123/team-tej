@@ -15,6 +15,8 @@ import classesImg from "@/assets/classes.jpg";
 // aboutImg no longer used on homepage after workshops teaser was replaced with dynamic grid
 import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
+import { MagneticButton } from "@/components/site/MagneticButton";
+import { TiltCard } from "@/components/site/TiltCard";
 
 
 const defaultStyles = [
@@ -207,20 +209,45 @@ function Index() {
             </motion.p>
 
             <motion.div variants={item} className="mt-5 flex flex-wrap gap-3">
-              <Link
-                to="/workshops"
-                className="group inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full bg-primary text-primary-foreground text-sm lg:text-base font-medium hover:opacity-90 transition"
-              >
-                Register for workshops
-                <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
-              </Link>
-              <Link
-                to="/nritya-sadhana"
-                className="inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full border border-border text-sm lg:text-base hover:border-primary hover:text-primary transition"
-              >
-                Explore classes
-              </Link>
+              <MagneticButton>
+                <Link
+                  to="/workshops"
+                  className="group relative inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full bg-primary text-primary-foreground text-sm lg:text-base font-medium overflow-hidden shadow-[0_10px_40px_-12px_oklch(0.78_0.16_65/0.7)]"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Register for workshops
+                    <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
+                  </span>
+                  <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                </Link>
+              </MagneticButton>
+              <MagneticButton strength={0.25}>
+                <Link
+                  to="/nritya-sadhana"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full border border-border text-sm lg:text-base hover:border-primary hover:text-primary transition-colors backdrop-blur-sm bg-background/30"
+                >
+                  Explore classes
+                </Link>
+              </MagneticButton>
             </motion.div>
+          </motion.div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            aria-hidden
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground"
+          >
+            <span>Scroll</span>
+            <div className="h-10 w-[1px] bg-gradient-to-b from-primary to-transparent overflow-hidden">
+              <motion.div
+                animate={{ y: ["-100%", "100%"] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                className="h-full w-full bg-primary"
+              />
+            </div>
           </motion.div>
         </div>
 
@@ -521,17 +548,30 @@ function Index() {
 
               {/* Desktop: grid */}
               <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
-                className="hidden md:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                className="hidden md:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 [perspective:1200px]">
                 {stylesToRender.map((s) => (
-                  <motion.article key={s.name} variants={item} whileHover={{ y: -6 }}
-                    className="group relative aspect-[4/5] rounded-2xl overflow-hidden border border-border hover:border-primary transition-colors">
-                    {renderMedia(s)}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-                    <div className="absolute bottom-5 left-5 right-5 z-10">
-                      <p className="font-display text-2xl font-bold">{s.name}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{s.tagline}</p>
-                    </div>
-                  </motion.article>
+                  <motion.div key={s.name} variants={item} className="[transform-style:preserve-3d]">
+                    <TiltCard className="aspect-[4/5] rounded-2xl">
+                      <article className="relative h-full w-full rounded-2xl overflow-hidden border border-border group-hover:border-primary/60 transition-colors bg-card">
+                        {renderMedia(s)}
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+                        {/* animated gradient border */}
+                        <div aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                          style={{ boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent)" }} />
+                        {/* shine sweep */}
+                        <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
+                          style={{ background: "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--primary) 30%, transparent) 50%, transparent 70%)" }} />
+                        <div className="absolute bottom-5 left-5 right-5 z-10 [transform:translateZ(30px)]">
+                          <div className="overflow-hidden">
+                            <p className="font-display text-2xl font-bold translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
+                              {s.name}
+                            </p>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 opacity-80 group-hover:opacity-100 transition-opacity">{s.tagline}</p>
+                        </div>
+                      </article>
+                    </TiltCard>
+                  </motion.div>
                 ))}
               </motion.div>
             </>
@@ -611,19 +651,44 @@ function Index() {
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
             <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <motion.div
+              variants={stagger}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-80px" }}
+              className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"
+            >
               {celebrities.map((c) => (
-                <div key={c.id} className="relative aspect-square rounded-2xl bg-card border border-border overflow-hidden flex flex-col items-center justify-end text-center hover:border-primary transition">
+                <motion.div
+                  key={c.id}
+                  variants={item}
+                  whileHover={{ y: -4 }}
+                  className="group relative aspect-square rounded-2xl bg-card border border-border overflow-hidden flex flex-col items-center justify-end text-center hover:border-primary/60 transition-colors"
+                >
                   {c.photo_url ? (
-                    <img src={c.photo_url} alt={c.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover object-center" />
+                    <img
+                      src={c.photo_url}
+                      alt={c.name}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
+                    />
                   ) : null}
+                  {/* shine sweep on hover */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
+                    style={{
+                      background:
+                        "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%)",
+                    }}
+                  />
                   <div className={`relative w-full p-3 ${c.photo_url ? "bg-gradient-to-t from-background/90 via-background/60 to-transparent" : ""}`}>
                     <p className="font-display text-sm">{c.name}</p>
                     {c.role && <p className="text-[10px] text-muted-foreground">{c.role}</p>}
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         )}
 

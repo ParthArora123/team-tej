@@ -16,6 +16,8 @@ import { Footer } from "../components/site/Footer";
 import { ScrollProgress } from "../components/site/ScrollProgress";
 import { CursorGlow } from "../components/site/CursorGlow";
 import { AmbientBlobs } from "../components/site/AmbientBlobs";
+import { SmoothScroll } from "../components/site/SmoothScroll";
+import { ScrollToTop } from "../components/site/ScrollToTop";
 
 
 function NotFoundComponent() {
@@ -129,6 +131,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <SmoothScroll />
       <div className="min-h-screen grain-bg relative">
         <AmbientBlobs />
         <CursorGlow />
@@ -138,6 +141,7 @@ function RootComponent() {
           <Outlet />
         </main>
         <Footer />
+        <ScrollToTop />
       </div>
     </QueryClientProvider>
   );
