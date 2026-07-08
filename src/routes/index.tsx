@@ -197,21 +197,23 @@ function Index() {
   return (
     <>
       {/* HERO */}
-      <section ref={heroRef} className="relative overflow-hidden">
-        {/* Mobile: fixed aspect box with cross-fade between slides (no gap) */}
+      <section ref={heroRef} className="relative overflow-hidden lg:min-h-screen">
+        {/* Mobile: fixed aspect box with slide-in from right */}
         <div className="lg:hidden relative w-full aspect-[3/4] bg-background overflow-hidden">
           {heroSlides.length > 0 ? (
             <AnimatePresence initial={false}>
               <motion.div
                 key={heroSlides[slideIdx]?.id}
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 1.0, ease: "easeInOut" }}
+                initial={{ x: "100%", opacity: 0.6 }}
+                animate={{ x: "0%", opacity: 1 }}
+                exit={{ x: "-100%", opacity: 0.6 }}
+                transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
                 className="absolute inset-0"
               >
                 <HeroMedia
                   src={heroSlides[slideIdx]?.image_url}
                   alt={heroSlides[slideIdx]?.alt ?? "Hero"}
-                  className="h-full w-full object-contain"
+                  className="h-full w-full object-cover"
                 />
               </motion.div>
             </AnimatePresence>
@@ -219,31 +221,33 @@ function Index() {
             <img
               src={heroImg}
               alt="Tejas D Dhoke dancers in performance"
-              className="absolute inset-0 h-full w-full object-contain"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           )}
         </div>
 
 
 
-        {/* Desktop: parallax image behind text */}
+        {/* Desktop: full-screen slide-in carousel behind text */}
         <motion.div
           style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
-          className="absolute inset-0 hidden lg:block"
+          className="absolute inset-0 hidden lg:block overflow-hidden"
         >
 
           {heroSlides.length > 0 ? (
             <AnimatePresence initial={false}>
               <motion.div
                 key={heroSlides[slideIdx]?.id}
-                initial={{ opacity: 0 }} animate={{ opacity: 0.6 }} exit={{ opacity: 0 }}
-                transition={{ duration: 1.0, ease: "easeInOut" }}
+                initial={{ x: "100%", opacity: 0.4 }}
+                animate={{ x: "0%", opacity: 1 }}
+                exit={{ x: "-100%", opacity: 0.4 }}
+                transition={{ duration: 1.0, ease: [0.32, 0.72, 0, 1] }}
                 className="h-full w-full absolute inset-0"
               >
                 <HeroMedia
                   src={heroSlides[slideIdx]?.image_url}
                   alt={heroSlides[slideIdx]?.alt ?? "Hero"}
-                  className="h-full w-full object-contain"
+                  className="h-full w-full object-cover"
                 />
               </motion.div>
             </AnimatePresence>
@@ -253,11 +257,12 @@ function Index() {
               alt="Tejas D Dhoke dancers in performance"
               width={1600}
               height={1200}
-              className="h-full w-full object-contain opacity-55"
+              className="h-full w-full object-cover"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20" />
         </motion.div>
+
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:pt-28 lg:pb-32">
           <motion.div
