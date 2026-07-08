@@ -233,11 +233,11 @@ function Index() {
         >
 
           {heroSlides.length > 0 ? (
-            <AnimatePresence mode="wait">
+            <AnimatePresence initial={false}>
               <motion.div
                 key={heroSlides[slideIdx]?.id}
                 initial={{ opacity: 0 }} animate={{ opacity: 0.6 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 1.0, ease: "easeInOut" }}
                 className="h-full w-full absolute inset-0"
               >
                 <HeroMedia
