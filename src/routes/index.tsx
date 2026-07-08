@@ -83,9 +83,9 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
   }
   if (w.banner_url) {
     return (
-      <div className="w-full aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-muted flex items-center justify-center">
+      <div className="w-full bg-muted flex items-center justify-center">
         <img src={w.banner_url} alt={w.name} loading="lazy"
-          className={`w-full h-full object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+          className={`w-full h-auto max-h-[75vh] object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
       </div>
     );
   }
