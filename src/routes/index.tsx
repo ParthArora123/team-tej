@@ -292,17 +292,10 @@ function Index() {
                 transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
                 className="absolute inset-0"
               >
-                {/* Blurred fill backdrop to remove empty bars */}
-                <HeroMedia
-                  src={heroSlides[slideIdx]?.image_url}
-                  alt=""
-                  className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl opacity-60"
-                />
-                {/* Foreground image — full, uncropped */}
-                <HeroMedia
+                <HeroSlideMedia
                   src={heroSlides[slideIdx]?.image_url}
                   alt={heroSlides[slideIdx]?.alt ?? "Hero"}
-                  className="relative h-full w-full object-contain"
+                  priority={slideIdx === 0}
                 />
               </motion.div>
             </AnimatePresence>
@@ -310,7 +303,9 @@ function Index() {
             <img
               src={heroImg}
               alt="Tejas D Dhoke dancers in performance"
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-contain bg-background"
+              loading="eager"
+              decoding="async"
             />
           )}
         </div>
@@ -334,10 +329,10 @@ function Index() {
                 transition={{ duration: 1.0, ease: [0.32, 0.72, 0, 1] }}
                 className="h-full w-full absolute inset-0"
               >
-                <HeroMedia
+                <HeroSlideMedia
                   src={heroSlides[slideIdx]?.image_url}
                   alt={heroSlides[slideIdx]?.alt ?? "Hero"}
-                  className="h-full w-full object-cover"
+                  priority={slideIdx === 0}
                 />
               </motion.div>
             </AnimatePresence>
@@ -347,7 +342,9 @@ function Index() {
               alt="Tejas D Dhoke dancers in performance"
               width={1600}
               height={1200}
-              className="h-full w-full object-cover"
+              className="h-full w-full object-contain bg-background"
+              loading="eager"
+              decoding="async"
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20" />
