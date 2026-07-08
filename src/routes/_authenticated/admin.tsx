@@ -31,6 +31,7 @@ import { BundlesTab, BundlePurchasesTab } from "@/components/admin/BundlesTab";
 import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
 import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
 import { MediaUploader } from "@/components/admin/MediaUploader";
+import { ZeroToHeroMediaTab } from "@/components/admin/ZeroToHeroMediaTab";
 import { compressImageFile } from "@/lib/compress-image";
 
 
