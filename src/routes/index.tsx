@@ -198,20 +198,20 @@ function Index() {
     <>
       {/* HERO */}
       <section ref={heroRef} className="relative overflow-hidden">
-        {/* Mobile: image sits at top in its own aspect box so it's fully visible */}
-        <div className="lg:hidden relative w-full aspect-[4/5] bg-background overflow-hidden">
+        {/* Mobile: media renders at natural aspect ratio, capped at 80vh */}
+        <div className="lg:hidden relative w-full bg-background flex items-center justify-center">
           {heroSlides.length > 0 ? (
             <AnimatePresence mode="wait">
               <motion.div
                 key={heroSlides[slideIdx]?.id}
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 transition={{ duration: 0.8 }}
-                className="absolute inset-0"
+                className="w-full flex items-center justify-center"
               >
                 <HeroMedia
                   src={heroSlides[slideIdx]?.image_url}
                   alt={heroSlides[slideIdx]?.alt ?? "Hero"}
-                  className="h-full w-full object-contain"
+                  className="w-full h-auto max-h-[80vh] object-contain"
                 />
               </motion.div>
             </AnimatePresence>
@@ -219,10 +219,11 @@ function Index() {
             <img
               src={heroImg}
               alt="Tejas D Dhoke dancers in performance"
-              className="h-full w-full object-contain"
+              className="w-full h-auto max-h-[80vh] object-contain"
             />
           )}
         </div>
+
 
         {/* Desktop: parallax image behind text */}
         <motion.div
