@@ -63,31 +63,10 @@ function HeroSlideMedia({
   alt?: string;
   priority?: boolean;
 }) {
-  const [isReady, setIsReady] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   useEffect(() => {
-    setIsReady(false);
-    if (!src || isVideoUrl(src)) return;
-
-    let cancelled = false;
-    const img = new Image();
-    img.src = src;
-    const markReady = () => {
-      if (!cancelled) setIsReady(true);
-    };
-
-    if (img.complete) {
-      markReady();
-    } else if (img.decode) {
-      img.decode().then(markReady).catch(markReady);
-    } else {
-      img.onload = markReady;
-      img.onerror = markReady;
-    }
-
-    return () => {
-      cancelled = true;
-    };
+    setHasLoaded(false);
   }, [src]);
 
   if (!src) return null;
@@ -98,27 +77,28 @@ function HeroSlideMedia({
         src={src}
         alt={alt}
         priority={priority}
-        onLoad={() => setIsReady(true)}
-        className={`absolute inset-0 h-full w-full object-contain bg-background transition-opacity duration-500 ${isReady ? "opacity-100" : "opacity-0"}`}
+        onLoad={() => setHasLoaded(true)}
+        className="absolute inset-0 h-full w-full object-contain bg-background"
       />
     );
   }
 
   return (
     <>
-      <div className={`absolute inset-0 bg-muted transition-opacity duration-300 ${isReady ? "opacity-0" : "opacity-100"}`} />
+      <div className={`absolute inset-0 bg-muted transition-opacity duration-300 ${hasLoaded ? "opacity-0" : "opacity-100"}`} />
       <HeroMedia
         src={src}
         alt=""
         priority={priority}
-        className={`absolute inset-0 h-full w-full object-cover scale-110 blur-2xl transition-opacity duration-500 ${isReady ? "opacity-60" : "opacity-0"}`}
+        onLoad={() => setHasLoaded(true)}
+        className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl opacity-60"
       />
       <HeroMedia
         src={src}
         alt={alt}
         priority={priority}
-        onLoad={() => setIsReady(true)}
-        className={`relative z-10 h-full w-full object-contain transition-opacity duration-500 ${isReady ? "opacity-100" : "opacity-0"}`}
+        onLoad={() => setHasLoaded(true)}
+        className="relative z-10 h-full w-full object-contain"
       />
     </>
   );
@@ -304,7 +284,7 @@ function Index() {
                 <HeroSlideMedia
                   src={heroSlides[slideIdx]?.image_url}
                   alt={heroSlides[slideIdx]?.alt ?? "Hero"}
-                  priority={slideIdx === 0}
+                  priority
                 />
               </motion.div>
             </AnimatePresence>
