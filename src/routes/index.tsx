@@ -290,7 +290,7 @@ function Index() {
       {/* HERO */}
       <section ref={heroRef} className="relative overflow-hidden lg:min-h-screen">
         {/* Mobile: slide-in from right, image fits fully (no crop) over blurred backdrop */}
-        <div className="lg:hidden relative w-full aspect-[3/4] bg-background overflow-hidden">
+        <div className="lg:hidden relative w-full aspect-[3/2] bg-background overflow-hidden">
           {heroSlides.length > 0 ? (
             <AnimatePresence initial={false}>
               <motion.div
@@ -416,7 +416,6 @@ function Index() {
             transition={{ delay: 1.2, duration: 0.8 }}
             className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground"
           >
-            <span>Scroll</span>
             <div className="h-10 w-[1px] bg-gradient-to-b from-primary to-transparent overflow-hidden">
               <motion.div
                 animate={{ y: ["-100%", "100%"] }}
