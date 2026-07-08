@@ -37,7 +37,7 @@ import { compressImageFile } from "@/lib/compress-image";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "bundles" | "bundle_purchases" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder";
+type Tab = "overview" | "workshops" | "workshop_hero" | "bundles" | "bundle_purchases" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
@@ -54,6 +54,7 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "about_page", label: "About page" },
 
   { id: "workshops", label: "Workshops" },
+  { id: "workshop_hero", label: "Workshop hero", emphasis: true },
   { id: "bundles", label: "Bundle offers", emphasis: true },
   { id: "bundle_purchases", label: "Bundle purchases" },
   { id: "celebrities", label: "Celebrities" },
