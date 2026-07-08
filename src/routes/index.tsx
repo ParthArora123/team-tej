@@ -613,11 +613,11 @@ function Index() {
             <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
             <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
               {celebrities.map((c) => (
-                <div key={c.id} className="aspect-square rounded-2xl bg-card border border-border overflow-hidden flex flex-col items-center justify-end text-center hover:border-primary transition">
+                <div key={c.id} className="relative aspect-square rounded-2xl bg-card border border-border overflow-hidden flex flex-col items-center justify-end text-center hover:border-primary transition">
                   {c.photo_url ? (
-                    <img src={c.photo_url} alt={c.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                    <img src={c.photo_url} alt={c.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover object-center" />
                   ) : null}
-                  <div className={`relative w-full p-3 ${c.photo_url ? "bg-gradient-to-t from-background/90 to-transparent" : ""}`}>
+                  <div className={`relative w-full p-3 ${c.photo_url ? "bg-gradient-to-t from-background/90 via-background/60 to-transparent" : ""}`}>
                     <p className="font-display text-sm">{c.name}</p>
                     {c.role && <p className="text-[10px] text-muted-foreground">{c.role}</p>}
                   </div>
