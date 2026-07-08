@@ -8,6 +8,7 @@ import {
   adminListGalleryItems, adminSaveGalleryItem, adminDeleteGalleryItem,
   adminUploadCmsImage,
 } from "@/lib/cms.functions";
+import { compressImageFile } from "@/lib/compress-image";
 
 type Bucket = "hero-images" | "gallery" | "featured-banners";
 
