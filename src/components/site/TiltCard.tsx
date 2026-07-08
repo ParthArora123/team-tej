@@ -1,9 +1,9 @@
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from "motion/react";
 import { useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * 3D tilt-on-hover container with animated glow + gradient border.
+ * 3D tilt-on-hover container with animated glow.
  * Falls back to a flat card on touch devices and when reduced motion is set.
  */
 export function TiltCard({
@@ -22,8 +22,9 @@ export function TiltCard({
   const my = useMotionValue(0.5);
   const rx = useSpring(useTransform(my, [0, 1], [max, -max]), { stiffness: 180, damping: 18 });
   const ry = useSpring(useTransform(mx, [0, 1], [-max, max]), { stiffness: 180, damping: 18 });
-  const gx = useTransform(mx, (v) => `${v * 100}%`);
-  const gy = useTransform(my, (v) => `${v * 100}%`);
+  const gx = useTransform(mx, (v) => v * 100);
+  const gy = useTransform(my, (v) => v * 100);
+  const glowBg = useMotionTemplate`radial-gradient(320px circle at ${gx}% ${gy}%, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)`;
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = ref.current;
@@ -50,13 +51,7 @@ export function TiltCard({
         <motion.div
           aria-hidden
           className="pointer-events-none absolute -inset-px rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-          style={{
-            background: useTransform(
-              [gx, gy] as any,
-              ([x, y]: any) =>
-                `radial-gradient(320px circle at ${x} ${y}, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)`,
-            ) as any,
-          }}
+          style={{ background: glowBg }}
         />
       )}
       <div className="relative h-full w-full rounded-[inherit] [transform:translateZ(0)]">
