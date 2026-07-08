@@ -153,6 +153,8 @@ function AdminPage() {
 
       {tab === "workshop_hero" && <WorkshopHeroTab />}
 
+      {tab === "zero_to_hero" && <ZeroToHeroMediaTab />}
+
       {tab === "featured" && <FeaturedExperienceTab />}
 
       {tab === "gallery" && <GalleryTab />}
