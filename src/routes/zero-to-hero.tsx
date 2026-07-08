@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import {
   Sparkles, Music, HeartHandshake, Flame, PartyPopper, Award, Play,
   Clock, Infinity as InfinityIcon, GraduationCap, Smartphone, Video, User,
@@ -9,6 +10,8 @@ import { Reveal, SplitText } from "@/components/site/Reveal";
 import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent,
 } from "@/components/ui/accordion";
+import { listZeroToHeroMedia } from "@/lib/zero-to-hero.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/zero-to-hero")({
   component: ZeroToHeroPage,
@@ -388,6 +391,9 @@ function ZeroToHeroPage() {
         </div>
       </section>
 
+      {/* MEDIA GALLERY (admin-managed) */}
+      <ZeroToHeroGallery />
+
       {/* FAQ */}
       <Section eyebrow="Frequently asked questions" title="Everything you were wondering.">
         <Accordion type="single" collapsible className="mt-8 rounded-2xl border border-border/70 bg-card/60 px-6">
@@ -461,6 +467,38 @@ function ZeroToHeroPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+function ZeroToHeroGallery() {
+  const load = useServerFn(listZeroToHeroMedia);
+  const [items, setItems] = useState<any[]>([]);
+  useEffect(() => { load().then((r: any) => setItems(r ?? [])).catch(() => {}); }, []);
+  if (!items.length) return null;
+  return (
+    <Section eyebrow="In motion" title="Zero to Hero — moments.">
+      <div className="mt-8 grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+        {items.map((m, i) => (
+          <Reveal key={m.id} delay={Math.min(i * 0.04, 0.4)}>
+            <div className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card aspect-[4/5]">
+              {m.media_kind === "video" ? (
+                <video src={m.media_url} poster={m.poster_url ?? undefined}
+                  autoPlay muted loop playsInline preload="metadata"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              ) : (
+                <img src={m.media_url} alt={m.caption ?? ""} loading="lazy"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              )}
+              {m.caption && (
+                <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                  <p className="text-xs sm:text-sm text-white/95">{m.caption}</p>
+                </div>
+              )}
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Section>
   );
 }
 

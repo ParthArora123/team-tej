@@ -31,13 +31,14 @@ import { BundlesTab, BundlePurchasesTab } from "@/components/admin/BundlesTab";
 import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
 import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
 import { MediaUploader } from "@/components/admin/MediaUploader";
+import { ZeroToHeroMediaTab } from "@/components/admin/ZeroToHeroMediaTab";
 import { compressImageFile } from "@/lib/compress-image";
 
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "workshop_hero" | "bundles" | "bundle_purchases" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder";
+type Tab = "overview" | "workshops" | "workshop_hero" | "bundles" | "bundle_purchases" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
@@ -50,6 +51,7 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "styles", label: "Dance styles" },
   { id: "choreographies", label: "Choreographies", emphasis: true },
   { id: "founder", label: "Founder section" },
+  { id: "zero_to_hero", label: "Zero to Hero media", emphasis: true },
   { id: "contact_info", label: "Contact info" },
   { id: "about_page", label: "About page" },
 
@@ -150,6 +152,8 @@ function AdminPage() {
       {tab === "hero" && <HeroSlidesTab />}
 
       {tab === "workshop_hero" && <WorkshopHeroTab />}
+
+      {tab === "zero_to_hero" && <ZeroToHeroMediaTab />}
 
       {tab === "featured" && <FeaturedExperienceTab />}
 
