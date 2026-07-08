@@ -165,7 +165,7 @@ function About() {
               <div className="grid md:grid-cols-2">
                 <div className="aspect-[4/5] md:aspect-auto bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-8xl font-display font-bold text-primary">
                   {selected.photo_url ? (
-                    <img src={selected.photo_url} alt={selected.name} className="h-full w-full object-cover" />
+                    <img src={selected.photo_url} alt={selected.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
                     <span>{selected.name.charAt(0).toUpperCase()}</span>
                   )}
