@@ -198,20 +198,20 @@ function Index() {
     <>
       {/* HERO */}
       <section ref={heroRef} className="relative overflow-hidden">
-        {/* Mobile: media renders at natural aspect ratio, capped at 80vh */}
-        <div className="lg:hidden relative w-full bg-background flex items-center justify-center">
+        {/* Mobile: fixed aspect box with cross-fade between slides (no gap) */}
+        <div className="lg:hidden relative w-full aspect-[3/4] bg-background overflow-hidden">
           {heroSlides.length > 0 ? (
-            <AnimatePresence mode="wait">
+            <AnimatePresence initial={false}>
               <motion.div
                 key={heroSlides[slideIdx]?.id}
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }}
-                className="w-full flex items-center justify-center"
+                transition={{ duration: 1.0, ease: "easeInOut" }}
+                className="absolute inset-0"
               >
                 <HeroMedia
                   src={heroSlides[slideIdx]?.image_url}
                   alt={heroSlides[slideIdx]?.alt ?? "Hero"}
-                  className="w-full h-auto max-h-[80vh] object-contain"
+                  className="h-full w-full object-contain"
                 />
               </motion.div>
             </AnimatePresence>
@@ -219,10 +219,11 @@ function Index() {
             <img
               src={heroImg}
               alt="Tejas D Dhoke dancers in performance"
-              className="w-full h-auto max-h-[80vh] object-contain"
+              className="absolute inset-0 h-full w-full object-contain"
             />
           )}
         </div>
+
 
 
         {/* Desktop: parallax image behind text */}
@@ -232,11 +233,11 @@ function Index() {
         >
 
           {heroSlides.length > 0 ? (
-            <AnimatePresence mode="wait">
+            <AnimatePresence initial={false}>
               <motion.div
                 key={heroSlides[slideIdx]?.id}
                 initial={{ opacity: 0 }} animate={{ opacity: 0.6 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 1.0, ease: "easeInOut" }}
                 className="h-full w-full absolute inset-0"
               >
                 <HeroMedia
