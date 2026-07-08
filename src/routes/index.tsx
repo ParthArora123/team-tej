@@ -32,10 +32,10 @@ const defaultStyles = [
 function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
   if (w.banner_video_url) {
     return (
-      <div className="w-full aspect-video overflow-hidden bg-muted">
+      <div className="w-full overflow-hidden bg-black flex items-center justify-center">
         <video src={w.banner_video_url} poster={w.banner_url ?? undefined}
           autoPlay muted loop playsInline preload="metadata"
-          className={`w-full h-full object-cover ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+          className={`w-full h-auto max-h-[70vh] object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
       </div>
     );
   }
