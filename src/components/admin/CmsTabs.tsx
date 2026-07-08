@@ -33,12 +33,13 @@ function ImageUploader({ bucket, value, previewUrl, onChange, maxMb }:
   const [busy, setBusy] = useState(false);
   const limit = maxMb ?? 8;
 
-  const pick = async (file: File) => {
-    if (!/^image\/(png|jpe?g|webp|gif)$/.test(file.type)) return toast.error("Only JPG/PNG/WebP/GIF");
-    if (file.size > limit * 1024 * 1024) return toast.error(`Max ${limit} MB`);
+  const pick = async (rawFile: File) => {
+    if (!/^image\/(png|jpe?g|webp|gif)$/.test(rawFile.type)) return toast.error("Only JPG/PNG/WebP/GIF");
+    if (rawFile.size > limit * 1024 * 1024) return toast.error(`Max ${limit} MB`);
     setBusy(true);
 
     try {
+      const file = await compressImageFile(rawFile);
       const dataBase64 = await fileToBase64(file);
       const res = await upload({ data: { bucket, filename: file.name, contentType: file.type, dataBase64 } });
       onChange(res.image_url, res.preview_url ?? URL.createObjectURL(file));
