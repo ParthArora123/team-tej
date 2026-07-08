@@ -391,6 +391,9 @@ function ZeroToHeroPage() {
         </div>
       </section>
 
+      {/* MEDIA GALLERY (admin-managed) */}
+      <ZeroToHeroGallery />
+
       {/* FAQ */}
       <Section eyebrow="Frequently asked questions" title="Everything you were wondering.">
         <Accordion type="single" collapsible className="mt-8 rounded-2xl border border-border/70 bg-card/60 px-6">
