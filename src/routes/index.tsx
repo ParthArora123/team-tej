@@ -492,12 +492,12 @@ function Index() {
             if (s.video_url) {
               return (
                 <video src={s.video_url} poster={s.image_url ?? undefined}
-                  autoPlay loop muted playsInline
+                  autoPlay loop muted playsInline preload="metadata"
                   className="absolute inset-0 h-full w-full object-cover" />
               );
             }
             if (s.image_url) {
-              return <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover" />;
+              return <img src={s.image_url} alt={s.name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />;
             }
             return <StyleAnimation name={s.name} />;
           };
