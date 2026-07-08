@@ -57,10 +57,10 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
       if (!v.muted) v.play().catch(() => {});
     };
     return (
-      <div className="w-full aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-black flex items-center justify-center relative">
+      <div className="w-full bg-black flex items-center justify-center relative">
         <video ref={videoRef} src={w.banner_video_url} poster={w.banner_url ?? undefined}
           autoPlay muted loop playsInline preload="metadata"
-          className={`w-full h-full object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+          className={`w-full h-auto max-h-[75vh] object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
         <button type="button" onClick={toggle} aria-label={muted ? "Unmute video" : "Mute video"}
           className="absolute bottom-3 right-3 z-10 h-9 w-9 flex items-center justify-center rounded-full bg-background/70 backdrop-blur border border-border text-foreground hover:bg-background transition">
           {muted ? (
@@ -83,9 +83,9 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
   }
   if (w.banner_url) {
     return (
-      <div className="w-full aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-muted flex items-center justify-center">
+      <div className="w-full bg-muted flex items-center justify-center">
         <img src={w.banner_url} alt={w.name} loading="lazy"
-          className={`w-full h-full object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+          className={`w-full h-auto max-h-[75vh] object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
       </div>
     );
   }
