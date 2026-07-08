@@ -29,6 +29,19 @@ const defaultStyles = [
   { name: "Bollywood", tagline: "Built for the camera." },
 ];
 
+const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
+
+function HeroMedia({ src, alt, className }: { src?: string | null; alt?: string; className?: string }) {
+  if (!src) return null;
+  if (isVideoUrl(src)) {
+    return (
+      <video src={src} autoPlay muted loop playsInline preload="metadata"
+        className={className} />
+    );
+  }
+  return <img src={src} alt={alt ?? ""} className={className} loading="eager" />;
+}
+
 function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
@@ -44,10 +57,10 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
       if (!v.muted) v.play().catch(() => {});
     };
     return (
-      <div className="w-full overflow-hidden bg-black flex items-center justify-center relative">
+      <div className="w-full aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-black flex items-center justify-center relative">
         <video ref={videoRef} src={w.banner_video_url} poster={w.banner_url ?? undefined}
           autoPlay muted loop playsInline preload="metadata"
-          className={`w-full h-auto max-h-[70vh] object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+          className={`w-full h-full object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
         <button type="button" onClick={toggle} aria-label={muted ? "Unmute video" : "Mute video"}
           className="absolute bottom-3 right-3 z-10 h-9 w-9 flex items-center justify-center rounded-full bg-background/70 backdrop-blur border border-border text-foreground hover:bg-background transition">
           {muted ? (
@@ -70,14 +83,15 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
   }
   if (w.banner_url) {
     return (
-      <div className="w-full overflow-hidden bg-muted">
+      <div className="w-full aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-muted flex items-center justify-center">
         <img src={w.banner_url} alt={w.name} loading="lazy"
-          className={`w-full h-auto object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+          className={`w-full h-full object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
       </div>
     );
   }
   return <div className="aspect-[16/10] w-full bg-gradient-to-br from-primary/20 to-secondary/40" />;
 }
+
 
 
 export const Route = createFileRoute("/")({
