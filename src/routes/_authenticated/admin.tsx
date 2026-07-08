@@ -373,6 +373,22 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               </div>
             </FieldRow>
 
+            <FieldRow label="Banner Video (optional, up to 500 MB)">
+              <MediaUploader kind="video" path={f.banner_video_path || null} previewUrl={f.banner_video_preview}
+                onChange={(p, pv) => setF({ ...f, banner_video_path: p ?? "", banner_video_preview: pv })} />
+            </FieldRow>
+
+            <FieldRow label="Banner GIF (optional)">
+              <MediaUploader kind="gif" path={f.banner_gif_path || null} previewUrl={f.banner_gif_preview}
+                onChange={(p, pv) => setF({ ...f, banner_gif_path: p ?? "", banner_gif_preview: pv })} />
+            </FieldRow>
+
+            {f.id && (
+              <FieldRow label="Workshop Media Gallery">
+                <WorkshopMediaPanel programId={f.id} />
+              </FieldRow>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <FieldRow label="Registration Open Date">
                 <In type="date" placeholder="Select registration open date" v={f.registration_open_on} on={(v) => setF({ ...f, registration_open_on: v })} />
