@@ -742,7 +742,7 @@ function ChoreoCard({ c }: { c: Choreo }) {
               <img src={c.thumbnail_url} alt={c.title} loading="lazy"
                 className="absolute inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
             ) : c.video_url ? (
-              <video src={c.video_url} muted loop playsInline
+              <video src={c.video_url} muted loop playsInline preload="metadata"
                 className="absolute inset-0 w-full h-full object-contain" />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
