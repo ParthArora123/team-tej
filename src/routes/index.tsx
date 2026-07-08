@@ -29,6 +29,35 @@ const defaultStyles = [
   { name: "Bollywood", tagline: "Built for the camera." },
 ];
 
+function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
+  if (w.banner_video_url) {
+    return (
+      <div className="w-full aspect-video overflow-hidden bg-muted">
+        <video src={w.banner_video_url} poster={w.banner_url ?? undefined}
+          autoPlay muted loop playsInline preload="metadata"
+          className={`w-full h-full object-cover ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+      </div>
+    );
+  }
+  if (w.banner_gif_url) {
+    return (
+      <div className="w-full aspect-video overflow-hidden bg-muted">
+        <img src={w.banner_gif_url} alt={w.name} loading="lazy"
+          className={`w-full h-full object-cover ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+      </div>
+    );
+  }
+  if (w.banner_url) {
+    return (
+      <div className="w-full overflow-hidden bg-muted">
+        <img src={w.banner_url} alt={w.name} loading="lazy"
+          className={`w-full h-auto object-contain ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+      </div>
+    );
+  }
+  return <div className="aspect-[16/10] w-full bg-gradient-to-br from-primary/20 to-secondary/40" />;
+}
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -304,13 +333,8 @@ function Index() {
               {workshops.map((w) => (
                 <motion.article key={w.id} variants={item}
                   className="snap-start shrink-0 w-[82%] rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
-                  <div className="w-full overflow-hidden bg-muted">
-                    {w.banner_url ? (
-                      <img src={w.banner_url} alt={w.name} loading="lazy" className="w-full h-auto object-contain" />
-                    ) : (
-                      <div className="aspect-[16/10] w-full bg-gradient-to-br from-primary/20 to-secondary/40" />
-                    )}
-                  </div>
+                  <WorkshopCardMedia w={w} />
+
                   <div className="p-5 flex-1 flex flex-col">
                     {w.category && <p className="text-[10px] uppercase tracking-widest text-primary">{w.category}</p>}
                     <p className="mt-1 font-display text-xl font-bold">{w.name}</p>
@@ -333,13 +357,8 @@ function Index() {
               {workshops.map((w) => (
                 <motion.article key={w.id} variants={item}
                   className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
-                  <div className="w-full overflow-hidden bg-muted">
-                    {w.banner_url ? (
-                      <img src={w.banner_url} alt={w.name} loading="lazy" className="w-full h-auto object-contain transition-transform duration-500 group-hover:scale-105" />
-                    ) : (
-                      <div className="aspect-[16/10] w-full bg-gradient-to-br from-primary/20 to-secondary/40" />
-                    )}
-                  </div>
+                  <WorkshopCardMedia w={w} desktop />
+
                   <div className="p-5 flex-1 flex flex-col">
                     {w.category && <p className="text-[10px] uppercase tracking-widest text-primary">{w.category}</p>}
                     <p className="mt-1 font-display text-xl font-bold">{w.name}</p>
