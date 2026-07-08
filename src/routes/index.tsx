@@ -202,14 +202,18 @@ function Index() {
         <div className="lg:hidden relative w-full aspect-[4/5] bg-background overflow-hidden">
           {heroSlides.length > 0 ? (
             <AnimatePresence mode="wait">
-              <motion.img
+              <motion.div
                 key={heroSlides[slideIdx]?.id}
-                src={heroSlides[slideIdx]?.image_url}
-                alt={heroSlides[slideIdx]?.alt ?? "Hero"}
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 transition={{ duration: 0.8 }}
-                className="h-full w-full object-contain absolute inset-0"
-              />
+                className="absolute inset-0"
+              >
+                <HeroMedia
+                  src={heroSlides[slideIdx]?.image_url}
+                  alt={heroSlides[slideIdx]?.alt ?? "Hero"}
+                  className="h-full w-full object-contain"
+                />
+              </motion.div>
             </AnimatePresence>
           ) : (
             <img
@@ -225,6 +229,7 @@ function Index() {
           style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
           className="absolute inset-0 hidden lg:block"
         >
+
           {heroSlides.length > 0 ? (
             <AnimatePresence mode="wait">
               <motion.img
