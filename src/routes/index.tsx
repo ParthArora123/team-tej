@@ -288,9 +288,9 @@ function Index() {
   return (
     <>
       {/* HERO */}
-      <section ref={heroRef} className="relative overflow-hidden lg:min-h-screen">
-        {/* Mobile: slide-in from right, image fits fully (no crop) over blurred backdrop */}
-        <div className="lg:hidden relative w-full aspect-[3/2] bg-background overflow-hidden">
+      <section ref={heroRef} className="relative overflow-hidden">
+        {/* Responsive hero media — fits fully (no crop) on mobile and laptop */}
+        <div className="relative w-full aspect-[3/2] lg:aspect-[16/9] bg-background overflow-hidden">
           {heroSlides.length > 0 ? (
             <AnimatePresence initial={false}>
               <motion.div
@@ -319,48 +319,7 @@ function Index() {
           )}
         </div>
 
-
-
-
-        {/* Desktop: full-screen slide-in carousel behind text */}
-        <motion.div
-          style={{ y: heroY, scale: heroScale, opacity: heroOpacity }}
-          className="absolute inset-0 hidden lg:block overflow-hidden"
-        >
-
-          {heroSlides.length > 0 ? (
-            <AnimatePresence initial={false}>
-              <motion.div
-                key={heroSlides[slideIdx]?.id}
-                initial={{ x: "100%", opacity: 0.4 }}
-                animate={{ x: "0%", opacity: 1 }}
-                exit={{ x: "-100%", opacity: 0.4 }}
-                transition={{ duration: 1.0, ease: [0.32, 0.72, 0, 1] }}
-                className="h-full w-full absolute inset-0"
-              >
-                <HeroSlideMedia
-                  src={heroSlides[slideIdx]?.image_url}
-                  alt={heroSlides[slideIdx]?.alt ?? "Hero"}
-                  priority={slideIdx === 0}
-                />
-              </motion.div>
-            </AnimatePresence>
-          ) : (
-            <img
-              src={heroImg}
-              alt="Tejas D Dhoke dancers in performance"
-              width={1600}
-              height={1200}
-              className="h-full w-full object-contain bg-background"
-              loading="eager"
-              decoding="async"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20" />
-        </motion.div>
-
-
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:pt-28 lg:pb-32">
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-16">
           <motion.div
             variants={stagger}
             initial="hidden"
@@ -407,24 +366,8 @@ function Index() {
               </MagneticButton>
             </motion.div>
           </motion.div>
-
-          {/* Scroll indicator */}
-          <motion.div
-            aria-hidden
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
-            className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground"
-          >
-            <div className="h-10 w-[1px] bg-gradient-to-b from-primary to-transparent overflow-hidden">
-              <motion.div
-                animate={{ y: ["-100%", "100%"] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                className="h-full w-full bg-primary"
-              />
-            </div>
-          </motion.div>
         </div>
+
 
         {/* Marquee */}
         <div className="relative border-y border-border bg-background/60 backdrop-blur overflow-hidden">
