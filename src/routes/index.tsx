@@ -344,7 +344,7 @@ function Index() {
             <div className="grid lg:grid-cols-2">
               <div className="relative aspect-[4/3] lg:aspect-auto bg-muted">
                 {featured.banner_url && (
-                  <img src={featured.banner_url} alt={featured.title} className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={featured.banner_url} alt={featured.title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent lg:hidden" />
               </div>
