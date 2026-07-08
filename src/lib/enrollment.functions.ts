@@ -544,7 +544,17 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
         const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_path, 60 * 60 * 24 * 7);
         banner_signed_url = s?.signedUrl ?? null;
       }
-      return { ...rest, has_upi: !!upi_id_encrypted, banner_signed_url };
+      let banner_video_signed_url: string | null = null;
+      if (rest.banner_video_path) {
+        const { data: s } = await supabaseAdmin.storage.from("workshop-videos").createSignedUrl(rest.banner_video_path, 60 * 60 * 24 * 7);
+        banner_video_signed_url = s?.signedUrl ?? null;
+      }
+      let banner_gif_signed_url: string | null = null;
+      if (rest.banner_gif_path) {
+        const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_gif_path, 60 * 60 * 24 * 7);
+        banner_gif_signed_url = s?.signedUrl ?? null;
+      }
+      return { ...rest, has_upi: !!upi_id_encrypted, banner_signed_url, banner_video_signed_url, banner_gif_signed_url };
     }));
   });
 
