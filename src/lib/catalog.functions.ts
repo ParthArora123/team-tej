@@ -19,8 +19,16 @@ const BANNER_TTL = 60 * 60 * 24 * 7; // 7 days
 
 async function signBucketPath(bucket: string, key: string | null | undefined) {
   if (!key) return null;
+  // Values may be stored as "bucket:key" (new uploads) or just "key" (legacy).
+  let b = bucket;
+  let k = key;
+  if (key.includes(":")) {
+    const [bk, ...rest] = key.split(":");
+    b = bk;
+    k = rest.join(":");
+  }
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.storage.from(bucket).createSignedUrl(key, BANNER_TTL);
+  const { data } = await supabaseAdmin.storage.from(b).createSignedUrl(k, BANNER_TTL);
   return data?.signedUrl ?? null;
 }
 
