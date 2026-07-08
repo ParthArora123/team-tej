@@ -421,6 +421,8 @@ const workshopSchema = z.object({
   description: z.string().optional(),
   banner_url: z.string().url().optional().or(z.literal("")),
   banner_path: z.string().max(500).optional().or(z.literal("")),
+  banner_video_path: z.string().max(500).optional().or(z.literal("")).nullable(),
+  banner_gif_path: z.string().max(500).optional().or(z.literal("")).nullable(),
   event_date: z.string().optional(),
   event_time: z.string().optional(),
   venue: z.string().optional(),
