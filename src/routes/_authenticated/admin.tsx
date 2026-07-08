@@ -250,17 +250,18 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
     setOpen(true);
   };
 
-  const handleFile = async (file: File) => {
-    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) {
+  const handleFile = async (rawFile: File) => {
+    if (!/^image\/(png|jpe?g|webp)$/.test(rawFile.type)) {
       toast.error("Only JPG, PNG or WebP images are allowed.");
       return;
     }
-    if (file.size > 8 * 1024 * 1024) {
-      toast.error("Image is too large. Max 8 MB.");
+    if (rawFile.size > 50 * 1024 * 1024) {
+      toast.error("Image is too large. Max 50 MB.");
       return;
     }
     setUploading(true);
     try {
+      const file = await compressImageFile(rawFile);
       const buf = await file.arrayBuffer();
       let binary = "";
       const bytes = new Uint8Array(buf);
