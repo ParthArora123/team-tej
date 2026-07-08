@@ -1041,6 +1041,42 @@ export type Database = {
           },
         ]
       }
+      zero_to_hero_media: {
+        Row: {
+          active: boolean
+          caption: string | null
+          created_at: string
+          id: string
+          media_kind: string
+          media_path: string
+          poster_path: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          caption?: string | null
+          created_at?: string
+          id?: string
+          media_kind: string
+          media_path: string
+          poster_path?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          caption?: string | null
+          created_at?: string
+          id?: string
+          media_kind?: string
+          media_path?: string
+          poster_path?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       programs_public: {
