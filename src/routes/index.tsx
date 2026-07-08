@@ -344,7 +344,7 @@ function Index() {
             <div className="grid lg:grid-cols-2">
               <div className="relative aspect-[4/3] lg:aspect-auto bg-muted">
                 {featured.banner_url && (
-                  <img src={featured.banner_url} alt={featured.title} className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={featured.banner_url} alt={featured.title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent lg:hidden" />
               </div>
@@ -492,12 +492,12 @@ function Index() {
             if (s.video_url) {
               return (
                 <video src={s.video_url} poster={s.image_url ?? undefined}
-                  autoPlay loop muted playsInline
+                  autoPlay loop muted playsInline preload="metadata"
                   className="absolute inset-0 h-full w-full object-cover" />
               );
             }
             if (s.image_url) {
-              return <img src={s.image_url} alt={s.name} className="absolute inset-0 h-full w-full object-cover" />;
+              return <img src={s.image_url} alt={s.name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />;
             }
             return <StyleAnimation name={s.name} />;
           };
@@ -735,14 +735,14 @@ function ChoreoCard({ c }: { c: Choreo }) {
             allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen
             className="absolute inset-0 w-full h-full" />
         ) : playing && c.video_url ? (
-          <video src={c.video_url} controls autoPlay className="absolute inset-0 w-full h-full object-contain" />
+          <video src={c.video_url} controls autoPlay preload="metadata" className="absolute inset-0 w-full h-full object-contain" />
         ) : (
           <>
             {c.thumbnail_url ? (
               <img src={c.thumbnail_url} alt={c.title} loading="lazy"
                 className="absolute inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
             ) : c.video_url ? (
-              <video src={c.video_url} muted loop playsInline
+              <video src={c.video_url} muted loop playsInline preload="metadata"
                 className="absolute inset-0 w-full h-full object-contain" />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />

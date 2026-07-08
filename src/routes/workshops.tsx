@@ -48,7 +48,7 @@ function WorkshopsPage() {
               className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col">
               {r.banner_url && (
                 <div className="w-full overflow-hidden bg-muted">
-                  <img src={r.banner_url} alt={r.name} className="w-full h-auto object-contain" />
+                  <img src={r.banner_url} alt={r.name} loading="lazy" decoding="async" className="w-full h-auto object-contain" />
                 </div>
               )}
               <div className="p-6 flex-1 flex flex-col">
