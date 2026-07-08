@@ -28,6 +28,9 @@ import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/a
 import { MessagesTab } from "@/components/admin/MessagesTab";
 import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab } from "@/components/admin/SiteContentTabs";
 import { BundlesTab, BundlePurchasesTab } from "@/components/admin/BundlesTab";
+import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
+import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
+import { MediaUploader } from "@/components/admin/MediaUploader";
 import { compressImageFile } from "@/lib/compress-image";
 
 
