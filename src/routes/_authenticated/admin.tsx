@@ -305,6 +305,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         silver_seat_enabled: !!f.silver_seat_enabled,
         banner_url: f.banner_url || undefined,
         banner_path: f.banner_path || undefined,
+        banner_video_path: f.banner_video_path || null,
+        banner_gif_path: f.banner_gif_path || null,
         registration_open_on: f.registration_open_on || undefined,
       }});
       if (!payerDefaults && f.save_payer_default && f.upi_id?.trim() && f.bank_account_holder?.trim()) {
