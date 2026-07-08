@@ -526,10 +526,11 @@ export function FounderTab() {
     }).catch(() => {});
   }, []);
 
-  const pickImage = async (file: File) => {
-    if (file.size > 30 * 1024 * 1024) return toast.error("Max 30 MB");
+  const pickImage = async (rawFile: File) => {
+    if (rawFile.size > 50 * 1024 * 1024) return toast.error("Max 50 MB");
     setUploading(true);
     try {
+      const file = await compressImageFile(rawFile);
       const dataBase64 = await fileToBase64(file);
       const res = await upload({ data: { kind: "image", filename: file.name, contentType: file.type, dataBase64 } });
       setF((s: any) => ({ ...s, image_url: res.url, image_preview: res.preview_url ?? URL.createObjectURL(file) }));
