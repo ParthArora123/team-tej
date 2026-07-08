@@ -209,20 +209,45 @@ function Index() {
             </motion.p>
 
             <motion.div variants={item} className="mt-5 flex flex-wrap gap-3">
-              <Link
-                to="/workshops"
-                className="group inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full bg-primary text-primary-foreground text-sm lg:text-base font-medium hover:opacity-90 transition"
-              >
-                Register for workshops
-                <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
-              </Link>
-              <Link
-                to="/nritya-sadhana"
-                className="inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full border border-border text-sm lg:text-base hover:border-primary hover:text-primary transition"
-              >
-                Explore classes
-              </Link>
+              <MagneticButton>
+                <Link
+                  to="/workshops"
+                  className="group relative inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full bg-primary text-primary-foreground text-sm lg:text-base font-medium overflow-hidden shadow-[0_10px_40px_-12px_oklch(0.78_0.16_65/0.7)]"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    Register for workshops
+                    <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
+                  </span>
+                  <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                </Link>
+              </MagneticButton>
+              <MagneticButton strength={0.25}>
+                <Link
+                  to="/nritya-sadhana"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full border border-border text-sm lg:text-base hover:border-primary hover:text-primary transition-colors backdrop-blur-sm bg-background/30"
+                >
+                  Explore classes
+                </Link>
+              </MagneticButton>
             </motion.div>
+          </motion.div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            aria-hidden
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="hidden lg:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground"
+          >
+            <span>Scroll</span>
+            <div className="h-10 w-[1px] bg-gradient-to-b from-primary to-transparent overflow-hidden">
+              <motion.div
+                animate={{ y: ["-100%", "100%"] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                className="h-full w-full bg-primary"
+              />
+            </div>
           </motion.div>
         </div>
 
