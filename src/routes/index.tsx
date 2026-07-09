@@ -253,14 +253,23 @@ function Index() {
     return () => clearInterval(t);
   }, [heroSlides.length]);
 
+  const [slideRatios, setSlideRatios] = useState<Record<string, number>>({});
   useEffect(() => {
     heroSlides.forEach((slide) => {
       const src = slide?.image_url;
-      if (!src || isVideoUrl(src)) return;
+      if (!src || isVideoUrl(src) || slideRatios[slide.id]) return;
       const img = new Image();
+      img.onload = () => {
+        if (img.naturalWidth && img.naturalHeight) {
+          setSlideRatios((r) => ({ ...r, [slide.id]: img.naturalWidth / img.naturalHeight }));
+        }
+      };
       img.src = src;
     });
   }, [heroSlides]);
+
+  const currentSlide = heroSlides[slideIdx];
+  const currentRatio = currentSlide ? slideRatios[currentSlide.id] ?? 16 / 9 : 16 / 9;
 
 
 
