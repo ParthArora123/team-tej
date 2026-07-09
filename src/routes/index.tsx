@@ -269,19 +269,21 @@ function Index() {
   useEffect(() => {
     heroSlides.forEach((slide) => {
       const src = slide?.image_url;
-      if (!src || isVideoUrl(src) || slideRatios[slide.id]) return;
+      const key = heroSlideKey(slide);
+      if (!src || isVideoUrl(src) || slideRatios[key]) return;
       const img = new Image();
       img.onload = () => {
         if (img.naturalWidth && img.naturalHeight) {
-          setSlideRatios((r) => ({ ...r, [slide.id]: img.naturalWidth / img.naturalHeight }));
+          setSlideRatios((r) => ({ ...r, [key]: img.naturalWidth / img.naturalHeight }));
         }
       };
       img.src = src;
     });
-  }, [heroSlides]);
+  }, [heroSlides, slideRatios]);
 
   const currentSlide = heroSlides[slideIdx];
-  const currentRatio = currentSlide ? slideRatios[currentSlide.id] ?? fallbackHeroRatio : fallbackHeroRatio;
+  const currentKey = heroSlideKey(currentSlide);
+  const currentRatio = currentSlide ? slideRatios[currentKey] ?? fallbackHeroRatio : fallbackHeroRatio;
 
 
 
@@ -309,6 +311,7 @@ function Index() {
                   src={heroSlides[slideIdx]?.image_url}
                   alt={heroSlides[slideIdx]?.alt ?? "Hero"}
                   priority
+                  onNaturalRatio={(ratio) => setSlideRatios((r) => ({ ...r, [currentKey]: ratio }))}
                 />
               </motion.div>
             </AnimatePresence>
