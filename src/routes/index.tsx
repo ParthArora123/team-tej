@@ -51,7 +51,7 @@ function HeroMedia({
         className={className} />
     );
   }
-  return <img src={src} alt={alt ?? ""} className={className} loading={priority ? "eager" : "lazy"} decoding="async" fetchPriority={priority ? "high" : "auto"} onLoad={onLoad} />;
+  return <img src={src} alt={alt ?? ""} className={className} loading={priority ? "eager" : "lazy"} decoding="async" fetchPriority={priority ? "high" : "auto"} sizes="100vw" onLoad={onLoad} />;
 }
 
 function HeroSlideMedia({
