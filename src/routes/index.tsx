@@ -31,6 +31,8 @@ const defaultStyles = [
 
 const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
 const fallbackHeroRatio = 4 / 3;
+const heroSlideKey = (slide?: { id?: string | null; image_url?: string | null } | null) =>
+  slide?.id || slide?.image_url || "fallback";
 
 function HeroMedia({
   src,
@@ -59,10 +61,12 @@ function HeroSlideMedia({
   src,
   alt,
   priority = false,
+  onNaturalRatio,
 }: {
   src?: string | null;
   alt?: string;
   priority?: boolean;
+  onNaturalRatio?: (ratio: number) => void;
 }) {
   const [hasLoaded, setHasLoaded] = useState(false);
 
@@ -98,7 +102,14 @@ function HeroSlideMedia({
         src={src}
         alt={alt}
         priority={priority}
-        onLoad={() => setHasLoaded(true)}
+        onLoad={() => {
+          setHasLoaded(true);
+          const img = new Image();
+          img.onload = () => {
+            if (img.naturalWidth && img.naturalHeight) onNaturalRatio?.(img.naturalWidth / img.naturalHeight);
+          };
+          img.src = src;
+        }}
         className="relative z-10 h-full w-full object-contain bg-transparent"
       />
     </>
