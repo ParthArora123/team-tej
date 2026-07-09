@@ -280,7 +280,7 @@ function Index() {
       <section ref={heroRef} className="relative overflow-hidden">
         {/* Responsive hero media — fits fully (no crop) on mobile and laptop */}
         <div
-          className="relative w-full max-h-[90vh] bg-background overflow-hidden mx-auto"
+          className="relative w-full bg-background overflow-hidden"
           style={{ aspectRatio: currentRatio }}
         >
           {heroSlides.length > 0 ? (
