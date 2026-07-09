@@ -253,38 +253,12 @@ function Index() {
     return () => clearInterval(t);
   }, [heroSlides.length]);
 
-  const [slideRatios, setSlideRatios] = useState<Record<string, number>>({});
-  useEffect(() => {
-    heroSlides.forEach((slide) => {
-      const src = slide?.image_url;
-      const key = heroSlideKey(slide);
-      if (!src || isVideoUrl(src) || slideRatios[key]) return;
-      const img = new Image();
-      img.onload = () => {
-        if (img.naturalWidth && img.naturalHeight) {
-          setSlideRatios((r) => ({ ...r, [key]: img.naturalWidth / img.naturalHeight }));
-        }
-      };
-      img.src = src;
-    });
-  }, [heroSlides, slideRatios]);
-
-  const currentSlide = heroSlides[slideIdx];
-  const currentKey = heroSlideKey(currentSlide);
-  const currentRatio = currentSlide ? slideRatios[currentKey] ?? fallbackHeroRatio : fallbackHeroRatio;
-
-
-
-
   return (
     <>
       {/* HERO */}
       <section ref={heroRef} className="relative overflow-hidden">
         {/* Responsive hero media — fits fully (no crop) on mobile and laptop */}
-        <div
-          className="relative w-full overflow-hidden bg-transparent"
-          style={{ aspectRatio: currentRatio }}
-        >
+        <div className="relative grid w-full overflow-hidden bg-transparent">
           {heroSlides.length > 0 ? (
             <AnimatePresence initial={false}>
               <motion.div
@@ -293,13 +267,12 @@ function Index() {
                 animate={{ x: "0%", opacity: 1 }}
                 exit={{ x: "-100%", opacity: 0.6 }}
                 transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
-                className="absolute inset-0"
+                className="relative col-start-1 row-start-1 w-full"
               >
                 <HeroSlideMedia
                   src={heroSlides[slideIdx]?.image_url}
                   alt={heroSlides[slideIdx]?.alt ?? "Hero"}
                   priority
-                  onNaturalRatio={(ratio) => setSlideRatios((r) => ({ ...r, [currentKey]: ratio }))}
                 />
               </motion.div>
             </AnimatePresence>
