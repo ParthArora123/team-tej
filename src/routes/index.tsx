@@ -78,27 +78,27 @@ function HeroSlideMedia({
         alt={alt}
         priority={priority}
         onLoad={() => setHasLoaded(true)}
-        className="absolute inset-0 h-full w-full object-contain bg-background"
+        className="relative block h-auto w-full bg-transparent"
       />
     );
   }
 
   return (
     <>
-      <div className={`absolute inset-0 bg-muted transition-opacity duration-300 ${hasLoaded ? "opacity-0" : "opacity-100"}`} />
+      <div className={`absolute inset-0 bg-transparent transition-opacity duration-300 ${hasLoaded ? "opacity-0" : "opacity-100"}`} />
       <HeroMedia
         src={src}
         alt=""
         priority={priority}
         onLoad={() => setHasLoaded(true)}
-        className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl opacity-60"
+        className="absolute inset-0 h-full w-full object-cover scale-105 blur-xl opacity-35"
       />
       <HeroMedia
         src={src}
         alt={alt}
         priority={priority}
         onLoad={() => setHasLoaded(true)}
-        className="relative z-10 h-full w-full object-contain"
+        className="relative z-10 block h-auto w-full bg-transparent"
       />
     </>
   );
@@ -253,36 +253,12 @@ function Index() {
     return () => clearInterval(t);
   }, [heroSlides.length]);
 
-  const [slideRatios, setSlideRatios] = useState<Record<string, number>>({});
-  useEffect(() => {
-    heroSlides.forEach((slide) => {
-      const src = slide?.image_url;
-      if (!src || isVideoUrl(src) || slideRatios[slide.id]) return;
-      const img = new Image();
-      img.onload = () => {
-        if (img.naturalWidth && img.naturalHeight) {
-          setSlideRatios((r) => ({ ...r, [slide.id]: img.naturalWidth / img.naturalHeight }));
-        }
-      };
-      img.src = src;
-    });
-  }, [heroSlides]);
-
-  const currentSlide = heroSlides[slideIdx];
-  const currentRatio = currentSlide ? slideRatios[currentSlide.id] ?? 16 / 9 : 16 / 9;
-
-
-
-
   return (
     <>
       {/* HERO */}
       <section ref={heroRef} className="relative overflow-hidden">
         {/* Responsive hero media — fits fully (no crop) on mobile and laptop */}
-        <div
-          className="relative w-full bg-background overflow-hidden"
-          style={{ aspectRatio: currentRatio }}
-        >
+        <div className="relative grid w-full overflow-hidden bg-transparent">
           {heroSlides.length > 0 ? (
             <AnimatePresence initial={false}>
               <motion.div
@@ -291,7 +267,7 @@ function Index() {
                 animate={{ x: "0%", opacity: 1 }}
                 exit={{ x: "-100%", opacity: 0.6 }}
                 transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
-                className="absolute inset-0"
+                className="relative col-start-1 row-start-1 w-full"
               >
                 <HeroSlideMedia
                   src={heroSlides[slideIdx]?.image_url}
@@ -301,12 +277,10 @@ function Index() {
               </motion.div>
             </AnimatePresence>
           ) : (
-            <img
+            <HeroSlideMedia
               src={heroImg}
               alt="Tejas D Dhoke dancers in performance"
-              className="absolute inset-0 h-full w-full object-contain bg-background"
-              loading="eager"
-              decoding="async"
+              priority
             />
           )}
         </div>
