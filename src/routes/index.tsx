@@ -30,6 +30,7 @@ const defaultStyles = [
 ];
 
 const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
+const fallbackHeroRatio = 4 / 3;
 
 function HeroMedia({
   src,
@@ -78,27 +79,27 @@ function HeroSlideMedia({
         alt={alt}
         priority={priority}
         onLoad={() => setHasLoaded(true)}
-        className="absolute inset-0 h-full w-full object-contain bg-background"
+        className="absolute inset-0 h-full w-full object-contain bg-transparent"
       />
     );
   }
 
   return (
     <>
-      <div className={`absolute inset-0 bg-muted transition-opacity duration-300 ${hasLoaded ? "opacity-0" : "opacity-100"}`} />
+      <div className={`absolute inset-0 bg-transparent transition-opacity duration-300 ${hasLoaded ? "opacity-0" : "opacity-100"}`} />
       <HeroMedia
         src={src}
         alt=""
         priority={priority}
         onLoad={() => setHasLoaded(true)}
-        className="absolute inset-0 h-full w-full object-cover scale-110 blur-2xl opacity-60"
+        className="absolute inset-0 h-full w-full object-cover scale-105 blur-xl opacity-35"
       />
       <HeroMedia
         src={src}
         alt={alt}
         priority={priority}
         onLoad={() => setHasLoaded(true)}
-        className="relative z-10 h-full w-full object-contain"
+        className="relative z-10 h-full w-full object-contain bg-transparent"
       />
     </>
   );
@@ -269,7 +270,7 @@ function Index() {
   }, [heroSlides]);
 
   const currentSlide = heroSlides[slideIdx];
-  const currentRatio = currentSlide ? slideRatios[currentSlide.id] ?? 16 / 9 : 16 / 9;
+  const currentRatio = currentSlide ? slideRatios[currentSlide.id] ?? fallbackHeroRatio : fallbackHeroRatio;
 
 
 
@@ -280,7 +281,7 @@ function Index() {
       <section ref={heroRef} className="relative overflow-hidden">
         {/* Responsive hero media — fits fully (no crop) on mobile and laptop */}
         <div
-          className="relative w-full bg-background overflow-hidden"
+          className="relative w-full overflow-hidden bg-transparent"
           style={{ aspectRatio: currentRatio }}
         >
           {heroSlides.length > 0 ? (
@@ -301,12 +302,10 @@ function Index() {
               </motion.div>
             </AnimatePresence>
           ) : (
-            <img
+            <HeroSlideMedia
               src={heroImg}
               alt="Tejas D Dhoke dancers in performance"
-              className="absolute inset-0 h-full w-full object-contain bg-background"
-              loading="eager"
-              decoding="async"
+              priority
             />
           )}
         </div>
