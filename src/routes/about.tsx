@@ -45,8 +45,6 @@ type TeamMember = {
 };
 
 function About() {
-  const [team, setTeam] = useState<TeamMember[]>([]);
-  const [selected, setSelected] = useState<TeamMember | null>(null);
   const loadContent = useServerFn(getSiteContent);
   const [content, setContent] = useState<any>({
     eyebrow: "About",
@@ -61,16 +59,10 @@ function About() {
   });
 
   useEffect(() => {
-    const load = () => listPublicTeamProfiles()
-      .then((rows: any) => setTeam(rows ?? []))
-      .catch(() => setTeam([]));
-    load();
     loadContent({ data: { key: "about" } }).then((v: any) => v && setContent((c: any) => ({ ...c, ...v }))).catch(() => {});
-    const onFocus = () => load();
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
 
 
   return (
