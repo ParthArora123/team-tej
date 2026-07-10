@@ -80,6 +80,7 @@ export function HeroSlidesTab() {
   const list = useServerFn(adminListHeroSlides);
   const save = useServerFn(adminSaveHeroSlide);
   const del = useServerFn(adminDeleteHeroSlide);
+  const reorder = useServerFn(adminReorderHeroSlides);
   const createVideoUpload = useServerFn(adminCreateHeroVideoUpload);
   const [rows, setRows] = useState<any[]>([]);
   const [f, setF] = useState<any>({ image_url: "", alt: "", sort_order: 0, active: true, preview: null });
@@ -88,6 +89,21 @@ export function HeroSlidesTab() {
   const videoInputRef = useRef<HTMLInputElement>(null);
   const reload = () => list().then(setRows).catch(() => {});
   useEffect(() => { reload(); }, []);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const onDragEnd = async (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIndex = rows.findIndex((r) => r.id === active.id);
+    const newIndex = rows.findIndex((r) => r.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const next = arrayMove(rows, oldIndex, newIndex).map((r, i) => ({ ...r, sort_order: i }));
+    setRows(next);
+    try {
+      await reorder({ data: { order: next.map((r) => ({ id: r.id, sort_order: r.sort_order })) } });
+      toast.success("Order saved");
+    } catch (err: any) { toast.error(err.message ?? "Reorder failed"); reload(); }
+  };
 
   const isVideoRef = (v: string) => /^hero-videos:/.test(v) || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(v);
 
