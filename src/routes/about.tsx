@@ -105,94 +105,30 @@ function About() {
         </section>
       )}
 
-      {/* TEAM — dynamic profiles from database */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Faculty</p>
-            <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold">The people on the floor.</h2>
-          </div>
+      {/* FOUNDER */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+        <div className="mb-10">
+          <p className="text-xs uppercase tracking-widest text-primary">Founder</p>
+          <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold">The vision behind the company.</h2>
         </div>
-        {team.length === 0 ? (
-          <p className="text-muted-foreground">Profiles will be added soon.</p>
-        ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {team.map((m, i) => (
-              <motion.button
-                key={m.id}
-                type="button"
-                onClick={() => setSelected(m)}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                className="group text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-2xl">
-                <div className="aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-muted to-secondary border border-border flex items-center justify-center text-7xl font-display font-bold text-primary group-hover:scale-[1.02] transition-transform">
-                  {m.photo_url ? (
-                    <img src={m.photo_url} alt={m.name} loading="lazy" className="h-full w-full object-cover" />
-                  ) : (
-                    <span>{m.name.charAt(0).toUpperCase()}</span>
-                  )}
-                </div>
-                <p className="mt-4 font-display text-xl font-semibold">{m.name}</p>
-                {m.designation && <p className="text-sm text-muted-foreground">{m.designation}</p>}
-              </motion.button>
-            ))}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="grid md:grid-cols-5 gap-10 items-center">
+          <div className="md:col-span-2 aspect-[4/5] rounded-2xl overflow-hidden border border-border">
+            <MotionImage src={aboutImg} alt="Tejas D Dhoke — Founder" width={1200} height={1400} className="h-full w-full" />
           </div>
-        )}
+          <div className="md:col-span-3">
+            <p className="font-display text-3xl lg:text-4xl font-bold">Tejas D Dhoke</p>
+            <p className="text-sm text-muted-foreground mt-1">Founder & Creative Director</p>
+            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
+              Tejas leads the company's choreography, curriculum and creative direction — building
+              a fusion vocabulary that borrows from Kathak, contemporary, Bollywood and hip-hop.
+              His work spans film, festivals and live productions across India.
+            </p>
+          </div>
+        </motion.div>
       </section>
-
-      <AnimatePresence>
-        {selected && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={() => setSelected(null)}
-            className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md flex items-center justify-center p-4">
-            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-card border border-border rounded-2xl">
-              <button onClick={() => setSelected(null)}
-                className="absolute top-4 right-4 p-2 rounded-full bg-background/60 hover:bg-muted z-10">
-                <X size={18} />
-              </button>
-              <div className="grid md:grid-cols-2">
-                <div className="aspect-[4/5] md:aspect-auto bg-gradient-to-br from-muted to-secondary flex items-center justify-center text-8xl font-display font-bold text-primary">
-                  {selected.photo_url ? (
-                    <img src={selected.photo_url} alt={selected.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
-                  ) : (
-                    <span>{selected.name.charAt(0).toUpperCase()}</span>
-                  )}
-                </div>
-                <div className="p-6 sm:p-8">
-                  <p className="text-xs uppercase tracking-widest text-primary">Profile</p>
-                  <h3 className="mt-1 font-display text-3xl font-bold">{selected.name}</h3>
-                  {selected.designation && <p className="text-sm text-muted-foreground mt-1">{selected.designation}</p>}
-                  {selected.experience && <p className="mt-3 text-xs uppercase tracking-widest text-muted-foreground">Experience · {selected.experience}</p>}
-                  {selected.short_description && <p className="mt-4 text-sm text-muted-foreground leading-relaxed">{selected.short_description}</p>}
-                  {selected.biography && (
-                    <p className="mt-3 text-sm leading-relaxed whitespace-pre-line">{selected.biography}</p>
-                  )}
-                  {selected.dance_styles && selected.dance_styles.length > 0 && (
-                    <div className="mt-5">
-                      <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-2">Styles</p>
-                      <div className="flex flex-wrap gap-2">
-                        {selected.dance_styles.map((s) => (
-                          <span key={s} className="px-2.5 py-1 rounded-full text-[11px] border border-border bg-background/40">{s}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {selected.achievements && selected.achievements.length > 0 && (
-                    <div className="mt-5">
-                      <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-2">Achievements</p>
-                      <ul className="text-sm space-y-1 list-disc list-inside text-muted-foreground">
-                        {selected.achievements.map((a) => <li key={a}>{a}</li>)}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 }
