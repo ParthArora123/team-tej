@@ -99,6 +99,18 @@ export const adminDeleteHeroSlide = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminReorderHeroSlides = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i) => z.object({ order: z.array(z.object({ id: z.string().uuid(), sort_order: z.number().int() })).max(200) }).parse(i))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await Promise.all(data.order.map((o) =>
+      (supabaseAdmin as any).from("hero_slides").update({ sort_order: o.sort_order }).eq("id", o.id),
+    ));
+    return { ok: true };
+  });
+
 // ============== FEATURED EXPERIENCE ==============
 export const getFeaturedExperience = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await (pub() as any).from("featured_experience")
