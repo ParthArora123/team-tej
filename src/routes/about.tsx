@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
 import aboutImg from "@/assets/about.jpg";
 import { MotionImage } from "@/components/site/MotionImage";
-import { listPublicTeamProfiles } from "@/lib/team.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { getSiteContent } from "@/lib/site-content.functions";
 
