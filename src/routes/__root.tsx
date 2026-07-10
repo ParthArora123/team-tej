@@ -18,6 +18,9 @@ import { CursorGlow } from "../components/site/CursorGlow";
 import { AmbientBlobs } from "../components/site/AmbientBlobs";
 import { SmoothScroll } from "../components/site/SmoothScroll";
 import { ScrollToTop } from "../components/site/ScrollToTop";
+import { AuroraBackground } from "../components/site/AuroraBackground";
+import { ParticleField } from "../components/site/ParticleField";
+import { FloatingShapes3D } from "../components/site/FloatingShapes3D";
 
 
 function NotFoundComponent() {
@@ -133,7 +136,10 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SmoothScroll />
       <div className="min-h-screen grain-bg relative">
+        <AuroraBackground />
         <AmbientBlobs />
+        <ParticleField />
+        <FloatingShapes3D />
         <CursorGlow />
         <ScrollProgress />
         <Header />

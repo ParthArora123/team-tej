@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Trash2, Upload } from "lucide-react";
+import { Trash2, Upload, GripVertical } from "lucide-react";
 import {
-  adminListHeroSlides, adminSaveHeroSlide, adminDeleteHeroSlide,
+  adminListHeroSlides, adminSaveHeroSlide, adminDeleteHeroSlide, adminReorderHeroSlides,
   adminListFeaturedExperiences, adminSaveFeaturedExperience, adminDeleteFeaturedExperience,
   adminListGalleryItems, adminSaveGalleryItem, adminDeleteGalleryItem,
   adminUploadCmsImage, adminCreateHeroVideoUpload,
 } from "@/lib/cms.functions";
 import { compressImageFile } from "@/lib/compress-image";
+import {
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, rectSortingStrategy, arrayMove, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Bucket = "hero-images" | "gallery" | "featured-banners";
 
@@ -74,6 +80,7 @@ export function HeroSlidesTab() {
   const list = useServerFn(adminListHeroSlides);
   const save = useServerFn(adminSaveHeroSlide);
   const del = useServerFn(adminDeleteHeroSlide);
+  const reorder = useServerFn(adminReorderHeroSlides);
   const createVideoUpload = useServerFn(adminCreateHeroVideoUpload);
   const [rows, setRows] = useState<any[]>([]);
   const [f, setF] = useState<any>({ image_url: "", alt: "", sort_order: 0, active: true, preview: null });
@@ -82,6 +89,21 @@ export function HeroSlidesTab() {
   const videoInputRef = useRef<HTMLInputElement>(null);
   const reload = () => list().then(setRows).catch(() => {});
   useEffect(() => { reload(); }, []);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+
+  const onDragEnd = async (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIndex = rows.findIndex((r) => r.id === active.id);
+    const newIndex = rows.findIndex((r) => r.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const next = arrayMove(rows, oldIndex, newIndex).map((r, i) => ({ ...r, sort_order: i }));
+    setRows(next);
+    try {
+      await reorder({ data: { order: next.map((r) => ({ id: r.id, sort_order: r.sort_order })) } });
+      toast.success("Order saved");
+    } catch (err: any) { toast.error(err.message ?? "Reorder failed"); reload(); }
+  };
 
   const isVideoRef = (v: string) => /^hero-videos:/.test(v) || /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(v);
 
@@ -169,29 +191,47 @@ export function HeroSlidesTab() {
         </div>
       </form>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {rows.map((r) => {
-          const rowIsVideo = r.image_url && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(r.image_url);
-          return (
-            <div key={r.id} className="rounded-2xl border border-border bg-card overflow-hidden">
-              <div className="aspect-[16/9] bg-muted">
-                {r.image_url && (rowIsVideo
-                  ? <video src={r.image_url} muted playsInline preload="metadata" className="w-full h-full object-cover" />
-                  : <img src={r.image_url} alt={r.alt ?? ""} className="w-full h-full object-cover" />)}
-              </div>
-              <div className="p-3 flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-sm truncate">{r.alt || "—"}</p>
-                  <p className="text-xs text-muted-foreground">#{r.sort_order} · {rowIsVideo ? "Video" : "Image"} · {r.active ? "Active" : "Hidden"}</p>
-                </div>
-                <div className="flex gap-1">
-                  <button onClick={() => setF({ ...r, preview: r.image_url })} className="px-2 py-1 text-xs rounded border border-border">Edit</button>
-                  <button onClick={() => remove(r.id)} className="p-1.5 rounded border border-border text-destructive"><Trash2 size={14} /></button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <p className="text-xs text-muted-foreground">Drag <GripVertical size={12} className="inline -mt-0.5" /> to reorder — changes save automatically.</p>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={rows.map((r) => r.id)} strategy={rectSortingStrategy}>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {rows.map((r) => (
+              <SortableHeroCard key={r.id} row={r}
+                onEdit={() => setF({ ...r, preview: r.image_url })}
+                onDelete={() => remove(r.id)} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
+  );
+}
+
+function SortableHeroCard({ row, onEdit, onDelete }: { row: any; onEdit: () => void; onDelete: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: row.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+  const rowIsVideo = row.image_url && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(row.image_url);
+  return (
+    <div ref={setNodeRef} style={style} className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="aspect-[16/9] bg-muted relative">
+        <button type="button" {...attributes} {...listeners}
+          className="absolute top-2 left-2 z-10 p-1.5 rounded-md bg-background/70 backdrop-blur border border-border cursor-grab active:cursor-grabbing"
+          aria-label="Drag to reorder">
+          <GripVertical size={14} />
+        </button>
+        {row.image_url && (rowIsVideo
+          ? <video src={row.image_url} muted playsInline preload="metadata" className="w-full h-full object-cover" />
+          : <img src={row.image_url} alt={row.alt ?? ""} className="w-full h-full object-cover" />)}
+      </div>
+      <div className="p-3 flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-sm truncate">{row.alt || "—"}</p>
+          <p className="text-xs text-muted-foreground">#{row.sort_order} · {rowIsVideo ? "Video" : "Image"} · {row.active ? "Active" : "Hidden"}</p>
+        </div>
+        <div className="flex gap-1">
+          <button onClick={onEdit} className="px-2 py-1 text-xs rounded border border-border">Edit</button>
+          <button onClick={onDelete} className="p-1.5 rounded border border-border text-destructive"><Trash2 size={14} /></button>
+        </div>
       </div>
     </div>
   );
