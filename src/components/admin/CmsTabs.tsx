@@ -1,14 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Trash2, Upload } from "lucide-react";
+import { Trash2, Upload, GripVertical } from "lucide-react";
 import {
-  adminListHeroSlides, adminSaveHeroSlide, adminDeleteHeroSlide,
+  adminListHeroSlides, adminSaveHeroSlide, adminDeleteHeroSlide, adminReorderHeroSlides,
   adminListFeaturedExperiences, adminSaveFeaturedExperience, adminDeleteFeaturedExperience,
   adminListGalleryItems, adminSaveGalleryItem, adminDeleteGalleryItem,
   adminUploadCmsImage, adminCreateHeroVideoUpload,
 } from "@/lib/cms.functions";
 import { compressImageFile } from "@/lib/compress-image";
+import {
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, rectSortingStrategy, arrayMove, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 type Bucket = "hero-images" | "gallery" | "featured-banners";
 
