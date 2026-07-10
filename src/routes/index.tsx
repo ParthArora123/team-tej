@@ -863,19 +863,33 @@ function youtubeEmbed(url?: string | null): string | null {
 
 function ChoreoCard({ c }: { c: Choreo }) {
   const [playing, setPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const embed = youtubeEmbed(c.youtube_url);
   const hasVideo = !!(c.video_url || embed);
+
+  const goFullscreen = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const el: any = videoRef.current ?? iframeRef.current;
+    if (!el) return;
+    try {
+      if (el.requestFullscreen) await el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.webkitEnterFullscreen) el.webkitEnterFullscreen(); // iOS <video>
+    } catch {}
+  };
 
   return (
     <motion.article variants={item}
       className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
       <div className="relative aspect-video bg-black overflow-hidden">
         {playing && embed ? (
-          <iframe src={`${embed}?autoplay=1`} title={c.title}
-            allow="autoplay; encrypted-media; picture-in-picture" allowFullScreen
+          <iframe ref={iframeRef} src={`${embed}?autoplay=1`} title={c.title}
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen
             className="absolute inset-0 w-full h-full" />
         ) : playing && c.video_url ? (
-          <video src={c.video_url} controls autoPlay preload="metadata" className="absolute inset-0 w-full h-full object-contain" />
+          <video ref={videoRef} src={c.video_url} controls autoPlay playsInline preload="metadata"
+            className="absolute inset-0 w-full h-full object-contain" />
         ) : (
           <>
             {c.thumbnail_url ? (
@@ -900,7 +914,14 @@ function ChoreoCard({ c }: { c: Choreo }) {
             )}
           </>
         )}
+        {playing && (
+          <button type="button" onClick={goFullscreen} aria-label="Expand to fullscreen"
+            className="absolute top-2 right-2 z-20 h-9 w-9 grid place-items-center rounded-full bg-background/70 backdrop-blur border border-border text-foreground hover:bg-background transition">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+          </button>
+        )}
       </div>
+
       <div className="p-5 flex-1 flex flex-col">
         <p className="font-display text-lg font-bold leading-snug">{c.title}</p>
         {c.description && <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{c.description}</p>}
