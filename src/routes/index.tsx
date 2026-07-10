@@ -260,22 +260,22 @@ function Index() {
         {/* Responsive hero media — fits fully (no crop) on mobile and laptop */}
         <div className="relative grid w-full overflow-hidden bg-transparent">
           {heroSlides.length > 0 ? (
-            <AnimatePresence initial={false}>
+            heroSlides.map((s, i) => (
               <motion.div
-                key={heroSlides[slideIdx]?.id}
-                initial={{ x: "100%", opacity: 0.6 }}
-                animate={{ x: "0%", opacity: 1 }}
-                exit={{ x: "-100%", opacity: 0.6 }}
-                transition={{ duration: 0.9, ease: [0.32, 0.72, 0, 1] }}
-                className="relative col-start-1 row-start-1 w-full"
+                key={s.id ?? s.image_url ?? i}
+                initial={false}
+                animate={{ opacity: i === slideIdx ? 1 : 0 }}
+                transition={{ duration: 0.7, ease: "easeInOut" }}
+                style={{ pointerEvents: i === slideIdx ? "auto" : "none" }}
+                className={`col-start-1 row-start-1 w-full ${i === slideIdx ? "relative" : "absolute inset-0"}`}
               >
                 <HeroSlideMedia
-                  src={heroSlides[slideIdx]?.image_url}
-                  alt={heroSlides[slideIdx]?.alt ?? "Hero"}
-                  priority
+                  src={s.image_url}
+                  alt={s.alt ?? "Hero"}
+                  priority={i === 0 || i === slideIdx}
                 />
               </motion.div>
-            </AnimatePresence>
+            ))
           ) : (
             <HeroSlideMedia
               src={heroImg}
@@ -284,6 +284,7 @@ function Index() {
             />
           )}
         </div>
+
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-16">
           <motion.div
