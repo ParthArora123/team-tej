@@ -118,20 +118,30 @@ function About() {
           initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="grid md:grid-cols-5 gap-10 items-center">
-          <div className="md:col-span-2 aspect-[4/5] rounded-2xl overflow-hidden border border-border">
-            <MotionImage src={aboutImg} alt="Tejas D Dhoke — Founder" width={1200} height={1400} className="h-full w-full" />
+          <div className="md:col-span-2 aspect-[4/5] rounded-2xl overflow-hidden border border-border bg-muted">
+            {founder?.image_url ? (
+              <img
+                src={founder.image_url}
+                alt={founder?.name || "Tejas D Dhoke — Founder"}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <MotionImage src={aboutImg} alt="Tejas D Dhoke — Founder" width={1200} height={1400} className="h-full w-full" />
+            )}
           </div>
           <div className="md:col-span-3">
-            <p className="font-display text-3xl lg:text-4xl font-bold">Tejas D Dhoke</p>
-            <p className="text-sm text-muted-foreground mt-1">Founder & Creative Director</p>
-            <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              Tejas leads the company's choreography, curriculum and creative direction — building
-              a fusion vocabulary that borrows from Kathak, contemporary, Bollywood and hip-hop.
-              His work spans film, festivals and live productions across India.
+            <p className="font-display text-3xl lg:text-4xl font-bold">{founder?.name || "Tejas D Dhoke"}</p>
+            <p className="text-sm text-muted-foreground mt-1">{founder?.title || "Founder & Creative Director"}</p>
+            <p className="mt-6 text-lg leading-relaxed text-muted-foreground whitespace-pre-line">
+              {founder?.intro || founder?.biography ||
+                "Tejas leads the company's choreography, curriculum and creative direction — building a fusion vocabulary that borrows from Kathak, contemporary, Bollywood and hip-hop. His work spans film, festivals and live productions across India."}
             </p>
           </div>
         </motion.div>
       </section>
+
     </>
   );
 }
