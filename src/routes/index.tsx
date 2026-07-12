@@ -502,9 +502,11 @@ function Index() {
                   aria-hidden={!active}
                   style={{
                     opacity: active ? 1 : 0,
-                    transition: "opacity 700ms ease-in-out",
+                    transition: "opacity 400ms cubic-bezier(0.22, 1, 0.36, 1)",
                     pointerEvents: active ? "auto" : "none",
                     willChange: "opacity",
+                    transform: "translateZ(0)",
+                    backfaceVisibility: "hidden",
                   }}
                   className="absolute inset-0"
                 >
