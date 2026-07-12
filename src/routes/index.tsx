@@ -304,7 +304,28 @@ function Index() {
               Fusion Dance Company · Est. 2013
             </motion.div>
 
-            <motion.div variants={item} className="mt-4 flex flex-wrap gap-3">
+            <motion.h1
+              variants={item}
+              className="mt-4 font-display font-bold text-3xl sm:text-5xl lg:text-7xl leading-[1.02] text-balance tracking-tight"
+              style={{
+                textShadow:
+                  "0 2px 40px rgba(0,0,0,0.55), 0 0 60px color-mix(in oklab, var(--primary) 25%, transparent)",
+              }}
+            >
+              Where movement{" "}
+              <span
+                className="italic font-light bg-clip-text text-transparent"
+                style={{ backgroundImage: "linear-gradient(120deg, #C7A34A, #7A3BFF 55%, #3B82F6)" }}
+              >
+                becomes art.
+              </span>
+            </motion.h1>
+
+            <motion.p variants={item} className="mt-3 text-sm sm:text-base lg:text-lg text-muted-foreground max-w-xl">
+              Train. Perform. Transform — with Tejas D Dhoke.
+            </motion.p>
+
+            <motion.div variants={item} className="mt-6 flex flex-wrap gap-3">
               <MagneticButton>
                 <Link
                   to="/nritya-sadhana"
@@ -326,6 +347,23 @@ function Index() {
                 </Link>
               </MagneticButton>
             </motion.div>
+          </motion.div>
+
+          {/* Animated scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.6 }}
+            className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground"
+          >
+            <span>Scroll</span>
+            <span className="relative block h-8 w-[1.5px] overflow-hidden bg-border">
+              <motion.span
+                animate={{ y: ["-100%", "100%"] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-x-0 top-0 h-1/2 bg-primary"
+              />
+            </span>
           </motion.div>
         </div>
 
