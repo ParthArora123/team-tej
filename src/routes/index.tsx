@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
@@ -36,31 +36,114 @@ const defaultStyles = [
 
 const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
 
+type HeroSlide = {
+  id?: string | null;
+  image_url?: string | null;
+  alt?: string | null;
+  sort_order?: number | null;
+};
+
+type HomeLoaderData = {
+  heroSlides: HeroSlide[];
+};
+
+const heroVideoType = (src: string) => {
+  if (/\.webm(\?|#|$)/i.test(src)) return "video/webm";
+  return "video/mp4";
+};
+
+const preloadLinkForHeroMedia = (src?: string | null) => {
+  if (!src) return null;
+  if (isVideoUrl(src)) {
+    return { rel: "preload", as: "video", href: src, type: heroVideoType(src), crossOrigin: "anonymous" };
+  }
+  return { rel: "preload", as: "image", href: src, fetchpriority: "high" };
+};
+
+const preconnectLinkForHeroMedia = (src?: string | null) => {
+  if (!src || src.startsWith("/")) return null;
+  try {
+    return { rel: "preconnect", href: new URL(src).origin, crossOrigin: "anonymous" };
+  } catch {
+    return null;
+  }
+};
+
+async function loadHomeData(): Promise<HomeLoaderData> {
+  try {
+    const rows = await listHeroSlides();
+    return { heroSlides: Array.isArray(rows) ? (rows as HeroSlide[]) : [] };
+  } catch {
+    return { heroSlides: [] };
+  }
+}
+
+function warmHeroMedia(slides: HeroSlide[], activeIndex: number) {
+  if (typeof window === "undefined" || slides.length < 2) return;
+  const ordered = slides
+    .map((slide, index) => ({ slide, distance: (index - activeIndex + slides.length) % slides.length }))
+    .filter(({ slide, distance }) => distance > 0 && slide.image_url)
+    .sort((a, b) => a.distance - b.distance);
+
+  for (const { slide } of ordered) {
+    const src = slide.image_url;
+    if (!src) continue;
+    if (isVideoUrl(src)) {
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      video.muted = true;
+      video.playsInline = true;
+      video.src = src;
+      video.load();
+      continue;
+    }
+    const img = new Image();
+    img.decoding = "async";
+    img.src = src;
+  }
+}
+
 function HeroSlideMedia({
   src,
   alt,
   active,
   priority = false,
+  fallbackSrc,
 }: {
   src?: string | null;
   alt?: string;
   active: boolean;
   priority?: boolean;
+  fallbackSrc?: string;
 }) {
   if (!src) return null;
-  const common = "absolute inset-0 h-full w-full object-cover";
+  const common = "absolute inset-0 h-full w-full object-cover transform-gpu";
   if (isVideoUrl(src)) {
     return (
-      <video
-        src={src}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload={priority ? "auto" : "metadata"}
-        poster={undefined}
-        className={common}
-      />
+      <>
+        {fallbackSrc && (
+          <img
+            src={fallbackSrc}
+            alt=""
+            aria-hidden
+            className={common}
+            loading="eager"
+            decoding="async"
+            fetchPriority={priority ? "high" : "low"}
+            draggable={false}
+          />
+        )}
+        <video
+          src={src}
+          autoPlay={active}
+          muted
+          loop
+          playsInline
+          preload={priority ? "auto" : "metadata"}
+          poster={fallbackSrc}
+          className={common}
+        />
+      </>
     );
   }
   return (
@@ -131,7 +214,12 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
 
 
 export const Route = createFileRoute("/")({
-  head: () => ({
+  loader: loadHomeData,
+  head: ({ loaderData }) => {
+    const firstHero = loaderData?.heroSlides?.[0]?.image_url || heroImg;
+    const preload = preloadLinkForHeroMedia(firstHero);
+    const preconnect = preconnectLinkForHeroMedia(firstHero);
+    return {
     meta: [
       { title: "Tejas D Dhoke — Fusion Dance Company" },
       {
@@ -145,7 +233,9 @@ export const Route = createFileRoute("/")({
         content: "Train, perform, transform with Tejas D Dhoke.",
       },
     ],
-  }),
+    links: [preconnect, preload].filter(Boolean) as any,
+  };
+  },
   component: Index,
 });
 
@@ -179,38 +269,28 @@ const item = {
 };
 
 function Index() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: heroProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(heroProgress, [0, 1], ["0%", "30%"]);
-  const heroScale = useTransform(heroProgress, [0, 1], [1, 1.15]);
-  const heroOpacity = useTransform(heroProgress, [0, 1], [1, 0.2]);
+  const loaderData = Route.useLoaderData() as HomeLoaderData;
 
   const [workshops, setWorkshops] = useState<any[]>([]);
   const [celebrities, setCelebrities] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const [globe, setGlobe] = useState<any[]>([]);
-  const [heroSlides, setHeroSlides] = useState<any[]>([]);
+  const [heroSlides] = useState<HeroSlide[]>(loaderData.heroSlides ?? []);
   const [featured, setFeatured] = useState<any | null>(null);
   const [gallery, setGallery] = useState<any[]>([]);
   const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
   const [choreos, setChoreos] = useState<Choreo[]>([]);
   const [founder, setFounder] = useState<any | null>(null);
   const [slideIdx, setSlideIdx] = useState(0);
+  const [warmSlides, setWarmSlides] = useState(false);
+  const [showStageLights, setShowStageLights] = useState(false);
   const fetchPrograms = useServerFn(listPrograms);
   useEffect(() => {
-    // Critical: needed for above-the-fold render.
-    const loadCritical = () => {
-      listHeroSlides().then((r: any) => setHeroSlides(r ?? [])).catch(() => setHeroSlides([]));
+    // Non-critical: below the fold — defer until browser is idle so they don't compete with the hero paint.
+    const loadDeferred = () => {
       fetchPrograms({ data: { kind: "workshop" } })
         .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
         .catch(() => setWorkshops([]));
-    };
-    // Non-critical: below the fold — defer until browser is idle so they
-    // don't compete with the hero paint / LCP.
-    const loadDeferred = () => {
       listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch(() => setCelebrities([]));
       listPublicBrands().then((r: any) => setBrands(r ?? [])).catch(() => setBrands([]));
       listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch(() => setGlobe([]));
@@ -220,14 +300,29 @@ function Index() {
       listChoreographies().then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
       getSiteContent({ data: { key: "founder" } }).then((r: any) => setFounder(r)).catch(() => setFounder(null));
     };
-    const load = () => {
-      loadCritical();
-      const ric: any = (window as any).requestIdleCallback;
-      if (typeof ric === "function") ric(loadDeferred, { timeout: 2000 });
-      else setTimeout(loadDeferred, 400);
+    const ric: any = (window as any).requestIdleCallback;
+    if (typeof ric === "function") ric(loadDeferred, { timeout: 1800 });
+    else setTimeout(loadDeferred, 450);
+  }, [fetchPrograms]);
+
+  useEffect(() => {
+    const enableWarmup = () => {
+      setWarmSlides(true);
+      warmHeroMedia(heroSlides, slideIdx);
+      setShowStageLights(true);
     };
-    load();
-  }, []);
+    const ric: any = (window as any).requestIdleCallback;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let idleId: number | undefined;
+    if (typeof ric === "function") idleId = ric(enableWarmup, { timeout: 900 });
+    else timeout = setTimeout(enableWarmup, 300);
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      if (typeof (window as any).cancelIdleCallback === "function" && idleId) {
+        (window as any).cancelIdleCallback(idleId);
+      }
+    };
+  }, [heroSlides, slideIdx]);
 
 
 
@@ -240,7 +335,7 @@ function Index() {
   return (
     <>
       {/* HERO */}
-      <section id="hero" ref={heroRef} className="relative overflow-hidden">
+      <section id="hero" className="relative overflow-hidden">
         {/* Fixed-aspect hero container — identical size across all slides, no layout shift */}
         <div className="relative w-full overflow-hidden bg-black aspect-[4/5] sm:aspect-[16/10] lg:aspect-[16/9] max-h-[85vh]">
           {heroSlides.length > 0 ? (
@@ -251,7 +346,7 @@ function Index() {
                 heroSlides.length <= 3 ||
                 i === (slideIdx + 1) % heroSlides.length ||
                 i === (slideIdx - 1 + heroSlides.length) % heroSlides.length;
-              const shouldMount = i === 0 || active || neighbor;
+              const shouldMount = active || (warmSlides && (i === 0 || neighbor));
               return (
                 <div
                   key={s.id ?? s.image_url ?? i}
@@ -270,6 +365,7 @@ function Index() {
                       alt={s.alt ?? "Hero"}
                       active={active}
                       priority={i === 0}
+                      fallbackSrc={heroImg}
                     />
                   )}
                 </div>
@@ -284,7 +380,7 @@ function Index() {
             />
           )}
           {/* Cinematic stage lighting + smoke */}
-          <StageLights />
+          {showStageLights && <StageLights />}
         </div>
 
 
