@@ -178,10 +178,11 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const stats = [
-  { value: "12+", label: "Years on stage" },
-  { value: "300+", label: "Dancers trained" },
-  { value: "40+", label: "Live productions" },
+const stats: { value: number; suffix: string; label: string }[] = [
+  { value: 300, suffix: "+", label: "Dancers Trained" },
+  { value: 40, suffix: "+", label: "Live Performances" },
+  { value: 60, suffix: "+", label: "Workshops" },
+  { value: 12, suffix: "+", label: "Years of Experience" },
 ];
 
 type Choreo = {
