@@ -21,6 +21,7 @@ import { ScrollToTop } from "../components/site/ScrollToTop";
 import { AuroraBackground } from "../components/site/AuroraBackground";
 import { ParticleField } from "../components/site/ParticleField";
 import { FloatingShapes3D } from "../components/site/FloatingShapes3D";
+import { DeferMount } from "../components/site/DeferMount";
 
 
 function NotFoundComponent() {
@@ -134,20 +135,26 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SmoothScroll />
+      <DeferMount delay={200}>
+        <SmoothScroll />
+      </DeferMount>
       <div className="min-h-screen grain-bg relative">
         <AuroraBackground />
-        <AmbientBlobs />
-        <ParticleField />
-        <FloatingShapes3D />
-        <CursorGlow />
+        <DeferMount>
+          <AmbientBlobs />
+          <ParticleField />
+          <FloatingShapes3D />
+          <CursorGlow />
+        </DeferMount>
         <ScrollProgress />
         <Header />
         <main className="pt-16">
           <Outlet />
         </main>
         <Footer />
-        <ScrollToTop />
+        <DeferMount>
+          <ScrollToTop />
+        </DeferMount>
       </div>
     </QueryClientProvider>
   );

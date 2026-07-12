@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
@@ -19,7 +19,9 @@ import { MagneticButton } from "@/components/site/MagneticButton";
 import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
-import { TestimonialsCarousel } from "@/components/site/TestimonialsCarousel";
+const TestimonialsCarousel = lazy(() =>
+  import("@/components/site/TestimonialsCarousel").then((m) => ({ default: m.TestimonialsCarousel }))
+);
 
 
 const defaultStyles = [
@@ -199,19 +201,30 @@ function Index() {
   const [slideIdx, setSlideIdx] = useState(0);
   const fetchPrograms = useServerFn(listPrograms);
   useEffect(() => {
-    const load = () => {
+    // Critical: needed for above-the-fold render.
+    const loadCritical = () => {
+      listHeroSlides().then((r: any) => setHeroSlides(r ?? [])).catch(() => setHeroSlides([]));
       fetchPrograms({ data: { kind: "workshop" } })
         .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
         .catch(() => setWorkshops([]));
+    };
+    // Non-critical: below the fold — defer until browser is idle so they
+    // don't compete with the hero paint / LCP.
+    const loadDeferred = () => {
       listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch(() => setCelebrities([]));
       listPublicBrands().then((r: any) => setBrands(r ?? [])).catch(() => setBrands([]));
       listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch(() => setGlobe([]));
-      listHeroSlides().then((r: any) => setHeroSlides(r ?? [])).catch(() => setHeroSlides([]));
       getFeaturedExperience().then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
       listGalleryItems().then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
       listDanceStyles().then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
       listChoreographies().then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
       getSiteContent({ data: { key: "founder" } }).then((r: any) => setFounder(r)).catch(() => setFounder(null));
+    };
+    const load = () => {
+      loadCritical();
+      const ric: any = (window as any).requestIdleCallback;
+      if (typeof ric === "function") ric(loadDeferred, { timeout: 2000 });
+      else setTimeout(loadDeferred, 400);
     };
     load();
     const onFocus = () => load();
@@ -695,7 +708,9 @@ function Index() {
       )}
 
       {/* TESTIMONIALS */}
-      <TestimonialsCarousel />
+      <Suspense fallback={null}>
+        <TestimonialsCarousel />
+      </Suspense>
 
       {/* FINAL CTA */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
