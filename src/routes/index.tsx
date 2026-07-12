@@ -778,15 +778,18 @@ function Index() {
 
       {/* DANCE STYLES */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-        <div className="mb-12">
-          <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
-          <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance max-w-2xl">
-            Styles on the floor.
-          </h2>
-          <p className="mt-4 text-muted-foreground max-w-xl">
-            Four core vocabularies. They cross, collide, and become the Tejas D Dhoke fusion.
+        <div className="mb-12 flex items-end justify-between gap-6">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
+            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
+              Styles on the <span className="italic font-light">floor.</span>
+            </h2>
+          </div>
+          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
+            Four vocabularies. One fusion.
           </p>
         </div>
+
 
         {(() => {
           // Always show the restored live dance animations first. Backend style
