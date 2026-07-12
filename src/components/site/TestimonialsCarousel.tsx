@@ -1,46 +1,24 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useState } from "react";
-import { Quote } from "lucide-react";
+import { Quote, Star } from "lucide-react";
 
-type Testimonial = {
+export type Testimonial = {
+  id?: string;
   name: string;
-  role?: string;
-  quote: string;
-  avatar?: string;
+  role?: string | null;
+  quote?: string;
+  story?: string | null;
+  rating?: number | null;
+  avatar?: string | null;
+  avatar_url?: string | null;
 };
-
-const DEFAULTS: Testimonial[] = [
-  {
-    name: "Ananya S.",
-    role: "Student · Mumbai",
-    quote:
-      "Tejas doesn't just teach steps — he teaches expression. I walked in shy and left owning the stage.",
-  },
-  {
-    name: "Rohan M.",
-    role: "Choreography Client",
-    quote:
-      "The wedding choreography was cinematic. Every guest said it looked like a film sequence.",
-  },
-  {
-    name: "Priya K.",
-    role: "Workshop attendee · Delhi",
-    quote:
-      "The energy in his room is unreal. Two hours felt like ten minutes. I'm hooked.",
-  },
-  {
-    name: "Karan D.",
-    role: "Nritya Sadhana member",
-    quote:
-      "From zero-training to my first stage in six months. The community carries you.",
-  },
-];
 
 /**
  * TestimonialsCarousel — premium glassmorphism auto-rotating carousel.
+ * Renders only what's passed in; when the list is empty, shows nothing.
  */
 export function TestimonialsCarousel({ items }: { items?: Testimonial[] }) {
-  const list = items && items.length > 0 ? items : DEFAULTS;
+  const list = items ?? [];
   const [idx, setIdx] = useState(0);
 
   useEffect(() => {
@@ -49,7 +27,28 @@ export function TestimonialsCarousel({ items }: { items?: Testimonial[] }) {
     return () => clearInterval(t);
   }, [list.length]);
 
+  useEffect(() => { if (idx >= list.length) setIdx(0); }, [list.length, idx]);
+
+  if (list.length === 0) {
+    return (
+      <section className="max-w-6xl mx-auto px-6 lg:px-10 py-24">
+        <div className="mb-6 text-center">
+          <p className="text-xs uppercase tracking-widest text-primary">Voices</p>
+          <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance">
+            What movers say.
+          </h2>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Be the first to share your experience — submit feedback from your dashboard.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   const current = list[idx];
+  const quote = current.quote ?? current.story ?? "";
+  const avatar = current.avatar ?? current.avatar_url ?? null;
+  const rating = current.rating ?? 0;
 
   return (
     <section className="max-w-6xl mx-auto px-6 lg:px-10 py-24">
@@ -61,7 +60,6 @@ export function TestimonialsCarousel({ items }: { items?: Testimonial[] }) {
       </div>
 
       <div className="relative">
-        {/* glow backdrop */}
         <div
           aria-hidden
           className="absolute -inset-6 rounded-[2rem] blur-3xl opacity-60 pointer-events-none"
@@ -79,40 +77,41 @@ export function TestimonialsCarousel({ items }: { items?: Testimonial[] }) {
             backdropFilter: "blur(24px) saturate(140%)",
           }}
         >
-          <Quote
-            aria-hidden
-            className="absolute top-6 left-6 h-10 w-10 text-primary/40"
-          />
+          <Quote aria-hidden className="absolute top-6 left-6 h-10 w-10 text-primary/40" />
 
           <AnimatePresence mode="wait">
             <motion.blockquote
-              key={idx}
+              key={current.id ?? idx}
               initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -24, filter: "blur(8px)" }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
               className="w-full text-center px-4"
             >
+              {rating > 0 && (
+                <div className="flex justify-center gap-1 mb-4" aria-label={`${rating} out of 5 stars`}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      size={18}
+                      className={i < rating ? "fill-primary text-primary" : "text-muted-foreground/40"}
+                    />
+                  ))}
+                </div>
+              )}
               <p className="font-display text-2xl lg:text-3xl leading-snug text-balance">
-                “{current.quote}”
+                “{quote}”
               </p>
               <footer className="mt-6 flex items-center justify-center gap-3">
                 <motion.div
                   initial={{ scale: 0.6, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.15 }}
-                  className="h-12 w-12 rounded-full grid place-items-center font-display font-bold text-primary-foreground shadow-lg"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, var(--primary), #7A3BFF)",
-                  }}
+                  className="h-12 w-12 rounded-full grid place-items-center font-display font-bold text-primary-foreground shadow-lg overflow-hidden"
+                  style={{ background: "linear-gradient(135deg, var(--primary), #7A3BFF)" }}
                 >
-                  {current.avatar ? (
-                    <img
-                      src={current.avatar}
-                      alt={current.name}
-                      className="h-full w-full rounded-full object-cover"
-                    />
+                  {avatar ? (
+                    <img src={avatar} alt={current.name} className="h-full w-full rounded-full object-cover" />
                   ) : (
                     current.name.charAt(0)
                   )}
@@ -120,9 +119,7 @@ export function TestimonialsCarousel({ items }: { items?: Testimonial[] }) {
                 <div className="text-left">
                   <p className="font-medium text-sm">{current.name}</p>
                   {current.role && (
-                    <p className="text-xs text-muted-foreground">
-                      {current.role}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{current.role}</p>
                   )}
                 </div>
               </footer>
@@ -130,20 +127,21 @@ export function TestimonialsCarousel({ items }: { items?: Testimonial[] }) {
           </AnimatePresence>
         </div>
 
-        {/* dots */}
-        <div className="mt-6 flex justify-center gap-2">
-          {list.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              aria-label={`Show testimonial ${i + 1}`}
-              onClick={() => setIdx(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === idx ? "w-8 bg-primary" : "w-2 bg-muted-foreground/40 hover:bg-muted-foreground"
-              }`}
-            />
-          ))}
-        </div>
+        {list.length > 1 && (
+          <div className="mt-6 flex justify-center gap-2">
+            {list.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Show testimonial ${i + 1}`}
+                onClick={() => setIdx(i)}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === idx ? "w-8 bg-primary" : "w-2 bg-muted-foreground/40 hover:bg-muted-foreground"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

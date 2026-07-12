@@ -44,6 +44,7 @@ async function downloadQrPng(containerId: string, filename: string, size = 720) 
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, checkIsAdmin } from "@/lib/enrollment.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { FeedbackForm } from "@/components/site/FeedbackForm";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({ component: Dashboard });
 
@@ -263,6 +264,8 @@ function Dashboard() {
           );
         })}
       </div>
+
+      <FeedbackForm />
     </div>
   );
 }

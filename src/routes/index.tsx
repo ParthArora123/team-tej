@@ -6,6 +6,7 @@ import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
 import { listDanceStyles, getSiteContent } from "@/lib/site-content.functions";
 import { listChoreographies } from "@/lib/choreographies.functions";
+import { listPublicTestimonials } from "@/lib/testimonials.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin } from "lucide-react";
@@ -341,6 +342,7 @@ function Index() {
   const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
   const [choreos, setChoreos] = useState<Choreo[]>([]);
   const [founder, setFounder] = useState<any | null>(null);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
   const [slideIdx, setSlideIdx] = useState(0);
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
@@ -409,6 +411,7 @@ function Index() {
       listDanceStyles().then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
       listChoreographies().then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
       getSiteContent({ data: { key: "founder" } }).then((r: any) => setFounder(r)).catch(() => setFounder(null));
+      listPublicTestimonials().then((r: any) => setTestimonials(r ?? [])).catch(() => setTestimonials([]));
     };
     const ric: any = (window as any).requestIdleCallback;
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -895,7 +898,14 @@ function Index() {
 
       {/* TESTIMONIALS */}
       <Suspense fallback={null}>
-        <TestimonialsCarousel />
+        <TestimonialsCarousel items={testimonials.map((t) => ({
+          id: t.id,
+          name: t.name,
+          role: t.role,
+          story: t.story,
+          rating: t.rating,
+          avatar_url: t.avatar_url,
+        }))} />
       </Suspense>
 
       {/* FINAL CTA */}
@@ -943,12 +953,14 @@ function Index() {
           <div className="relative mt-10 flex justify-center">
             <MagneticButton strength={0.5}>
               <a
-                href="#hero"
+                href="/zero-to-hero"
                 onClick={(e) => {
                   e.preventDefault();
-                  const el = document.getElementById("hero");
-                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                  else window.scrollTo({ top: 0, behavior: "smooth" });
+                  const go = () => window.location.assign("/zero-to-hero");
+                  try {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    setTimeout(go, 350);
+                  } catch { go(); }
                 }}
                 className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-primary-foreground overflow-hidden"
                 style={{
@@ -1049,12 +1061,12 @@ function Index() {
         {globe.length > 0 && (() => {
           const conducted = globe.filter((g) => g.status === "conducted");
           const upcoming = globe.filter((g) => g.status === "upcoming");
-          const continents = Array.from(new Set(globe.map((g) => countryToContinent(g.country)).filter(Boolean))).length;
+          
           return (
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
               <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
               <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
-              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across {continents} {continents === 1 ? "continent" : "continents"}.</p>
+              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
               {conducted.length > 0 && (
                 <div className="mt-8">
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>

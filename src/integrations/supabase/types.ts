@@ -885,9 +885,11 @@ export type Database = {
       testimonials: {
         Row: {
           approved: boolean
+          avatar_url: string | null
           created_at: string
           id: string
           name: string
+          rating: number | null
           role: string | null
           story: string | null
           user_id: string | null
@@ -895,9 +897,11 @@ export type Database = {
         }
         Insert: {
           approved?: boolean
+          avatar_url?: string | null
           created_at?: string
           id?: string
           name: string
+          rating?: number | null
           role?: string | null
           story?: string | null
           user_id?: string | null
@@ -905,9 +909,11 @@ export type Database = {
         }
         Update: {
           approved?: boolean
+          avatar_url?: string | null
           created_at?: string
           id?: string
           name?: string
+          rating?: number | null
           role?: string | null
           story?: string | null
           user_id?: string | null
