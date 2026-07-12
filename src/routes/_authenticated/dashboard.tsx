@@ -264,6 +264,8 @@ function Dashboard() {
           );
         })}
       </div>
+
+      <FeedbackForm />
     </div>
   );
 }
