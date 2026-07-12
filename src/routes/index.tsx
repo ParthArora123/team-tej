@@ -210,7 +210,7 @@ function HeroSlideMedia({
           controls={false}
           onLoadedData={markReady}
           onCanPlay={markReady}
-          className={`${common} transition-opacity duration-500 ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
+          className={`${common} transition-opacity duration-300 ease-out ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
         />
       </>
     );
@@ -221,7 +221,7 @@ function HeroSlideMedia({
       <img
         src={src}
         alt={alt ?? ""}
-        className={`${common} transition-opacity duration-500 ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
+        className={`${common} transition-opacity duration-300 ease-out ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
         loading={priority || active ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={priority ? "high" : active ? "auto" : "low"}
@@ -855,7 +855,7 @@ function Index() {
                         {renderMedia(s)}
                         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
                         {/* animated gradient border */}
-                        <div aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                        <div aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"
                           style={{ boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent)" }} />
                         {/* shine sweep */}
                         <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
