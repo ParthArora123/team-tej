@@ -421,7 +421,7 @@ function Index() {
                     <HeroSlideMedia
                       src={s.image_url}
                       alt={s.alt ?? "Hero"}
-                      active={active}
+                      active={active && heroVisible}
                       priority={i === 0}
                       fallbackSrc={heroImg}
                     />
