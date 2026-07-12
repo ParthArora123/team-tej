@@ -135,20 +135,26 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SmoothScroll />
+      <DeferMount delay={200}>
+        <SmoothScroll />
+      </DeferMount>
       <div className="min-h-screen grain-bg relative">
         <AuroraBackground />
-        <AmbientBlobs />
-        <ParticleField />
-        <FloatingShapes3D />
-        <CursorGlow />
+        <DeferMount>
+          <AmbientBlobs />
+          <ParticleField />
+          <FloatingShapes3D />
+          <CursorGlow />
+        </DeferMount>
         <ScrollProgress />
         <Header />
         <main className="pt-16">
           <Outlet />
         </main>
         <Footer />
-        <ScrollToTop />
+        <DeferMount>
+          <ScrollToTop />
+        </DeferMount>
       </div>
     </QueryClientProvider>
   );
