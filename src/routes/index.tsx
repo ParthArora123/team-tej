@@ -1061,7 +1061,7 @@ function Index() {
         {globe.length > 0 && (() => {
           const conducted = globe.filter((g) => g.status === "conducted");
           const upcoming = globe.filter((g) => g.status === "upcoming");
-          const continents = Array.from(new Set(globe.map((g) => countryToContinent(g.country)).filter(Boolean))).length;
+          
           return (
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
               <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
