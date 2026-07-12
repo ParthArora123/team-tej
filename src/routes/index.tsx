@@ -287,6 +287,8 @@ function Index() {
               priority
             />
           )}
+          {/* Cinematic stage lighting + smoke */}
+          <StageLights />
         </div>
 
 
@@ -297,47 +299,74 @@ function Index() {
             animate="show"
             className="max-w-2xl"
           >
-            <motion.div variants={item} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-background/50 backdrop-blur text-[10px] uppercase tracking-widest text-muted-foreground">
+            <motion.div variants={item} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/40 bg-background/50 backdrop-blur text-[10px] uppercase tracking-widest text-primary shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--primary)_60%,transparent)]">
               <Sparkles size={12} className="text-primary" />
               Fusion Dance Company · Est. 2013
             </motion.div>
 
             <motion.h1
               variants={item}
-              className="mt-4 font-display font-bold text-xl sm:text-2xl lg:text-4xl leading-tight text-balance"
+              className="mt-4 font-display font-bold text-3xl sm:text-5xl lg:text-7xl leading-[1.02] text-balance tracking-tight"
+              style={{
+                textShadow:
+                  "0 2px 40px rgba(0,0,0,0.55), 0 0 60px color-mix(in oklab, var(--primary) 25%, transparent)",
+              }}
             >
-              Live Movement Experiences with{" "}
-              <span className="italic font-light">Tejas D Dhoke.</span>
+              Where movement{" "}
+              <span
+                className="italic font-light bg-clip-text text-transparent"
+                style={{ backgroundImage: "linear-gradient(120deg, #C7A34A, #7A3BFF 55%, #3B82F6)" }}
+              >
+                becomes art.
+              </span>
             </motion.h1>
 
-            <motion.p variants={item} className="mt-2 text-xs sm:text-sm lg:text-base text-muted-foreground max-w-xl">
-              Workshops, Dance Experiences, Nritya Sadhana, and Online Training—created to help you express, grow, and feel alive through movement.
+            <motion.p variants={item} className="mt-3 text-sm sm:text-base lg:text-lg text-muted-foreground max-w-xl">
+              Train. Perform. Transform — with Tejas D Dhoke.
             </motion.p>
 
-            <motion.div variants={item} className="mt-5 flex flex-wrap gap-3">
+            <motion.div variants={item} className="mt-6 flex flex-wrap gap-3">
               <MagneticButton>
                 <Link
-                  to="/workshops"
-                  className="group relative inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full bg-primary text-primary-foreground text-sm lg:text-base font-medium overflow-hidden shadow-[0_10px_40px_-12px_oklch(0.78_0.16_65/0.7)]"
+                  to="/nritya-sadhana"
+                  className="group relative inline-flex items-center gap-2 px-6 py-3 lg:px-7 lg:py-3.5 rounded-full bg-primary text-primary-foreground text-sm lg:text-base font-medium overflow-hidden shadow-[0_10px_60px_-8px_color-mix(in_oklab,var(--primary)_80%,transparent)]"
                 >
                   <span className="relative z-10 flex items-center gap-2">
-                    Register for workshops
+                    Join Classes
                     <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
                   </span>
-                  <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                  <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent" />
                 </Link>
               </MagneticButton>
               <MagneticButton strength={0.25}>
                 <Link
-                  to="/nritya-sadhana"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 lg:px-6 lg:py-3 rounded-full border border-border text-sm lg:text-base hover:border-primary hover:text-primary transition-colors backdrop-blur-sm bg-background/30"
+                  to="/contact"
+                  className="inline-flex items-center gap-2 px-6 py-3 lg:px-7 lg:py-3.5 rounded-full border border-primary/40 text-sm lg:text-base hover:border-primary hover:text-primary transition-colors backdrop-blur-sm bg-background/30"
                 >
-                  Explore classes
+                  Book Choreography
                 </Link>
               </MagneticButton>
             </motion.div>
           </motion.div>
+
+          {/* Animated scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.6 }}
+            className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground"
+          >
+            <span>Scroll</span>
+            <span className="relative block h-8 w-[1.5px] overflow-hidden bg-border">
+              <motion.span
+                animate={{ y: ["-100%", "100%"] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-x-0 top-0 h-1/2 bg-primary"
+              />
+            </span>
+          </motion.div>
         </div>
+
 
 
         {/* Marquee */}
