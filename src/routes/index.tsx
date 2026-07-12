@@ -898,7 +898,14 @@ function Index() {
 
       {/* TESTIMONIALS */}
       <Suspense fallback={null}>
-        <TestimonialsCarousel />
+        <TestimonialsCarousel items={testimonials.map((t) => ({
+          id: t.id,
+          name: t.name,
+          role: t.role,
+          story: t.story,
+          rating: t.rating,
+          avatar_url: t.avatar_url,
+        }))} />
       </Suspense>
 
       {/* FINAL CTA */}
