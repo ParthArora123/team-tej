@@ -21,6 +21,7 @@ import { ScrollToTop } from "../components/site/ScrollToTop";
 import { AuroraBackground } from "../components/site/AuroraBackground";
 import { ParticleField } from "../components/site/ParticleField";
 import { FloatingShapes3D } from "../components/site/FloatingShapes3D";
+import { DeferMount } from "../components/site/DeferMount";
 
 
 function NotFoundComponent() {
