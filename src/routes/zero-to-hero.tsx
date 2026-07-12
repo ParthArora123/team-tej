@@ -57,11 +57,51 @@ const forYou = [
 ];
 
 const stages = [
-  { n: "01", title: "Move Naturally", icon: Sparkles, body: "Understand how your body moves. Break stiffness. Become comfortable moving." },
-  { n: "02", title: "Build Your Dance Alphabet", icon: Music, body: "Learn our Alphabeats System. Simple movements anyone can remember — always know what to do on the dance floor." },
-  { n: "03", title: "Understand Music", icon: HeartHandshake, body: "Beat, rhythm, timing, musicality. Dance WITH the music, not against it." },
-  { n: "04", title: "Dance with Confidence", icon: Flame, body: "Expression, body language, presence, energy. Stop looking awkward — start looking natural." },
-  { n: "05", title: "Dance in Real Life", icon: PartyPopper, body: "Wedding dancing, party dancing, social dancing, freestyle, simple choreography." },
+  {
+    n: "01",
+    chapter: "Beginner",
+    title: "Move Naturally",
+    icon: Sparkles,
+    body: "Understand how your body moves. Break stiffness. Become comfortable moving.",
+    image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=1200&q=70",
+    accent: "from-amber-300 via-primary to-fuchsia-400",
+  },
+  {
+    n: "02",
+    chapter: "Practice",
+    title: "Build Your Dance Alphabet",
+    icon: Music,
+    body: "Learn our Alphabeats System. Simple movements anyone can remember — always know what to do on the dance floor.",
+    image: "https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?auto=format&fit=crop&w=1200&q=70",
+    accent: "from-primary via-violet-400 to-fuchsia-500",
+  },
+  {
+    n: "03",
+    chapter: "Growth",
+    title: "Understand Music",
+    icon: HeartHandshake,
+    body: "Beat, rhythm, timing, musicality. Dance WITH the music, not against it.",
+    image: "https://images.unsplash.com/photo-1547153760-18fc86324498?auto=format&fit=crop&w=1200&q=70",
+    accent: "from-fuchsia-400 via-primary to-amber-300",
+  },
+  {
+    n: "04",
+    chapter: "Performance",
+    title: "Dance with Confidence",
+    icon: Flame,
+    body: "Expression, body language, presence, energy. Stop looking awkward — start looking natural.",
+    image: "https://images.unsplash.com/photo-1519925610903-381054cc2a1c?auto=format&fit=crop&w=1200&q=70",
+    accent: "from-amber-400 via-rose-400 to-fuchsia-500",
+  },
+  {
+    n: "05",
+    chapter: "Hero",
+    title: "Dance in Real Life",
+    icon: PartyPopper,
+    body: "Wedding dancing, party dancing, social dancing, freestyle, simple choreography.",
+    image: "https://images.unsplash.com/photo-1535525153412-5a42439a210d?auto=format&fit=crop&w=1200&q=70",
+    accent: "from-primary via-amber-300 to-emerald-300",
+  },
 ];
 
 const inside = [
