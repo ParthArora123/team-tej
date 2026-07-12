@@ -349,22 +349,6 @@ function Index() {
             </motion.div>
           </motion.div>
 
-          {/* Animated scroll indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.6 }}
-            className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[10px] uppercase tracking-[0.3em] text-muted-foreground"
-          >
-            <span>Scroll</span>
-            <span className="relative block h-8 w-[1.5px] overflow-hidden bg-border">
-              <motion.span
-                animate={{ y: ["-100%", "100%"] }}
-                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-x-0 top-0 h-1/2 bg-primary"
-              />
-            </span>
-          </motion.div>
         </div>
 
 
