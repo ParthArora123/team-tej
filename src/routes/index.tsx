@@ -1318,20 +1318,29 @@ function FounderSection({ founder }: { founder: any | null }) {
   return (
     <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
       <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
-        {/* Portrait */}
+        {/* Portrait — editorial frame */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="lg:col-span-2"
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="lg:col-span-2 relative group"
         >
+          {/* decorative offset frame */}
+          <div
+            aria-hidden
+            className="absolute -inset-3 lg:-inset-4 rounded-[2rem] opacity-70 blur-xl -z-10 transition-opacity duration-700 group-hover:opacity-100"
+            style={{ background: "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 60%)" }}
+          />
+          {/* offset border shape behind image */}
+          <div aria-hidden className="absolute top-4 -left-4 lg:-left-6 w-full h-full rounded-3xl border border-primary/30" />
+
           <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/40 border border-border">
             {image ? (
               <img
                 src={image}
                 alt={name}
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
               />
             ) : (
@@ -1339,12 +1348,26 @@ function FounderSection({ founder }: { founder: any | null }) {
                 {name.charAt(0).toUpperCase()}
               </div>
             )}
+            {/* film grain accent */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              style={{ background: "radial-gradient(120% 80% at 50% 100%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 60%)" }} />
+            {/* shine sweep */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1400ms] ease-out"
+              style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.16) 50%, transparent 70%)" }} />
+
             <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-background/95 via-background/60 to-transparent">
               <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
               <p className="font-display text-2xl font-bold mt-1">{name}</p>
             </div>
+
+            {/* corner tick marks — editorial detail */}
+            <span aria-hidden className="absolute top-3 left-3 h-4 w-4 border-t border-l border-white/70" />
+            <span aria-hidden className="absolute top-3 right-3 h-4 w-4 border-t border-r border-white/70" />
+            <span aria-hidden className="absolute bottom-3 left-3 h-4 w-4 border-b border-l border-white/70" />
+            <span aria-hidden className="absolute bottom-3 right-3 h-4 w-4 border-b border-r border-white/70" />
           </div>
         </motion.div>
+
 
         {/* Content */}
         <motion.div
