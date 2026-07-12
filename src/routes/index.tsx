@@ -411,6 +411,7 @@ function Index() {
       listDanceStyles().then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
       listChoreographies().then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
       getSiteContent({ data: { key: "founder" } }).then((r: any) => setFounder(r)).catch(() => setFounder(null));
+      listPublicTestimonials().then((r: any) => setTestimonials(r ?? [])).catch(() => setTestimonials([]));
     };
     const ric: any = (window as any).requestIdleCallback;
     let timeout: ReturnType<typeof setTimeout> | undefined;
