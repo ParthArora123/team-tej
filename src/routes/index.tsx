@@ -328,11 +328,11 @@ function Index() {
             <motion.div variants={item} className="mt-6 flex flex-wrap gap-3">
               <MagneticButton>
                 <Link
-                  to="/nritya-sadhana"
+                  to="/workshops"
                   className="group relative inline-flex items-center gap-2 px-6 py-3 lg:px-7 lg:py-3.5 rounded-full bg-primary text-primary-foreground text-sm lg:text-base font-medium overflow-hidden shadow-[0_10px_60px_-8px_color-mix(in_oklab,var(--primary)_80%,transparent)]"
                 >
                   <span className="relative z-10 flex items-center gap-2">
-                    Join Classes
+                    Register Workshop
                     <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
                   </span>
                   <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent" />
@@ -340,10 +340,10 @@ function Index() {
               </MagneticButton>
               <MagneticButton strength={0.25}>
                 <Link
-                  to="/contact"
+                  to="/nritya-sadhana"
                   className="inline-flex items-center gap-2 px-6 py-3 lg:px-7 lg:py-3.5 rounded-full border border-primary/40 text-sm lg:text-base hover:border-primary hover:text-primary transition-colors backdrop-blur-sm bg-background/30"
                 >
-                  Book Choreography
+                  Join Classes
                 </Link>
               </MagneticButton>
             </motion.div>
