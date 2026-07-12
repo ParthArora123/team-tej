@@ -528,57 +528,8 @@ function Index() {
       </section>
 
 
-      {/* SPLIT FEATURE */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-          >
-            <p className="text-xs uppercase tracking-widest text-primary">Our craft</p>
-            <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold leading-tight text-balance">
-              We train movers, not just dancers.
-            </h2>
-            <p className="mt-6 text-muted-foreground leading-relaxed">
-              Every Tejas D Dhoke class is built around a fusion philosophy — strong
-              technique, emotional storytelling, and the freedom to break form.
-              From first-time learners to performance-track artists, our
-              programs scale with you.
-            </p>
-            <Link
-              to="/about"
-              className="mt-8 inline-flex items-center gap-2 text-primary hover:gap-3 transition-all"
-            >
-              The Tejas D Dhoke story <ArrowUpRight size={16} />
-            </Link>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="relative aspect-[4/5] rounded-2xl border border-border overflow-hidden"
-          >
-            <MotionImage
-              src={classesImg}
-              alt="Studio rehearsal"
-              width={1400}
-              height={1000}
-              className="absolute inset-0 h-full w-full"
-              overlay={<div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />}
-            >
-              <div className="absolute bottom-6 left-6 z-10">
-                <p className="text-xs uppercase tracking-widest text-primary">Studio</p>
-                <p className="font-display text-2xl font-bold">Where it begins</p>
-              </div>
-            </MotionImage>
-          </motion.div>
 
-        </div>
-      </section>
 
       {/* FOUNDER */}
       <FounderSection founder={founder} />
