@@ -162,9 +162,10 @@ function HeroSlideMedia({
 
   if (!src) return null;
   const common = "absolute inset-0 h-full w-full object-cover transform-gpu backface-hidden";
-  const placeholder = fallbackSrc && fallbackSrc !== src ? (
+  const hasPlaceholder = !!fallbackSrc && fallbackSrc !== src;
+  const placeholder = hasPlaceholder ? (
     <img
-      src={fallbackSrc}
+      src={fallbackSrc!}
       alt=""
       aria-hidden
       className={`${common} scale-105 blur-xl transition-opacity duration-500 ${ready ? "opacity-0" : "opacity-75"}`}
@@ -209,7 +210,7 @@ function HeroSlideMedia({
           controls={false}
           onLoadedData={markReady}
           onCanPlay={markReady}
-          className={`${common} transition-opacity duration-500 ${ready ? "opacity-100" : "opacity-0"}`}
+          className={`${common} transition-opacity duration-500 ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
         />
       </>
     );
@@ -220,7 +221,7 @@ function HeroSlideMedia({
       <img
         src={src}
         alt={alt ?? ""}
-        className={`${common} transition-opacity duration-500 ${ready ? "opacity-100" : "opacity-0"}`}
+        className={`${common} transition-opacity duration-500 ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
         loading={priority || active ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={priority ? "high" : active ? "auto" : "low"}
