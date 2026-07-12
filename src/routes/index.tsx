@@ -735,7 +735,7 @@ function Index() {
                   <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
                 </span>
                 <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-              </Link>
+              </a>
             </MagneticButton>
           </div>
 
