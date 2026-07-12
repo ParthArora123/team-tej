@@ -497,16 +497,24 @@ function Index() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="grid sm:grid-cols-3 gap-10"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10"
         >
           {stats.map((s) => (
-            <motion.div key={s.label} variants={item} className="border-t border-border pt-6">
-              <p className="font-display text-5xl lg:text-6xl font-bold text-primary">{s.value}</p>
-              <p className="mt-2 text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
+            <motion.div key={s.label} variants={item} className="relative border-t border-border pt-6">
+              <div
+                aria-hidden
+                className="absolute -top-px left-0 h-px w-16"
+                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
+              />
+              <p className="font-display text-5xl lg:text-7xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
+                <AnimatedCounter value={s.value} suffix={s.suffix} />
+              </p>
+              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
+
 
       {/* SPLIT FEATURE */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
