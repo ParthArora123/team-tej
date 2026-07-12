@@ -445,6 +445,7 @@ function Index() {
 
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-16">
+          <MouseParallax strength={14}>
           <motion.div
             variants={stagger}
             initial="hidden"
@@ -500,6 +501,7 @@ function Index() {
               </MagneticButton>
             </motion.div>
           </motion.div>
+          </MouseParallax>
 
         </div>
 
