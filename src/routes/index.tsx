@@ -88,7 +88,9 @@ function isSlowNetwork(): boolean {
   return t === "slow-2g" || t === "2g";
 }
 
-function warmHeroMedia(slides: HeroSlide[], activeIndex: number) {
+const warmedHeroMedia = new Set<string>();
+
+function warmHeroMedia(slides: HeroSlide[], activeIndex: number, ahead = 2) {
   if (typeof window === "undefined" || slides.length < 2) return;
   if (isSlowNetwork()) return; // Respect data-saver / 2G — don't hog bandwidth.
   const ordered = slides
@@ -96,22 +98,25 @@ function warmHeroMedia(slides: HeroSlide[], activeIndex: number) {
     .filter(({ slide, distance }) => distance > 0 && slide.image_url)
     .sort((a, b) => a.distance - b.distance);
 
-  for (const { slide } of ordered) {
+  for (const { slide } of ordered.slice(0, ahead)) {
     const src = slide.image_url;
-    if (!src) continue;
+    if (!src || warmedHeroMedia.has(src)) continue;
+    warmedHeroMedia.add(src);
     if (isVideoUrl(src)) {
-      // Only warm metadata for the *next* video, not all of them — saves bandwidth.
+      // Warm metadata only. Never pull full hero videos during initial load.
       const video = document.createElement("video");
       video.preload = "metadata";
       video.muted = true;
       video.playsInline = true;
       video.src = src;
       video.load();
-      break;
+      continue;
     }
     const img = new Image();
     img.decoding = "async";
+    (img as any).fetchPriority = "low";
     img.src = src;
+    img.decode?.().catch(() => {});
   }
 }
 
@@ -121,59 +126,74 @@ function HeroSlideMedia({
   active,
   priority = false,
   fallbackSrc,
+  onReady,
 }: {
   src?: string | null;
   alt?: string;
   active: boolean;
   priority?: boolean;
   fallbackSrc?: string;
+  onReady?: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setReady(false);
+  }, [src]);
+
+  const markReady = () => {
+    setReady(true);
+    onReady?.();
+  };
 
   // Pause & release decoder when slide leaves view / becomes inactive.
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     if (active) {
-      v.play().catch(() => {});
+      const raf = requestAnimationFrame(() => v.play().catch(() => {}));
+      return () => cancelAnimationFrame(raf);
     } else {
       try { v.pause(); } catch {}
     }
   }, [active]);
 
   if (!src) return null;
-  const common = "absolute inset-0 h-full w-full object-cover transform-gpu";
+  const common = "absolute inset-0 h-full w-full object-cover transform-gpu backface-hidden";
+  const placeholder = fallbackSrc && fallbackSrc !== src ? (
+    <img
+      src={fallbackSrc}
+      alt=""
+      aria-hidden
+      className={`${common} scale-105 blur-xl transition-opacity duration-500 ${ready ? "opacity-0" : "opacity-75"}`}
+      loading={priority ? "eager" : "lazy"}
+      decoding="async"
+      fetchPriority={priority ? "high" : "low"}
+      draggable={false}
+    />
+  ) : null;
 
   if (isVideoUrl(src)) {
     // For inactive video slides, render ONLY the poster image — keeps memory
     // low and avoids background decoding of hidden videos.
     if (!active) {
-      return (
+      return fallbackSrc ? (
         <img
-          src={fallbackSrc ?? ""}
+          src={fallbackSrc}
           alt=""
           aria-hidden
           className={common}
           loading="lazy"
           decoding="async"
+          fetchPriority="low"
           draggable={false}
         />
-      );
+      ) : null;
     }
     return (
       <>
-        {fallbackSrc && (
-          <img
-            src={fallbackSrc}
-            alt=""
-            aria-hidden
-            className={common}
-            loading="eager"
-            decoding="async"
-            fetchPriority={priority ? "high" : "low"}
-            draggable={false}
-          />
-        )}
+        {placeholder}
         <video
           ref={videoRef}
           src={src}
@@ -181,27 +201,34 @@ function HeroSlideMedia({
           muted
           loop
           playsInline
-          preload={priority ? "auto" : "metadata"}
+          preload="metadata"
           poster={fallbackSrc}
           disableRemotePlayback
           disablePictureInPicture
           controls={false}
-          className={common}
+          onLoadedData={markReady}
+          onCanPlay={markReady}
+          className={`${common} transition-opacity duration-500 ${ready ? "opacity-100" : "opacity-0"}`}
         />
       </>
     );
   }
   return (
-    <img
-      src={src}
-      alt={alt ?? ""}
-      className={common}
-      loading={priority ? "eager" : "lazy"}
-      decoding="async"
-      fetchPriority={priority ? "high" : "auto"}
-      sizes="100vw"
-      draggable={false}
-    />
+    <>
+      {placeholder}
+      <img
+        src={src}
+        alt={alt ?? ""}
+        className={`${common} transition-opacity duration-500 ${ready ? "opacity-100" : "opacity-0"}`}
+        loading={priority || active ? "eager" : "lazy"}
+        decoding="async"
+        fetchPriority={priority ? "high" : active ? "auto" : "low"}
+        sizes="100vw"
+        draggable={false}
+        onLoad={markReady}
+        onError={markReady}
+      />
+    </>
   );
 }
 
