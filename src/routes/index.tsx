@@ -230,35 +230,52 @@ function Index() {
     <>
       {/* HERO */}
       <section ref={heroRef} className="relative overflow-hidden">
-        {/* Responsive hero media — fits fully (no crop) on mobile and laptop */}
-        <div className="relative grid w-full overflow-hidden bg-transparent">
+        {/* Fixed-aspect hero container — identical size across all slides, no layout shift */}
+        <div className="relative w-full overflow-hidden bg-black aspect-[4/5] sm:aspect-[16/10] lg:aspect-[16/9] max-h-[85vh]">
           {heroSlides.length > 0 ? (
-            heroSlides.map((s, i) => (
-              <motion.div
-                key={s.id ?? s.image_url ?? i}
-                initial={false}
-                animate={{ opacity: i === slideIdx ? 1 : 0 }}
-                transition={{ duration: 0.7, ease: "easeInOut" }}
-                style={{ pointerEvents: i === slideIdx ? "auto" : "none" }}
-                className={`col-start-1 row-start-1 w-full ${i === slideIdx ? "relative" : "absolute inset-0"}`}
-              >
-                <HeroSlideMedia
-                  src={s.image_url}
-                  alt={s.alt ?? "Hero"}
-                  priority={i === 0 || i === slideIdx}
-                />
-              </motion.div>
-            ))
+            heroSlides.map((s, i) => {
+              const active = i === slideIdx;
+              // Mount current, previous-neighbor and next-neighbor only for cheap DOM
+              const neighbor =
+                heroSlides.length <= 3 ||
+                i === (slideIdx + 1) % heroSlides.length ||
+                i === (slideIdx - 1 + heroSlides.length) % heroSlides.length;
+              const shouldMount = i === 0 || active || neighbor;
+              return (
+                <div
+                  key={s.id ?? s.image_url ?? i}
+                  aria-hidden={!active}
+                  style={{
+                    opacity: active ? 1 : 0,
+                    transition: "opacity 700ms ease-in-out",
+                    pointerEvents: active ? "auto" : "none",
+                    willChange: "opacity",
+                  }}
+                  className="absolute inset-0"
+                >
+                  {shouldMount && (
+                    <HeroSlideMedia
+                      src={s.image_url}
+                      alt={s.alt ?? "Hero"}
+                      active={active}
+                      priority={i === 0}
+                    />
+                  )}
+                </div>
+              );
+            })
           ) : (
             <HeroSlideMedia
               src={heroImg}
               alt="Tejas D Dhoke dancers in performance"
+              active
               priority
             />
           )}
           {/* Cinematic stage lighting + smoke */}
           <StageLights />
         </div>
+
 
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-16">
