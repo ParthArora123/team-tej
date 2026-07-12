@@ -342,6 +342,7 @@ function Index() {
   const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
   const [choreos, setChoreos] = useState<Choreo[]>([]);
   const [founder, setFounder] = useState<any | null>(null);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
   const [slideIdx, setSlideIdx] = useState(0);
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
