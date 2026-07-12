@@ -269,31 +269,171 @@ function ZeroToHeroPage() {
         </div>
       </Section>
 
-      {/* STAGES / WHAT YOU'LL LEARN — timeline */}
-      <Section eyebrow="What you'll learn" title="Five stages. One transformation.">
-        <div className="mt-10 relative">
-          <div className="absolute left-6 top-2 bottom-2 w-px bg-gradient-to-b from-primary via-primary/40 to-transparent hidden sm:block" />
-          <div className="space-y-5">
-            {stages.map((s, i) => (
-              <Reveal key={s.n} delay={i * 0.06}>
-                <div className="relative sm:pl-16 rounded-2xl border border-border/70 bg-card/60 p-6">
-                  <div className="hidden sm:grid absolute left-2 top-6 h-8 w-8 place-items-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                    {s.n}
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <s.icon size={22} className="text-primary shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[11px] uppercase tracking-widest text-primary sm:hidden">Stage {s.n}</p>
-                      <h3 className="font-display text-2xl font-bold">{s.title}</h3>
-                      <p className="mt-2 text-muted-foreground">{s.body}</p>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+      {/* STAGES / WHAT YOU'LL LEARN — Journey */}
+      <section className="relative px-6 lg:px-10 py-24 overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-20 left-1/2 -translate-x-1/2 h-[500px] w-[900px] rounded-full bg-primary/10 blur-[160px]" />
+          <div className="absolute bottom-0 right-0 h-[400px] w-[400px] rounded-full bg-fuchsia-500/10 blur-[140px]" />
         </div>
-      </Section>
+
+        <div className="max-w-7xl mx-auto">
+          <Reveal>
+            <div className="text-center max-w-3xl mx-auto">
+              <p className="text-xs uppercase tracking-[0.3em] text-primary">The journey</p>
+              <h2 className="mt-3 font-display text-4xl sm:text-6xl font-black leading-[1.05] tracking-tight">
+                From{" "}
+                <span className="bg-gradient-to-r from-amber-300 via-primary to-fuchsia-400 bg-clip-text text-transparent">
+                  Zero
+                </span>{" "}
+                to{" "}
+                <span className="bg-gradient-to-r from-fuchsia-400 via-primary to-amber-300 bg-clip-text text-transparent">
+                  Hero
+                </span>
+                .
+              </h2>
+              <p className="mt-4 text-muted-foreground text-lg">
+                Five stages. One transformation. A confident dancer at every step of the way.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* Progress rail — chapter chips (desktop) */}
+          <Reveal delay={0.1}>
+            <div className="hidden lg:block mt-14">
+              <div className="relative">
+                <div className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+                <ol className="relative grid grid-cols-5 gap-4">
+                  {stages.map((s) => (
+                    <li key={s.n} className="flex flex-col items-center text-center">
+                      <div
+                        className={`h-12 w-12 rounded-full grid place-items-center bg-gradient-to-br ${s.accent} text-background font-display font-black text-sm shadow-[0_10px_30px_-8px] shadow-primary/50 ring-4 ring-background`}
+                      >
+                        {s.n}
+                      </div>
+                      <p className="mt-3 text-[11px] uppercase tracking-[0.25em] text-primary">
+                        {s.chapter}
+                      </p>
+                      <p className="mt-1 font-display text-sm font-semibold">{s.title}</p>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Journey cards */}
+          <div className="mt-14 space-y-10 sm:space-y-14">
+            {stages.map((s, i) => {
+              const flip = i % 2 === 1;
+              return (
+                <Reveal key={s.n} delay={i * 0.05}>
+                  <article className="group relative">
+                    <div
+                      className={`grid gap-6 md:gap-10 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] items-stretch ${
+                        flip ? "md:[&>.media]:order-2" : ""
+                      }`}
+                    >
+                      {/* Image panel */}
+                      <div className="media relative overflow-hidden rounded-[2rem] border border-white/10 bg-card">
+                        <div
+                          aria-hidden
+                          className={`absolute -inset-px rounded-[2rem] bg-gradient-to-br ${s.accent} opacity-40 blur-2xl pointer-events-none group-hover:opacity-70 transition-opacity duration-700`}
+                        />
+                        <div className="relative aspect-[4/3] md:aspect-auto md:h-full overflow-hidden rounded-[2rem]">
+                          <img
+                            src={s.image}
+                            alt={`${s.chapter} — ${s.title}`}
+                            loading="lazy"
+                            decoding="async"
+                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/40" />
+
+                          {/* Chapter badge */}
+                          <div className="absolute top-5 left-5 flex items-center gap-2">
+                            <span
+                              className={`h-10 w-10 grid place-items-center rounded-2xl bg-gradient-to-br ${s.accent} text-background font-display font-black text-xs shadow-lg`}
+                            >
+                              {s.n}
+                            </span>
+                            <span className="px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-[10px] uppercase tracking-[0.3em] text-white">
+                              {s.chapter}
+                            </span>
+                          </div>
+
+                          {/* Corner icon */}
+                          <div className="absolute bottom-5 right-5 h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 grid place-items-center">
+                            <s.icon size={26} className="text-white" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Copy panel — glass card */}
+                      <div className="relative">
+                        <div className="relative h-full rounded-[2rem] border border-white/10 bg-card/50 backdrop-blur-xl p-8 sm:p-10 overflow-hidden">
+                          <div
+                            aria-hidden
+                            className={`absolute -top-24 -right-24 h-64 w-64 rounded-full bg-gradient-to-br ${s.accent} opacity-25 blur-3xl`}
+                          />
+                          <div className="relative">
+                            <div className="flex items-center gap-3">
+                              <span className="font-display text-6xl sm:text-7xl font-black leading-none bg-gradient-to-br from-white/90 to-white/40 bg-clip-text text-transparent">
+                                {s.n}
+                              </span>
+                              <div>
+                                <p className="text-[11px] uppercase tracking-[0.3em] text-primary">
+                                  Stage · {s.chapter}
+                                </p>
+                                <h3 className="mt-1 font-display text-2xl sm:text-3xl font-black leading-tight">
+                                  {s.title}
+                                </h3>
+                              </div>
+                            </div>
+
+                            <p className="mt-6 text-muted-foreground text-base sm:text-lg leading-relaxed">
+                              {s.body}
+                            </p>
+
+                            <div className="mt-8 flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-primary/90">
+                              <span className={`h-px w-10 bg-gradient-to-r ${s.accent}`} />
+                              {i < stages.length - 1
+                                ? `Next · ${stages[i + 1].chapter}`
+                                : "You did it. Hero unlocked."}
+                              {i < stages.length - 1 && (
+                                <ArrowRight
+                                  size={14}
+                                  className="text-primary translate-x-0 group-hover:translate-x-1 transition-transform"
+                                />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                </Reveal>
+              );
+            })}
+          </div>
+
+          {/* Journey CTA */}
+          <Reveal delay={0.2}>
+            <div className="mt-14 flex justify-center">
+              <a
+                href="https://studio.dancefit.in/l/41aa93491f"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 px-7 py-4 rounded-full bg-primary text-primary-foreground font-semibold shadow-[0_12px_50px_-8px] shadow-primary/60 hover:scale-[1.03] transition"
+              >
+                Begin your journey
+                <ArrowRight size={16} className="group-hover:translate-x-1 transition" />
+              </a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
 
       {/* INSIDE THE COURSE */}
       <Section eyebrow="Inside the course" title="Everything you get.">
