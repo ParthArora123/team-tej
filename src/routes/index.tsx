@@ -168,7 +168,7 @@ function HeroSlideMedia({
       src={fallbackSrc!}
       alt=""
       aria-hidden
-      className={`${common} scale-105 blur-xl transition-opacity duration-500 ${ready ? "opacity-0" : "opacity-75"}`}
+      className={`${common} scale-105 blur-xl transition-opacity duration-300 ease-out ${ready ? "opacity-0" : "opacity-75"}`}
       loading={priority ? "eager" : "lazy"}
       decoding="async"
       fetchPriority={priority ? "high" : "low"}
