@@ -393,7 +393,7 @@ function Index() {
   return (
     <>
       {/* HERO */}
-      <section id="hero" className="relative overflow-hidden">
+      <section id="hero" ref={heroSectionRef} className="relative overflow-hidden">
         {/* Fixed-aspect hero container — identical size across all slides, no layout shift */}
         <div className="relative w-full overflow-hidden bg-black aspect-[4/5] sm:aspect-[16/10] lg:aspect-[16/9] max-h-[85vh]">
           {heroSlides.length > 0 ? (
