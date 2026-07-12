@@ -708,7 +708,9 @@ function Index() {
       )}
 
       {/* TESTIMONIALS */}
-      <TestimonialsCarousel />
+      <Suspense fallback={null}>
+        <TestimonialsCarousel />
+      </Suspense>
 
       {/* FINAL CTA */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
