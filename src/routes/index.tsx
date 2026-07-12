@@ -58,7 +58,7 @@ const preloadLinkForHeroMedia = (src?: string | null) => {
   if (isVideoUrl(src)) {
     return { rel: "preload", as: "video", href: src, type: heroVideoType(src), crossOrigin: "anonymous" };
   }
-  return { rel: "preload", as: "image", href: src, fetchpriority: "high" };
+  return { rel: "preload", as: "image", href: src };
 };
 
 const preconnectLinkForHeroMedia = (src?: string | null) => {
@@ -70,13 +70,10 @@ const preconnectLinkForHeroMedia = (src?: string | null) => {
   }
 };
 
-async function loadHomeData(): Promise<HomeLoaderData> {
-  try {
-    const rows = await listHeroSlides();
-    return { heroSlides: Array.isArray(rows) ? (rows as HeroSlide[]) : [] };
-  } catch {
-    return { heroSlides: [] };
-  }
+function loadHomeData(): HomeLoaderData {
+  // Never block the first homepage paint on remote carousel data.
+  // The local hero image renders immediately; CMS slides hydrate after paint.
+  return { heroSlides: [] };
 }
 
 function isSlowNetwork(): boolean {
@@ -88,7 +85,9 @@ function isSlowNetwork(): boolean {
   return t === "slow-2g" || t === "2g";
 }
 
-function warmHeroMedia(slides: HeroSlide[], activeIndex: number) {
+const warmedHeroMedia = new Set<string>();
+
+function warmHeroMedia(slides: HeroSlide[], activeIndex: number, ahead = 2) {
   if (typeof window === "undefined" || slides.length < 2) return;
   if (isSlowNetwork()) return; // Respect data-saver / 2G — don't hog bandwidth.
   const ordered = slides
@@ -96,22 +95,25 @@ function warmHeroMedia(slides: HeroSlide[], activeIndex: number) {
     .filter(({ slide, distance }) => distance > 0 && slide.image_url)
     .sort((a, b) => a.distance - b.distance);
 
-  for (const { slide } of ordered) {
+  for (const { slide } of ordered.slice(0, ahead)) {
     const src = slide.image_url;
-    if (!src) continue;
+    if (!src || warmedHeroMedia.has(src)) continue;
+    warmedHeroMedia.add(src);
     if (isVideoUrl(src)) {
-      // Only warm metadata for the *next* video, not all of them — saves bandwidth.
+      // Warm metadata only. Never pull full hero videos during initial load.
       const video = document.createElement("video");
       video.preload = "metadata";
       video.muted = true;
       video.playsInline = true;
       video.src = src;
       video.load();
-      break;
+      continue;
     }
     const img = new Image();
     img.decoding = "async";
+    (img as any).fetchPriority = "low";
     img.src = src;
+    img.decode?.().catch(() => {});
   }
 }
 
@@ -121,59 +123,79 @@ function HeroSlideMedia({
   active,
   priority = false,
   fallbackSrc,
+  onReady,
 }: {
   src?: string | null;
   alt?: string;
   active: boolean;
   priority?: boolean;
   fallbackSrc?: string;
+  onReady?: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const readyNotifiedRef = useRef(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    readyNotifiedRef.current = false;
+    setReady(false);
+  }, [src]);
+
+  const markReady = () => {
+    if (readyNotifiedRef.current) return;
+    readyNotifiedRef.current = true;
+    onReady?.();
+    setReady(true);
+  };
 
   // Pause & release decoder when slide leaves view / becomes inactive.
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     if (active) {
-      v.play().catch(() => {});
+      const raf = requestAnimationFrame(() => v.play().catch(() => {}));
+      return () => cancelAnimationFrame(raf);
     } else {
       try { v.pause(); } catch {}
     }
   }, [active]);
 
   if (!src) return null;
-  const common = "absolute inset-0 h-full w-full object-cover transform-gpu";
+  const common = "absolute inset-0 h-full w-full object-cover transform-gpu backface-hidden";
+  const hasPlaceholder = !!fallbackSrc && fallbackSrc !== src;
+  const placeholder = hasPlaceholder ? (
+    <img
+      src={fallbackSrc!}
+      alt=""
+      aria-hidden
+      className={`${common} scale-105 blur-xl transition-opacity duration-500 ${ready ? "opacity-0" : "opacity-75"}`}
+      loading={priority ? "eager" : "lazy"}
+      decoding="async"
+      fetchPriority={priority ? "high" : "low"}
+      draggable={false}
+    />
+  ) : null;
 
   if (isVideoUrl(src)) {
     // For inactive video slides, render ONLY the poster image — keeps memory
     // low and avoids background decoding of hidden videos.
     if (!active) {
-      return (
+      return fallbackSrc ? (
         <img
-          src={fallbackSrc ?? ""}
+          src={fallbackSrc}
           alt=""
           aria-hidden
           className={common}
           loading="lazy"
           decoding="async"
+          fetchPriority="low"
           draggable={false}
         />
-      );
+      ) : null;
     }
     return (
       <>
-        {fallbackSrc && (
-          <img
-            src={fallbackSrc}
-            alt=""
-            aria-hidden
-            className={common}
-            loading="eager"
-            decoding="async"
-            fetchPriority={priority ? "high" : "low"}
-            draggable={false}
-          />
-        )}
+        {placeholder}
         <video
           ref={videoRef}
           src={src}
@@ -181,27 +203,34 @@ function HeroSlideMedia({
           muted
           loop
           playsInline
-          preload={priority ? "auto" : "metadata"}
+          preload="metadata"
           poster={fallbackSrc}
           disableRemotePlayback
           disablePictureInPicture
           controls={false}
-          className={common}
+          onLoadedData={markReady}
+          onCanPlay={markReady}
+          className={`${common} transition-opacity duration-500 ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
         />
       </>
     );
   }
   return (
-    <img
-      src={src}
-      alt={alt ?? ""}
-      className={common}
-      loading={priority ? "eager" : "lazy"}
-      decoding="async"
-      fetchPriority={priority ? "high" : "auto"}
-      sizes="100vw"
-      draggable={false}
-    />
+    <>
+      {placeholder}
+      <img
+        src={src}
+        alt={alt ?? ""}
+        className={`${common} transition-opacity duration-500 ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
+        loading={priority || active ? "eager" : "lazy"}
+        decoding="async"
+        fetchPriority={priority ? "high" : active ? "auto" : "low"}
+        sizes="100vw"
+        draggable={false}
+        onLoad={markReady}
+        onError={markReady}
+      />
+    </>
   );
 }
 
@@ -320,17 +349,58 @@ function Index() {
   const [celebrities, setCelebrities] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const [globe, setGlobe] = useState<any[]>([]);
-  const [heroSlides] = useState<HeroSlide[]>(loaderData.heroSlides ?? []);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(loaderData.heroSlides ?? []);
   const [featured, setFeatured] = useState<any | null>(null);
   const [gallery, setGallery] = useState<any[]>([]);
   const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
   const [choreos, setChoreos] = useState<Choreo[]>([]);
   const [founder, setFounder] = useState<any | null>(null);
   const [slideIdx, setSlideIdx] = useState(0);
+  const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
   const [showStageLights, setShowStageLights] = useState(false);
+  const fetchHeroSlides = useServerFn(listHeroSlides);
   const fetchPrograms = useServerFn(listPrograms);
+
   useEffect(() => {
+    if (!heroReady) return;
+    let cancelled = false;
+
+    const hydrateSlides = () => {
+      fetchHeroSlides()
+        .then((rows: any) => {
+          if (cancelled || !Array.isArray(rows) || rows.length === 0) return;
+          const next = rows as HeroSlide[];
+          const first = next[0]?.image_url;
+          if (!first || isVideoUrl(first)) {
+            setHeroSlides(next);
+            return;
+          }
+          const img = new Image();
+          img.decoding = "async";
+          (img as any).fetchPriority = "high";
+          img.onload = () => {
+            if (!cancelled) setHeroSlides(next);
+          };
+          img.onerror = () => {
+            if (!cancelled) setHeroSlides(next);
+          };
+          img.src = first;
+          img.decode?.().then(() => {
+            if (!cancelled) setHeroSlides(next);
+          }).catch(() => {});
+        })
+        .catch(() => {});
+    };
+
+    const raf = requestAnimationFrame(() => setTimeout(hydrateSlides, 0));
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
+  }, [fetchHeroSlides, heroReady]);
+  useEffect(() => {
+    if (!heroReady) return;
     // Non-critical: below the fold — defer until browser is idle so they don't compete with the hero paint.
     const loadDeferred = () => {
       fetchPrograms({ data: { kind: "workshop" } })
@@ -346,11 +416,20 @@ function Index() {
       getSiteContent({ data: { key: "founder" } }).then((r: any) => setFounder(r)).catch(() => setFounder(null));
     };
     const ric: any = (window as any).requestIdleCallback;
-    if (typeof ric === "function") ric(loadDeferred, { timeout: 1800 });
-    else setTimeout(loadDeferred, 450);
-  }, [fetchPrograms]);
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let idleId: number | undefined;
+    if (typeof ric === "function") idleId = ric(loadDeferred, { timeout: 1800 });
+    else timeout = setTimeout(loadDeferred, 450);
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      if (typeof (window as any).cancelIdleCallback === "function" && idleId) {
+        (window as any).cancelIdleCallback(idleId);
+      }
+    };
+  }, [fetchPrograms, heroReady]);
 
   useEffect(() => {
+    if (!heroReady) return;
     const enableWarmup = () => {
       setWarmSlides(true);
       warmHeroMedia(heroSlides, slideIdx);
@@ -367,7 +446,7 @@ function Index() {
         (window as any).cancelIdleCallback(idleId);
       }
     };
-  }, [heroSlides, slideIdx]);
+  }, [heroReady, heroSlides, slideIdx]);
 
 
 
@@ -386,10 +465,12 @@ function Index() {
   }, []);
 
   useEffect(() => {
-    if (heroSlides.length < 2 || !heroVisible) return;
-    const t = setInterval(() => setSlideIdx((i) => (i + 1) % heroSlides.length), 5000);
+    if (!heroReady || heroSlides.length < 2 || !heroVisible) return;
+    const t = setInterval(() => {
+      requestAnimationFrame(() => setSlideIdx((i) => (i + 1) % heroSlides.length));
+    }, 5000);
     return () => clearInterval(t);
-  }, [heroSlides.length, heroVisible]);
+  }, [heroReady, heroSlides.length, heroVisible]);
 
   return (
     <>
@@ -425,6 +506,7 @@ function Index() {
                       active={active && heroVisible}
                       priority={i === 0}
                       fallbackSrc={heroImg}
+                      onReady={i === 0 ? () => setHeroReady(true) : undefined}
                     />
                   )}
                 </div>
@@ -436,20 +518,21 @@ function Index() {
               alt="Tejas D Dhoke dancers in performance"
               active
               priority
+              onReady={() => setHeroReady(true)}
             />
           )}
           {/* Cinematic stage lighting + smoke */}
-          {showStageLights && <StageLights />}
+          {heroReady && showStageLights && <StageLights />}
         </div>
 
 
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-16">
-          <MouseParallax strength={14}>
+          <MouseParallax strength={heroReady ? 14 : 0}>
           <motion.div
             variants={stagger}
             initial="hidden"
-            animate="show"
+            animate={heroReady ? "show" : "hidden"}
             className="max-w-2xl"
           >
             <motion.div variants={item} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/40 bg-background/50 backdrop-blur text-[10px] uppercase tracking-widest text-primary shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--primary)_60%,transparent)]">
@@ -510,7 +593,7 @@ function Index() {
         {/* Marquee */}
         <div className="relative border-y border-border bg-background/60 backdrop-blur overflow-hidden">
           <motion.div
-            animate={{ x: ["0%", "-50%"] }}
+            animate={heroReady ? { x: ["0%", "-50%"] } : { x: "0%" }}
             transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
             className="flex gap-12 py-4 whitespace-nowrap text-sm uppercase tracking-[0.3em] text-muted-foreground"
           >
