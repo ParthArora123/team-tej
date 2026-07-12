@@ -162,19 +162,6 @@ function HeroSlideMedia({
 
   if (!src) return null;
   const common = "absolute inset-0 h-full w-full object-cover transform-gpu backface-hidden";
-  const hasPlaceholder = !!fallbackSrc && fallbackSrc !== src;
-  const placeholder = hasPlaceholder ? (
-    <img
-      src={fallbackSrc!}
-      alt=""
-      aria-hidden
-      className={`${common} scale-105 blur-xl transition-opacity duration-300 ease-out ${ready ? "opacity-0" : "opacity-75"}`}
-      loading={priority ? "eager" : "lazy"}
-      decoding="async"
-      fetchPriority={priority ? "high" : "low"}
-      draggable={false}
-    />
-  ) : null;
 
   if (isVideoUrl(src)) {
     // For inactive video slides, render ONLY the poster image — keeps memory
@@ -194,43 +181,39 @@ function HeroSlideMedia({
       ) : null;
     }
     return (
-      <>
-        {placeholder}
-        <video
-          ref={videoRef}
-          src={src}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster={fallbackSrc}
-          disableRemotePlayback
-          disablePictureInPicture
-          controls={false}
-          onLoadedData={markReady}
-          onCanPlay={markReady}
-          className={`${common} transition-opacity duration-300 ease-out ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
-        />
-      </>
+      <video
+        ref={videoRef}
+        src={src}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        poster={fallbackSrc}
+        disableRemotePlayback
+        disablePictureInPicture
+        controls={false}
+        onLoadedData={markReady}
+        onCanPlay={markReady}
+        className={common}
+        style={{ opacity: ready ? 1 : 0, transition: "opacity 200ms ease-out" }}
+      />
     );
   }
   return (
-    <>
-      {placeholder}
-      <img
-        src={src}
-        alt={alt ?? ""}
-        className={`${common} transition-opacity duration-300 ease-out ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
-        loading={priority || active ? "eager" : "lazy"}
-        decoding="async"
-        fetchPriority={priority ? "high" : active ? "auto" : "low"}
-        sizes="100vw"
-        draggable={false}
-        onLoad={markReady}
-        onError={markReady}
-      />
-    </>
+    <img
+      src={src}
+      alt={alt ?? ""}
+      className={common}
+      style={{ opacity: ready ? 1 : 0, transition: "opacity 200ms ease-out" }}
+      loading={priority || active ? "eager" : "lazy"}
+      decoding="async"
+      fetchPriority={priority ? "high" : active ? "auto" : "low"}
+      sizes="100vw"
+      draggable={false}
+      onLoad={markReady}
+      onError={markReady}
+    />
   );
 }
 
