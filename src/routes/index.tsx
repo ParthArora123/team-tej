@@ -6,6 +6,7 @@ import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
 import { listDanceStyles, getSiteContent } from "@/lib/site-content.functions";
 import { listChoreographies } from "@/lib/choreographies.functions";
+import { listPublicTestimonials } from "@/lib/testimonials.functions";
 import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin } from "lucide-react";
