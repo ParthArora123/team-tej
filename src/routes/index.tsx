@@ -136,15 +136,19 @@ function HeroSlideMedia({
   onReady?: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const readyNotifiedRef = useRef(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    readyNotifiedRef.current = false;
     setReady(false);
   }, [src]);
 
   const markReady = () => {
-    setReady(true);
+    if (readyNotifiedRef.current) return;
+    readyNotifiedRef.current = true;
     onReady?.();
+    setReady(true);
   };
 
   // Pause & release decoder when slide leaves view / becomes inactive.
