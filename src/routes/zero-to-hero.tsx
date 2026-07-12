@@ -528,8 +528,14 @@ function ZeroToHeroPage() {
           <div className="grid md:grid-cols-[240px_1fr] gap-8 items-start relative">
             <div className="mx-auto md:mx-0">
               <div className="h-56 w-56 rounded-3xl bg-gradient-to-br from-primary/40 via-fuchsia-500/30 to-transparent p-1">
-                <div className="h-full w-full rounded-[22px] bg-card grid place-items-center">
-                  <User size={80} className="text-primary/60" />
+                <div className="h-full w-full rounded-[22px] bg-card overflow-hidden">
+                  <img
+                    src={founder?.image_url || aboutImg}
+                    alt={founder?.name || "Tejas D Dhoke — Founder"}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-1 justify-center md:justify-start">
