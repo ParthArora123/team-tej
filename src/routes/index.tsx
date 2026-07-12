@@ -34,78 +34,47 @@ const defaultStyles = [
 
 const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
 
-function HeroMedia({
-  src,
-  alt,
-  className,
-  priority = false,
-  onLoad,
-}: {
-  src?: string | null;
-  alt?: string;
-  className?: string;
-  priority?: boolean;
-  onLoad?: () => void;
-}) {
-  if (!src) return null;
-  if (isVideoUrl(src)) {
-    return (
-      <video src={src} autoPlay muted loop playsInline preload={priority ? "auto" : "metadata"} onLoadedData={onLoad}
-        className={className} />
-    );
-  }
-  return <img src={src} alt={alt ?? ""} className={className} loading={priority ? "eager" : "lazy"} decoding="async" fetchPriority={priority ? "high" : "auto"} sizes="100vw" onLoad={onLoad} />;
-}
-
 function HeroSlideMedia({
   src,
   alt,
+  active,
   priority = false,
 }: {
   src?: string | null;
   alt?: string;
+  active: boolean;
   priority?: boolean;
 }) {
-  const [hasLoaded, setHasLoaded] = useState(false);
-
-  useEffect(() => {
-    setHasLoaded(false);
-  }, [src]);
-
   if (!src) return null;
-
+  const common = "absolute inset-0 h-full w-full object-cover";
   if (isVideoUrl(src)) {
     return (
-      <HeroMedia
+      <video
         src={src}
-        alt={alt}
-        priority={priority}
-        onLoad={() => setHasLoaded(true)}
-        className="relative block h-auto w-full bg-transparent"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload={priority ? "auto" : "metadata"}
+        poster={undefined}
+        className={common}
       />
     );
   }
-
   return (
-    <>
-      <div className={`absolute inset-0 bg-transparent transition-opacity duration-300 ${hasLoaded ? "opacity-0" : "opacity-100"}`} />
-      <HeroMedia
-        src={src}
-        alt=""
-        priority={priority}
-        onLoad={() => setHasLoaded(true)}
-        className="absolute inset-0 h-full w-full object-cover scale-105 blur-xl opacity-35"
-      />
-      <HeroMedia
-        src={src}
-        alt={alt}
-        priority={priority}
-        onLoad={() => setHasLoaded(true)}
-        className="relative z-10 block h-auto w-full bg-transparent"
-      />
-    </>
+    <img
+      src={src}
+      alt={alt ?? ""}
+      className={common}
+      loading={priority ? "eager" : "lazy"}
+      decoding="async"
+      fetchPriority={priority ? "high" : "auto"}
+      sizes="100vw"
+      draggable={false}
+    />
   );
 }
+
 
 function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
