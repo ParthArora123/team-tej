@@ -78,8 +78,18 @@ async function loadHomeData(): Promise<HomeLoaderData> {
   }
 }
 
+function isSlowNetwork(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const c: any = (navigator as any).connection;
+  if (!c) return false;
+  if (c.saveData) return true;
+  const t = c.effectiveType as string | undefined;
+  return t === "slow-2g" || t === "2g";
+}
+
 function warmHeroMedia(slides: HeroSlide[], activeIndex: number) {
   if (typeof window === "undefined" || slides.length < 2) return;
+  if (isSlowNetwork()) return; // Respect data-saver / 2G — don't hog bandwidth.
   const ordered = slides
     .map((slide, index) => ({ slide, distance: (index - activeIndex + slides.length) % slides.length }))
     .filter(({ slide, distance }) => distance > 0 && slide.image_url)
@@ -89,13 +99,14 @@ function warmHeroMedia(slides: HeroSlide[], activeIndex: number) {
     const src = slide.image_url;
     if (!src) continue;
     if (isVideoUrl(src)) {
+      // Only warm metadata for the *next* video, not all of them — saves bandwidth.
       const video = document.createElement("video");
       video.preload = "metadata";
       video.muted = true;
       video.playsInline = true;
       video.src = src;
       video.load();
-      continue;
+      break;
     }
     const img = new Image();
     img.decoding = "async";
@@ -116,9 +127,38 @@ function HeroSlideMedia({
   priority?: boolean;
   fallbackSrc?: string;
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Pause & release decoder when slide leaves view / becomes inactive.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (active) {
+      v.play().catch(() => {});
+    } else {
+      try { v.pause(); } catch {}
+    }
+  }, [active]);
+
   if (!src) return null;
   const common = "absolute inset-0 h-full w-full object-cover transform-gpu";
+
   if (isVideoUrl(src)) {
+    // For inactive video slides, render ONLY the poster image — keeps memory
+    // low and avoids background decoding of hidden videos.
+    if (!active) {
+      return (
+        <img
+          src={fallbackSrc ?? ""}
+          alt=""
+          aria-hidden
+          className={common}
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+      );
+    }
     return (
       <>
         {fallbackSrc && (
@@ -134,13 +174,17 @@ function HeroSlideMedia({
           />
         )}
         <video
+          ref={videoRef}
           src={src}
-          autoPlay={active}
+          autoPlay
           muted
           loop
           playsInline
           preload={priority ? "auto" : "metadata"}
           poster={fallbackSrc}
+          disableRemotePlayback
+          disablePictureInPicture
+          controls={false}
           className={common}
         />
       </>
@@ -326,16 +370,30 @@ function Index() {
 
 
 
+  const heroSectionRef = useRef<HTMLElement>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
+
   useEffect(() => {
-    if (heroSlides.length < 2) return;
+    const el = heroSectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0.05 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (heroSlides.length < 2 || !heroVisible) return;
     const t = setInterval(() => setSlideIdx((i) => (i + 1) % heroSlides.length), 5000);
     return () => clearInterval(t);
-  }, [heroSlides.length]);
+  }, [heroSlides.length, heroVisible]);
 
   return (
     <>
       {/* HERO */}
-      <section id="hero" className="relative overflow-hidden">
+      <section id="hero" ref={heroSectionRef} className="relative overflow-hidden">
         {/* Fixed-aspect hero container — identical size across all slides, no layout shift */}
         <div className="relative w-full overflow-hidden bg-black aspect-[4/5] sm:aspect-[16/10] lg:aspect-[16/9] max-h-[85vh]">
           {heroSlides.length > 0 ? (
@@ -363,7 +421,7 @@ function Index() {
                     <HeroSlideMedia
                       src={s.image_url}
                       alt={s.alt ?? "Hero"}
-                      active={active}
+                      active={active && heroVisible}
                       priority={i === 0}
                       fallbackSrc={heroImg}
                     />
