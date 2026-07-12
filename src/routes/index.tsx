@@ -242,7 +242,7 @@ function Index() {
   return (
     <>
       {/* HERO */}
-      <section ref={heroRef} className="relative overflow-hidden">
+      <section id="hero" ref={heroRef} className="relative overflow-hidden">
         {/* Fixed-aspect hero container — identical size across all slides, no layout shift */}
         <div className="relative w-full overflow-hidden bg-black aspect-[4/5] sm:aspect-[16/10] lg:aspect-[16/9] max-h-[85vh]">
           {heroSlides.length > 0 ? (
@@ -528,57 +528,8 @@ function Index() {
       </section>
 
 
-      {/* SPLIT FEATURE */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-          >
-            <p className="text-xs uppercase tracking-widest text-primary">Our craft</p>
-            <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold leading-tight text-balance">
-              We train movers, not just dancers.
-            </h2>
-            <p className="mt-6 text-muted-foreground leading-relaxed">
-              Every Tejas D Dhoke class is built around a fusion philosophy — strong
-              technique, emotional storytelling, and the freedom to break form.
-              From first-time learners to performance-track artists, our
-              programs scale with you.
-            </p>
-            <Link
-              to="/about"
-              className="mt-8 inline-flex items-center gap-2 text-primary hover:gap-3 transition-all"
-            >
-              The Tejas D Dhoke story <ArrowUpRight size={16} />
-            </Link>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="relative aspect-[4/5] rounded-2xl border border-border overflow-hidden"
-          >
-            <MotionImage
-              src={classesImg}
-              alt="Studio rehearsal"
-              width={1400}
-              height={1000}
-              className="absolute inset-0 h-full w-full"
-              overlay={<div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />}
-            >
-              <div className="absolute bottom-6 left-6 z-10">
-                <p className="text-xs uppercase tracking-widest text-primary">Studio</p>
-                <p className="font-display text-2xl font-bold">Where it begins</p>
-              </div>
-            </MotionImage>
-          </motion.div>
 
-        </div>
-      </section>
 
       {/* FOUNDER */}
       <FounderSection founder={founder} />
@@ -756,8 +707,14 @@ function Index() {
 
           <div className="relative mt-10 flex justify-center">
             <MagneticButton strength={0.5}>
-              <Link
-                to="/nritya-sadhana"
+              <a
+                href="#hero"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById("hero");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  else window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
                 className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-primary-foreground overflow-hidden"
                 style={{
                   background: "linear-gradient(135deg, var(--primary) 0%, #7A3BFF 100%)",
@@ -778,7 +735,7 @@ function Index() {
                   <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
                 </span>
                 <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-              </Link>
+              </a>
             </MagneticButton>
           </div>
 
