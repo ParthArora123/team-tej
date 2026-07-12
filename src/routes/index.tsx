@@ -90,17 +90,17 @@ const warmedHeroMedia = new Set<string>();
 function warmHeroMedia(slides: HeroSlide[], activeIndex: number, ahead = 2) {
   if (typeof window === "undefined" || slides.length < 2) return;
   if (isSlowNetwork()) return; // Respect data-saver / 2G — don't hog bandwidth.
-  const ordered = slides
-    .map((slide, index) => ({ slide, distance: (index - activeIndex + slides.length) % slides.length }))
-    .filter(({ slide, distance }) => distance > 0 && slide.image_url)
-    .sort((a, b) => a.distance - b.distance);
-
-  for (const { slide } of ordered.slice(0, ahead)) {
-    const src = slide.image_url;
+  const n = slides.length;
+  const targets: HeroSlide[] = [];
+  for (let d = 1; d <= ahead; d++) {
+    targets.push(slides[(activeIndex + d) % n]);
+    targets.push(slides[(activeIndex - d + n) % n]);
+  }
+  for (const slide of targets) {
+    const src = slide?.image_url;
     if (!src || warmedHeroMedia.has(src)) continue;
     warmedHeroMedia.add(src);
     if (isVideoUrl(src)) {
-      // Warm metadata only. Never pull full hero videos during initial load.
       const video = document.createElement("video");
       video.preload = "metadata";
       video.muted = true;
@@ -168,7 +168,7 @@ function HeroSlideMedia({
       src={fallbackSrc!}
       alt=""
       aria-hidden
-      className={`${common} scale-105 blur-xl transition-opacity duration-500 ${ready ? "opacity-0" : "opacity-75"}`}
+      className={`${common} scale-105 blur-xl transition-opacity duration-300 ease-out ${ready ? "opacity-0" : "opacity-75"}`}
       loading={priority ? "eager" : "lazy"}
       decoding="async"
       fetchPriority={priority ? "high" : "low"}
@@ -210,7 +210,7 @@ function HeroSlideMedia({
           controls={false}
           onLoadedData={markReady}
           onCanPlay={markReady}
-          className={`${common} transition-opacity duration-500 ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
+          className={`${common} transition-opacity duration-300 ease-out ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
         />
       </>
     );
@@ -221,7 +221,7 @@ function HeroSlideMedia({
       <img
         src={src}
         alt={alt ?? ""}
-        className={`${common} transition-opacity duration-500 ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
+        className={`${common} transition-opacity duration-300 ease-out ${ready || !hasPlaceholder ? "opacity-100" : "opacity-0"}`}
         loading={priority || active ? "eager" : "lazy"}
         decoding="async"
         fetchPriority={priority ? "high" : active ? "auto" : "low"}
@@ -502,9 +502,11 @@ function Index() {
                   aria-hidden={!active}
                   style={{
                     opacity: active ? 1 : 0,
-                    transition: "opacity 700ms ease-in-out",
+                    transition: "opacity 400ms cubic-bezier(0.22, 1, 0.36, 1)",
                     pointerEvents: active ? "auto" : "none",
                     willChange: "opacity",
+                    transform: "translateZ(0)",
+                    backfaceVisibility: "hidden",
                   }}
                   className="absolute inset-0"
                 >
@@ -853,7 +855,7 @@ function Index() {
                         {renderMedia(s)}
                         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
                         {/* animated gradient border */}
-                        <div aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                        <div aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"
                           style={{ boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent)" }} />
                         {/* shine sweep */}
                         <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
