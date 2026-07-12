@@ -227,10 +227,8 @@ function Index() {
       else setTimeout(loadDeferred, 400);
     };
     load();
-    const onFocus = () => load();
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
   }, []);
+
 
 
   useEffect(() => {
