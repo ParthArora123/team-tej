@@ -953,12 +953,14 @@ function Index() {
           <div className="relative mt-10 flex justify-center">
             <MagneticButton strength={0.5}>
               <a
-                href="#hero"
+                href="/zero-to-hero"
                 onClick={(e) => {
                   e.preventDefault();
-                  const el = document.getElementById("hero");
-                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                  else window.scrollTo({ top: 0, behavior: "smooth" });
+                  const go = () => window.location.assign("/zero-to-hero");
+                  try {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    setTimeout(go, 350);
+                  } catch { go(); }
                 }}
                 className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-primary-foreground overflow-hidden"
                 style={{
