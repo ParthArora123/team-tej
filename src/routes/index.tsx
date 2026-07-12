@@ -1198,7 +1198,7 @@ function ChoreoCard({ c }: { c: Choreo }) {
 
   return (
     <motion.article variants={item}
-      className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
+      className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/70 transition-colors flex flex-col hover:shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_40%,transparent)] transition-shadow duration-500">
       <div className="relative aspect-video bg-black overflow-hidden">
         {playing && embed ? (
           <iframe ref={iframeRef} src={`${embed}?autoplay=1`} title={c.title}
@@ -1211,21 +1211,30 @@ function ChoreoCard({ c }: { c: Choreo }) {
           <>
             {c.thumbnail_url ? (
               <img src={c.thumbnail_url} alt={c.title} loading="lazy"
-                className="absolute inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+                className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.06] transition-transform duration-[900ms] ease-out" />
             ) : c.video_url ? (
               <video src={c.video_url} muted loop playsInline preload="metadata"
                 className="absolute inset-0 w-full h-full object-contain" />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
             )}
+            {/* hover gradient veil */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            {/* shine sweep */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
+              style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%)" }} />
+            {/* title reveal on hover (image-first storytelling) */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-10">
+              <p className="font-display text-white text-lg font-bold leading-snug drop-shadow-md line-clamp-2">{c.title}</p>
+            </div>
             {hasVideo && (
               <button
                 type="button"
                 onClick={() => setPlaying(true)}
                 aria-label={`Play ${c.title}`}
-                className="absolute inset-0 grid place-items-center bg-black/20 hover:bg-black/40 transition-colors">
-                <span className="h-14 w-14 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-lg group-hover:scale-110 transition-transform">
-                  <Play size={22} className="translate-x-0.5" />
+                className="absolute inset-0 grid place-items-center bg-black/10 hover:bg-black/30 transition-colors z-20">
+                <span className="h-16 w-16 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-[0_10px_40px_-5px_color-mix(in_oklab,var(--primary)_70%,transparent)] group-hover:scale-110 transition-transform duration-500">
+                  <Play size={24} className="translate-x-0.5" />
                 </span>
               </button>
             )}
@@ -1241,10 +1250,6 @@ function ChoreoCard({ c }: { c: Choreo }) {
 
       <div className="p-5 flex-1 flex flex-col">
         <p className="font-display text-lg font-bold leading-snug">{c.title}</p>
-        {c.description && <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{c.description}</p>}
-        <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">
-          {new Date(c.uploaded_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-        </p>
         {c.instagram_url && (
           <a
             href={c.instagram_url}
