@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
@@ -19,7 +19,9 @@ import { MagneticButton } from "@/components/site/MagneticButton";
 import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
-import { TestimonialsCarousel } from "@/components/site/TestimonialsCarousel";
+const TestimonialsCarousel = lazy(() =>
+  import("@/components/site/TestimonialsCarousel").then((m) => ({ default: m.TestimonialsCarousel }))
+);
 
 
 const defaultStyles = [
