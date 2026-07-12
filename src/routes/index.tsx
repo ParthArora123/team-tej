@@ -17,6 +17,9 @@ import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
 import { MagneticButton } from "@/components/site/MagneticButton";
 import { TiltCard } from "@/components/site/TiltCard";
+import { StageLights } from "@/components/site/StageLights";
+import { AnimatedCounter } from "@/components/site/AnimatedCounter";
+import { TestimonialsCarousel } from "@/components/site/TestimonialsCarousel";
 
 
 const defaultStyles = [
