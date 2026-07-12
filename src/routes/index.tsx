@@ -724,40 +724,87 @@ function Index() {
         </section>
       )}
 
-      {/* CTA */}
+      {/* TESTIMONIALS */}
+      <TestimonialsCarousel />
+
+      {/* FINAL CTA */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-3xl border border-border p-12 lg:p-20 text-center"
-          style={{ background: "var(--gradient-warm)" }}
+          className="relative overflow-hidden rounded-[2.5rem] border border-white/10 p-12 lg:p-24 text-center"
+          style={{
+            background:
+              "radial-gradient(80% 120% at 50% 0%, color-mix(in oklab, var(--primary) 55%, transparent) 0%, transparent 60%), linear-gradient(135deg, #0a0a12 0%, #1a0b2e 45%, #0a0a12 100%)",
+          }}
         >
+          {/* Floating orbs */}
           <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-32 -right-32 h-96 w-96 rounded-full border border-primary-foreground/20"
+            aria-hidden
+            animate={{ y: [0, -20, 0], x: [0, 12, 0] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-70"
+            style={{ background: "radial-gradient(circle, #C7A34A 0%, transparent 70%)" }}
           />
-          <h2 className="relative font-display text-4xl lg:text-6xl font-bold text-primary-foreground text-balance">
-            Ready to move?
+          <motion.div
+            aria-hidden
+            animate={{ y: [0, 24, 0], x: [0, -18, 0] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-60"
+            style={{ background: "radial-gradient(circle, #7A3BFF 0%, transparent 70%)" }}
+          />
+          <motion.div
+            aria-hidden
+            animate={{ rotate: 360 }}
+            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/10"
+          />
+
+          <p className="relative text-xs uppercase tracking-[0.4em] text-primary">The stage is set</p>
+          <h2 className="relative mt-4 font-display text-4xl lg:text-7xl font-bold text-white text-balance leading-[1.02]">
+            Your journey <span className="italic font-light bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(120deg,#C7A34A,#7A3BFF,#3B82F6)" }}>begins now.</span>
           </h2>
-          <p className="relative mt-4 text-primary-foreground/80 max-w-xl mx-auto">
-            New batches start the first week of every month. Workshops drop monthly.
+          <p className="relative mt-5 text-white/70 max-w-xl mx-auto text-base lg:text-lg">
+            Step in. Move freely. Leave transformed.
           </p>
-          <div className="relative mt-8 flex flex-wrap gap-3 justify-center">
-            <Link
-              to="/nritya-sadhana"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-background text-foreground font-medium hover:scale-105 transition"
-            >
-              Browse classes <ArrowUpRight size={18} />
-            </Link>
-            <Link
-              to="/workshops"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 transition"
-            >
-              Workshops
-            </Link>
+
+          <div className="relative mt-10 flex justify-center">
+            <MagneticButton strength={0.5}>
+              <Link
+                to="/nritya-sadhana"
+                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-primary-foreground overflow-hidden"
+                style={{
+                  background: "linear-gradient(135deg, var(--primary) 0%, #7A3BFF 100%)",
+                  boxShadow:
+                    "0 0 60px color-mix(in oklab, var(--primary) 70%, transparent), 0 0 120px color-mix(in oklab, #7A3BFF 40%, transparent)",
+                }}
+              >
+                {/* pulsing halo */}
+                <span
+                  aria-hidden
+                  className="absolute inset-0 rounded-full animate-[ctaPulse_2.4s_ease-in-out_infinite]"
+                  style={{
+                    boxShadow: "0 0 0 0 color-mix(in oklab, var(--primary) 60%, transparent)",
+                  }}
+                />
+                <span className="relative z-10 flex items-center gap-2">
+                  Start Your Dance Journey
+                  <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
+                </span>
+                <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+              </Link>
+            </MagneticButton>
           </div>
+
+          <style>{`
+            @keyframes ctaPulse {
+              0%   { box-shadow: 0 0 0 0   color-mix(in oklab, var(--primary) 55%, transparent); }
+              70%  { box-shadow: 0 0 0 22px color-mix(in oklab, var(--primary) 0%,  transparent); }
+              100% { box-shadow: 0 0 0 0   color-mix(in oklab, var(--primary) 0%,  transparent); }
+            }
+          `}</style>
+
         </motion.div>
       </section>
 
