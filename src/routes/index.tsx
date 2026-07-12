@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion, useScroll, useTransform, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
@@ -36,31 +36,114 @@ const defaultStyles = [
 
 const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
 
+type HeroSlide = {
+  id?: string | null;
+  image_url?: string | null;
+  alt?: string | null;
+  sort_order?: number | null;
+};
+
+type HomeLoaderData = {
+  heroSlides: HeroSlide[];
+};
+
+const heroVideoType = (src: string) => {
+  if (/\.webm(\?|#|$)/i.test(src)) return "video/webm";
+  return "video/mp4";
+};
+
+const preloadLinkForHeroMedia = (src?: string | null) => {
+  if (!src) return null;
+  if (isVideoUrl(src)) {
+    return { rel: "preload", as: "video", href: src, type: heroVideoType(src), crossOrigin: "anonymous" };
+  }
+  return { rel: "preload", as: "image", href: src, fetchpriority: "high" };
+};
+
+const preconnectLinkForHeroMedia = (src?: string | null) => {
+  if (!src || src.startsWith("/")) return null;
+  try {
+    return { rel: "preconnect", href: new URL(src).origin, crossOrigin: "anonymous" };
+  } catch {
+    return null;
+  }
+};
+
+async function loadHomeData(): Promise<HomeLoaderData> {
+  try {
+    const rows = await listHeroSlides();
+    return { heroSlides: Array.isArray(rows) ? (rows as HeroSlide[]) : [] };
+  } catch {
+    return { heroSlides: [] };
+  }
+}
+
+function warmHeroMedia(slides: HeroSlide[], activeIndex: number) {
+  if (typeof window === "undefined" || slides.length < 2) return;
+  const ordered = slides
+    .map((slide, index) => ({ slide, distance: (index - activeIndex + slides.length) % slides.length }))
+    .filter(({ slide, distance }) => distance > 0 && slide.image_url)
+    .sort((a, b) => a.distance - b.distance);
+
+  for (const { slide } of ordered) {
+    const src = slide.image_url;
+    if (!src) continue;
+    if (isVideoUrl(src)) {
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      video.muted = true;
+      video.playsInline = true;
+      video.src = src;
+      video.load();
+      continue;
+    }
+    const img = new Image();
+    img.decoding = "async";
+    img.src = src;
+  }
+}
+
 function HeroSlideMedia({
   src,
   alt,
   active,
   priority = false,
+  fallbackSrc,
 }: {
   src?: string | null;
   alt?: string;
   active: boolean;
   priority?: boolean;
+  fallbackSrc?: string;
 }) {
   if (!src) return null;
-  const common = "absolute inset-0 h-full w-full object-cover";
+  const common = "absolute inset-0 h-full w-full object-cover transform-gpu";
   if (isVideoUrl(src)) {
     return (
-      <video
-        src={src}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload={priority ? "auto" : "metadata"}
-        poster={undefined}
-        className={common}
-      />
+      <>
+        {fallbackSrc && (
+          <img
+            src={fallbackSrc}
+            alt=""
+            aria-hidden
+            className={common}
+            loading="eager"
+            decoding="async"
+            fetchPriority={priority ? "high" : "low"}
+            draggable={false}
+          />
+        )}
+        <video
+          src={src}
+          autoPlay={active}
+          muted
+          loop
+          playsInline
+          preload={priority ? "auto" : "metadata"}
+          poster={fallbackSrc}
+          className={common}
+        />
+      </>
     );
   }
   return (
