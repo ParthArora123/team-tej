@@ -127,9 +127,38 @@ function HeroSlideMedia({
   priority?: boolean;
   fallbackSrc?: string;
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Pause & release decoder when slide leaves view / becomes inactive.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (active) {
+      v.play().catch(() => {});
+    } else {
+      try { v.pause(); } catch {}
+    }
+  }, [active]);
+
   if (!src) return null;
   const common = "absolute inset-0 h-full w-full object-cover transform-gpu";
+
   if (isVideoUrl(src)) {
+    // For inactive video slides, render ONLY the poster image — keeps memory
+    // low and avoids background decoding of hidden videos.
+    if (!active) {
+      return (
+        <img
+          src={fallbackSrc ?? ""}
+          alt=""
+          aria-hidden
+          className={common}
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
+      );
+    }
     return (
       <>
         {fallbackSrc && (
@@ -145,13 +174,17 @@ function HeroSlideMedia({
           />
         )}
         <video
+          ref={videoRef}
           src={src}
-          autoPlay={active}
+          autoPlay
           muted
           loop
           playsInline
           preload={priority ? "auto" : "metadata"}
           poster={fallbackSrc}
+          disableRemotePlayback
+          disablePictureInPicture
+          controls={false}
           className={common}
         />
       </>
