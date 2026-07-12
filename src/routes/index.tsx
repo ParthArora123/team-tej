@@ -370,11 +370,25 @@ function Index() {
 
 
 
+  const heroSectionRef = useRef<HTMLElement>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
+
   useEffect(() => {
-    if (heroSlides.length < 2) return;
+    const el = heroSectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0.05 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (heroSlides.length < 2 || !heroVisible) return;
     const t = setInterval(() => setSlideIdx((i) => (i + 1) % heroSlides.length), 5000);
     return () => clearInterval(t);
-  }, [heroSlides.length]);
+  }, [heroSlides.length, heroVisible]);
 
   return (
     <>
