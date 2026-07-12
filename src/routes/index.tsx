@@ -34,78 +34,47 @@ const defaultStyles = [
 
 const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
 
-function HeroMedia({
-  src,
-  alt,
-  className,
-  priority = false,
-  onLoad,
-}: {
-  src?: string | null;
-  alt?: string;
-  className?: string;
-  priority?: boolean;
-  onLoad?: () => void;
-}) {
-  if (!src) return null;
-  if (isVideoUrl(src)) {
-    return (
-      <video src={src} autoPlay muted loop playsInline preload={priority ? "auto" : "metadata"} onLoadedData={onLoad}
-        className={className} />
-    );
-  }
-  return <img src={src} alt={alt ?? ""} className={className} loading={priority ? "eager" : "lazy"} decoding="async" fetchPriority={priority ? "high" : "auto"} sizes="100vw" onLoad={onLoad} />;
-}
-
 function HeroSlideMedia({
   src,
   alt,
+  active,
   priority = false,
 }: {
   src?: string | null;
   alt?: string;
+  active: boolean;
   priority?: boolean;
 }) {
-  const [hasLoaded, setHasLoaded] = useState(false);
-
-  useEffect(() => {
-    setHasLoaded(false);
-  }, [src]);
-
   if (!src) return null;
-
+  const common = "absolute inset-0 h-full w-full object-cover";
   if (isVideoUrl(src)) {
     return (
-      <HeroMedia
+      <video
         src={src}
-        alt={alt}
-        priority={priority}
-        onLoad={() => setHasLoaded(true)}
-        className="relative block h-auto w-full bg-transparent"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload={priority ? "auto" : "metadata"}
+        poster={undefined}
+        className={common}
       />
     );
   }
-
   return (
-    <>
-      <div className={`absolute inset-0 bg-transparent transition-opacity duration-300 ${hasLoaded ? "opacity-0" : "opacity-100"}`} />
-      <HeroMedia
-        src={src}
-        alt=""
-        priority={priority}
-        onLoad={() => setHasLoaded(true)}
-        className="absolute inset-0 h-full w-full object-cover scale-105 blur-xl opacity-35"
-      />
-      <HeroMedia
-        src={src}
-        alt={alt}
-        priority={priority}
-        onLoad={() => setHasLoaded(true)}
-        className="relative z-10 block h-auto w-full bg-transparent"
-      />
-    </>
+    <img
+      src={src}
+      alt={alt ?? ""}
+      className={common}
+      loading={priority ? "eager" : "lazy"}
+      decoding="async"
+      fetchPriority={priority ? "high" : "auto"}
+      sizes="100vw"
+      draggable={false}
+    />
   );
 }
+
 
 function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -261,35 +230,52 @@ function Index() {
     <>
       {/* HERO */}
       <section ref={heroRef} className="relative overflow-hidden">
-        {/* Responsive hero media — fits fully (no crop) on mobile and laptop */}
-        <div className="relative grid w-full overflow-hidden bg-transparent">
+        {/* Fixed-aspect hero container — identical size across all slides, no layout shift */}
+        <div className="relative w-full overflow-hidden bg-black aspect-[4/5] sm:aspect-[16/10] lg:aspect-[16/9] max-h-[85vh]">
           {heroSlides.length > 0 ? (
-            heroSlides.map((s, i) => (
-              <motion.div
-                key={s.id ?? s.image_url ?? i}
-                initial={false}
-                animate={{ opacity: i === slideIdx ? 1 : 0 }}
-                transition={{ duration: 0.7, ease: "easeInOut" }}
-                style={{ pointerEvents: i === slideIdx ? "auto" : "none" }}
-                className={`col-start-1 row-start-1 w-full ${i === slideIdx ? "relative" : "absolute inset-0"}`}
-              >
-                <HeroSlideMedia
-                  src={s.image_url}
-                  alt={s.alt ?? "Hero"}
-                  priority={i === 0 || i === slideIdx}
-                />
-              </motion.div>
-            ))
+            heroSlides.map((s, i) => {
+              const active = i === slideIdx;
+              // Mount current, previous-neighbor and next-neighbor only for cheap DOM
+              const neighbor =
+                heroSlides.length <= 3 ||
+                i === (slideIdx + 1) % heroSlides.length ||
+                i === (slideIdx - 1 + heroSlides.length) % heroSlides.length;
+              const shouldMount = i === 0 || active || neighbor;
+              return (
+                <div
+                  key={s.id ?? s.image_url ?? i}
+                  aria-hidden={!active}
+                  style={{
+                    opacity: active ? 1 : 0,
+                    transition: "opacity 700ms ease-in-out",
+                    pointerEvents: active ? "auto" : "none",
+                    willChange: "opacity",
+                  }}
+                  className="absolute inset-0"
+                >
+                  {shouldMount && (
+                    <HeroSlideMedia
+                      src={s.image_url}
+                      alt={s.alt ?? "Hero"}
+                      active={active}
+                      priority={i === 0}
+                    />
+                  )}
+                </div>
+              );
+            })
           ) : (
             <HeroSlideMedia
               src={heroImg}
               alt="Tejas D Dhoke dancers in performance"
+              active
               priority
             />
           )}
           {/* Cinematic stage lighting + smoke */}
           <StageLights />
         </div>
+
 
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-16">
