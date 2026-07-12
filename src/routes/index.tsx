@@ -19,6 +19,7 @@ import { MagneticButton } from "@/components/site/MagneticButton";
 import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
+import { MouseParallax } from "@/components/site/MouseParallax";
 const TestimonialsCarousel = lazy(() =>
   import("@/components/site/TestimonialsCarousel").then((m) => ({ default: m.TestimonialsCarousel }))
 );
