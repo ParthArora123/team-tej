@@ -78,8 +78,18 @@ async function loadHomeData(): Promise<HomeLoaderData> {
   }
 }
 
+function isSlowNetwork(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const c: any = (navigator as any).connection;
+  if (!c) return false;
+  if (c.saveData) return true;
+  const t = c.effectiveType as string | undefined;
+  return t === "slow-2g" || t === "2g";
+}
+
 function warmHeroMedia(slides: HeroSlide[], activeIndex: number) {
   if (typeof window === "undefined" || slides.length < 2) return;
+  if (isSlowNetwork()) return; // Respect data-saver / 2G — don't hog bandwidth.
   const ordered = slides
     .map((slide, index) => ({ slide, distance: (index - activeIndex + slides.length) % slides.length }))
     .filter(({ slide, distance }) => distance > 0 && slide.image_url)
@@ -89,13 +99,14 @@ function warmHeroMedia(slides: HeroSlide[], activeIndex: number) {
     const src = slide.image_url;
     if (!src) continue;
     if (isVideoUrl(src)) {
+      // Only warm metadata for the *next* video, not all of them — saves bandwidth.
       const video = document.createElement("video");
       video.preload = "metadata";
       video.muted = true;
       video.playsInline = true;
       video.src = src;
       video.load();
-      continue;
+      break;
     }
     const img = new Image();
     img.decoding = "async";
