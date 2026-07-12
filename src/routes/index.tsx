@@ -205,7 +205,6 @@ function HeroSlideMedia({
       src={src}
       alt={alt ?? ""}
       className={common}
-      style={{ opacity: ready ? 1 : 0, transition: "opacity 200ms ease-out" }}
       loading={priority || active ? "eager" : "lazy"}
       decoding="async"
       fetchPriority={priority ? "high" : active ? "auto" : "low"}
@@ -213,8 +212,12 @@ function HeroSlideMedia({
       draggable={false}
       onLoad={markReady}
       onError={markReady}
+      ref={(el) => {
+        if (el && el.complete && el.naturalWidth > 0) markReady();
+      }}
     />
   );
+
 }
 
 
