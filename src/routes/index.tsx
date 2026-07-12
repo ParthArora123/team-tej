@@ -778,15 +778,18 @@ function Index() {
 
       {/* DANCE STYLES */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-        <div className="mb-12">
-          <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
-          <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance max-w-2xl">
-            Styles on the floor.
-          </h2>
-          <p className="mt-4 text-muted-foreground max-w-xl">
-            Four core vocabularies. They cross, collide, and become the Tejas D Dhoke fusion.
+        <div className="mb-12 flex items-end justify-between gap-6">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
+            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
+              Styles on the <span className="italic font-light">floor.</span>
+            </h2>
+          </div>
+          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
+            Four vocabularies. One fusion.
           </p>
         </div>
+
 
         {(() => {
           // Always show the restored live dance animations first. Backend style
@@ -869,29 +872,69 @@ function Index() {
       </section>
 
 
-      {/* GALLERY */}
+      {/* GALLERY — editorial bento */}
       {gallery.length > 0 && (
         <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-          <div className="mb-10">
-            <p className="text-xs uppercase tracking-widest text-primary">Moments</p>
-            <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance">From the floor.</h2>
+          <div className="mb-10 flex items-end justify-between gap-6">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary">Moments</p>
+              <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
+                From the <span className="italic font-light">floor.</span>
+              </h2>
+            </div>
+            <div className="hidden sm:block text-xs uppercase tracking-widest text-muted-foreground">
+              {gallery.length} frames
+            </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {gallery.map((g, i) => (
-              <motion.figure
-                key={g.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, delay: (i % 4) * 0.05 }}
-                className={`relative overflow-hidden rounded-2xl border border-border bg-muted ${i % 5 === 0 ? "row-span-2 aspect-[3/4]" : "aspect-square"}`}
-              >
-                {g.image_url && <img src={g.image_url} alt={g.caption ?? ""} loading="lazy" className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-500" />}
-                {g.caption && (
-                  <figcaption className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-background/80 to-transparent text-xs">{g.caption}</figcaption>
-                )}
-              </motion.figure>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 auto-rows-[110px] sm:auto-rows-[140px] lg:auto-rows-[170px] gap-3">
+            {gallery.map((g, i) => {
+              // Bento sizing pattern — repeats every 7 tiles for rhythm
+              const pattern = [
+                "col-span-2 row-span-2",           // 0 hero
+                "col-span-1 row-span-1",
+                "col-span-1 row-span-2",           // 2 tall
+                "col-span-2 row-span-1",           // 3 wide
+                "col-span-1 row-span-1",
+                "col-span-1 row-span-1",
+                "col-span-2 row-span-2",           // 6 hero echo
+              ];
+              const cls = pattern[i % pattern.length];
+              return (
+                <motion.figure
+                  key={g.id}
+                  initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
+                  whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.7, delay: (i % 6) * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                  className={`group relative overflow-hidden rounded-2xl border border-border bg-muted ${cls}`}
+                >
+                  {g.image_url && (
+                    <img
+                      src={g.image_url}
+                      alt={g.caption ?? ""}
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.08]"
+                    />
+                  )}
+                  {/* base gradient for depth */}
+                  <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* accent tint on hover */}
+                  <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay"
+                    style={{ background: "linear-gradient(135deg, color-mix(in oklab, var(--primary) 35%, transparent) 0%, transparent 60%)" }} />
+                  {/* shine sweep */}
+                  <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
+                    style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)" }} />
+                  {g.caption && (
+                    <figcaption className="absolute inset-x-0 bottom-0 p-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                      <span className="inline-block text-[11px] uppercase tracking-widest text-white/95 bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10">
+                        {g.caption}
+                      </span>
+                    </figcaption>
+                  )}
+                </motion.figure>
+              );
+            })}
           </div>
         </section>
       )}
@@ -1158,7 +1201,7 @@ function ChoreoCard({ c }: { c: Choreo }) {
 
   return (
     <motion.article variants={item}
-      className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
+      className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/70 transition-colors flex flex-col hover:shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_40%,transparent)] transition-shadow duration-500">
       <div className="relative aspect-video bg-black overflow-hidden">
         {playing && embed ? (
           <iframe ref={iframeRef} src={`${embed}?autoplay=1`} title={c.title}
@@ -1171,21 +1214,30 @@ function ChoreoCard({ c }: { c: Choreo }) {
           <>
             {c.thumbnail_url ? (
               <img src={c.thumbnail_url} alt={c.title} loading="lazy"
-                className="absolute inset-0 w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" />
+                className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.06] transition-transform duration-[900ms] ease-out" />
             ) : c.video_url ? (
               <video src={c.video_url} muted loop playsInline preload="metadata"
                 className="absolute inset-0 w-full h-full object-contain" />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
             )}
+            {/* hover gradient veil */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            {/* shine sweep */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
+              style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%)" }} />
+            {/* title reveal on hover (image-first storytelling) */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-10">
+              <p className="font-display text-white text-lg font-bold leading-snug drop-shadow-md line-clamp-2">{c.title}</p>
+            </div>
             {hasVideo && (
               <button
                 type="button"
                 onClick={() => setPlaying(true)}
                 aria-label={`Play ${c.title}`}
-                className="absolute inset-0 grid place-items-center bg-black/20 hover:bg-black/40 transition-colors">
-                <span className="h-14 w-14 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-lg group-hover:scale-110 transition-transform">
-                  <Play size={22} className="translate-x-0.5" />
+                className="absolute inset-0 grid place-items-center bg-black/10 hover:bg-black/30 transition-colors z-20">
+                <span className="h-16 w-16 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-[0_10px_40px_-5px_color-mix(in_oklab,var(--primary)_70%,transparent)] group-hover:scale-110 transition-transform duration-500">
+                  <Play size={24} className="translate-x-0.5" />
                 </span>
               </button>
             )}
@@ -1201,10 +1253,6 @@ function ChoreoCard({ c }: { c: Choreo }) {
 
       <div className="p-5 flex-1 flex flex-col">
         <p className="font-display text-lg font-bold leading-snug">{c.title}</p>
-        {c.description && <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{c.description}</p>}
-        <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">
-          {new Date(c.uploaded_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-        </p>
         {c.instagram_url && (
           <a
             href={c.instagram_url}
@@ -1273,20 +1321,29 @@ function FounderSection({ founder }: { founder: any | null }) {
   return (
     <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
       <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
-        {/* Portrait */}
+        {/* Portrait — editorial frame */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="lg:col-span-2"
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="lg:col-span-2 relative group"
         >
+          {/* decorative offset frame */}
+          <div
+            aria-hidden
+            className="absolute -inset-3 lg:-inset-4 rounded-[2rem] opacity-70 blur-xl -z-10 transition-opacity duration-700 group-hover:opacity-100"
+            style={{ background: "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 60%)" }}
+          />
+          {/* offset border shape behind image */}
+          <div aria-hidden className="absolute top-4 -left-4 lg:-left-6 w-full h-full rounded-3xl border border-primary/30" />
+
           <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/40 border border-border">
             {image ? (
               <img
                 src={image}
                 alt={name}
-                className="absolute inset-0 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
               />
             ) : (
@@ -1294,12 +1351,26 @@ function FounderSection({ founder }: { founder: any | null }) {
                 {name.charAt(0).toUpperCase()}
               </div>
             )}
+            {/* film grain accent */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              style={{ background: "radial-gradient(120% 80% at 50% 100%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 60%)" }} />
+            {/* shine sweep */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1400ms] ease-out"
+              style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.16) 50%, transparent 70%)" }} />
+
             <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-background/95 via-background/60 to-transparent">
               <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
               <p className="font-display text-2xl font-bold mt-1">{name}</p>
             </div>
+
+            {/* corner tick marks — editorial detail */}
+            <span aria-hidden className="absolute top-3 left-3 h-4 w-4 border-t border-l border-white/70" />
+            <span aria-hidden className="absolute top-3 right-3 h-4 w-4 border-t border-r border-white/70" />
+            <span aria-hidden className="absolute bottom-3 left-3 h-4 w-4 border-b border-l border-white/70" />
+            <span aria-hidden className="absolute bottom-3 right-3 h-4 w-4 border-b border-r border-white/70" />
           </div>
         </motion.div>
+
 
         {/* Content */}
         <motion.div
