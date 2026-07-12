@@ -707,8 +707,14 @@ function Index() {
 
           <div className="relative mt-10 flex justify-center">
             <MagneticButton strength={0.5}>
-              <Link
-                to="/nritya-sadhana"
+              <a
+                href="#hero"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const el = document.getElementById("hero");
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  else window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
                 className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-primary-foreground overflow-hidden"
                 style={{
                   background: "linear-gradient(135deg, var(--primary) 0%, #7A3BFF 100%)",
