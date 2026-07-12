@@ -70,13 +70,10 @@ const preconnectLinkForHeroMedia = (src?: string | null) => {
   }
 };
 
-async function loadHomeData(): Promise<HomeLoaderData> {
-  try {
-    const rows = await listHeroSlides();
-    return { heroSlides: Array.isArray(rows) ? (rows as HeroSlide[]) : [] };
-  } catch {
-    return { heroSlides: [] };
-  }
+function loadHomeData(): HomeLoaderData {
+  // Never block the first homepage paint on remote carousel data.
+  // The local hero image renders immediately; CMS slides hydrate after paint.
+  return { heroSlides: [] };
 }
 
 function isSlowNetwork(): boolean {
@@ -351,7 +348,7 @@ function Index() {
   const [celebrities, setCelebrities] = useState<any[]>([]);
   const [brands, setBrands] = useState<any[]>([]);
   const [globe, setGlobe] = useState<any[]>([]);
-  const [heroSlides] = useState<HeroSlide[]>(loaderData.heroSlides ?? []);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(loaderData.heroSlides ?? []);
   const [featured, setFeatured] = useState<any | null>(null);
   const [gallery, setGallery] = useState<any[]>([]);
   const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
@@ -361,7 +358,46 @@ function Index() {
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
   const [showStageLights, setShowStageLights] = useState(false);
+  const fetchHeroSlides = useServerFn(listHeroSlides);
   const fetchPrograms = useServerFn(listPrograms);
+
+  useEffect(() => {
+    if (!heroReady) return;
+    let cancelled = false;
+
+    const hydrateSlides = () => {
+      fetchHeroSlides()
+        .then((rows: any) => {
+          if (cancelled || !Array.isArray(rows) || rows.length === 0) return;
+          const next = rows as HeroSlide[];
+          const first = next[0]?.image_url;
+          if (!first || isVideoUrl(first)) {
+            setHeroSlides(next);
+            return;
+          }
+          const img = new Image();
+          img.decoding = "async";
+          (img as any).fetchPriority = "high";
+          img.onload = () => {
+            if (!cancelled) setHeroSlides(next);
+          };
+          img.onerror = () => {
+            if (!cancelled) setHeroSlides(next);
+          };
+          img.src = first;
+          img.decode?.().then(() => {
+            if (!cancelled) setHeroSlides(next);
+          }).catch(() => {});
+        })
+        .catch(() => {});
+    };
+
+    const raf = requestAnimationFrame(() => setTimeout(hydrateSlides, 0));
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
+  }, [fetchHeroSlides, heroReady]);
   useEffect(() => {
     // Non-critical: below the fold — defer until browser is idle so they don't compete with the hero paint.
     const loadDeferred = () => {
