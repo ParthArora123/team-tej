@@ -11,7 +11,9 @@ import {
   Accordion, AccordionItem, AccordionTrigger, AccordionContent,
 } from "@/components/ui/accordion";
 import { listZeroToHeroMedia } from "@/lib/zero-to-hero.functions";
+import { getSiteContent } from "@/lib/site-content.functions";
 import { useServerFn } from "@tanstack/react-start";
+import aboutImg from "@/assets/about.jpg";
 
 export const Route = createFileRoute("/zero-to-hero")({
   component: ZeroToHeroPage,
@@ -131,6 +133,11 @@ const faqs = [
 ];
 
 function ZeroToHeroPage() {
+  const loadContent = useServerFn(getSiteContent);
+  const [founder, setFounder] = useState<any | null>(null);
+  useEffect(() => {
+    loadContent({ data: { key: "founder" } }).then((v: any) => v && setFounder(v)).catch(() => {});
+  }, []);
   return (
     <div className="min-h-screen">
       {/* HERO */}
@@ -521,8 +528,14 @@ function ZeroToHeroPage() {
           <div className="grid md:grid-cols-[240px_1fr] gap-8 items-start relative">
             <div className="mx-auto md:mx-0">
               <div className="h-56 w-56 rounded-3xl bg-gradient-to-br from-primary/40 via-fuchsia-500/30 to-transparent p-1">
-                <div className="h-full w-full rounded-[22px] bg-card grid place-items-center">
-                  <User size={80} className="text-primary/60" />
+                <div className="h-full w-full rounded-[22px] bg-card overflow-hidden">
+                  <img
+                    src={founder?.image_url || aboutImg}
+                    alt={founder?.name || "Tejas D Dhoke — Founder"}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-1 justify-center md:justify-start">
