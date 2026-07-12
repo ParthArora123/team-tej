@@ -90,17 +90,17 @@ const warmedHeroMedia = new Set<string>();
 function warmHeroMedia(slides: HeroSlide[], activeIndex: number, ahead = 2) {
   if (typeof window === "undefined" || slides.length < 2) return;
   if (isSlowNetwork()) return; // Respect data-saver / 2G — don't hog bandwidth.
-  const ordered = slides
-    .map((slide, index) => ({ slide, distance: (index - activeIndex + slides.length) % slides.length }))
-    .filter(({ slide, distance }) => distance > 0 && slide.image_url)
-    .sort((a, b) => a.distance - b.distance);
-
-  for (const { slide } of ordered.slice(0, ahead)) {
-    const src = slide.image_url;
+  const n = slides.length;
+  const targets: HeroSlide[] = [];
+  for (let d = 1; d <= ahead; d++) {
+    targets.push(slides[(activeIndex + d) % n]);
+    targets.push(slides[(activeIndex - d + n) % n]);
+  }
+  for (const slide of targets) {
+    const src = slide?.image_url;
     if (!src || warmedHeroMedia.has(src)) continue;
     warmedHeroMedia.add(src);
     if (isVideoUrl(src)) {
-      // Warm metadata only. Never pull full hero videos during initial load.
       const video = document.createElement("video");
       video.preload = "metadata";
       video.muted = true;
