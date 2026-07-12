@@ -400,6 +400,7 @@ function Index() {
     };
   }, [fetchHeroSlides, heroReady]);
   useEffect(() => {
+    if (!heroReady) return;
     // Non-critical: below the fold — defer until browser is idle so they don't compete with the hero paint.
     const loadDeferred = () => {
       fetchPrograms({ data: { kind: "workshop" } })
@@ -415,9 +416,17 @@ function Index() {
       getSiteContent({ data: { key: "founder" } }).then((r: any) => setFounder(r)).catch(() => setFounder(null));
     };
     const ric: any = (window as any).requestIdleCallback;
-    if (typeof ric === "function") ric(loadDeferred, { timeout: 1800 });
-    else setTimeout(loadDeferred, 450);
-  }, [fetchPrograms]);
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let idleId: number | undefined;
+    if (typeof ric === "function") idleId = ric(loadDeferred, { timeout: 1800 });
+    else timeout = setTimeout(loadDeferred, 450);
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      if (typeof (window as any).cancelIdleCallback === "function" && idleId) {
+        (window as any).cancelIdleCallback(idleId);
+      }
+    };
+  }, [fetchPrograms, heroReady]);
 
   useEffect(() => {
     if (!heroReady) return;
