@@ -58,7 +58,7 @@ const preloadLinkForHeroMedia = (src?: string | null) => {
   if (isVideoUrl(src)) {
     return { rel: "preload", as: "video", href: src, type: heroVideoType(src), crossOrigin: "anonymous" };
   }
-  return { rel: "preload", as: "image", href: src, fetchpriority: "high" };
+  return { rel: "preload", as: "image", href: src, fetchPriority: "high" };
 };
 
 const preconnectLinkForHeroMedia = (src?: string | null) => {
