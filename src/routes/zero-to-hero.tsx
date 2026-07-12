@@ -133,6 +133,11 @@ const faqs = [
 ];
 
 function ZeroToHeroPage() {
+  const loadContent = useServerFn(getSiteContent);
+  const [founder, setFounder] = useState<any | null>(null);
+  useEffect(() => {
+    loadContent({ data: { key: "founder" } }).then((v: any) => v && setFounder(v)).catch(() => {});
+  }, []);
   return (
     <div className="min-h-screen">
       {/* HERO */}
