@@ -354,6 +354,7 @@ function Index() {
   const [choreos, setChoreos] = useState<Choreo[]>([]);
   const [founder, setFounder] = useState<any | null>(null);
   const [slideIdx, setSlideIdx] = useState(0);
+  const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
   const [showStageLights, setShowStageLights] = useState(false);
   const fetchPrograms = useServerFn(listPrograms);
@@ -378,6 +379,7 @@ function Index() {
   }, [fetchPrograms]);
 
   useEffect(() => {
+    if (!heroReady) return;
     const enableWarmup = () => {
       setWarmSlides(true);
       warmHeroMedia(heroSlides, slideIdx);
@@ -394,7 +396,7 @@ function Index() {
         (window as any).cancelIdleCallback(idleId);
       }
     };
-  }, [heroSlides, slideIdx]);
+  }, [heroReady, heroSlides, slideIdx]);
 
 
 
@@ -413,10 +415,12 @@ function Index() {
   }, []);
 
   useEffect(() => {
-    if (heroSlides.length < 2 || !heroVisible) return;
-    const t = setInterval(() => setSlideIdx((i) => (i + 1) % heroSlides.length), 5000);
+    if (!heroReady || heroSlides.length < 2 || !heroVisible) return;
+    const t = setInterval(() => {
+      requestAnimationFrame(() => setSlideIdx((i) => (i + 1) % heroSlides.length));
+    }, 5000);
     return () => clearInterval(t);
-  }, [heroSlides.length, heroVisible]);
+  }, [heroReady, heroSlides.length, heroVisible]);
 
   return (
     <>
@@ -452,6 +456,7 @@ function Index() {
                       active={active && heroVisible}
                       priority={i === 0}
                       fallbackSrc={heroImg}
+                      onReady={i === 0 ? () => setHeroReady(true) : undefined}
                     />
                   )}
                 </div>
@@ -463,20 +468,21 @@ function Index() {
               alt="Tejas D Dhoke dancers in performance"
               active
               priority
+              onReady={() => setHeroReady(true)}
             />
           )}
           {/* Cinematic stage lighting + smoke */}
-          {showStageLights && <StageLights />}
+          {heroReady && showStageLights && <StageLights />}
         </div>
 
 
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-16">
-          <MouseParallax strength={14}>
+          <MouseParallax strength={heroReady ? 14 : 0}>
           <motion.div
             variants={stagger}
             initial="hidden"
-            animate="show"
+            animate={heroReady ? "show" : "hidden"}
             className="max-w-2xl"
           >
             <motion.div variants={item} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/40 bg-background/50 backdrop-blur text-[10px] uppercase tracking-widest text-primary shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--primary)_60%,transparent)]">
@@ -537,7 +543,7 @@ function Index() {
         {/* Marquee */}
         <div className="relative border-y border-border bg-background/60 backdrop-blur overflow-hidden">
           <motion.div
-            animate={{ x: ["0%", "-50%"] }}
+            animate={heroReady ? { x: ["0%", "-50%"] } : { x: "0%" }}
             transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
             className="flex gap-12 py-4 whitespace-nowrap text-sm uppercase tracking-[0.3em] text-muted-foreground"
           >
