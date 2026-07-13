@@ -29,6 +29,7 @@ export const Route = createFileRoute("/contact")({
 function Contact() {
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [messageText, setMessageText] = useState("");
   const send = useServerFn(submitContactMessage);
   const loadContent = useServerFn(getSiteContent);
   const [info, setInfo] = useState<any>({
@@ -84,10 +85,10 @@ function Contact() {
         <div className="lg:col-span-2 space-y-8">
           {[
             { icon: Mail, label: "Email", value: info.email, href: info.email ? `mailto:${info.email}` : undefined },
-            { icon: Phone, label: "Phone", value: info.phone, href: info.phone ? `tel:${String(info.phone).replace(/[^+\d]/g, "")}` : undefined },
-            { icon: MessageCircle, label: "WhatsApp", value: info.whatsapp, href: info.whatsapp ? `https://wa.me/${String(info.whatsapp).replace(/[^\d]/g, "")}` : undefined },
+            { icon: Phone, label: "Phone", value: info.phone, href: info.phone ? `tel:${String(info.phone).replace(/[^+\d]/g, "")}` : undefined, isPhone: true },
+            { icon: MessageCircle, label: "WhatsApp", value: info.whatsapp, href: info.whatsapp ? buildWhatsAppUrl(info.whatsapp, messageText) : undefined, isExternal: true },
             { icon: MapPin, label: "Studio", value: info.address },
-          ].filter((c) => c.value).map((c, i) => (
+          ].filter((c) => c.value).map((c: any, i) => (
             <motion.div
               key={c.label}
               initial={{ opacity: 0, x: -20 }}
@@ -99,16 +100,31 @@ function Contact() {
               <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
                 <c.icon size={16} className="text-primary" />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   {c.label}
                 </p>
-                {c.href ? (
-                  <a href={c.href} target={c.label === "WhatsApp" ? "_blank" : undefined} rel="noreferrer"
-                    className="mt-1 text-base hover:text-primary transition break-words">{c.value}</a>
-                ) : (
-                  <p className="mt-1 text-base">{c.value}</p>
-                )}
+                <div className="mt-1 flex items-center gap-3 flex-wrap">
+                  {c.href ? (
+                    <a href={c.href} target={c.isExternal ? "_blank" : undefined} rel="noreferrer"
+                      className="text-base hover:text-primary transition break-words">{c.value}</a>
+                  ) : (
+                    <p className="text-base">{c.value}</p>
+                  )}
+                  {c.isPhone && info.whatsapp && (
+                    <a
+                      href={buildWhatsAppUrl(info.whatsapp, messageText)}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Chat on WhatsApp"
+                      title="Chat on WhatsApp"
+                      className="group inline-flex items-center gap-1.5 pl-2.5 pr-3 py-1.5 rounded-full border border-[#25D366]/40 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition shadow-sm hover:shadow-md hover:shadow-[#25D366]/20"
+                    >
+                      <WhatsAppIcon className="h-4 w-4" />
+                      <span className="text-xs font-medium uppercase tracking-wider">Chat</span>
+                    </a>
+                  )}
+                </div>
               </div>
             </motion.div>
           ))}
@@ -155,9 +171,12 @@ function Contact() {
                   required
                   rows={5}
                   maxLength={4000}
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
                   className="mt-2 w-full bg-background border border-border rounded-lg px-4 py-3 focus:border-primary outline-none transition resize-none"
                   placeholder="Tell us what you're after — a class, a booking, a collab..."
                 />
+
               </div>
               <button
                 type="submit"
@@ -190,3 +209,20 @@ function Field({
     </div>
   );
 }
+
+const DEFAULT_WA_MESSAGE = "Hi! I would like to know more about your dance classes and workshops.";
+
+function buildWhatsAppUrl(number: string, text: string) {
+  const digits = String(number ?? "").replace(/[^\d]/g, "");
+  const body = (text ?? "").trim() || DEFAULT_WA_MESSAGE;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(body)}`;
+}
+
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12.004 2.003c-5.523 0-10 4.477-10 10 0 1.762.463 3.484 1.343 5.001L2 22l5.13-1.343A9.96 9.96 0 0 0 12.005 22c5.523 0 10-4.477 10-10s-4.478-9.997-10-9.997zm5.831 15.83A8.28 8.28 0 0 1 12.005 20.3a8.26 8.26 0 0 1-4.22-1.156l-.303-.18-3.045.797.813-2.966-.198-.306a8.263 8.263 0 0 1-1.263-4.383c0-4.573 3.723-8.296 8.301-8.296a8.238 8.238 0 0 1 5.867 2.433 8.226 8.226 0 0 1 2.433 5.866c0 4.573-3.723 8.296-8.301 8.296z"/>
+    </svg>
+  );
+}
+
