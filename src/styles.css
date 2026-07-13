@@ -142,7 +142,7 @@ body:has(.workshop-detail-page) .grain-bg > [aria-hidden].pointer-events-none.fi
   display: none !important;
 }
 
-.workshop-detail-page > :not(.workshop-live-backdrop) {
+.workshop-detail-page > :not(.workshop-live-backdrop):not(.fixed) {
   position: relative;
   z-index: 1;
 }
