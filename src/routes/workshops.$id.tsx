@@ -576,7 +576,6 @@ function WorkshopDetailPage() {
                 label: "Gathering Venue",
                 main: program.venue ?? "Announced soon",
                 sub: program.city ?? "India",
-                cta: mapsDirect,
               },
             ].map((c, i) => (
               <motion.div key={c.label}
@@ -588,12 +587,6 @@ function WorkshopDetailPage() {
                 <p className="mt-4 text-[11px] tracking-[0.3em] uppercase text-amber-400">{c.label}</p>
                 <p className="mt-3 font-serif text-2xl text-amber-100" style={{ fontFamily: '"Cormorant Garamond",serif' }}>{c.main}</p>
                 <p className="mt-2 text-xs text-amber-100/50">{c.sub}</p>
-                {c.cta && (
-                  <a href={c.cta} target="_blank" rel="noopener noreferrer"
-                     className="mt-4 inline-flex items-center gap-1 text-xs text-amber-300 hover:text-amber-200">
-                    View on Google Maps →
-                  </a>
-                )}
               </motion.div>
             ))}
           </div>
