@@ -5,7 +5,7 @@ import { Calendar, MapPin, User, Users, Clock, Sparkles, Ticket } from "lucide-r
 import { useServerFn } from "@tanstack/react-start";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
-import { listActiveBundles } from "@/lib/bundles.functions";
+
 import { WorkshopHero } from "@/components/site/WorkshopHero";
 import { WorkshopGallery } from "@/components/site/WorkshopGallery";
 import { TiltCard } from "@/components/site/TiltCard";
