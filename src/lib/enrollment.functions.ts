@@ -100,23 +100,27 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
 
     const dl = await supabaseAdmin.storage.from("payment-proofs").download(data.proofPath);
     if (dl.error || !dl.data) throw new Error("Could not read the uploaded screenshot.");
-    const blob = dl.data;
-    let contentType = (blob.type || "").toLowerCase();
-    if (!contentType || contentType === "application/octet-stream") {
-      const ext = (data.proofPath.split(".").pop() || "").toLowerCase();
-      contentType = ext === "png" ? "image/png"
-        : ext === "webp" ? "image/webp"
-        : /jpe?g/.test(ext) ? "image/jpeg"
-        : contentType || "image/jpeg";
+    const { validatePaymentProofBytes } = await import("./payment-proof-validation");
+    const rawBytes = new Uint8Array(await dl.data.arrayBuffer());
+    let validated;
+    try {
+      validated = await validatePaymentProofBytes(rawBytes, data.proofPath.split("/").pop() ?? null);
+    } catch (e: any) {
+      // Remove the invalid file so it does not linger in storage.
+      await supabaseAdmin.storage.from("payment-proofs").remove([data.proofPath]).catch(() => {});
+      throw e;
     }
-    if (!/^image\/(png|jpe?g|webp)$/.test(contentType)) {
-      throw new Error("Please upload a PNG, JPG, or WEBP payment screenshot.");
+    // Reject re-uploading the exact same image against a different registration.
+    const [{ data: dupProofE }, { data: dupProofB }] = await Promise.all([
+      supabaseAdmin.from("enrollments").select("id").eq("payment_proof_sha256", validated.sha256).neq("id", existing.id).maybeSingle(),
+      supabaseAdmin.from("bundle_purchases").select("id").eq("payment_proof_sha256", validated.sha256).maybeSingle(),
+    ]);
+    if (dupProofE || dupProofB) {
+      await supabaseAdmin.storage.from("payment-proofs").remove([data.proofPath]).catch(() => {});
+      throw new Error("This payment screenshot has already been used for another registration. Please upload a fresh screenshot of your actual payment.");
     }
-    if (blob.size > 8 * 1024 * 1024) {
-      throw new Error("Screenshot is too large. Max 8 MB.");
-    }
-    const buf = Buffer.from(await blob.arrayBuffer());
-    const dataUrl = `data:${contentType};base64,${buf.toString("base64")}`;
+    const contentType = validated.mime;
+    const dataUrl = `data:${contentType};base64,${Buffer.from(validated.bytes).toString("base64")}`;
 
     const verification = await verifyPaymentScreenshot(dataUrl, {
       amountInr: existing.amount_inr,
