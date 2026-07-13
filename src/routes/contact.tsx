@@ -171,6 +171,8 @@ function Contact() {
                   required
                   rows={5}
                   maxLength={4000}
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
                   className="mt-2 w-full bg-background border border-border rounded-lg px-4 py-3 focus:border-primary outline-none transition resize-none"
                   placeholder="Tell us what you're after — a class, a booking, a collab..."
                 />
