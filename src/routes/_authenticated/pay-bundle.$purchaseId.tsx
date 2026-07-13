@@ -102,19 +102,31 @@ function PayBundle() {
       const tickets = (updated?.enrollments ?? []).map((e: any) => e.ticket_code).filter(Boolean);
       setConfirmedTickets(tickets);
       setDone(true);
-      // Open WhatsApp with the business number and pre-filled confirmation message.
-      const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+      // Auto-open WhatsApp addressed to the student's registered number with
+      // the confirmation from Team Naach — mirrors the wa.me flow used on the
+      // Contact page. Falls back to the business number if the student didn't
+      // provide a phone.
+      const studentNumber = String(updated?.purchase?.phone ?? "").replace(/[^\d]/g, "");
+      const businessNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+      const waNumber = studentNumber || businessNumber;
       if (waNumber) {
-        const participant = updated?.purchase?.full_name || purchase?.full_name || "—";
-        const workshops = (updated?.enrollments ?? enrollments ?? []).map((e: any) => e.program?.name).filter(Boolean).join(", ");
+        const participant = updated?.purchase?.full_name || "there";
+        const workshops = (updated?.enrollments ?? []).map((e: any) => e.program?.name).filter(Boolean).join(", ") || "the workshops";
         const ids = tickets.length ? tickets.join(", ") : purchaseId;
+        const first = updated?.enrollments?.[0]?.program;
+        const dateStr = first?.event_date ? new Date(first.event_date).toDateString() : "—";
+        const timeStr = first?.event_time || "—";
+        const venueStr = first?.venue || "—";
         const message =
-          `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
-          `Participant Name: ${participant}\n` +
-          `Workshop Name(s): ${workshops || "—"}\n` +
-          `Registration/Ticket ID(s): ${ids}\n` +
-          `Payment Status: Confirmed\n\n` +
-          `My Registration ID is: ${ids}.`;
+          `🎉 Hi ${participant},\n\n` +
+          `Your payment has been successfully verified and your seat has been confirmed for ${workshops}.\n\n` +
+          `Registration ID: ${ids}\n` +
+          `Date: ${dateStr}\n` +
+          `Time: ${timeStr}\n` +
+          `Venue: ${venueStr}\n\n` +
+          `Please bring your QR Code/Registration ID during check-in.\n\n` +
+          `We look forward to welcoming you to the workshop!\n\n` +
+          `– Team Naach`;
         window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
       }
     } catch (e: any) {
