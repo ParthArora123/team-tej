@@ -74,9 +74,9 @@ export const createEnrollment = createServerFn({ method: "POST" })
       const { count, error } = await supabase
         .from("enrollments")
         .select("id", { count: "exact", head: true })
-        .eq("program_id", program.id)
+        .eq("program_id", program!.id)
         .eq(col, true)
-        .in("status", ["awaiting_payment", "pending_verification", "confirmed"]);
+        .in("status", ["awaiting_payment", "payment_submitted", "confirmed"]);
       if (error) throw error;
       if ((count ?? 0) >= cap) {
         throw new Error(`Silver seats are sold out for ${which === "w1" ? (p.workshop1_name || "Workshop 1") : (p.workshop2_name || "Workshop 2")}.`);
