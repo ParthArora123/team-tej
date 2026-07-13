@@ -933,11 +933,14 @@ export type Database = {
     Views: {
       programs_public: {
         Row: {
+          allow_both: boolean | null
+          allow_single: boolean | null
           bank_account_holder: string | null
           banner_gif_path: string | null
           banner_path: string | null
           banner_url: string | null
           banner_video_path: string | null
+          both_price: number | null
           capacity: number | null
           category: string | null
           city: string | null
@@ -960,11 +963,14 @@ export type Database = {
           venue: string | null
         }
         Insert: {
+          allow_both?: boolean | null
+          allow_single?: boolean | null
           bank_account_holder?: string | null
           banner_gif_path?: string | null
           banner_path?: string | null
           banner_url?: string | null
           banner_video_path?: string | null
+          both_price?: number | null
           capacity?: number | null
           category?: string | null
           city?: string | null
@@ -987,11 +993,14 @@ export type Database = {
           venue?: string | null
         }
         Update: {
+          allow_both?: boolean | null
+          allow_single?: boolean | null
           bank_account_holder?: string | null
           banner_gif_path?: string | null
           banner_path?: string | null
           banner_url?: string | null
           banner_video_path?: string | null
+          both_price?: number | null
           capacity?: number | null
           category?: string | null
           city?: string | null
