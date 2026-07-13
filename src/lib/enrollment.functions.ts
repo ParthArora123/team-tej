@@ -107,15 +107,18 @@ export const createEnrollment = createServerFn({ method: "POST" })
 
 
 // After a student uploads a payment screenshot to the `payment-proofs` storage
-// bucket, this validates the image with the Lovable AI vision model to make
-// sure it actually looks like a UPI/bank payment screenshot (not a random
-// image), then marks the enrollment as pending admin verification. A ticket
-// is only generated when an admin approves the payment.
+// bucket, this validates the file with pure code (magic-byte MIME check,
+// SHA256 hash for duplicate detection, user-supplied UTR uniqueness) and
+// marks the enrollment as `payment_submitted` — pending admin verification.
+// The ticket is generated only when an admin approves via `approveEnrollment`.
+// No AI / LLM is involved in payment validation.
 export const markPaymentSubmitted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({
     enrollmentId: z.string().uuid(),
     proofPath: z.string().min(3).max(300),
+    paymentReference: z.string().trim().min(6).max(64)
+      .regex(/^[A-Za-z0-9-]+$/, "UPI Reference ID must be 6–64 letters/digits."),
   }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -137,26 +140,6 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       return { ok: true, already: true };
     }
 
-    // Load program for recipient UPI + date-window validation.
-    const { data: program, error: pErr } = await supabaseAdmin
-      .from("programs")
-      .select("upi_id_encrypted, event_date, registration_open_on, name, bank_account_holder")
-      .eq("id", existing.program_id!)
-      .maybeSingle();
-    if (pErr || !program) throw new Error("Workshop not found for this registration.");
-
-    const { decryptSecret, sanitizeUpiId } = await import("./crypto.server");
-    const officialUpi = program.upi_id_encrypted
-      ? sanitizeUpiId(decryptSecret(program.upi_id_encrypted) || "")
-      : "";
-    if (!officialUpi) {
-      throw new Error("The workshop's official UPI ID is not configured yet. Please contact the admin.");
-    }
-    const holder = (program as any).bank_account_holder?.trim();
-    if (!holder) {
-      throw new Error("The workshop's bank account holder name is not configured yet. Please contact the admin.");
-    }
-
     const dl = await supabaseAdmin.storage.from("payment-proofs").download(data.proofPath);
     if (dl.error || !dl.data) throw new Error("Could not read the uploaded screenshot.");
     const { validatePaymentProofBytes } = await import("./payment-proof-validation");
@@ -165,39 +148,19 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
     try {
       validated = await validatePaymentProofBytes(rawBytes, data.proofPath.split("/").pop() ?? null);
     } catch (e: any) {
-      // Remove the invalid file so it does not linger in storage.
       await supabaseAdmin.storage.from("payment-proofs").remove([data.proofPath]).catch(() => {});
       throw e;
     }
-    // Reject re-uploading the exact same image against a different registration.
-    const { data: dupProofE } = await supabaseAdmin
+
+    // Deterministic duplicate detection — same image reused across registrations.
+    const { data: dupProof } = await supabaseAdmin
       .from("enrollments").select("id").eq("payment_proof_sha256", validated.sha256).neq("id", existing.id).maybeSingle();
-    if (dupProofE) {
+    if (dupProof) {
       await supabaseAdmin.storage.from("payment-proofs").remove([data.proofPath]).catch(() => {});
       throw new Error("This payment screenshot has already been used for another registration. Please upload a fresh screenshot of your actual payment.");
     }
-    const contentType = validated.mime;
-    const dataUrl = `data:${contentType};base64,${Buffer.from(validated.bytes).toString("base64")}`;
 
-    const verification = await verifyPaymentScreenshot(dataUrl, {
-      amountInr: existing.amount_inr,
-      officialUpi,
-      recipientNames: [holder],
-      registrationOpenOn: program.registration_open_on ?? null,
-      eventDate: program.event_date ?? null,
-    });
-    if (!verification.accepted) {
-      throw new Error(verification.reason);
-    }
-
-    // Require a UPI Reference ID (UTR / transaction ID) to be present on
-    // every accepted screenshot. Without it we cannot enforce uniqueness.
-    const ref = verification.reference ?? null;
-    if (!ref) {
-      throw new Error("Could not read the UPI Reference ID (UTR / Transaction ID) from this screenshot. Please upload a clearer payment confirmation that shows the transaction reference.");
-    }
-    // Uniqueness: reject if this UPI Reference ID was ever used on any prior
-    // registration or payment record — regardless of status.
+    const ref = data.paymentReference.replace(/\s+/g, "");
     const { data: dupRef } = await supabaseAdmin
       .from("enrollments")
       .select("id")
@@ -208,181 +171,18 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       throw new Error("This UPI Reference ID has already been used. Please verify your payment details.");
     }
 
-    const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-    let ticket = existing.ticket_code || genCode();
-    if (!existing.ticket_code) {
-      for (let i = 0; i < 5; i++) {
-        const { data: dup } = await supabaseAdmin
-          .from("enrollments").select("id").eq("ticket_code", ticket).maybeSingle();
-        if (!dup) break;
-        ticket = genCode();
-      }
-    }
-    const now = new Date().toISOString();
     const { error: upErr } = await supabaseAdmin
       .from("enrollments").update({
-        status: "confirmed",
-        ticket_code: ticket,
+        status: "payment_submitted",
         payment_proof_path: data.proofPath,
         payment_proof_sha256: validated.sha256,
         payment_reference: ref,
-        payment_confirmed_at: now,
-        ticket_generated_at: now,
-        approved_at: now,
       })
       .eq("id", existing.id);
     if (upErr) throw upErr;
 
-    if (existing.program_id) {
-      const { data: p } = await supabaseAdmin.from("programs").select("seats_taken").eq("id", existing.program_id).single();
-      await supabaseAdmin.from("programs").update({ seats_taken: (p?.seats_taken ?? 0) + 1 }).eq("id", existing.program_id);
-    }
-
-    return { ok: true, confirmed: true, ticket };
+    return { ok: true, submitted: true };
   });
-
-type VerifyCtx = {
-  amountInr: number;
-  officialUpi: string;
-  recipientNames: string[];
-  registrationOpenOn: string | null;
-  eventDate: string | null;
-};
-
-export async function verifyPaymentScreenshot(dataUrl: string, ctx: VerifyCtx) {
-  const apiKey = process.env.LOVABLE_API_KEY;
-  if (!apiKey) {
-    throw new Error("Payment screenshot verification is not configured yet.");
-  }
-
-  const today = new Date().toISOString().slice(0, 10);
-  const openOn = ctx.registrationOpenOn || "any earlier date";
-  const eventOn = ctx.eventDate || today;
-
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
-      response_format: { type: "json_object" },
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a validator for Indian UPI payment confirmation screenshots (Google Pay, PhonePe, Paytm, BHIM, Amazon Pay, Cred, WhatsApp Pay, or any bank UPI app). Different apps format dates, times, and amounts very differently (e.g. '13 Jul 2026, 4:32 PM', '2026-07-13', '13/07/26', 'Today 4:32 PM', 'Just now'). Treat those as valid — never flag a screenshot as manipulated just because the layout, fonts, or date format is unfamiliar. Return ONLY valid JSON with keys: is_payment_screenshot (bool), is_screenshot_not_photo (bool), is_supported_upi_app (bool), detected_app (string or null), appears_manipulated (bool — set true ONLY when there is strong, obvious visual evidence of tampering such as clearly mismatched fonts inside the amount/status/date fields, visible clone-stamp or eraser artifacts, pixel-level splicing seams, or an obviously AI-generated fake receipt; DO NOT set true for unfamiliar layouts, unusual date formats, minor compression artifacts, OCR ambiguity, unknown banks, dark-mode UIs, or screenshots that merely 'look different'), manipulation_evidence (array of short strings describing the specific tampering artifacts you can point to; empty array if none), manipulation_reason (string or null), payment_status (one of successful|failed|pending|processing|cancelled|refunded|reversed|unknown), recipient_name (string or null), recipient_upi_id (string or null), payer_upi_id (string or null), amount (number or null), payment_date (YYYY-MM-DD or null — normalise from ANY format you see, including relative ones like 'Today'/'Yesterday' using the current date provided in the user message), payment_time (HH:MM or null), transaction_reference (string or null — the UTR / UPI Reference ID / bank reference number shown on the receipt; return the longest unique alphanumeric ID visible, no spaces), has_all_required_fields (bool — true if UPI Reference ID, payment status, amount, and date/time are all clearly visible), extraction_confidence (low|medium|high), reason (short human-readable string). Extract the RECIPIENT (payee / To) UPI ID and name, never the payer's. Reject camera photos of screens and screenshots from non-UPI apps. When unsure whether an image is manipulated, prefer appears_manipulated=false — false positives are worse than false negatives here.",
-
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Validate this payment confirmation screenshot for a dance workshop.
-Today's date (for resolving 'Today'/'Yesterday' or relative timestamps): ${today}
-Expected recipient name (any one of these is acceptable): ${ctx.recipientNames.map((n) => `"${n}"`).join(" or ")}
-Expected recipient UPI ID: "${ctx.officialUpi}"
-Expected amount: INR ${ctx.amountInr}
-Payment must be dated between ${openOn} and ${eventOn} (inclusive). Accept any date format the app uses and normalise it to YYYY-MM-DD.
-Only set appears_manipulated=true if you can point to specific tampering artifacts in manipulation_evidence. Unfamiliar layout, unusual date/time format, unknown bank, dark mode, or minor compression noise are NOT tampering. If any required field (UPI Reference ID, status, amount, date/time) is missing or not clearly visible, set has_all_required_fields to false instead.`,
-            },
-            { type: "image_url", image_url: { url: dataUrl } },
-          ],
-        },
-      ],
-    }),
-  });
-
-  const raw = await response.text();
-  if (!response.ok) {
-    return { accepted: false, reason: "Payment screenshot verification failed. Please upload a clear UPI/bank payment confirmation screenshot." };
-  }
-
-  let p: any;
-  try {
-    const payload = JSON.parse(raw);
-    const content = payload?.choices?.[0]?.message?.content ?? "{}";
-    p = typeof content === "string" ? JSON.parse(content) : content;
-  } catch {
-    return { accepted: false, reason: "Could not read the payment screenshot. Please upload a clearer receipt from your payment app." };
-  }
-
-  const normUpi = (s: any) => String(s ?? "").toLowerCase().replace(/[^a-z0-9@._-]/g, "");
-  const normName = (s: any) => String(s ?? "").toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
-
-  if (!p.is_payment_screenshot) {
-    return { accepted: false, reason: "This doesn't look like a payment confirmation screenshot. Please upload the receipt from your UPI/bank app." };
-  }
-  if (p.is_screenshot_not_photo === false) {
-    return { accepted: false, reason: "Please upload the original payment screenshot from your app — not a photo of a screen." };
-  }
-  // Only reject on tampering when the model has HIGH confidence AND cites at
-  // least one specific visual artifact. This avoids false positives from
-  // unfamiliar UPI-app layouts, unusual date formats, or minor OCR ambiguity.
-  const evidence: string[] = Array.isArray(p.manipulation_evidence)
-    ? p.manipulation_evidence.map((x: any) => String(x ?? "").trim()).filter(Boolean)
-    : [];
-  const confidence = String(p.extraction_confidence ?? "").toLowerCase();
-  if (p.appears_manipulated === true && confidence === "high" && evidence.length > 0) {
-    return { accepted: false, reason: `This screenshot appears to be edited, cropped, or AI-generated${p.manipulation_reason ? ` (${p.manipulation_reason})` : ""}. Please upload an unedited payment confirmation screenshot from your UPI app.` };
-  }
-  if (p.is_supported_upi_app === false) {
-    return { accepted: false, reason: "Please upload a payment confirmation from a supported UPI app (Google Pay, PhonePe, Paytm, BHIM, etc.)." };
-  }
-  if (p.has_all_required_fields === false) {
-    return { accepted: false, reason: "The screenshot is missing required payment details (UPI Reference ID, status, amount, or date/time). Please upload a complete payment confirmation." };
-  }
-  // Note: we intentionally don't hard-reject on "low" extraction_confidence,
-  // because users commonly mask/blur the recipient UPI ID for privacy. The
-  // individual field checks below (name, amount, status, date) are the source of truth.
-
-  const status = String(p.payment_status ?? "").toLowerCase();
-  const okStatus = ["successful", "success", "paid", "completed"];
-  const badStatus = ["failed", "pending", "processing", "cancelled", "canceled", "refunded", "reversed"];
-  if (badStatus.includes(status)) {
-    return { accepted: false, reason: `Payment status is "${status}". Only successful payments are accepted.` };
-  }
-  if (!okStatus.includes(status)) {
-    return { accepted: false, reason: "Could not confirm the payment was successful. Please upload the success receipt." };
-  }
-
-  const expectedNames = ctx.recipientNames.map(normName);
-  const gotName = normName(p.recipient_name);
-  const nameOk = !!gotName && expectedNames.some((n) => gotName === n || gotName.includes(n) || n.includes(gotName));
-  if (!nameOk) {
-    return { accepted: false, reason: `Invalid payment screenshot. The payment must be made to ${ctx.recipientNames.join(" or ")}.` };
-  }
-
-  const expectedUpi = normUpi(ctx.officialUpi);
-  const gotUpi = normUpi(p.recipient_upi_id);
-  // If a recipient UPI ID is visible, it must match. If it's masked/blurred out
-  // (common for privacy), fall back to the recipient-name match above.
-  if (gotUpi && gotUpi !== expectedUpi) {
-    return { accepted: false, reason: "The payment was not sent to the official UPI ID. Please make the payment to the correct UPI ID and upload the payment confirmation screenshot." };
-  }
-
-  const amt = Number(p.amount);
-  if (!Number.isFinite(amt) || Math.round(amt) !== Math.round(ctx.amountInr)) {
-    return { accepted: false, reason: `The paid amount (${p.amount ?? "unknown"}) does not match the required amount of ₹${ctx.amountInr}.` };
-  }
-
-  const payDate = String(p.payment_date ?? "").slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(payDate)) {
-    return { accepted: false, reason: "Could not read the payment date. Please upload a screenshot that clearly shows the payment date." };
-  }
-  const openOnStr = ctx.registrationOpenOn ? ctx.registrationOpenOn.slice(0, 10) : null;
-  const eventStr = ctx.eventDate ? ctx.eventDate.slice(0, 10) : null;
-  if (openOnStr && payDate < openOnStr) {
-    return { accepted: false, reason: `This payment (${payDate}) is dated before registration opened (${openOnStr}). Please pay again and upload the new screenshot.` };
-  }
-  if (eventStr && payDate > eventStr) {
-    return { accepted: false, reason: `This payment (${payDate}) is dated after the workshop (${eventStr}) and cannot be accepted.` };
-  }
-
-  const rawRef = String(p.transaction_reference ?? "").trim();
-  const reference = rawRef && rawRef.length >= 6 && rawRef.length <= 64 ? rawRef.replace(/\s+/g, "") : null;
-
-  return { accepted: true, reason: "Verified", reference };
-}
 
 
 
