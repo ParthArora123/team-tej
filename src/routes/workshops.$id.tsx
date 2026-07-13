@@ -227,11 +227,11 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
     []
   );
   const dancers = [
-    { pose: "hiphop", left: "5%", bottom: "2%", scale: 1.05, dur: 34, opacity: 0.28, blur: 0.2 },
-    { pose: "contemporary", left: "38%", bottom: "0%", scale: 1.2, dur: 42, opacity: 0.22, blur: 0.4 },
-    { pose: "freestyle", left: "76%", bottom: "3%", scale: 1, dur: 38, opacity: 0.25, blur: 0.2 },
-    { pose: "contemporary", left: "20%", bottom: "12%", scale: 0.66, dur: 48, opacity: 0.12, blur: 1.8 },
-    { pose: "hiphop", left: "63%", bottom: "13%", scale: 0.7, dur: 46, opacity: 0.12, blur: 1.8 },
+    { pose: "hiphop", left: "4%", bottom: "18%", scale: 1.28, dur: 34, opacity: 0.34, blur: 0.2 },
+    { pose: "contemporary", left: "36%", bottom: "16%", scale: 1.46, dur: 42, opacity: 0.28, blur: 0.35 },
+    { pose: "freestyle", left: "74%", bottom: "18%", scale: 1.22, dur: 38, opacity: 0.31, blur: 0.2 },
+    { pose: "contemporary", left: "19%", bottom: "34%", scale: 0.78, dur: 48, opacity: 0.16, blur: 1.4 },
+    { pose: "hiphop", left: "62%", bottom: "35%", scale: 0.82, dur: 46, opacity: 0.16, blur: 1.4 },
   ];
   return (
     <div aria-hidden className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050301] contain-paint">
@@ -262,8 +262,6 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/50 via-[#050301]/34 to-[#050301]/72" />
       </motion.div>
-
-      <DanceMotionCanvas />
 
       <motion.div style={{ y: farY }} className="absolute -inset-[14%] will-change-transform transform-gpu">
         <div className="absolute left-[-12%] top-[8%] h-[42rem] w-[42rem] rounded-full bg-[radial-gradient(circle,rgba(212,169,76,0.22),transparent_68%)] wlb-mesh-a" />
@@ -348,8 +346,8 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
         ))}
       </motion.div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/30 via-[#050301]/14 to-[#050301]/58" />
-      <div className="absolute inset-x-0 bottom-0 h-[48vh] bg-gradient-to-t from-black/58 via-black/18 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/18 via-[#050301]/6 to-[#050301]/38" />
+      <div className="absolute inset-x-0 bottom-0 h-[42vh] bg-gradient-to-t from-black/46 via-black/12 to-transparent" />
 
       <style>{`
         .contain-paint { contain: paint; }
