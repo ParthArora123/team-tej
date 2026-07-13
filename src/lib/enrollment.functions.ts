@@ -111,11 +111,9 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       throw e;
     }
     // Reject re-uploading the exact same image against a different registration.
-    const [{ data: dupProofE }, { data: dupProofB }] = await Promise.all([
-      supabaseAdmin.from("enrollments").select("id").eq("payment_proof_sha256", validated.sha256).neq("id", existing.id).maybeSingle(),
-      supabaseAdmin.from("bundle_purchases").select("id").eq("payment_proof_sha256", validated.sha256).maybeSingle(),
-    ]);
-    if (dupProofE || dupProofB) {
+    const { data: dupProofE } = await supabaseAdmin
+      .from("enrollments").select("id").eq("payment_proof_sha256", validated.sha256).neq("id", existing.id).maybeSingle();
+    if (dupProofE) {
       await supabaseAdmin.storage.from("payment-proofs").remove([data.proofPath]).catch(() => {});
       throw new Error("This payment screenshot has already been used for another registration. Please upload a fresh screenshot of your actual payment.");
     }
@@ -337,7 +335,7 @@ export const listMyEnrollments = createServerFn({ method: "GET" })
     // and sign banner URLs; results are strictly scoped to the current user.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(*), bundle_purchase:bundle_purchases(id, final_amount_inr, workshop_count, bundle_name)")
+      .from("enrollments").select("*, program:programs(*)")
       .eq("user_id", context.userId).order("created_at", { ascending: false });
     if (error) throw error;
     const { decryptSecret } = await import("./crypto.server");

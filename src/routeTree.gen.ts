@@ -24,7 +24,6 @@ import { Route as WorkshopsIdRouteImport } from './routes/workshops.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedPayEnrollmentIdRouteImport } from './routes/_authenticated/pay.$enrollmentId'
-import { Route as AuthenticatedPayBundlePurchaseIdRouteImport } from './routes/_authenticated/pay-bundle.$purchaseId'
 
 const ZeroToHeroRoute = ZeroToHeroRouteImport.update({
   id: '/zero-to-hero',
@@ -101,12 +100,6 @@ const AuthenticatedPayEnrollmentIdRoute =
     path: '/pay/$enrollmentId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedPayBundlePurchaseIdRoute =
-  AuthenticatedPayBundlePurchaseIdRouteImport.update({
-    id: '/pay-bundle/$purchaseId',
-    path: '/pay-bundle/$purchaseId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -122,7 +115,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops/': typeof WorkshopsIndexRoute
-  '/pay-bundle/$purchaseId': typeof AuthenticatedPayBundlePurchaseIdRoute
   '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
 }
 export interface FileRoutesByTo {
@@ -139,7 +131,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops': typeof WorkshopsIndexRoute
-  '/pay-bundle/$purchaseId': typeof AuthenticatedPayBundlePurchaseIdRoute
   '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
 }
 export interface FileRoutesById {
@@ -158,7 +149,6 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops/': typeof WorkshopsIndexRoute
-  '/_authenticated/pay-bundle/$purchaseId': typeof AuthenticatedPayBundlePurchaseIdRoute
   '/_authenticated/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
 }
 export interface FileRouteTypes {
@@ -177,7 +167,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/workshops/$id'
     | '/workshops/'
-    | '/pay-bundle/$purchaseId'
     | '/pay/$enrollmentId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -194,7 +183,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/workshops/$id'
     | '/workshops'
-    | '/pay-bundle/$purchaseId'
     | '/pay/$enrollmentId'
   id:
     | '__root__'
@@ -212,7 +200,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/workshops/$id'
     | '/workshops/'
-    | '/_authenticated/pay-bundle/$purchaseId'
     | '/_authenticated/pay/$enrollmentId'
   fileRoutesById: FileRoutesById
 }
@@ -338,27 +325,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPayEnrollmentIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/pay-bundle/$purchaseId': {
-      id: '/_authenticated/pay-bundle/$purchaseId'
-      path: '/pay-bundle/$purchaseId'
-      fullPath: '/pay-bundle/$purchaseId'
-      preLoaderRoute: typeof AuthenticatedPayBundlePurchaseIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedPayBundlePurchaseIdRoute: typeof AuthenticatedPayBundlePurchaseIdRoute
   AuthenticatedPayEnrollmentIdRoute: typeof AuthenticatedPayEnrollmentIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedPayBundlePurchaseIdRoute: AuthenticatedPayBundlePurchaseIdRoute,
   AuthenticatedPayEnrollmentIdRoute: AuthenticatedPayEnrollmentIdRoute,
 }
 

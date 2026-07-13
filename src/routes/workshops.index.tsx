@@ -97,7 +97,7 @@ function WorkshopsPage() {
         </Reveal>
         <Reveal delay={0.1}>
           <p className="text-muted-foreground mt-4 max-w-2xl leading-relaxed">
-            Browse upcoming intensives. Register for a single workshop, or use Bundle Registration to sign up for 2 workshops in the same city on the same day (or within 1 day) at a special price.
+            Browse upcoming intensives and register for a workshop.
           </p>
         </Reveal>
 
