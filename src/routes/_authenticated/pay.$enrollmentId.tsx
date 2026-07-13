@@ -198,21 +198,29 @@ function PayUpload() {
         <div className="mt-6 flex flex-col gap-3">
           <a
             href={(() => {
-              const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+              const studentNumber = String(enr?.phone ?? "").replace(/[^\d]/g, "");
+              const businessNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+              const waNumber = studentNumber || businessNumber;
               if (!waNumber || !enr) return undefined;
+              const dateStr = enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "—";
+              const timeStr = enr.program?.event_time || "—";
+              const venueStr = enr.program?.venue || "—";
               const message =
-                `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
-                `Participant Name: ${enr.full_name || "—"}\n` +
-                `Workshop Name: ${enr.program?.name || "—"}\n` +
-                `Registration/Ticket ID: ${ticket || enr.id}\n` +
-                `Payment Status: Confirmed\n\n` +
-                `My Registration ID is: ${ticket || enr.id}.`;
+                `🎉 Hi ${enr.full_name || "there"},\n\n` +
+                `Your payment has been successfully verified and your seat has been confirmed for ${enr.program?.name || "the workshop"}.\n\n` +
+                `Registration ID: ${ticket || enr.id}\n` +
+                `Date: ${dateStr}\n` +
+                `Time: ${timeStr}\n` +
+                `Venue: ${venueStr}\n\n` +
+                `Please bring your QR Code/Registration ID during check-in.\n\n` +
+                `We look forward to welcoming you to the workshop!\n\n` +
+                `– Team Naach`;
               return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
             })()}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium inline-flex items-center justify-center gap-2">
-            <MessageCircle size={16} /> I Have Completed My Payment
+            <WhatsAppIcon size={16} /> I Have Completed My Payment
           </a>
           <Link to="/dashboard" className="w-full text-center px-5 py-2.5 rounded-lg border border-border text-sm hover:bg-muted transition">
             Go to dashboard
