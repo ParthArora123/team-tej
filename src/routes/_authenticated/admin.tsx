@@ -459,6 +459,26 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               <p className="text-[11px] text-muted-foreground">Default is ₹1,000. This is added on top of the workshop fee when a student picks the Silver Seat option.</p>
             </div>
 
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration Configuration</p>
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input type="checkbox" checked={!!f.allow_single} onChange={(e) => setF({ ...f, allow_single: e.target.checked })} />
+                Enable Single Workshop registration
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input type="checkbox" checked={!!f.allow_both} onChange={(e) => setF({ ...f, allow_both: e.target.checked })} />
+                Enable Both Workshops registration
+              </label>
+              <FieldRow label="Single Workshop Price (₹) *">
+                <In type="number" placeholder="Enter Single Workshop price" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
+              </FieldRow>
+              {f.allow_both && (
+                <FieldRow label="Both Workshops Price (₹) *">
+                  <In type="number" placeholder="Enter Both Workshops price" v={f.both_price} on={(v) => setF({ ...f, both_price: v })} />
+                </FieldRow>
+              )}
+              <p className="text-[11px] text-muted-foreground">Enable one or both options. Students will see only the enabled options on the registration form.</p>
+
             <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
 
