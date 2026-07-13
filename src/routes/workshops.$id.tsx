@@ -86,7 +86,7 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
             playsInline
             preload="auto"
             disablePictureInPicture
-            className="h-full w-full scale-[1.04] object-cover opacity-42 transform-gpu"
+            className="h-full w-full scale-[1.04] object-cover opacity-[0.42] transform-gpu"
           />
         ) : media?.media_url ? (
           <img
@@ -95,7 +95,7 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
             loading="eager"
             fetchPriority="high"
             decoding="async"
-            className="h-full w-full scale-[1.04] object-cover opacity-38 transform-gpu"
+            className="h-full w-full scale-[1.04] object-cover opacity-[0.38] transform-gpu"
           />
         ) : (
           <div className="h-full w-full bg-[radial-gradient(ellipse_at_50%_36%,rgba(217,174,86,0.22),transparent_58%),linear-gradient(135deg,rgba(62,34,7,0.68),rgba(5,3,1,0.92)_58%,rgba(116,73,18,0.38))]" />
@@ -387,9 +387,9 @@ function WorkshopDetailPage() {
             heroMedia.media_kind === "video" ? (
               <video src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
                 autoPlay muted loop playsInline preload="auto"
-                className="w-full h-full object-cover opacity-18 scale-105 transform-gpu" />
+                className="w-full h-full object-cover opacity-[0.18] scale-105 transform-gpu" />
             ) : (
-              <img src={heroMedia.media_url} alt="" loading="eager" fetchPriority="high" className="w-full h-full object-cover opacity-16 scale-105 transform-gpu" />
+              <img src={heroMedia.media_url} alt="" loading="eager" fetchPriority="high" className="w-full h-full object-cover opacity-[0.16] scale-105 transform-gpu" />
             )
           ) : null}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.18),transparent_60%)]" />
