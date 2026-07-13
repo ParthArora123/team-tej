@@ -480,7 +480,7 @@ function WorkshopDetailPage() {
 
   const bookNow = () => {
     if (!program || full) return;
-    setSel({ id: program.id, name: program.name, price: program.price_inr, duration: program.duration ?? "", silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice, allowSingle: (program as any).allow_single !== false, allowBoth: !!(program as any).allow_both, bothPrice: (program as any).both_price ?? null });
+    setSel({ id: program.id, name: program.name, price: program.price_inr, duration: program.duration ?? "", silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice, allowSingle: (program as any).allow_single !== false, allowBoth: !!(program as any).allow_both, bothPrice: (program as any).both_price ?? null, workshop1Name: (program as any).workshop1_name ?? null, workshop2Name: (program as any).workshop2_name ?? null });
   };
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
