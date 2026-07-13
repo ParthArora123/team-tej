@@ -233,7 +233,10 @@ export type Database = {
           phone: string | null
           program_id: string
           registration_type: string
+          selected_workshop: string | null
           silver_seat: boolean
+          silver_seat_w1: boolean
+          silver_seat_w2: boolean
           sms_error: string | null
           sms_message_id: string | null
           sms_sent_at: string | null
@@ -272,7 +275,10 @@ export type Database = {
           phone?: string | null
           program_id: string
           registration_type?: string
+          selected_workshop?: string | null
           silver_seat?: boolean
+          silver_seat_w1?: boolean
+          silver_seat_w2?: boolean
           sms_error?: string | null
           sms_message_id?: string | null
           sms_sent_at?: string | null
@@ -311,7 +317,10 @@ export type Database = {
           phone?: string | null
           program_id?: string
           registration_type?: string
+          selected_workshop?: string | null
           silver_seat?: boolean
+          silver_seat_w1?: boolean
+          silver_seat_w2?: boolean
           sms_error?: string | null
           sms_message_id?: string | null
           sms_sent_at?: string | null
@@ -579,12 +588,16 @@ export type Database = {
           registration_open_on: string | null
           seats: number | null
           seats_taken: number
+          silver_capacity_w1: number | null
+          silver_capacity_w2: number | null
           silver_seat_enabled: boolean
           silver_seat_price: number
           starts_on: string | null
           style: string | null
           upi_id_encrypted: string | null
           venue: string | null
+          workshop1_name: string | null
+          workshop2_name: string | null
         }
         Insert: {
           active?: boolean
@@ -613,12 +626,16 @@ export type Database = {
           registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
+          silver_capacity_w1?: number | null
+          silver_capacity_w2?: number | null
           silver_seat_enabled?: boolean
           silver_seat_price?: number
           starts_on?: string | null
           style?: string | null
           upi_id_encrypted?: string | null
           venue?: string | null
+          workshop1_name?: string | null
+          workshop2_name?: string | null
         }
         Update: {
           active?: boolean
@@ -647,12 +664,16 @@ export type Database = {
           registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
+          silver_capacity_w1?: number | null
+          silver_capacity_w2?: number | null
           silver_seat_enabled?: boolean
           silver_seat_price?: number
           starts_on?: string | null
           style?: string | null
           upi_id_encrypted?: string | null
           venue?: string | null
+          workshop1_name?: string | null
+          workshop2_name?: string | null
         }
         Relationships: []
       }
@@ -957,10 +978,14 @@ export type Database = {
           published: boolean | null
           registration_open_on: string | null
           seats_taken: number | null
+          silver_capacity_w1: number | null
+          silver_capacity_w2: number | null
           silver_seat_enabled: boolean | null
           silver_seat_price: number | null
           style: string | null
           venue: string | null
+          workshop1_name: string | null
+          workshop2_name: string | null
         }
         Insert: {
           allow_both?: boolean | null
@@ -987,10 +1012,14 @@ export type Database = {
           published?: boolean | null
           registration_open_on?: string | null
           seats_taken?: number | null
+          silver_capacity_w1?: number | null
+          silver_capacity_w2?: number | null
           silver_seat_enabled?: boolean | null
           silver_seat_price?: number | null
           style?: string | null
           venue?: string | null
+          workshop1_name?: string | null
+          workshop2_name?: string | null
         }
         Update: {
           allow_both?: boolean | null
@@ -1017,10 +1046,14 @@ export type Database = {
           published?: boolean | null
           registration_open_on?: string | null
           seats_taken?: number | null
+          silver_capacity_w1?: number | null
+          silver_capacity_w2?: number | null
           silver_seat_enabled?: boolean | null
           silver_seat_price?: number | null
           style?: string | null
           venue?: string | null
+          workshop1_name?: string | null
+          workshop2_name?: string | null
         }
         Relationships: []
       }
