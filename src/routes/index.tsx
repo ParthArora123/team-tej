@@ -769,7 +769,8 @@ function Index() {
 
 
 
-      {/* FOUNDER section removed per request */}
+      {/* FOUNDER / ABOUT */}
+      <FounderSection founder={founder} />
 
       {/* LATEST CHOREOGRAPHIES */}
       <LatestChoreographies items={choreos} />
