@@ -45,7 +45,7 @@ function PayBundle() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const seenHashes = useRef<Set<string>>(new Set());
+  
 
   const reload = () => fetchPurchase({ data: { id: purchaseId } }).then(setState).catch((e) => setErr(e.message));
   useEffect(() => { reload(); }, [purchaseId]);
@@ -59,10 +59,6 @@ function PayBundle() {
     setValidating(true);
     try {
       const v = await validatePaymentProofFile(f);
-      if (seenHashes.current.has(v.sha256)) {
-        throw new Error("You've already tried uploading this same screenshot. Please choose a different image.");
-      }
-      seenHashes.current.add(v.sha256);
       setFile(f);
       setValidated(v);
       setPreview(URL.createObjectURL(new Blob([v.bytes as BlobPart], { type: v.mime })));
