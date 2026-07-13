@@ -28,7 +28,7 @@ function PayUpload() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const seenHashes = useRef<Set<string>>(new Set());
+  
 
   useEffect(() => {
     fetchEnrollments().then((rows: any[]) => {
