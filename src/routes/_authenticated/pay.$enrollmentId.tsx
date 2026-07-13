@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Upload, ArrowLeft, MessageCircle, Check, Ticket, Download } from "lucide-react";
+import { Upload, ArrowLeft, Check, Ticket, Download } from "lucide-react";
+import { WhatsAppIcon } from "@/components/site/WhatsAppIcon";
 import { QRCodeCanvas } from "qrcode.react";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, markPaymentSubmitted } from "@/lib/enrollment.functions";
@@ -107,16 +108,27 @@ function PayUpload() {
       const ticket = (result as any)?.ticket ?? enr.ticket_code ?? null;
       setConfirmed({ ticket });
       setDone(true);
-      // Open WhatsApp with the business number and pre-filled confirmation message.
-      const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+      // Auto-open WhatsApp addressed to the student's registered number with
+      // the confirmation from Team Naach — mirrors the wa.me flow used on the
+      // Contact page. Falls back to the business number if the student didn't
+      // provide a phone.
+      const studentNumber = String(enr.phone ?? "").replace(/[^\d]/g, "");
+      const businessNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+      const waNumber = studentNumber || businessNumber;
       if (waNumber) {
+        const dateStr = enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "—";
+        const timeStr = enr.program?.event_time || "—";
+        const venueStr = enr.program?.venue || "—";
         const message =
-          `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
-          `Participant Name: ${enr.full_name || "—"}\n` +
-          `Workshop Name: ${enr.program?.name || "—"}\n` +
-          `Registration/Ticket ID: ${ticket || enr.id}\n` +
-          `Payment Status: Confirmed\n\n` +
-          `My Registration ID is: ${ticket || enr.id}.`;
+          `🎉 Hi ${enr.full_name || "there"},\n\n` +
+          `Your payment has been successfully verified and your seat has been confirmed for ${enr.program?.name || "the workshop"}.\n\n` +
+          `Registration ID: ${ticket || enr.id}\n` +
+          `Date: ${dateStr}\n` +
+          `Time: ${timeStr}\n` +
+          `Venue: ${venueStr}\n\n` +
+          `Please bring your QR Code/Registration ID during check-in.\n\n` +
+          `We look forward to welcoming you to the workshop!\n\n` +
+          `– Team Naach`;
         window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
       }
     } catch (e: any) {
@@ -186,21 +198,29 @@ function PayUpload() {
         <div className="mt-6 flex flex-col gap-3">
           <a
             href={(() => {
-              const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+              const studentNumber = String(enr?.phone ?? "").replace(/[^\d]/g, "");
+              const businessNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+              const waNumber = studentNumber || businessNumber;
               if (!waNumber || !enr) return undefined;
+              const dateStr = enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "—";
+              const timeStr = enr.program?.event_time || "—";
+              const venueStr = enr.program?.venue || "—";
               const message =
-                `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
-                `Participant Name: ${enr.full_name || "—"}\n` +
-                `Workshop Name: ${enr.program?.name || "—"}\n` +
-                `Registration/Ticket ID: ${ticket || enr.id}\n` +
-                `Payment Status: Confirmed\n\n` +
-                `My Registration ID is: ${ticket || enr.id}.`;
+                `🎉 Hi ${enr.full_name || "there"},\n\n` +
+                `Your payment has been successfully verified and your seat has been confirmed for ${enr.program?.name || "the workshop"}.\n\n` +
+                `Registration ID: ${ticket || enr.id}\n` +
+                `Date: ${dateStr}\n` +
+                `Time: ${timeStr}\n` +
+                `Venue: ${venueStr}\n\n` +
+                `Please bring your QR Code/Registration ID during check-in.\n\n` +
+                `We look forward to welcoming you to the workshop!\n\n` +
+                `– Team Naach`;
               return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
             })()}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium inline-flex items-center justify-center gap-2">
-            <MessageCircle size={16} /> I Have Completed My Payment
+            <WhatsAppIcon size={16} /> I Have Completed My Payment
           </a>
           <Link to="/dashboard" className="w-full text-center px-5 py-2.5 rounded-lg border border-border text-sm hover:bg-muted transition">
             Go to dashboard
@@ -267,7 +287,7 @@ function PayUpload() {
           disabled={!canSubmit}
           onClick={submit}
           className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2">
-          <MessageCircle size={16} />
+          <WhatsAppIcon size={16} />
           {busy ? "Uploading & verifying…" : validating ? "Validating…" : "I Have Completed the Payment"}
         </button>
         <p className="mt-3 text-[11px] text-muted-foreground">
