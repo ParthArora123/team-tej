@@ -1,14 +1,33 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Upload, ArrowLeft } from "lucide-react";
+import { Upload, ArrowLeft, MessageCircle, Check, Ticket, Download } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, markPaymentSubmitted } from "@/lib/enrollment.functions";
+import { getSiteContent } from "@/lib/site-content.functions";
 import { supabase } from "@/integrations/supabase/client";
 import {
   validatePaymentProofFile,
   sanitizeFileName,
   type ValidatedPaymentProof,
 } from "@/lib/payment-proof-validation";
+
+async function downloadQrPng(containerId: string, filename: string, size = 720) {
+  const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
+  if (!sourceCanvas) return;
+  const padding = Math.round(size * 0.08);
+  const qrSize = size - padding * 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, size, size);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(sourceCanvas, padding, padding, qrSize, qrSize);
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = filename;
+  a.click();
+}
 
 export const Route = createFileRoute("/_authenticated/pay/$enrollmentId")({
   component: PayUpload,
@@ -19,6 +38,7 @@ function PayUpload() {
   const navigate = useNavigate();
   const fetchEnrollments = useServerFn(listMyEnrollments);
   const submitPay = useServerFn(markPaymentSubmitted);
+  const loadSiteContent = useServerFn(getSiteContent);
   const [enr, setEnr] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
   const [validated, setValidated] = useState<ValidatedPaymentProof | null>(null);
@@ -27,13 +47,19 @@ function PayUpload() {
   const [validating, setValidating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [confirmed, setConfirmed] = useState<{ ticket: string | null } | null>(null);
+  const [whatsapp, setWhatsapp] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  
   
 
   useEffect(() => {
     fetchEnrollments().then((rows: any[]) => {
       setEnr(rows.find((r) => r.id === enrollmentId) ?? null);
     });
+    loadSiteContent({ data: { key: "contact" } }).then((v: any) => {
+      if (v?.whatsapp) setWhatsapp(String(v.whatsapp));
+    }).catch(() => {});
   }, [enrollmentId]);
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
@@ -77,9 +103,22 @@ function PayUpload() {
       });
       if (up.error) throw new Error(`Upload failed: ${up.error.message}. Please check your connection and try again.`);
       uploadedPath = path;
-      await submitPay({ data: { enrollmentId: enr.id, proofPath: path } });
+      const result = await submitPay({ data: { enrollmentId: enr.id, proofPath: path } });
+      const ticket = (result as any)?.ticket ?? enr.ticket_code ?? null;
+      setConfirmed({ ticket });
       setDone(true);
-      setTimeout(() => navigate({ to: "/dashboard" }), 1600);
+      // Open WhatsApp with the business number and pre-filled confirmation message.
+      const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+      if (waNumber) {
+        const message =
+          `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
+          `Participant Name: ${enr.full_name || "—"}\n` +
+          `Workshop Name: ${enr.program?.name || "—"}\n` +
+          `Registration/Ticket ID: ${ticket || enr.id}\n` +
+          `Payment Status: Confirmed\n\n` +
+          `My Registration ID is: ${ticket || enr.id}.`;
+        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+      }
     } catch (e: any) {
       // If the DB step failed after upload, clean up so no orphan file lingers.
       if (uploadedPath) {
@@ -92,12 +131,81 @@ function PayUpload() {
   };
 
   if (done) {
+    const ticket = confirmed?.ticket ?? enr?.ticket_code ?? null;
+    const verifyUrl = typeof window !== "undefined" && ticket
+      ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
+      : "";
     return (
-      <div className="min-h-screen pt-24 pb-16 px-6 max-w-xl mx-auto text-center">
-        <h1 className="font-display text-3xl font-bold">Payment screenshot uploaded</h1>
-        <p className="mt-3 text-muted-foreground">
-          Your payment is now <strong>Pending Verification</strong>. An admin will review it and your ticket will appear in your dashboard once approved.
-        </p>
+      <div className="min-h-screen pt-24 pb-16 px-6 max-w-xl mx-auto">
+        <div className="text-center">
+          <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/15 flex items-center justify-center">
+            <Check className="text-emerald-500" size={28} />
+          </div>
+          <h1 className="mt-4 font-display text-3xl font-bold">Registration Successful</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Your payment has been verified and your workshop registration is confirmed.
+          </p>
+        </div>
+
+        {enr && (
+          <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+            <p className="text-xs uppercase tracking-widest text-primary">Workshop Details</p>
+            <p className="mt-1 font-display text-xl font-bold">{enr.program?.name}</p>
+            <div className="mt-3 space-y-1 text-sm text-muted-foreground">
+              {enr.program?.event_date && <p>📅 {new Date(enr.program.event_date).toDateString()}{enr.program?.event_time ? ` · ${enr.program.event_time}` : ""}</p>}
+              {enr.program?.venue && <p>📍 {enr.program.venue}</p>}
+              {enr.program?.duration && <p>⏱ {enr.program.duration}</p>}
+              <p>💰 ₹{(enr.amount_inr ?? 0).toLocaleString("en-IN")}{enr.silver_seat ? " · includes Silver Seat" : ""}</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-border">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration / Ticket ID</p>
+              <p className="mt-1 font-mono text-lg flex items-center gap-2">
+                <Ticket size={18} className="text-primary" /> {ticket || enr.id}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {ticket && verifyUrl && (
+          <div className="mt-6 rounded-2xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5">
+            <p className="text-xs uppercase tracking-widest text-primary text-center">Generated QR Code</p>
+            <div className="mt-4 flex flex-col items-center gap-3">
+              <div id="ticket-qr-success" className="bg-white p-2 rounded-lg">
+                <QRCodeCanvas value={verifyUrl} size={220} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" />
+              </div>
+              <button
+                type="button"
+                onClick={() => downloadQrPng("ticket-qr-success", `ticket-${ticket}.png`)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
+                <Download size={12} /> Download QR
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 flex flex-col gap-3">
+          <a
+            href={(() => {
+              const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+              if (!waNumber || !enr) return undefined;
+              const message =
+                `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
+                `Participant Name: ${enr.full_name || "—"}\n` +
+                `Workshop Name: ${enr.program?.name || "—"}\n` +
+                `Registration/Ticket ID: ${ticket || enr.id}\n` +
+                `Payment Status: Confirmed\n\n` +
+                `My Registration ID is: ${ticket || enr.id}.`;
+              return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+            })()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium inline-flex items-center justify-center gap-2">
+            <MessageCircle size={16} /> I Have Completed My Payment
+          </a>
+          <Link to="/dashboard" className="w-full text-center px-5 py-2.5 rounded-lg border border-border text-sm hover:bg-muted transition">
+            Go to dashboard
+          </Link>
+        </div>
       </div>
     );
   }
@@ -158,7 +266,8 @@ function PayUpload() {
         <button
           disabled={!canSubmit}
           onClick={submit}
-          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">
+          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2">
+          <MessageCircle size={16} />
           {busy ? "Uploading & verifying…" : validating ? "Validating…" : "I Have Completed the Payment"}
         </button>
         <p className="mt-3 text-[11px] text-muted-foreground">
