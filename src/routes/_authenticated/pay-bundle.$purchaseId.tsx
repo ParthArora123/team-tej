@@ -125,10 +125,92 @@ function PayBundle() {
   };
 
   if (done) {
+    const { purchase, enrollments } = state;
+    const tickets = confirmedTickets.length
+      ? confirmedTickets
+      : (enrollments ?? []).map((e: any) => e.ticket_code).filter(Boolean);
+    const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+    const participant = purchase?.full_name || "—";
+    const workshops = (enrollments ?? []).map((e: any) => e.program?.name).filter(Boolean).join(", ");
+    const ids = tickets.length ? tickets.join(", ") : purchaseId;
+    const waMessage =
+      `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
+      `Participant Name: ${participant}\n` +
+      `Workshop Name(s): ${workshops || "—"}\n` +
+      `Registration/Ticket ID(s): ${ids}\n` +
+      `Payment Status: Confirmed\n\n` +
+      `My Registration ID is: ${ids}.`;
+    const waHref = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}` : undefined;
     return (
-      <div className="min-h-screen pt-24 pb-16 px-6 max-w-xl mx-auto text-center">
-        <h1 className="font-display text-3xl font-bold">Payment verified</h1>
-        <p className="mt-3 text-muted-foreground">Your tickets are ready in the dashboard.</p>
+      <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-3xl mx-auto">
+        <div className="text-center">
+          <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/15 flex items-center justify-center">
+            <Check className="text-emerald-500" size={28} />
+          </div>
+          <h1 className="mt-4 font-display text-3xl font-bold">Registration Successful</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Your payment has been verified and your workshop registrations are confirmed.
+          </p>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+          <p className="text-xs uppercase tracking-widest text-primary">Bundle Details</p>
+          <p className="mt-1 font-display text-xl font-bold">{purchase?.bundle_name || `${enrollments?.length || 0} Workshops`}</p>
+          <div className="mt-3 space-y-1 text-sm text-muted-foreground">
+            {enrollments?.map((e: any) => (
+              <p key={e.id}>• {e.program?.name} {e.ticket_code ? `· ${e.ticket_code}` : ""}</p>
+            ))}
+          </div>
+          <div className="mt-3 pt-3 border-t border-border flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Total paid</span>
+            <span className="font-bold">₹{purchase?.final_amount_inr?.toLocaleString("en-IN")}</span>
+          </div>
+          <div className="mt-4 pt-4 border-t border-border">
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration / Ticket ID(s)</p>
+            <p className="mt-1 font-mono text-base flex items-start gap-2">
+              <Ticket size={18} className="text-primary shrink-0 mt-0.5" /> {ids}
+            </p>
+          </div>
+        </div>
+
+        {tickets.length > 0 && (
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {tickets.map((ticket: string, idx: number) => {
+              const verifyUrl = typeof window !== "undefined"
+                ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
+                : "";
+              const qrId = `ticket-qr-success-${idx}`;
+              return (
+                <div key={ticket} className="rounded-2xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5 text-center">
+                  <p className="text-xs uppercase tracking-widest text-primary">Ticket {idx + 1}</p>
+                  <p className="mt-1 font-mono text-sm">{ticket}</p>
+                  <div id={qrId} className="mt-3 bg-white p-2 rounded-lg inline-block">
+                    <QRCodeCanvas value={verifyUrl} size={180} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => downloadQrPng(qrId, `ticket-${ticket}.png`)}
+                    className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
+                    <Download size={12} /> Download QR
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="mt-6 flex flex-col gap-3">
+          <a
+            href={waHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium inline-flex items-center justify-center gap-2">
+            <MessageCircle size={16} /> I Have Completed My Payment
+          </a>
+          <Link to="/dashboard" className="w-full text-center px-5 py-2.5 rounded-lg border border-border text-sm hover:bg-muted transition">
+            Go to dashboard
+          </Link>
+        </div>
       </div>
     );
   }
