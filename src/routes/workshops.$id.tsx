@@ -757,12 +757,6 @@ function WorkshopDetailPage() {
                 </div>
               )}
 
-              <MagneticButton>
-                <button onClick={bookNow} disabled={full}
-                  className="mt-8 w-full px-6 py-4 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs font-black tracking-[0.25em] uppercase shadow-[0_10px_40px_-10px_rgba(212,169,76,0.7)] hover:shadow-[0_20px_60px_-10px_rgba(212,169,76,1)] transition disabled:opacity-40">
-                  {full ? "Sold Out" : "Pay & Register Now"}
-                </button>
-              </MagneticButton>
 
               {seatsLeft != null && (
                 <p className="mt-4 text-[11px] uppercase tracking-widest text-amber-200/70">
