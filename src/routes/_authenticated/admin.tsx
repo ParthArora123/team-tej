@@ -478,6 +478,9 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 </FieldRow>
               )}
               <p className="text-[11px] text-muted-foreground">Enable one or both options. Students will see only the enabled options on the registration form.</p>
+            </div>
+
+
 
             <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
