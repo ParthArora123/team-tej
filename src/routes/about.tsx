@@ -58,6 +58,9 @@ function About() {
     values: defaultValues,
   });
   const [founder, setFounder] = useState<any | null>(null);
+  const [contact, setContact] = useState<any>({ phone: "+91 98765 43210", whatsapp: "+91 98765 43210" });
+  const [waMessage, setWaMessage] = useState("");
+
 
   useEffect(() => {
     loadContent({ data: { key: "about" } }).then((v: any) => v && setContent((c: any) => ({ ...c, ...v }))).catch(() => {});
