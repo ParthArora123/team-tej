@@ -117,12 +117,16 @@ function WorkshopsPage() {
                         <p className="text-[11px] text-primary mt-0.5">+ ₹{silverPrice.toLocaleString("en-IN")} for Silver Seat</p>
                       )}
                     </div>
-                    <button
-                      disabled={full}
-                      onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled, silverSeatPrice: silverPrice })}
-                      className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50">
-                      {full ? "Full" : "Register"}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <Link to="/workshops/$id" params={{ id: r.id }}
+                        className="px-3 py-2 rounded-lg border border-border text-sm hover:bg-muted">Details</Link>
+                      <button
+                        disabled={full}
+                        onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled, silverSeatPrice: silverPrice })}
+                        className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50">
+                        {full ? "Full" : "Register"}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </motion.div>
