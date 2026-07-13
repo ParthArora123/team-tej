@@ -572,7 +572,7 @@ function WorkshopDetailPage() {
               </span>
             </motion.div>
 
-            <p className="mt-6 text-xs tracking-[0.35em] uppercase text-amber-200/80">Presented by Team Tej</p>
+            <p className="mt-6 text-xs tracking-[0.35em] uppercase text-amber-200/80">Presented by Tejas D Dhoke</p>
 
             <motion.h1
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
@@ -633,7 +633,7 @@ function WorkshopDetailPage() {
               <div className="pointer-events-none absolute bottom-4 right-4 w-10 h-10 border-b border-r border-amber-300/70 rounded-br-lg" />
               {/* bottom label */}
               <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                <p className="text-[10px] tracking-[0.3em] uppercase text-amber-300">Team Tej Presents</p>
+                <p className="text-[10px] tracking-[0.3em] uppercase text-amber-300">Tejas D Dhoke Presents</p>
                 <p className="font-serif text-xl text-amber-100 mt-1" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
                   {program.name}
                 </p>
