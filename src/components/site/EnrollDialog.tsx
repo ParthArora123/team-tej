@@ -16,6 +16,8 @@ export interface EnrollClass {
   allowSingle?: boolean;
   allowBoth?: boolean;
   bothPrice?: number | null;
+  workshop1Name?: string | null;
+  workshop2Name?: string | null;
 }
 
 interface Props {
@@ -34,22 +36,29 @@ export function EnrollDialog({ klass, onClose }: Props) {
 
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [d, setD] = useState(initial);
-  const [silver, setSilver] = useState(false);
+  const [silverW1, setSilverW1] = useState(false);
+  const [silverW2, setSilverW2] = useState(false);
   const [regType, setRegType] = useState<"single" | "both">("single");
+  const [selectedWorkshop, setSelectedWorkshop] = useState<"w1" | "w2">("w1");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
   const allowSingle = klass?.allowSingle !== false;
   const allowBoth = !!klass?.allowBoth && !!klass?.bothPrice;
+  const hasNamedWorkshops = allowBoth && !!(klass?.workshop1Name || klass?.workshop2Name);
+  const w1Name = klass?.workshop1Name || "Workshop 1";
+  const w2Name = klass?.workshop2Name || "Workshop 2";
 
   useEffect(() => {
     if (!klass) return;
-    setSilver(false);
+    setSilverW1(false);
+    setSilverW2(false);
     setErr("");
     setDone(false);
     const initialType: "single" | "both" = allowSingle ? "single" : allowBoth ? "both" : "single";
     setRegType(initialType);
+    setSelectedWorkshop("w1");
     supabase.auth.getUser().then(({ data }) => {
       setSignedIn(!!data.user);
       if (data.user?.email) setD((s) => ({ ...s, email: data.user!.email! }));
@@ -60,19 +69,30 @@ export function EnrollDialog({ klass, onClose }: Props) {
 
   const silverAddon = klass.silverSeatPrice ?? 1000;
   const basePrice = regType === "both" ? (klass.bothPrice ?? klass.price) : klass.price;
-  const total = basePrice + (klass.silverSeatEnabled && silver ? silverAddon : 0);
+  const silverCount = regType === "both"
+    ? (silverW1 ? 1 : 0) + (silverW2 ? 1 : 0)
+    : ((silverW1 || silverW2) ? 1 : 0);
+  const total = basePrice + (klass.silverSeatEnabled ? silverCount * silverAddon : 0);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(""); setBusy(true);
     try {
-      await create({ data: {
+      // For "single" with named workshops, silverW1/W2 map to selectedWorkshop.
+      const payload: any = {
         programId: klass.id, fullName: d.fullName, email: d.email, phone: d.phone,
         gender: d.gender, address: d.address, city: d.city,
         state: d.state, emergencyContact: d.emergencyContact,
-        silverSeat: !!(klass.silverSeatEnabled && silver),
         registrationType: regType,
-      }});
+      };
+      if (regType === "both") {
+        payload.silverSeatW1 = !!(klass.silverSeatEnabled && silverW1);
+        payload.silverSeatW2 = !!(klass.silverSeatEnabled && silverW2);
+      } else {
+        if (hasNamedWorkshops) payload.selectedWorkshop = selectedWorkshop;
+        payload.silverSeat = !!(klass.silverSeatEnabled && (silverW1 || silverW2));
+      }
+      await create({ data: payload });
       setDone(true);
     } catch (e: any) { setErr(e.message ?? "Failed"); }
     finally { setBusy(false); }
@@ -145,13 +165,54 @@ export function EnrollDialog({ klass, onClose }: Props) {
                   </div>
                 ))}
 
+                {regType === "single" && hasNamedWorkshops && (
+                  <div className="col-span-2 rounded-xl border border-primary/30 bg-muted/30 p-3 space-y-2">
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Choose your workshop</p>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input type="radio" name="wpick" checked={selectedWorkshop === "w1"} onChange={() => { setSelectedWorkshop("w1"); setSilverW2(false); }} />
+                      {w1Name}
+                    </label>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input type="radio" name="wpick" checked={selectedWorkshop === "w2"} onChange={() => { setSelectedWorkshop("w2"); setSilverW1(false); }} />
+                      {w2Name}
+                    </label>
+                  </div>
+                )}
 
-                {klass.silverSeatEnabled && (
+                {klass.silverSeatEnabled && regType === "both" && (
+                  <div className="col-span-2 rounded-xl border border-primary/40 bg-primary/5 p-3 space-y-2">
+                    <p className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-primary font-medium">
+                      <Sparkles size={12} /> Silver Seats
+                    </p>
+                    <label className="flex items-center justify-between gap-3 cursor-pointer text-sm">
+                      <span className="flex items-center gap-2">
+                        <input type="checkbox" checked={silverW1} onChange={(e) => setSilverW1(e.target.checked)} />
+                        {w1Name} · Silver Seat
+                      </span>
+                      <span className="font-medium">+₹{silverAddon.toLocaleString("en-IN")}</span>
+                    </label>
+                    <label className="flex items-center justify-between gap-3 cursor-pointer text-sm">
+                      <span className="flex items-center gap-2">
+                        <input type="checkbox" checked={silverW2} onChange={(e) => setSilverW2(e.target.checked)} />
+                        {w2Name} · Silver Seat
+                      </span>
+                      <span className="font-medium">+₹{silverAddon.toLocaleString("en-IN")}</span>
+                    </label>
+                  </div>
+                )}
+
+                {klass.silverSeatEnabled && regType === "single" && (
                   <label className="col-span-2 flex items-start gap-3 rounded-xl border border-primary/40 bg-primary/5 p-3 cursor-pointer">
-                    <input type="checkbox" checked={silver} onChange={(e) => setSilver(e.target.checked)} className="mt-1" />
+                    <input
+                      type="checkbox"
+                      checked={selectedWorkshop === "w2" ? silverW2 : silverW1}
+                      onChange={(e) => selectedWorkshop === "w2" ? setSilverW2(e.target.checked) : setSilverW1(e.target.checked)}
+                      className="mt-1"
+                    />
                     <span className="flex-1">
                       <span className="flex items-center gap-1.5 font-medium text-sm">
                         <Sparkles size={14} className="text-primary" /> Silver Seat
+                        {hasNamedWorkshops && <span className="text-muted-foreground">· {selectedWorkshop === "w2" ? w2Name : w1Name}</span>}
                       </span>
                       <span className="block text-xs text-muted-foreground mt-0.5">
                         Premium seating · adds ₹{silverAddon.toLocaleString("en-IN")}.

@@ -14,6 +14,9 @@ const detailsSchema = z.object({
   emergencyContact: z.string().min(5).max(60),
   silverSeat: z.boolean().optional(),
   registrationType: z.enum(["single", "both"]).optional(),
+  selectedWorkshop: z.enum(["w1", "w2"]).optional(),
+  silverSeatW1: z.boolean().optional(),
+  silverSeatW2: z.boolean().optional(),
 });
 
 export const createEnrollment = createServerFn({ method: "POST" })
@@ -27,7 +30,7 @@ export const createEnrollment = createServerFn({ method: "POST" })
 
     const { data: program, error: pErr } = await supabase
       .from("programs")
-      .select("id, name, price_inr, capacity, seats_taken, silver_seat_enabled, silver_seat_price, published, allow_single, allow_both, both_price")
+      .select("id, name, price_inr, capacity, seats_taken, silver_seat_enabled, silver_seat_price, published, allow_single, allow_both, both_price, workshop1_name, workshop2_name, silver_capacity_w1, silver_capacity_w2")
       .eq("id", data.programId).maybeSingle();
     if (pErr || !program) throw new Error("Program not found");
     if (program.capacity != null && (program.seats_taken ?? 0) >= program.capacity) {
@@ -45,8 +48,46 @@ export const createEnrollment = createServerFn({ method: "POST" })
     }
     const baseAmount = regType === "both" ? Number(p.both_price) : Number(p.price_inr);
 
-    const wantSilver = !!data.silverSeat && !!p.silver_seat_enabled;
-    const silverAdd = wantSilver ? Number(p.silver_seat_price ?? 1000) : 0;
+    const silverPrice = Number(p.silver_seat_price ?? 1000);
+    let silverW1 = false, silverW2 = false;
+    let selected: "w1" | "w2" | null = null;
+
+    if (regType === "both") {
+      silverW1 = !!(data.silverSeatW1 && p.silver_seat_enabled);
+      silverW2 = !!(data.silverSeatW2 && p.silver_seat_enabled);
+    } else {
+      if (allowBoth && (p.workshop1_name || p.workshop2_name)) {
+        selected = data.selectedWorkshop ?? "w1";
+      } else if (data.selectedWorkshop) {
+        selected = data.selectedWorkshop;
+      }
+      const wantSilver = !!((data.silverSeat || data.silverSeatW1 || data.silverSeatW2) && p.silver_seat_enabled);
+      if (wantSilver) {
+        if (selected === "w2") silverW2 = true;
+        else silverW1 = true;
+      }
+    }
+
+    async function assertSilverCapacity(which: "w1" | "w2", cap: number | null | undefined) {
+      if (!cap || cap <= 0) return;
+      const col = which === "w1" ? "silver_seat_w1" : "silver_seat_w2";
+      const { count, error } = await supabase
+        .from("enrollments")
+        .select("id", { count: "exact", head: true })
+        .eq("program_id", program!.id)
+        .eq(col, true)
+        .in("status", ["awaiting_payment", "payment_submitted", "confirmed"]);
+      if (error) throw error;
+      if ((count ?? 0) >= cap) {
+        throw new Error(`Silver seats are sold out for ${which === "w1" ? (p.workshop1_name || "Workshop 1") : (p.workshop2_name || "Workshop 2")}.`);
+      }
+    }
+    if (silverW1) await assertSilverCapacity("w1", p.silver_capacity_w1);
+    if (silverW2) await assertSilverCapacity("w2", p.silver_capacity_w2);
+
+    const silverCount = (silverW1 ? 1 : 0) + (silverW2 ? 1 : 0);
+    const silverAdd = silverCount * silverPrice;
+    const wantSilverLegacy = silverW1 || silverW2;
 
     const { data: enr, error } = await supabase.from("enrollments").insert({
       user_id: userId, program_id: program.id, amount_inr: baseAmount + silverAdd,
@@ -54,8 +95,11 @@ export const createEnrollment = createServerFn({ method: "POST" })
       full_name: data.fullName, email: data.email, phone: data.phone,
       gender: data.gender, address: data.address, city: data.city, state: data.state,
       emergency_contact: data.emergencyContact,
-      silver_seat: wantSilver,
+      silver_seat: wantSilverLegacy,
+      silver_seat_w1: silverW1,
+      silver_seat_w2: silverW2,
       registration_type: regType,
+      selected_workshop: selected,
     } as any).select("*").single();
     if (error) throw error;
     return enr;
@@ -468,6 +512,10 @@ const workshopSchema = z.object({
   allow_single: z.boolean().optional(),
   allow_both: z.boolean().optional(),
   both_price: z.number().int().min(0).optional().nullable(),
+  workshop1_name: z.string().max(120).optional().or(z.literal("")).nullable(),
+  workshop2_name: z.string().max(120).optional().or(z.literal("")).nullable(),
+  silver_capacity_w1: z.number().int().min(0).optional().nullable(),
+  silver_capacity_w2: z.number().int().min(0).optional().nullable(),
   upi_id: z.string().max(120).optional().or(z.literal("")),
   clear_upi: z.boolean().optional(),
   bank_account_holder: z.string().min(2).max(120),
@@ -493,6 +541,10 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       allow_single: rest.allow_single !== false,
       allow_both: !!rest.allow_both,
       both_price: rest.allow_both ? (rest.both_price ?? null) : null,
+      workshop1_name: rest.allow_both ? (rest.workshop1_name || null) : null,
+      workshop2_name: rest.allow_both ? (rest.workshop2_name || null) : null,
+      silver_capacity_w1: rest.silver_capacity_w1 ?? null,
+      silver_capacity_w2: rest.allow_both ? (rest.silver_capacity_w2 ?? null) : null,
     };
     if (clear_upi) {
       clean.upi_id_encrypted = null;
