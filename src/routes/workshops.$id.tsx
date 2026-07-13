@@ -3,7 +3,7 @@ import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react"
 import { motion, useScroll, useTransform } from "motion/react";
 import {
   Calendar, MapPin, Clock, ChevronDown, Sparkles,
-  ArrowLeft, CheckCircle2, Package,
+  ArrowLeft,
   Ticket, PlayCircle,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
