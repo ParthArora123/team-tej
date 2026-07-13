@@ -227,7 +227,7 @@ function PayBundle() {
             target="_blank"
             rel="noopener noreferrer"
             className="w-full text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium inline-flex items-center justify-center gap-2">
-            <MessageCircle size={16} /> I Have Completed My Payment
+            <WhatsAppIcon size={16} /> I Have Completed My Payment
           </a>
           <Link to="/dashboard" className="w-full text-center px-5 py-2.5 rounded-lg border border-border text-sm hover:bg-muted transition">
             Go to dashboard
@@ -304,7 +304,7 @@ function PayBundle() {
         {err && <p className="mt-3 text-sm text-destructive whitespace-pre-line">{err}</p>}
         <button disabled={busy || validating || !file || !validated} onClick={submit}
           className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2">
-          <MessageCircle size={16} />
+          <WhatsAppIcon size={16} />
           {busy ? "Uploading & verifying…" : validating ? "Validating…" : "I Have Completed the Payment"}
         </button>
         <p className="mt-3 text-[11px] text-muted-foreground">The screenshot must show a successful payment of ₹{purchase.final_amount_inr.toLocaleString("en-IN")} to the official UPI ID.</p>
