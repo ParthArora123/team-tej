@@ -828,25 +828,12 @@ function WorkshopDetailPage() {
         </div>
       </section>
 
-      {/* ==================== STICKY ACTION PANEL ==================== */}
+      {/* ==================== STICKY BOOK NOW ==================== */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 md:bottom-6">
-        <div className="flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-black/85 backdrop-blur-xl shadow-[0_20px_60px_-10px_rgba(212,169,76,0.5)] p-1.5">
-          <button onClick={bookNow} disabled={full}
-            className="px-5 md:px-6 py-2.5 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs md:text-sm font-black tracking-widest uppercase disabled:opacity-40">
-            {full ? "Sold Out" : "Book Now"}
-          </button>
-          <a href={waLink} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
-            className="p-2.5 rounded-full text-amber-200 hover:bg-amber-400/10"><MessageCircle size={16} /></a>
-          <a href={callLink} aria-label="Call" className="p-2.5 rounded-full text-amber-200 hover:bg-amber-400/10"><Phone size={16} /></a>
-          {mapsNav && (
-            <a href={mapsNav} target="_blank" rel="noopener noreferrer" aria-label="Directions"
-              className="p-2.5 rounded-full text-amber-200 hover:bg-amber-400/10"><Navigation size={16} /></a>
-          )}
-          <button onClick={share} aria-label="Share" className="p-2.5 rounded-full text-amber-200 hover:bg-amber-400/10"><Share2 size={16} /></button>
-          <button onClick={toggleSave} aria-label="Save" className="p-2.5 rounded-full text-amber-200 hover:bg-amber-400/10">
-            <Heart size={16} className={saved ? "fill-amber-400 text-amber-400" : ""} />
-          </button>
-        </div>
+        <button onClick={bookNow} disabled={full}
+          className="px-6 md:px-8 py-3 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs md:text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(212,169,76,0.5)] disabled:opacity-40">
+          {full ? "Sold Out" : "Book Now"}
+        </button>
       </div>
 
       <EnrollDialog klass={sel} onClose={() => setSel(null)} />
