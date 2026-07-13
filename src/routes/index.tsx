@@ -654,7 +654,7 @@ function Index() {
                     </div>
                     <div className="mt-4 flex items-end justify-between">
                       <p className="font-display text-xl">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
-                      <Link to="/workshops" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">Register</Link>
+                      <Link to="/workshops/$id" params={{ id: w.id }} className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-muted/60 transition-colors">Details</Link>
                     </div>
                   </div>
                 </motion.article>
@@ -678,7 +678,7 @@ function Index() {
                     </div>
                     <div className="mt-4 flex items-end justify-between">
                       <p className="font-display text-xl">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
-                      <Link to="/workshops" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">Register</Link>
+                      <Link to="/workshops/$id" params={{ id: w.id }} className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-muted/60 transition-colors">Details</Link>
                     </div>
                   </div>
                 </motion.article>
