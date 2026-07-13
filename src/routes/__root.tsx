@@ -142,11 +142,9 @@ function RootComponent() {
         <SmoothScroll />
       </DeferMount>
       <div className="min-h-screen grain-bg relative">
-        <AuroraBackground />
+        <StageAmbience />
         <DeferMount>
           <AmbientBlobs />
-          <ParticleField />
-          <FloatingShapes3D />
           <CursorGlow />
         </DeferMount>
         <ScrollProgress />
