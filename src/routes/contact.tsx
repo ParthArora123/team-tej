@@ -84,10 +84,10 @@ function Contact() {
         <div className="lg:col-span-2 space-y-8">
           {[
             { icon: Mail, label: "Email", value: info.email, href: info.email ? `mailto:${info.email}` : undefined },
-            { icon: Phone, label: "Phone", value: info.phone, href: info.phone ? `tel:${String(info.phone).replace(/[^+\d]/g, "")}` : undefined, isPhone: true },
-            { icon: MessageCircle, label: "WhatsApp", value: info.whatsapp, href: info.whatsapp ? buildWhatsAppUrl(info.whatsapp, messageText) : undefined, isExternal: true },
+            { icon: Phone, label: "Phone", value: info.phone, href: info.phone ? `tel:${String(info.phone).replace(/[^+\d]/g, "")}` : undefined },
+            { icon: MessageCircle, label: "WhatsApp", value: info.whatsapp, href: info.whatsapp ? `https://wa.me/${String(info.whatsapp).replace(/[^\d]/g, "")}` : undefined },
             { icon: MapPin, label: "Studio", value: info.address },
-          ].filter((c) => c.value).map((c: any, i) => (
+          ].filter((c) => c.value).map((c, i) => (
             <motion.div
               key={c.label}
               initial={{ opacity: 0, x: -20 }}
@@ -99,31 +99,16 @@ function Contact() {
               <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
                 <c.icon size={16} className="text-primary" />
               </div>
-              <div className="min-w-0 flex-1">
+              <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   {c.label}
                 </p>
-                <div className="mt-1 flex items-center gap-3 flex-wrap">
-                  {c.href ? (
-                    <a href={c.href} target={c.isExternal ? "_blank" : undefined} rel="noreferrer"
-                      className="text-base hover:text-primary transition break-words">{c.value}</a>
-                  ) : (
-                    <p className="text-base">{c.value}</p>
-                  )}
-                  {c.isPhone && info.whatsapp && (
-                    <a
-                      href={buildWhatsAppUrl(info.whatsapp, messageText)}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label="Chat on WhatsApp"
-                      title="Chat on WhatsApp"
-                      className="group inline-flex items-center gap-1.5 pl-2.5 pr-3 py-1.5 rounded-full border border-[#25D366]/40 bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white transition shadow-sm hover:shadow-md hover:shadow-[#25D366]/20"
-                    >
-                      <WhatsAppIcon className="h-4 w-4" />
-                      <span className="text-xs font-medium uppercase tracking-wider">Chat</span>
-                    </a>
-                  )}
-                </div>
+                {c.href ? (
+                  <a href={c.href} target={c.label === "WhatsApp" ? "_blank" : undefined} rel="noreferrer"
+                    className="mt-1 text-base hover:text-primary transition break-words">{c.value}</a>
+                ) : (
+                  <p className="mt-1 text-base">{c.value}</p>
+                )}
               </div>
             </motion.div>
           ))}
