@@ -811,12 +811,6 @@ function WorkshopDetailPage() {
                 <p className="text-xs text-amber-100/50 mt-4 leading-relaxed">
                   Entrance is signposted. Please arrive 15 mins before start time.
                 </p>
-                {mapsNav && (
-                  <a href={mapsNav} target="_blank" rel="noopener noreferrer"
-                    className="mt-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs font-bold tracking-[0.25em] uppercase shadow-lg">
-                    <Navigation size={14} /> Get Directions
-                  </a>
-                )}
               </div>
             </div>
           </div>
