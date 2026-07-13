@@ -59,11 +59,11 @@ function DanceMotionCanvas() {
     window.addEventListener("resize", resize, { passive: true });
 
     const dancers = [
-      { x: 0.16, y: 0.72, s: 1.05, speed: 0.62, phase: 0.2, alpha: 0.42 },
-      { x: 0.44, y: 0.67, s: 1.28, speed: 0.5, phase: 2.1, alpha: 0.34 },
-      { x: 0.74, y: 0.73, s: 0.98, speed: 0.58, phase: 4.2, alpha: 0.38 },
-      { x: 0.28, y: 0.82, s: 0.72, speed: 0.46, phase: 5.4, alpha: 0.24 },
-      { x: 0.62, y: 0.81, s: 0.76, speed: 0.54, phase: 3.5, alpha: 0.24 },
+      { x: 0.15, y: 0.7, s: 1.22, speed: 0.62, phase: 0.2, alpha: 0.72 },
+      { x: 0.43, y: 0.64, s: 1.48, speed: 0.5, phase: 2.1, alpha: 0.58 },
+      { x: 0.75, y: 0.7, s: 1.18, speed: 0.58, phase: 4.2, alpha: 0.64 },
+      { x: 0.28, y: 0.8, s: 0.86, speed: 0.46, phase: 5.4, alpha: 0.38 },
+      { x: 0.62, y: 0.79, s: 0.9, speed: 0.54, phase: 3.5, alpha: 0.38 },
     ];
     const particles = Array.from({ length: 72 }).map((_, i) => ({
       x: ((i * 37) % 100) / 100,
@@ -93,10 +93,10 @@ function DanceMotionCanvas() {
       ctx.globalAlpha = alpha;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      ctx.shadowColor = "rgba(245, 199, 106, 0.42)";
+      ctx.shadowColor = "rgba(245, 199, 106, 0.62)";
       ctx.shadowBlur = 18 * scale;
-      ctx.strokeStyle = "rgba(246, 203, 116, 0.74)";
-      ctx.fillStyle = "rgba(246, 203, 116, 0.68)";
+      ctx.strokeStyle = "rgba(255, 220, 142, 0.9)";
+      ctx.fillStyle = "rgba(255, 220, 142, 0.84)";
       ctx.lineWidth = 8 * scale;
 
       ctx.beginPath();
@@ -131,9 +131,9 @@ function DanceMotionCanvas() {
       ctx.clearRect(0, 0, width, height);
 
       const base = ctx.createLinearGradient(0, 0, width, height);
-      base.addColorStop(0, "rgba(10, 5, 1, 0.82)");
-      base.addColorStop(0.5, "rgba(28, 15, 4, 0.72)");
-      base.addColorStop(1, "rgba(5, 3, 1, 0.92)");
+      base.addColorStop(0, "rgba(17, 8, 1, 0.72)");
+      base.addColorStop(0.5, "rgba(48, 25, 4, 0.58)");
+      base.addColorStop(1, "rgba(8, 4, 1, 0.8)");
       ctx.fillStyle = base;
       ctx.fillRect(0, 0, width, height);
 
@@ -143,8 +143,8 @@ function DanceMotionCanvas() {
         ctx.translate(width * (0.18 + i * 0.16) + rayShift, -height * 0.08);
         ctx.rotate((-18 + i * 9 + Math.sin(t * 0.08 + i) * 3) * Math.PI / 180);
         const ray = ctx.createLinearGradient(0, 0, 0, height * 1.2);
-        ray.addColorStop(0, "rgba(255, 213, 127, 0.13)");
-        ray.addColorStop(0.62, "rgba(212, 169, 76, 0.045)");
+        ray.addColorStop(0, "rgba(255, 213, 127, 0.24)");
+        ray.addColorStop(0.62, "rgba(212, 169, 76, 0.09)");
         ray.addColorStop(1, "rgba(212, 169, 76, 0)");
         ctx.fillStyle = ray;
         ctx.beginPath();
@@ -174,9 +174,9 @@ function DanceMotionCanvas() {
       dancers.forEach((d) => drawDancer(width * d.x, height * d.y, d.s * Math.min(width / 1280, 1.05), t * d.speed + d.phase, d.alpha));
 
       const vignette = ctx.createRadialGradient(width * 0.5, height * 0.42, height * 0.18, width * 0.5, height * 0.52, height * 0.76);
-      vignette.addColorStop(0, "rgba(0,0,0,0.05)");
-      vignette.addColorStop(0.72, "rgba(0,0,0,0.36)");
-      vignette.addColorStop(1, "rgba(0,0,0,0.78)");
+      vignette.addColorStop(0, "rgba(0,0,0,0.02)");
+      vignette.addColorStop(0.72, "rgba(0,0,0,0.22)");
+      vignette.addColorStop(1, "rgba(0,0,0,0.52)");
       ctx.fillStyle = vignette;
       ctx.fillRect(0, 0, width, height);
       frame = requestAnimationFrame(render);
@@ -227,11 +227,11 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
     []
   );
   const dancers = [
-    { pose: "hiphop", left: "6%", bottom: "1%", scale: 0.92, dur: 34, opacity: 0.14, blur: 0.6 },
-    { pose: "contemporary", left: "39%", bottom: "0%", scale: 1.08, dur: 42, opacity: 0.12, blur: 1.1 },
-    { pose: "freestyle", left: "77%", bottom: "3%", scale: 0.86, dur: 38, opacity: 0.13, blur: 0.7 },
-    { pose: "contemporary", left: "20%", bottom: "11%", scale: 0.54, dur: 48, opacity: 0.07, blur: 3 },
-    { pose: "hiphop", left: "63%", bottom: "13%", scale: 0.58, dur: 46, opacity: 0.07, blur: 3 },
+    { pose: "hiphop", left: "5%", bottom: "2%", scale: 1.05, dur: 34, opacity: 0.28, blur: 0.2 },
+    { pose: "contemporary", left: "38%", bottom: "0%", scale: 1.2, dur: 42, opacity: 0.22, blur: 0.4 },
+    { pose: "freestyle", left: "76%", bottom: "3%", scale: 1, dur: 38, opacity: 0.25, blur: 0.2 },
+    { pose: "contemporary", left: "20%", bottom: "12%", scale: 0.66, dur: 48, opacity: 0.12, blur: 1.8 },
+    { pose: "hiphop", left: "63%", bottom: "13%", scale: 0.7, dur: 46, opacity: 0.12, blur: 1.8 },
   ];
   return (
     <div aria-hidden className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050301] contain-paint">
@@ -554,8 +554,8 @@ function WorkshopDetailPage() {
               <img src={heroMedia.media_url} alt="" loading="eager" fetchPriority="high" className="w-full h-full object-cover opacity-[0.16] scale-105 transform-gpu" />
             )
           ) : null}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.18),transparent_60%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/70 via-[#050301]/60 to-[#050301]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.12),transparent_62%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/34 via-[#050301]/18 to-[#050301]/42" />
         </motion.div>
 
         <motion.div style={{ opacity: fadeHero }}
