@@ -45,7 +45,7 @@ function PayBundle() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const seenHashes = useRef<Set<string>>(new Set());
+  
 
   const reload = () => fetchPurchase({ data: { id: purchaseId } }).then(setState).catch((e) => setErr(e.message));
   useEffect(() => { reload(); }, [purchaseId]);
