@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X, Check, Sparkles, ArrowLeft } from "lucide-react";
+import { Sparkles, Check, Ticket } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { computeCartPricing, createBundleCheckout } from "@/lib/bundles.functions";
+import { computeCartPricing, createBundleCheckout, type PricingResult } from "@/lib/bundles.functions";
+import { createEnrollment } from "@/lib/enrollment.functions";
 
 type Workshop = {
   id: string;
@@ -23,7 +24,7 @@ type Workshop = {
 
 interface Props {
   workshops: Workshop[];
-  hasActiveBundles: boolean;
+  bundles: any[];
 }
 
 const initialForm = {
@@ -32,29 +33,31 @@ const initialForm = {
 };
 
 const cityOf = (w: Workshop) => (w.city || w.venue || "").trim();
-const dayDiff = (a?: string | null, b?: string | null) => {
-  if (!a || !b) return Infinity;
-  const da = new Date(a).setHours(0, 0, 0, 0);
-  const db = new Date(b).setHours(0, 0, 0, 0);
-  return Math.abs(Math.round((da - db) / 86400000));
-};
 
-export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
+export function BundleOfferPicker({ workshops, bundles }: Props) {
   const navigate = useNavigate();
   const compute = useServerFn(computeCartPricing);
   const checkout = useServerFn(createBundleCheckout);
+  const enroll = useServerFn(createEnrollment);
 
   const [city, setCity] = useState<string>("");
+  const [mode, setMode] = useState<"single" | "both" | null>(null);
   const [firstId, setFirstId] = useState<string | null>(null);
   const [secondId, setSecondId] = useState<string | null>(null);
-  const [firstSilver, setFirstSilver] = useState(false);
-  const [secondSilver, setSecondSilver] = useState(false);
-  const [pricing, setPricing] = useState<{ originalAmount: number; discountAmount: number; finalAmount: number; bundleName: string | null } | null>(null);
+  const [silver, setSilver] = useState(false);
+  const [pricing, setPricing] = useState<PricingResult | null>(null);
   const [pricingErr, setPricingErr] = useState<string>("");
-  const [showForm, setShowForm] = useState(false);
   const [f, setF] = useState(initialForm);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+
+  const hasActiveBundles = bundles.length > 0;
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.email) setF((s) => ({ ...s, email: s.email || data.user!.email! }));
+    });
+  }, []);
 
   const available = useMemo(
     () => workshops.filter((w) => w.capacity == null || (w.seats_taken ?? 0) < w.capacity),
@@ -72,194 +75,259 @@ export function BundleOfferPicker({ workshops, hasActiveBundles }: Props) {
     [available, city],
   );
 
-  const first = firstId ? workshops.find((w) => w.id === firstId) ?? null : null;
+  const selectedWorkshops = useMemo(() => {
+    const ids = mode === "single" ? [firstId] : [firstId, secondId];
+    return ids
+      .filter((id): id is string => Boolean(id))
+      .map((id) => workshops.find((w) => w.id === id))
+      .filter((w): w is Workshop => Boolean(w));
+  }, [mode, firstId, secondId, workshops]);
 
-  const eligibleSecond = useMemo(() => {
-    if (!first) return [] as Workshop[];
-    return cityWorkshops.filter((w) => w.id !== first.id);
-  }, [first, cityWorkshops]);
-
-  // Reset second when first changes.
-  useEffect(() => { setSecondId(null); setFirstSilver(false); setSecondSilver(false); setPricing(null); setPricingErr(""); }, [firstId]);
-  useEffect(() => { setSecondSilver(false); }, [secondId]);
-  // Reset first & second when city changes.
-  useEffect(() => { setFirstId(null); }, [city]);
-
+  // Reset workshop selection whenever the city or registration mode changes.
   useEffect(() => {
-    if (!firstId || !secondId) { setPricing(null); setPricingErr(""); return; }
+    setFirstId(null);
+    setSecondId(null);
+    setSilver(false);
+    setPricing(null);
+    setPricingErr("");
+  }, [city, mode]);
+
+  // In "Both Workshops" mode, automatically select the workshops covered by the
+  // active bundle (if available), otherwise the first two available workshops in the city.
+  useEffect(() => {
+    if (mode !== "both") return;
+    const active = bundles[0];
+    let list = cityWorkshops;
+    if (active && !active.applies_to_all_workshops && active.bundle_offer_programs?.length) {
+      const ids = new Set(active.bundle_offer_programs.map((p: any) => p.program_id));
+      list = cityWorkshops.filter((w) => ids.has(w.id));
+    }
+    if (list.length >= 2) {
+      setFirstId(list[0].id);
+      setSecondId(list[1].id);
+    } else {
+      setFirstId(null);
+      setSecondId(null);
+    }
+  }, [mode, cityWorkshops, bundles]);
+
+  // Compute the total dynamically based on the selected workshops and Silver Seat.
+  useEffect(() => {
+    if (selectedWorkshops.length === 0) {
+      setPricing(null);
+      setPricingErr("");
+      return;
+    }
     let cancelled = false;
-    compute({ data: { selections: [{ programId: firstId, silverSeat: firstSilver }, { programId: secondId, silverSeat: secondSilver }] } })
-      .then((res: any) => {
+    const selections = selectedWorkshops.map((w) => ({ programId: w.id, silverSeat: silver }));
+    compute({ data: { selections } })
+      .then((res: PricingResult) => {
         if (cancelled) return;
-        if (!res.bundle) {
+        if (mode === "both" && !res.bundle) {
           setPricing(null);
           setPricingErr("No active bundle offer covers these workshops yet. Please check back soon.");
         } else {
-          setPricing({
-            originalAmount: res.originalAmount,
-            discountAmount: res.discountAmount,
-            finalAmount: res.finalAmount,
-            bundleName: res.bundle.name,
-          });
+          setPricing(res);
           setPricingErr("");
         }
       })
       .catch((e: any) => { if (!cancelled) setPricingErr(e.message ?? "Pricing failed"); });
     return () => { cancelled = true; };
-  }, [firstId, secondId, firstSilver, secondSilver]);
+  }, [selectedWorkshops, silver, mode, compute]);
 
-  useEffect(() => {
-    if (!showForm) return;
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user?.email) setF((s) => ({ ...s, email: s.email || data.user!.email! }));
-    });
-  }, [showForm]);
+  const silverEnabled = selectedWorkshops.length > 0 && selectedWorkshops.some((w) => w.silver_seat_enabled);
+  const silverPrice = selectedWorkshops.reduce(
+    (sum, w) => sum + (w.silver_seat_enabled ? Number(w.silver_seat_price ?? 1000) : 0),
+    0,
+  );
 
-  const openForm = async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) { navigate({ to: "/auth" }); return; }
-    setShowForm(true);
-  };
+  const showWorkshopSection = f.emergencyContact.trim().length > 0;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstId || !secondId) return;
-    setErr(""); setBusy(true);
+    if (!pricing) return;
+    setErr("");
+    setBusy(true);
     try {
-      const res = await checkout({ data: {
-        selections: [{ programId: firstId, silverSeat: firstSilver }, { programId: secondId, silverSeat: secondSilver }],
-        fullName: f.fullName, email: f.email, phone: f.phone, gender: f.gender,
-        address: f.address, city: f.city, state: f.state, emergencyContact: f.emergencyContact,
-      }});
-      navigate({ to: "/pay-bundle/$purchaseId", params: { purchaseId: res.purchaseId } });
-    } catch (e: any) { setErr(e.message ?? "Checkout failed"); }
-    finally { setBusy(false); }
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+        navigate({ to: "/auth" });
+        return;
+      }
+      if (mode === "single") {
+        if (!firstId) throw new Error("Please select a workshop.");
+        const enr = await enroll({ data: { programId: firstId, ...f, silverSeat: silver } });
+        navigate({ to: "/pay/$enrollmentId", params: { enrollmentId: enr.id } });
+      } else {
+        if (!firstId || !secondId) throw new Error("Please select two workshops.");
+        const res = await checkout({ data: {
+          selections: [{ programId: firstId, silverSeat: silver }, { programId: secondId, silverSeat: silver }],
+          ...f,
+        }});
+        navigate({ to: "/pay-bundle/$purchaseId", params: { purchaseId: res.purchaseId } });
+      }
+    } catch (e: any) {
+      setErr(e.message ?? "Registration failed");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
-    <div className="mt-6 rounded-2xl border border-primary/40 bg-primary/5 p-4 sm:p-5">
+    <div className="rounded-2xl border border-primary/40 bg-primary/5 p-4 sm:p-5">
       <div className="flex items-center gap-2 font-semibold">
         <Sparkles size={16} className="text-primary" />
-        <h2 className="text-base">Bundle Registration (2 Workshops)</h2>
+        <h2 className="text-base">Workshop Registration</h2>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Register for any 2 workshops in the same city, scheduled on the same day or within 1 day, and get the special bundle price automatically.
-        {!hasActiveBundles && " (No active bundle offers right now — please check back soon.)"}
+        Fill in your details, then choose Single Workshop or Both Workshops to register.
       </p>
 
-      <div className="mt-4 space-y-4">
-        {/* City */}
-        <div>
+      <form onSubmit={submit} className="mt-5 space-y-5">
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Full name" v={f.fullName} on={(v) => setF({...f, fullName: v})} span2 />
+          <Field label="Email" type="email" v={f.email} on={(v) => setF({...f, email: v})} />
+          <Field label="Mobile" v={f.phone} on={(v) => setF({...f, phone: v})} />
           <label className="block">
-            <span className="text-xs uppercase tracking-widest text-muted-foreground">Select city</span>
-            <select value={city} onChange={(e) => setCity(e.target.value)}
-              className="mt-1 w-full px-3 py-2 rounded-lg bg-background border border-border text-sm">
-              <option value="">— Choose a city —</option>
-              {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">Gender</span>
+            <select value={f.gender} onChange={(e) => setF({...f, gender: e.target.value})}
+              className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+              <option>Female</option><option>Male</option><option>Other</option>
             </select>
           </label>
-          {city && cityWorkshops.length === 0 && (
-            <p className="mt-2 text-xs text-muted-foreground">No workshops available in {city}.</p>
-          )}
+          <Field label="Address" v={f.address} on={(v) => setF({...f, address: v})} span2 />
+          <Field label="City" v={f.city} on={(v) => setF({...f, city: v})} />
+          <Field label="State" v={f.state} on={(v) => setF({...f, state: v})} />
+          <Field label="Emergency contact" v={f.emergencyContact} on={(v) => setF({...f, emergencyContact: v})} span2 />
         </div>
 
-        {/* Workshop 1 */}
-        {city && cityWorkshops.length > 0 && (
-          <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Workshop 1</p>
-            {first ? (
-              <SelectedRow w={first} onRemove={() => setFirstId(null)} silver={firstSilver} onSilver={setFirstSilver} />
-            ) : (
-              <WorkshopList workshops={cityWorkshops} onPick={setFirstId} />
-            )}
-          </div>
-        )}
+        <AnimatePresence>
+          {showWorkshopSection && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="rounded-xl border border-border bg-card p-4 space-y-4">
+                <p className="text-xs uppercase tracking-widest text-primary">Workshop Selection</p>
 
-        {/* Workshop 2 */}
-        {first && (
-          <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
-              Workshop 2 <span className="normal-case tracking-normal text-[11px] text-muted-foreground">(same city)</span>
-            </p>
-            {secondId ? (
-              <SelectedRow w={workshops.find((w) => w.id === secondId)!} onRemove={() => setSecondId(null)} silver={secondSilver} onSilver={setSecondSilver} />
-            ) : eligibleSecond.length > 0 ? (
-              <WorkshopList workshops={eligibleSecond} onPick={setSecondId} />
-            ) : (
-              <p className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-3">
-                No other workshops available in {city}.
-              </p>
-            )}
-          </div>
-        )}
-
-        {pricingErr && <p className="text-xs text-destructive">{pricingErr}</p>}
-
-        {pricing && first && secondId && (
-          <div className="rounded-xl bg-background border border-primary/30 p-4">
-            <p className="text-sm text-primary font-semibold">🎉 Bundle Offer Applied — {pricing.bundleName}</p>
-            <p className="text-xs text-muted-foreground mt-1">You're registering for 2 workshops and have received the special bundle price.</p>
-            <div className="mt-3 flex items-end justify-between">
-              <div className="text-xs text-muted-foreground">
-                <span className="line-through">₹{pricing.originalAmount.toLocaleString("en-IN")}</span>
-                <span className="ml-2 text-primary">save ₹{pricing.discountAmount.toLocaleString("en-IN")}</span>
-              </div>
-              <div className="text-right">
-                <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Bundle price</p>
-                <p className="font-display text-2xl font-bold">₹{pricing.finalAmount.toLocaleString("en-IN")}</p>
-              </div>
-            </div>
-            <button onClick={openForm}
-              className="mt-4 w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium">
-              Continue to registration
-            </button>
-          </div>
-        )}
-      </div>
-
-      <AnimatePresence>
-        {showForm && first && secondId && pricing && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md flex items-center justify-center p-4"
-            onClick={() => !busy && setShowForm(false)}>
-            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-card border border-border rounded-2xl p-6 sm:p-8">
-              <button onClick={() => !busy && setShowForm(false)} className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-muted"><X size={18} /></button>
-              <button type="button" onClick={() => !busy && setShowForm(false)} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
-                <ArrowLeft size={12}/> Back to selection
-              </button>
-              <form onSubmit={submit} className="mt-3">
-                <p className="text-xs uppercase tracking-widest text-primary">Bundle registration</p>
-                <h3 className="mt-1 text-2xl font-display font-bold">{first.name} + {workshops.find((w) => w.id === secondId)?.name}</h3>
-                <p className="text-sm text-muted-foreground mt-1">Bundle price · ₹{pricing.finalAmount.toLocaleString("en-IN")}</p>
-                <div className="mt-5 grid grid-cols-2 gap-3">
-                  <Field label="Full name" v={f.fullName} on={(v) => setF({...f, fullName: v})} span2 />
-                  <Field label="Email" type="email" v={f.email} on={(v) => setF({...f, email: v})} />
-                  <Field label="Mobile" v={f.phone} on={(v) => setF({...f, phone: v})} />
-                  <label className="block">
-                    <span className="text-xs uppercase tracking-wider text-muted-foreground">Gender</span>
-                    <select value={f.gender} onChange={(e) => setF({...f, gender: e.target.value})}
-                      className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm">
-                      <option>Female</option><option>Male</option><option>Other</option>
-                    </select>
-                  </label>
-                  <Field label="Address" v={f.address} on={(v) => setF({...f, address: v})} span2 />
-                  <Field label="City" v={f.city} on={(v) => setF({...f, city: v})} />
-                  <Field label="State" v={f.state} on={(v) => setF({...f, state: v})} />
-                  <Field label="Emergency contact" v={f.emergencyContact} on={(v) => setF({...f, emergencyContact: v})} span2 />
+                <div className="grid grid-cols-2 gap-2">
+                  <ModeButton active={mode === "single"} onClick={() => setMode("single")}>
+                    Register for Single Workshop
+                  </ModeButton>
+                  <ModeButton active={mode === "both"} onClick={() => setMode("both")}>
+                    Register for Both Workshops
+                  </ModeButton>
                 </div>
-                {err && <p className="mt-3 text-xs text-destructive">{err}</p>}
-                <button disabled={busy} type="submit"
-                  className="mt-6 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium">
-                  {busy ? "Submitting…" : `Register & pay ₹${pricing.finalAmount.toLocaleString("en-IN")}`}
-                </button>
-              </form>
+
+                {mode && (
+                  <div>
+                    <span className="text-xs uppercase tracking-widest text-muted-foreground">Select city</span>
+                    <select value={city} onChange={(e) => setCity(e.target.value)}
+                      className="mt-1 w-full px-3 py-2 rounded-lg bg-background border border-border text-sm">
+                      <option value="">— Choose a city —</option>
+                      {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    {city && cityWorkshops.length === 0 && (
+                      <p className="mt-2 text-xs text-muted-foreground">No workshops available in {city}.</p>
+                    )}
+                  </div>
+                )}
+
+                {mode === "single" && city && cityWorkshops.length > 0 && (
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Choose a workshop</p>
+                    {firstId && selectedWorkshops[0] ? (
+                      <SelectedRow w={selectedWorkshops[0]} onRemove={() => setFirstId(null)} />
+                    ) : (
+                      <WorkshopList workshops={cityWorkshops} onPick={setFirstId} />
+                    )}
+                  </div>
+                )}
+
+                {mode === "both" && city && cityWorkshops.length > 0 && (
+                  <div>
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Selected workshops</p>
+                    {selectedWorkshops.length >= 2 ? (
+                      <div className="space-y-2">
+                        {selectedWorkshops.map((w) => (
+                          <SelectedRow key={w.id} w={w} />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground rounded-lg border border-dashed border-border p-3">
+                        At least two workshops are required in {city} for the bundle.
+                      </p>
+                    )}
+                    {!hasActiveBundles && (
+                      <p className="mt-2 text-xs text-destructive">
+                        No active bundle offers right now.
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {silverEnabled && (
+                  <label className="flex items-start gap-3 rounded-xl border border-primary/40 bg-primary/5 p-3 cursor-pointer">
+                    <input type="checkbox" checked={silver} onChange={(e) => setSilver(e.target.checked)} className="mt-1" />
+                    <span className="flex-1">
+                      <span className="flex items-center gap-1.5 font-medium text-sm">
+                        <Ticket size={14} className="text-primary" /> Silver Seat
+                      </span>
+                      <span className="block text-xs text-muted-foreground mt-0.5">
+                        Premium solo dance video for your selected workshops.
+                      </span>
+                    </span>
+                    <span className="text-sm font-medium">+₹{silverPrice.toLocaleString("en-IN")}</span>
+                  </label>
+                )}
+
+                {pricingErr && <p className="text-xs text-destructive">{pricingErr}</p>}
+
+                {pricing && (
+                  <div className="rounded-xl bg-background border border-primary/30 p-4">
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Total amount</p>
+                    <div className="mt-1 flex items-end justify-between gap-4">
+                      <div className="text-xs text-muted-foreground">
+                        {pricing.discountAmount > 0 ? (
+                          <>
+                            <span className="line-through">₹{pricing.originalAmount.toLocaleString("en-IN")}</span>
+                            <span className="ml-2 text-primary">save ₹{pricing.discountAmount.toLocaleString("en-IN")}</span>
+                          </>
+                        ) : mode === "single" ? (
+                          <span>Single workshop fee</span>
+                        ) : null}
+                      </div>
+                      <p className="font-display text-2xl font-bold">₹{pricing.finalAmount.toLocaleString("en-IN")}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+
+        {err && <p className="text-xs text-destructive">{err}</p>}
+        <button disabled={busy || !pricing} type="submit"
+          className="w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-60">
+          {busy ? "Submitting…" : pricing ? `Continue to payment · ₹${pricing.finalAmount.toLocaleString("en-IN")}` : "Complete workshop selection to continue"}
+        </button>
+      </form>
     </div>
+  );
+}
+
+function ModeButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" onClick={onClick}
+      className={`text-left rounded-lg border px-3 py-2.5 text-xs sm:text-sm font-medium transition ${
+        active
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-card hover:border-primary/60"
+      }`}>
+      {children}
+    </button>
   );
 }
 
@@ -284,31 +352,25 @@ function WorkshopList({ workshops, onPick }: { workshops: Workshop[]; onPick: (i
   );
 }
 
-function SelectedRow({ w, onRemove, silver, onSilver }: { w: Workshop; onRemove: () => void; silver: boolean; onSilver: (v: boolean) => void }) {
-  const silverPrice = Number(w.silver_seat_price ?? 1000);
+function SelectedRow({ w, onRemove }: { w: Workshop; onRemove?: () => void }) {
   return (
     <div className="rounded-lg border border-primary/40 bg-background p-3">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-medium text-sm truncate flex items-center gap-1.5"><Check size={12} className="text-primary"/> {w.name}</p>
+          <p className="font-medium text-sm truncate flex items-center gap-1.5">
+            <Check size={12} className="text-primary" /> {w.name}
+          </p>
           <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
             {w.event_date ? new Date(w.event_date).toDateString() : ""}
             {w.city || w.venue ? ` · ${w.city || w.venue}` : ""} · ₹{w.price_inr.toLocaleString("en-IN")}
           </p>
         </div>
-        <button type="button" onClick={onRemove} className="text-xs px-2 py-1 rounded bg-muted hover:bg-destructive/10 hover:text-destructive shrink-0">
-          Remove / Change
-        </button>
+        {onRemove && (
+          <button type="button" onClick={onRemove} className="text-xs px-2 py-1 rounded bg-muted hover:bg-destructive/10 hover:text-destructive shrink-0">
+            Remove / Change
+          </button>
+        )}
       </div>
-      {w.silver_seat_enabled && (
-        <label className="mt-3 flex items-start gap-2 text-xs rounded-md border border-primary/30 bg-primary/5 p-2 cursor-pointer">
-          <input type="checkbox" checked={silver} onChange={(e) => onSilver(e.target.checked)} className="mt-0.5" />
-          <span>
-            <span className="font-semibold text-primary">🎥 Add Silver Seat (+₹{silverPrice.toLocaleString("en-IN")})</span>
-            <span className="block text-muted-foreground mt-0.5">Professionally shot & edited solo dance video.</span>
-          </span>
-        </label>
-      )}
     </div>
   );
 }

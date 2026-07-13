@@ -107,7 +107,7 @@ function WorkshopsPage() {
 
         <Reveal delay={0.15}>
           <div className="mt-6 rounded-2xl border border-border/60 bg-card/50 backdrop-blur-xl p-1 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.5)]">
-            <BundleOfferPicker workshops={rows} hasActiveBundles={bundles.length > 0} />
+            <BundleOfferPicker workshops={rows} bundles={bundles} />
           </div>
         </Reveal>
 
