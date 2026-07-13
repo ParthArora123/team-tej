@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
-import { Calendar, MapPin, User, Users, Clock, Sparkles, ArrowRight, Ticket } from "lucide-react";
+import { Calendar, MapPin, User, Users, Clock, Sparkles, Ticket } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
@@ -11,7 +11,6 @@ import { WorkshopHero } from "@/components/site/WorkshopHero";
 import { WorkshopGallery } from "@/components/site/WorkshopGallery";
 import { TiltCard } from "@/components/site/TiltCard";
 import { Reveal } from "@/components/site/Reveal";
-import { MagneticButton } from "@/components/site/MagneticButton";
 
 export const Route = createFileRoute("/workshops/")({ component: WorkshopsPage });
 
