@@ -12,6 +12,23 @@ import {
   type ValidatedPaymentProof,
 } from "@/lib/payment-proof-validation";
 
+async function downloadQrPng(containerId: string, filename: string, size = 720) {
+  const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
+  if (!sourceCanvas) return;
+  const padding = Math.round(size * 0.08);
+  const qrSize = size - padding * 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, size, size);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(sourceCanvas, padding, padding, qrSize, qrSize);
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = filename;
+  a.click();
+}
+
 export const Route = createFileRoute("/_authenticated/pay/$enrollmentId")({
   component: PayUpload,
 });
@@ -21,6 +38,7 @@ function PayUpload() {
   const navigate = useNavigate();
   const fetchEnrollments = useServerFn(listMyEnrollments);
   const submitPay = useServerFn(markPaymentSubmitted);
+  const loadSiteContent = useServerFn(getSiteContent);
   const [enr, setEnr] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
   const [validated, setValidated] = useState<ValidatedPaymentProof | null>(null);
@@ -29,7 +47,10 @@ function PayUpload() {
   const [validating, setValidating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [confirmed, setConfirmed] = useState<{ ticket: string | null } | null>(null);
+  const [whatsapp, setWhatsapp] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  
   
 
   useEffect(() => {
