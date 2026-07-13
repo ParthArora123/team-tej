@@ -1,10 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { Upload, ArrowLeft, Sparkles, Download } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getBundlePurchase, submitBundlePayment } from "@/lib/bundles.functions";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  validatePaymentProofFile,
+  sanitizeFileName,
+  type ValidatedPaymentProof,
+} from "@/lib/payment-proof-validation";
 
 async function downloadQrPng(containerId: string, filename: string, size = 720) {
   const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
