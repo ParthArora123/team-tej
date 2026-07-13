@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Calendar, MapPin, User, Users, Clock } from "lucide-react";
@@ -83,10 +83,12 @@ function WorkshopsPage() {
             return (
               <motion.div key={r.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
                 className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col">
-                <WorkshopBanner r={r} />
+                <Link to="/workshops/$id" params={{ id: r.id }} className="block group">
+                  <WorkshopBanner r={r} />
+                </Link>
                 <div className="p-6 flex-1 flex flex-col">
                   {r.category && <p className="text-[10px] uppercase tracking-widest text-primary">{r.category}</p>}
-                  <p className="font-display text-2xl font-bold mt-1">{r.name}</p>
+                  <Link to="/workshops/$id" params={{ id: r.id }} className="font-display text-2xl font-bold mt-1 hover:text-primary transition-colors">{r.name}</Link>
                   {r.description && <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{r.description}</p>}
 
                   <div className="mt-4 space-y-1.5 text-xs text-muted-foreground">
@@ -115,12 +117,16 @@ function WorkshopsPage() {
                         <p className="text-[11px] text-primary mt-0.5">+ ₹{silverPrice.toLocaleString("en-IN")} for Silver Seat</p>
                       )}
                     </div>
-                    <button
-                      disabled={full}
-                      onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled, silverSeatPrice: silverPrice })}
-                      className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50">
-                      {full ? "Full" : "Register"}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <Link to="/workshops/$id" params={{ id: r.id }}
+                        className="px-3 py-2 rounded-lg border border-border text-sm hover:bg-muted">Details</Link>
+                      <button
+                        disabled={full}
+                        onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled, silverSeatPrice: silverPrice })}
+                        className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50">
+                        {full ? "Full" : "Register"}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </motion.div>

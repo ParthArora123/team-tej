@@ -20,6 +20,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkshopsIdRouteImport } from './routes/workshops.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedPayEnrollmentIdRouteImport } from './routes/_authenticated/pay.$enrollmentId'
@@ -79,6 +80,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkshopsIdRoute = WorkshopsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => WorkshopsRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -111,10 +117,11 @@ export interface FileRoutesByFullPath {
   '/online-trainings': typeof OnlineTrainingsRoute
   '/testimonials': typeof TestimonialsRoute
   '/verify': typeof VerifyRoute
-  '/workshops': typeof WorkshopsRoute
+  '/workshops': typeof WorkshopsRouteWithChildren
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/workshops/$id': typeof WorkshopsIdRoute
   '/pay-bundle/$purchaseId': typeof AuthenticatedPayBundlePurchaseIdRoute
   '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
 }
@@ -127,10 +134,11 @@ export interface FileRoutesByTo {
   '/online-trainings': typeof OnlineTrainingsRoute
   '/testimonials': typeof TestimonialsRoute
   '/verify': typeof VerifyRoute
-  '/workshops': typeof WorkshopsRoute
+  '/workshops': typeof WorkshopsRouteWithChildren
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/workshops/$id': typeof WorkshopsIdRoute
   '/pay-bundle/$purchaseId': typeof AuthenticatedPayBundlePurchaseIdRoute
   '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
 }
@@ -145,10 +153,11 @@ export interface FileRoutesById {
   '/online-trainings': typeof OnlineTrainingsRoute
   '/testimonials': typeof TestimonialsRoute
   '/verify': typeof VerifyRoute
-  '/workshops': typeof WorkshopsRoute
+  '/workshops': typeof WorkshopsRouteWithChildren
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/workshops/$id': typeof WorkshopsIdRoute
   '/_authenticated/pay-bundle/$purchaseId': typeof AuthenticatedPayBundlePurchaseIdRoute
   '/_authenticated/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
 }
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/zero-to-hero'
     | '/admin'
     | '/dashboard'
+    | '/workshops/$id'
     | '/pay-bundle/$purchaseId'
     | '/pay/$enrollmentId'
   fileRoutesByTo: FileRoutesByTo
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/zero-to-hero'
     | '/admin'
     | '/dashboard'
+    | '/workshops/$id'
     | '/pay-bundle/$purchaseId'
     | '/pay/$enrollmentId'
   id:
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/zero-to-hero'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/workshops/$id'
     | '/_authenticated/pay-bundle/$purchaseId'
     | '/_authenticated/pay/$enrollmentId'
   fileRoutesById: FileRoutesById
@@ -214,7 +226,7 @@ export interface RootRouteChildren {
   OnlineTrainingsRoute: typeof OnlineTrainingsRoute
   TestimonialsRoute: typeof TestimonialsRoute
   VerifyRoute: typeof VerifyRoute
-  WorkshopsRoute: typeof WorkshopsRoute
+  WorkshopsRoute: typeof WorkshopsRouteWithChildren
   ZeroToHeroRoute: typeof ZeroToHeroRoute
 }
 
@@ -297,6 +309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workshops/$id': {
+      id: '/workshops/$id'
+      path: '/$id'
+      fullPath: '/workshops/$id'
+      preLoaderRoute: typeof WorkshopsIdRouteImport
+      parentRoute: typeof WorkshopsRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -345,6 +364,18 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface WorkshopsRouteChildren {
+  WorkshopsIdRoute: typeof WorkshopsIdRoute
+}
+
+const WorkshopsRouteChildren: WorkshopsRouteChildren = {
+  WorkshopsIdRoute: WorkshopsIdRoute,
+}
+
+const WorkshopsRouteWithChildren = WorkshopsRoute._addFileChildren(
+  WorkshopsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
@@ -355,7 +386,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnlineTrainingsRoute: OnlineTrainingsRoute,
   TestimonialsRoute: TestimonialsRoute,
   VerifyRoute: VerifyRoute,
-  WorkshopsRoute: WorkshopsRoute,
+  WorkshopsRoute: WorkshopsRouteWithChildren,
   ZeroToHeroRoute: ZeroToHeroRoute,
 }
 export const routeTree = rootRouteImport
