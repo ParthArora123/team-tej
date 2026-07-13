@@ -81,9 +81,9 @@ const WorkshopsIndexRoute = WorkshopsIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const WorkshopsIdRoute = WorkshopsIdRouteImport.update({
-  id: '/workshops/$id',
-  path: '/workshops/$id',
-  getParentRoute: () => rootRouteImport,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => WorkshopsRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
@@ -227,7 +227,6 @@ export interface RootRouteChildren {
   TestimonialsRoute: typeof TestimonialsRoute
   VerifyRoute: typeof VerifyRoute
   ZeroToHeroRoute: typeof ZeroToHeroRoute
-  WorkshopsIdRoute: typeof WorkshopsIdRoute
   WorkshopsIndexRoute: typeof WorkshopsIndexRoute
 }
 
@@ -312,10 +311,10 @@ declare module '@tanstack/react-router' {
     }
     '/workshops/$id': {
       id: '/workshops/$id'
-      path: '/workshops/$id'
+      path: '/$id'
       fullPath: '/workshops/$id'
       preLoaderRoute: typeof WorkshopsIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkshopsRoute
     }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
@@ -376,9 +375,18 @@ const rootRouteChildren: RootRouteChildren = {
   TestimonialsRoute: TestimonialsRoute,
   VerifyRoute: VerifyRoute,
   ZeroToHeroRoute: ZeroToHeroRoute,
-  WorkshopsIdRoute: WorkshopsIdRoute,
   WorkshopsIndexRoute: WorkshopsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
