@@ -105,11 +105,6 @@ function WorkshopsPage() {
           </p>
         </Reveal>
 
-        <Reveal delay={0.15}>
-          <div className="mt-6 rounded-2xl border border-border/60 bg-card/50 backdrop-blur-xl p-1 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.5)]">
-            <BundleOfferPicker workshops={rows} bundles={bundles} />
-          </div>
-        </Reveal>
 
         <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
           {rows.map((r, i) => {
