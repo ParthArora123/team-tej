@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Mail, Phone, MapPin, MessageCircle, Send, Check } from "lucide-react";
+import { SiWhatsapp } from "react-icons/si";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { submitContactMessage } from "@/lib/contact.functions";
