@@ -512,6 +512,10 @@ const workshopSchema = z.object({
   allow_single: z.boolean().optional(),
   allow_both: z.boolean().optional(),
   both_price: z.number().int().min(0).optional().nullable(),
+  workshop1_name: z.string().max(120).optional().or(z.literal("")).nullable(),
+  workshop2_name: z.string().max(120).optional().or(z.literal("")).nullable(),
+  silver_capacity_w1: z.number().int().min(0).optional().nullable(),
+  silver_capacity_w2: z.number().int().min(0).optional().nullable(),
   upi_id: z.string().max(120).optional().or(z.literal("")),
   clear_upi: z.boolean().optional(),
   bank_account_holder: z.string().min(2).max(120),
@@ -537,6 +541,10 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       allow_single: rest.allow_single !== false,
       allow_both: !!rest.allow_both,
       both_price: rest.allow_both ? (rest.both_price ?? null) : null,
+      workshop1_name: rest.allow_both ? (rest.workshop1_name || null) : null,
+      workshop2_name: rest.allow_both ? (rest.workshop2_name || null) : null,
+      silver_capacity_w1: rest.silver_capacity_w1 ?? null,
+      silver_capacity_w2: rest.allow_both ? (rest.silver_capacity_w2 ?? null) : null,
     };
     if (clear_upi) {
       clean.upi_id_encrypted = null;
