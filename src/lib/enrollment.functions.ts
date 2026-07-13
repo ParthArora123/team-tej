@@ -221,11 +221,12 @@ export async function verifyPaymentScreenshot(dataUrl: string, ctx: VerifyCtx) {
             {
               type: "text",
               text: `Validate this payment confirmation screenshot for a dance workshop.
+Today's date (for resolving 'Today'/'Yesterday' or relative timestamps): ${today}
 Expected recipient name (any one of these is acceptable): ${ctx.recipientNames.map((n) => `"${n}"`).join(" or ")}
 Expected recipient UPI ID: "${ctx.officialUpi}"
 Expected amount: INR ${ctx.amountInr}
-Payment must be dated between ${openOn} and ${eventOn} (inclusive).
-Inspect the image forensically for signs of tampering, editing, cropping that hides required fields, or AI generation, and set appears_manipulated accordingly. If any required field (UPI Reference ID, status, amount, date/time) is missing or not clearly visible, set has_all_required_fields to false.`,
+Payment must be dated between ${openOn} and ${eventOn} (inclusive). Accept any date format the app uses and normalise it to YYYY-MM-DD.
+Only set appears_manipulated=true if you can point to specific tampering artifacts in manipulation_evidence. Unfamiliar layout, unusual date/time format, unknown bank, dark mode, or minor compression noise are NOT tampering. If any required field (UPI Reference ID, status, amount, date/time) is missing or not clearly visible, set has_all_required_fields to false instead.`,
             },
             { type: "image_url", image_url: { url: dataUrl } },
           ],
