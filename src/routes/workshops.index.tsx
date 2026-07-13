@@ -10,7 +10,7 @@ import { BundleOfferPicker } from "@/components/site/BundleOfferPicker";
 import { WorkshopHero } from "@/components/site/WorkshopHero";
 import { WorkshopGallery } from "@/components/site/WorkshopGallery";
 
-export const Route = createFileRoute("/workshops")({ component: WorkshopsPage });
+export const Route = createFileRoute("/workshops/")({ component: WorkshopsPage });
 
 function WorkshopBanner({ r }: { r: any }) {
   // Priority: video → GIF → image
