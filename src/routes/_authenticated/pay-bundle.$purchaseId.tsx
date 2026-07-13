@@ -165,16 +165,18 @@ function PayBundle() {
       </div>
 
       <div className="mt-6 rounded-xl border border-border bg-card p-5">
-        <label className="text-xs uppercase tracking-wider text-muted-foreground">Upload payment screenshot</label>
+        <label className="text-xs uppercase tracking-wider text-muted-foreground">Upload payment screenshot (.jpg, .jpeg, .png, .webp — max 8 MB)</label>
         <div className="mt-2 flex items-center gap-2 text-sm font-medium text-primary"><Upload size={16}/> {file ? "Change screenshot" : "Choose screenshot"}</div>
-        <input type="file" accept="image/png,image/jpeg,image/webp"
+        <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp,.jpg,.jpeg,.png,.webp"
+          disabled={busy}
           onChange={(e) => onPick(e.target.files?.[0] ?? null)}
-          className="mt-2 block w-full cursor-pointer rounded-md border border-border bg-background text-sm file:mr-3 file:cursor-pointer file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-foreground" />
+          className="mt-2 block w-full cursor-pointer rounded-md border border-border bg-background text-sm file:mr-3 file:cursor-pointer file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-foreground disabled:opacity-60" />
+        {validating && <p className="mt-2 text-xs text-muted-foreground">Checking your screenshot…</p>}
         {preview && <img src={preview} alt="" className="mt-4 max-h-72 rounded-md border border-border mx-auto" />}
-        {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
-        <button disabled={busy || !file} onClick={submit}
-          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60">
-          {busy ? "Verifying payment…" : "I Have Completed the Payment"}
+        {err && <p className="mt-3 text-sm text-destructive whitespace-pre-line">{err}</p>}
+        <button disabled={busy || validating || !file || !validated} onClick={submit}
+          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">
+          {busy ? "Uploading & verifying…" : validating ? "Validating…" : "I Have Completed the Payment"}
         </button>
         <p className="mt-3 text-[11px] text-muted-foreground">The screenshot must show a successful payment of ₹{purchase.final_amount_inr.toLocaleString("en-IN")} to the official UPI ID.</p>
       </div>
