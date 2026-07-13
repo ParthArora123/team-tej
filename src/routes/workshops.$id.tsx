@@ -10,7 +10,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { getProgram } from "@/lib/catalog.functions";
 import { listWorkshopMedia } from "@/lib/workshop-media.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
-import { MagneticButton } from "@/components/site/MagneticButton";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 
 export const Route = createFileRoute("/workshops/$id")({
