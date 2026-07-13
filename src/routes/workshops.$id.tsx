@@ -370,30 +370,8 @@ function WorkshopDetailPage() {
   const full = seatsLeft === 0;
   const silverPrice = program?.silver_seat_price ?? 1000;
 
-  const whatsappNumber = "919999999999";
-  const waMessage = program?.name
-    ? `Hi, I'm interested in the ${program.name} workshop. Please share the available batches and booking details.`
-    : "";
-  const waLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(waMessage)}`;
-  const callLink = `tel:+${whatsappNumber}`;
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
-  const mapsNav = program?.venue ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(program.venue)}` : null;
-  const mapsDirect = program?.venue ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(program.venue)}` : null;
 
-  const toggleSave = () => {
-    setSaved((v) => {
-      const nv = !v;
-      try { localStorage.setItem(`fav:${params.id}`, nv ? "1" : "0"); } catch {}
-      return nv;
-    });
-  };
-  const share = async () => {
-    const url = typeof window !== "undefined" ? window.location.href : "";
-    try {
-      if (navigator.share) await navigator.share({ title: program?.name, text: program?.description ?? "", url });
-      else { await navigator.clipboard.writeText(url); alert("Link copied"); }
-    } catch {}
-  };
   const bookNow = () => {
     if (!program || full) return;
     setSel({ id: program.id, name: program.name, price: program.price_inr, duration: program.duration ?? "", silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice });
