@@ -162,7 +162,7 @@ function HeroSlideMedia({
   }, [active]);
 
   if (!src) return null;
-  const common = "absolute inset-0 h-full w-full object-cover lg:object-contain transform-gpu backface-hidden";
+  const common = "absolute inset-0 h-full w-full object-cover lg:object-cover lg:object-center transform-gpu backface-hidden";
 
   if (isVideoUrl(src)) {
     // For inactive video slides, render ONLY the poster image — keeps memory
