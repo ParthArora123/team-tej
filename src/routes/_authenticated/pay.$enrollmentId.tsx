@@ -119,14 +119,16 @@ function PayUpload() {
         const dateStr = enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "—";
         const timeStr = enr.program?.event_time || "—";
         const venueStr = enr.program?.venue || "—";
+        const verifyUrl = ticket ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}` : "";
         const message =
           `🎉 Hi ${enr.full_name || "there"},\n\n` +
-          `Your payment has been successfully verified and your seat has been confirmed for ${enr.program?.name || "the workshop"}.\n\n` +
+          `✅ Payment confirmed. Your seat has been confirmed for ${enr.program?.name || "the workshop"}.\n\n` +
           `Registration ID: ${ticket || enr.id}\n` +
           `Date: ${dateStr}\n` +
           `Time: ${timeStr}\n` +
           `Venue: ${venueStr}\n\n` +
-          `Please bring your QR Code/Registration ID during check-in.\n\n` +
+          (verifyUrl ? `Your QR code for entry/check-in:\n${verifyUrl}\n\n` : "") +
+          `Please keep this QR code safe and present it at the venue during check-in.\n\n` +
           `We look forward to welcoming you to the workshop!\n\n` +
           `– Tejas D Dhoke`;
         window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
