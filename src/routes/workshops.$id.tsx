@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import {
   Calendar, MapPin, Clock, ChevronDown, Sparkles,
@@ -48,127 +48,63 @@ function useCountdown(target: Date | null) {
   return { d, h, m, s, done: diff === 0 };
 }
 
-/* ---------- Ambient premium live backdrop ---------- */
-function GoldParticles() {
-  const dots = useMemo(
+/* ---------- Premium live backdrop: no blinking, flashing or opacity flicker ---------- */
+function PremiumWorkshopBackdrop() {
+  const { scrollYProgress } = useScroll();
+  const nearLayerY = useTransform(scrollYProgress, [0, 1], ["0vh", "-12vh"]);
+  const farLayerY = useTransform(scrollYProgress, [0, 1], ["0vh", "8vh"]);
+  const particles = useMemo(
     () =>
-      Array.from({ length: 70 }).map((_, i) => ({
-        x: (i * 137.5) % 100,
-        y: (i * 53.3) % 100,
-        s: (i % 4) + 1,
-        d: 6 + (i % 7),
-        delay: (i % 10) * 0.4,
-        o: 0.18 + ((i % 6) / 10),
+      Array.from({ length: 46 }).map((_, i) => ({
+        x: (i * 29.7) % 100,
+        y: (i * 47.3) % 100,
+        size: 2 + (i % 3),
+        duration: 28 + (i % 8) * 4,
+        driftX: (i % 2 ? 1 : -1) * (16 + (i % 5) * 4),
+        driftY: -18 - (i % 6) * 3,
+        opacity: 0.14 + (i % 5) * 0.025,
       })),
     []
   );
-  const sparks = useMemo(
-    () =>
-      Array.from({ length: 14 }).map((_, i) => ({
-        left: (i * 73) % 100,
-        delay: (i % 7) * 1.1,
-        dur: 7 + (i % 5),
-        drift: (i % 2 ? 1 : -1) * (20 + (i % 4) * 10),
-      })),
-    []
-  );
-  return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#050301]">
-      {/* radial vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.10),transparent_70%)]" />
-      {/* faint grid */}
-      <div className="absolute inset-0 opacity-[0.05] [background-image:linear-gradient(to_right,#d4a94c_1px,transparent_1px),linear-gradient(to_bottom,#d4a94c_1px,transparent_1px)] [background-size:80px_80px]" />
-
-      {/* aurora blobs — slow drifting gold/amber glow */}
-      <motion.div
-        className="absolute -top-32 -left-24 h-[45rem] w-[45rem] rounded-full blur-3xl"
-        style={{ background: "radial-gradient(circle at 30% 30%, rgba(212,169,76,0.28), transparent 60%)" }}
-        animate={{ x: [0, 80, -20, 0], y: [0, 40, -30, 0], scale: [1, 1.1, 0.95, 1] }}
-        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute -bottom-40 -right-24 h-[50rem] w-[50rem] rounded-full blur-3xl"
-        style={{ background: "radial-gradient(circle at 60% 60%, rgba(184,134,11,0.25), transparent 65%)" }}
-        animate={{ x: [0, -60, 30, 0], y: [0, -30, 40, 0], scale: [1, 1.15, 0.9, 1] }}
-        transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute top-1/3 left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 rounded-full blur-3xl"
-        style={{ background: "radial-gradient(circle, rgba(255,215,120,0.14), transparent 70%)" }}
-        animate={{ opacity: [0.5, 0.9, 0.5], scale: [0.9, 1.1, 0.9] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      {/* diagonal light sweep */}
-      <motion.div
-        className="absolute -inset-x-1/2 top-0 h-full"
-        style={{
-          background:
-            "linear-gradient(115deg, transparent 40%, rgba(255,220,150,0.06) 50%, transparent 60%)",
-        }}
-        animate={{ x: ["-30%", "30%", "-30%"] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      {/* soft scanline shimmer */}
-      <motion.div
-        className="absolute inset-x-0 h-24"
-        style={{
-          background:
-            "linear-gradient(to bottom, transparent, rgba(255,215,140,0.06), transparent)",
-        }}
-        animate={{ y: ["-10%", "110%"] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-      />
-
-      {/* floating particles */}
-      {dots.map((p, i) => (
-        <motion.span
-          key={i}
-          className="absolute rounded-full bg-amber-300 shadow-[0_0_6px_rgba(255,200,120,0.7)]"
-          style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.s, height: p.s, opacity: p.o }}
-          animate={{ y: [0, -22, 0], opacity: [p.o * 0.35, p.o, p.o * 0.35] }}
-          transition={{ duration: p.d, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
-        />
-      ))}
-
-      {/* rising ember sparks */}
-      {sparks.map((s, i) => (
-        <motion.span
-          key={`sp-${i}`}
-          className="absolute bottom-0 h-1 w-1 rounded-full bg-amber-200 shadow-[0_0_8px_rgba(255,210,140,0.9)]"
-          style={{ left: `${s.left}%` }}
-          animate={{ y: [0, -700], x: [0, s.drift, 0], opacity: [0, 1, 0] }}
-          transition={{ duration: s.dur, repeat: Infinity, delay: s.delay, ease: "easeOut" }}
-        />
-      ))}
-
-      {/* subtle grain */}
-      <div
-        className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
-        style={{
-          backgroundImage:
-            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>\")",
-        }}
-      />
-    </div>
-  );
-}
-
-/* ---------- Gold stage ambience: rays, spotlights, drifting dancer silhouettes ---------- */
-function GoldStageAmbience() {
   const dancers = [
-    { pose: "hiphop",       left: "6%",  bottom: "4%",  scale: 0.95, dur: 16, delay: 0,  opacity: 0.10, blur: 0.5 },
-    { pose: "contemporary", left: "44%", bottom: "2%",  scale: 1.15, dur: 20, delay: -5, opacity: 0.09, blur: 1 },
-    { pose: "freestyle",    left: "78%", bottom: "6%",  scale: 0.9,  dur: 18, delay: -9, opacity: 0.10, blur: 0.5 },
-    { pose: "contemporary", left: "22%", bottom: "10%", scale: 0.55, dur: 24, delay: -3, opacity: 0.06, blur: 3 },
-    { pose: "hiphop",       left: "62%", bottom: "12%", scale: 0.6,  dur: 22, delay: -11,opacity: 0.06, blur: 3 },
+    { pose: "hiphop", left: "6%", bottom: "2%", scale: 0.9, dur: 26, opacity: 0.1, blur: 0.5 },
+    { pose: "contemporary", left: "42%", bottom: "0%", scale: 1.08, dur: 32, opacity: 0.085, blur: 1 },
+    { pose: "freestyle", left: "78%", bottom: "4%", scale: 0.86, dur: 30, opacity: 0.095, blur: 0.5 },
+    { pose: "contemporary", left: "22%", bottom: "10%", scale: 0.55, dur: 38, opacity: 0.055, blur: 3 },
+    { pose: "hiphop", left: "62%", bottom: "12%", scale: 0.58, dur: 34, opacity: 0.055, blur: 3 },
   ];
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* Volumetric gold light rays — slow rotate */}
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#050301]">
+      <motion.div style={{ y: farLayerY }} className="absolute -inset-[12%] will-change-transform">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(217,174,86,0.14),transparent_58%),linear-gradient(135deg,rgba(62,34,7,0.46),rgba(5,3,1,0)_34%,rgba(116,73,18,0.25)_62%,rgba(5,3,1,0.92))]" />
+        <div className="absolute left-[-18%] top-[10%] h-[42rem] w-[42rem] rounded-full blur-3xl bg-[radial-gradient(circle,rgba(212,169,76,0.24),transparent_67%)] plb-mesh-a" />
+        <div className="absolute right-[-18%] bottom-[2%] h-[48rem] w-[48rem] rounded-full blur-3xl bg-[radial-gradient(circle,rgba(149,91,23,0.30),transparent_70%)] plb-mesh-b" />
+        <div className="absolute left-[28%] top-[24%] h-[34rem] w-[34rem] rounded-full blur-3xl bg-[radial-gradient(circle,rgba(255,214,132,0.11),transparent_72%)] plb-mesh-c" />
+      </motion.div>
+
+      <motion.div style={{ y: nearLayerY }} className="absolute inset-0 will-change-transform">
+        {particles.map((p, i) => (
+          <span
+            key={i}
+            className="absolute rounded-full bg-amber-200/80 shadow-[0_0_10px_rgba(255,215,140,0.55)] plb-particle"
+            style={
+              {
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                width: p.size,
+                height: p.size,
+                opacity: p.opacity,
+                "--dx": `${p.driftX}px`,
+                "--dy": `${p.driftY}px`,
+                "--dur": `${p.duration}s`,
+              } as CSSProperties
+            }
+          />
+        ))}
+      </motion.div>
+
       <svg
-        className="absolute left-1/2 top-[-30%] h-[160%] w-[140%] -translate-x-1/2 opacity-[0.18] mix-blend-screen gsa-rays"
+        className="absolute left-1/2 top-[-36%] h-[168%] w-[150%] -translate-x-1/2 opacity-[0.14] mix-blend-screen plb-rays"
         viewBox="0 0 800 800"
         preserveAspectRatio="xMidYMid slice"
       >
@@ -189,88 +125,100 @@ function GoldStageAmbience() {
         ))}
       </svg>
 
-      {/* Two elegant moving spotlights (no blink) */}
-      <div
-        className="absolute -top-20 left-[15%] h-[70vh] w-[55vw] rounded-full blur-3xl mix-blend-screen gsa-spot-a"
-        style={{ background: "radial-gradient(circle, rgba(245,199,106,0.28), rgba(212,169,76,0.06) 45%, transparent 70%)" }}
-      />
-      <div
-        className="absolute top-[8%] right-[8%] h-[65vh] w-[50vw] rounded-full blur-3xl mix-blend-screen gsa-spot-b"
-        style={{ background: "radial-gradient(circle, rgba(255,220,140,0.22), rgba(184,134,11,0.05) 45%, transparent 70%)" }}
-      />
+      <div className="absolute -top-24 left-[10%] h-[72vh] w-[55vw] rounded-full blur-3xl mix-blend-screen plb-spot-a"
+        style={{ background: "radial-gradient(circle, rgba(245,199,106,0.24), rgba(212,169,76,0.06) 45%, transparent 70%)" }} />
+      <div className="absolute top-[6%] right-[4%] h-[68vh] w-[52vw] rounded-full blur-3xl mix-blend-screen plb-spot-b"
+        style={{ background: "radial-gradient(circle, rgba(255,220,140,0.18), rgba(184,134,11,0.05) 45%, transparent 70%)" }} />
 
-      {/* Soft atmospheric fog */}
-      <div className="absolute inset-0 gsa-fog">
+      <div className="absolute inset-0 plb-fog">
         <div
-          className="absolute left-[-15%] top-[45%] h-[55vh] w-[85vw] rounded-full blur-3xl opacity-40"
-          style={{ background: "radial-gradient(circle, rgba(200,160,90,0.20), transparent 70%)" }}
+          className="absolute left-[-18%] top-[45%] h-[55vh] w-[90vw] rounded-full blur-3xl opacity-35"
+          style={{ background: "radial-gradient(circle, rgba(200,160,90,0.18), transparent 70%)" }}
         />
       </div>
 
-      {/* Parallax dancer silhouettes at stage floor */}
-      <div className="absolute inset-x-0 bottom-0 h-[85vh]">
+      <motion.div style={{ y: nearLayerY }} className="absolute inset-x-0 bottom-0 h-[85vh] will-change-transform">
         {dancers.map((d, i) => (
           <div
             key={i}
-            className="absolute gsa-dancer"
-            style={{
-              left: d.left,
-              bottom: d.bottom,
-              transform: `scale(${d.scale})`,
-              opacity: d.opacity,
-              animationDuration: `${d.dur}s`,
-              animationDelay: `${d.delay}s`,
-              filter: `blur(${d.blur}px)`,
-              color: "#f5c76a",
-            }}
+            className="absolute plb-dancer"
+            style={
+              {
+                left: d.left,
+                bottom: d.bottom,
+                opacity: d.opacity,
+                animationDuration: `${d.dur}s`,
+                filter: `blur(${d.blur}px)`,
+                color: "#f5c76a",
+                "--scale": d.scale,
+              } as CSSProperties
+            }
           >
             <GoldDancerSVG pose={d.pose as any} />
           </div>
         ))}
-      </div>
+      </motion.div>
 
-      {/* Stage floor gradient for grounding */}
-      <div className="absolute inset-x-0 bottom-0 h-[45vh] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/70 via-[#050301]/44 to-[#050301]/86" />
+      <div className="absolute inset-x-0 bottom-0 h-[48vh] bg-gradient-to-t from-black/78 via-black/35 to-transparent" />
 
       <style>{`
-        .gsa-rays { animation: gsa-rot 120s linear infinite; transform-origin: 50% 0%; will-change: transform; }
-        @keyframes gsa-rot { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
+        .plb-mesh-a { animation: plb-mesh-a 42s ease-in-out infinite; will-change: transform; }
+        .plb-mesh-b { animation: plb-mesh-b 48s ease-in-out infinite; will-change: transform; }
+        .plb-mesh-c { animation: plb-mesh-c 54s ease-in-out infinite; will-change: transform; }
+        @keyframes plb-mesh-a { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(9vw,4vh,0) scale(1.12); } }
+        @keyframes plb-mesh-b { 0%,100% { transform: translate3d(0,0,0) scale(1.04); } 50% { transform: translate3d(-8vw,-4vh,0) scale(0.96); } }
+        @keyframes plb-mesh-c { 0%,100% { transform: translate3d(0,0,0) scale(0.98); } 50% { transform: translate3d(4vw,-6vh,0) scale(1.08); } }
 
-        .gsa-spot-a { will-change: transform; animation: gsa-spot-a 38s ease-in-out infinite; }
-        .gsa-spot-b { will-change: transform; animation: gsa-spot-b 46s ease-in-out infinite; }
-        @keyframes gsa-spot-a {
-          0%,100% { transform: translate3d(0,0,0) scale(1); }
-          50%     { transform: translate3d(16vw,5vh,0) scale(1.15); }
-        }
-        @keyframes gsa-spot-b {
-          0%,100% { transform: translate3d(0,0,0) scale(1); }
-          50%     { transform: translate3d(-14vw,-4vh,0) scale(1.1); }
+        .plb-particle { animation: plb-float var(--dur) ease-in-out infinite; will-change: transform; }
+        @keyframes plb-float {
+          0%,100% { transform: translate3d(0,0,0); }
+          50% { transform: translate3d(var(--dx),var(--dy),0); }
         }
 
-        .gsa-fog { will-change: transform; animation: gsa-fog 70s ease-in-out infinite; }
-        @keyframes gsa-fog {
+        .plb-rays { animation: plb-rot 150s linear infinite; transform-origin: 50% 0%; will-change: transform; }
+        @keyframes plb-rot { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
+
+        .plb-spot-a { will-change: transform; animation: plb-spot-a 44s ease-in-out infinite; }
+        .plb-spot-b { will-change: transform; animation: plb-spot-b 52s ease-in-out infinite; }
+        @keyframes plb-spot-a {
+          0%,100% { transform: translate3d(0,0,0) scale(1); }
+          50%     { transform: translate3d(14vw,5vh,0) scale(1.1); }
+        }
+        @keyframes plb-spot-b {
+          0%,100% { transform: translate3d(0,0,0) scale(1); }
+          50%     { transform: translate3d(-12vw,-3vh,0) scale(1.08); }
+        }
+
+        .plb-fog { will-change: transform; animation: plb-fog 76s ease-in-out infinite; }
+        @keyframes plb-fog {
           0%,100% { transform: translate3d(0,0,0); }
           50%     { transform: translate3d(5vw,-2vh,0); }
         }
 
-        .gsa-dancer {
+        .plb-dancer {
           width: 170px;
           height: 300px;
           transform-origin: 50% 100%;
-          will-change: transform, opacity;
-          animation-name: gsa-sway;
+          will-change: transform;
+          animation-name: plb-sway;
           animation-timing-function: ease-in-out;
           animation-iteration-count: infinite;
           animation-direction: alternate;
         }
-        @keyframes gsa-sway {
-          0%   { transform: translate3d(0,0,0) rotate(-1.2deg); }
-          50%  { transform: translate3d(5px,-4px,0) rotate(0.6deg); }
-          100% { transform: translate3d(-4px,-2px,0) rotate(-0.4deg); }
+        @keyframes plb-sway {
+          0%   { transform: translate3d(0,0,0) rotate(-0.9deg) scale(var(--scale)); }
+          50%  { transform: translate3d(5px,-4px,0) rotate(0.45deg) scale(var(--scale)); }
+          100% { transform: translate3d(-4px,-2px,0) rotate(-0.35deg) scale(var(--scale)); }
+        }
+
+        @media (max-width: 768px) {
+          .plb-dancer { width: 118px; height: 250px; }
+          .plb-particle:nth-child(n+28) { display: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .gsa-rays, .gsa-spot-a, .gsa-spot-b, .gsa-fog, .gsa-dancer { animation: none !important; }
+          .plb-mesh-a, .plb-mesh-b, .plb-mesh-c, .plb-particle, .plb-rays, .plb-spot-a, .plb-spot-b, .plb-fog, .plb-dancer { animation: none !important; }
         }
       `}</style>
     </div>
@@ -399,8 +347,7 @@ function WorkshopDetailPage() {
 
   return (
     <div className="relative min-h-screen pb-40 md:pb-24 text-amber-50 selection:bg-amber-400/30">
-      <GoldParticles />
-      <GoldStageAmbience />
+      <PremiumWorkshopBackdrop />
 
 
       {/* ==================== HERO ==================== */}
