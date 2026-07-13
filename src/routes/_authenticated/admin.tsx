@@ -312,6 +312,10 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enter a Both Workshops price.");
       return;
     }
+    if (f.allow_both && (!f.workshop1_name?.trim() || !f.workshop2_name?.trim())) {
+      toast.error("Enter both Workshop 1 and Workshop 2 names.");
+      return;
+    }
     setBusy(true);
     try {
       await onSave({ data: {
