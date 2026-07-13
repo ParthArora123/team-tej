@@ -141,7 +141,7 @@ function RootComponent() {
       <DeferMount delay={200}>
         <SmoothScroll />
       </DeferMount>
-      <div className="min-h-screen grain-bg relative">
+      <div className="min-h-screen relative grain-bg">
         <StageAmbience />
         <DeferMount>
           <AmbientBlobs />

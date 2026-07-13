@@ -120,3 +120,29 @@ html, body {
     radial-gradient(ellipse 80% 60% at 50% -10%, oklch(0.78 0.16 65 / 12%), transparent 70%),
     radial-gradient(ellipse 60% 50% at 90% 110%, oklch(0.65 0.2 35 / 10%), transparent 70%);
 }
+
+body:has(.workshop-detail-page) .backdrop-blur,
+body:has(.workshop-detail-page) .backdrop-blur-sm,
+body:has(.workshop-detail-page) .backdrop-blur-md,
+body:has(.workshop-detail-page) .backdrop-blur-lg,
+body:has(.workshop-detail-page) .backdrop-blur-xl,
+body:has(.workshop-detail-page) .backdrop-blur-2xl,
+body:has(.workshop-detail-page) .backdrop-blur-3xl {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+body:has(.workshop-detail-page) .grain-bg {
+  background-image: none !important;
+  background-color: #050301;
+}
+
+body:has(.workshop-detail-page) .grain-bg > .fixed[aria-hidden]:not(.workshop-live-backdrop),
+body:has(.workshop-detail-page) .grain-bg > [aria-hidden].pointer-events-none.fixed:not(.workshop-live-backdrop) {
+  display: none !important;
+}
+
+.workshop-detail-page > :not(.workshop-live-backdrop) {
+  position: relative;
+  z-index: 1;
+}

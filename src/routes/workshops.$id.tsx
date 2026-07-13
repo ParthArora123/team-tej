@@ -32,6 +32,166 @@ type Media = {
   caption: string | null;
 };
 
+function DanceMotionCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
+
+    let frame = 0;
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener("resize", resize, { passive: true });
+
+    const dancers = [
+      { x: 0.15, y: 0.7, s: 1.22, speed: 0.62, phase: 0.2, alpha: 0.72 },
+      { x: 0.43, y: 0.64, s: 1.48, speed: 0.5, phase: 2.1, alpha: 0.58 },
+      { x: 0.75, y: 0.7, s: 1.18, speed: 0.58, phase: 4.2, alpha: 0.64 },
+      { x: 0.28, y: 0.8, s: 0.86, speed: 0.46, phase: 5.4, alpha: 0.38 },
+      { x: 0.62, y: 0.79, s: 0.9, speed: 0.54, phase: 3.5, alpha: 0.38 },
+    ];
+    const particles = Array.from({ length: 72 }).map((_, i) => ({
+      x: ((i * 37) % 100) / 100,
+      y: ((i * 61) % 100) / 100,
+      r: 0.8 + (i % 4) * 0.45,
+      speed: 0.08 + (i % 7) * 0.018,
+      sway: 10 + (i % 6) * 7,
+      phase: i * 0.83,
+      alpha: 0.18 + (i % 5) * 0.035,
+    }));
+
+    const drawDancer = (cx: number, baseY: number, scale: number, t: number, alpha: number) => {
+      const sway = Math.sin(t) * 8 * scale;
+      const lift = Math.sin(t * 1.6) * 5 * scale;
+      const torso = 72 * scale;
+      const leg = 74 * scale;
+      const head = 13 * scale;
+      const shoulderY = baseY - leg - torso + lift;
+      const hipY = baseY - leg + lift;
+      const neckX = cx + sway;
+      const armA = Math.sin(t + 0.7);
+      const armB = Math.sin(t + 2.4);
+      const legA = Math.sin(t + 1.1);
+      const legB = Math.sin(t + 3.0);
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.shadowColor = "rgba(245, 199, 106, 0.62)";
+      ctx.shadowBlur = 18 * scale;
+      ctx.strokeStyle = "rgba(255, 220, 142, 0.9)";
+      ctx.fillStyle = "rgba(255, 220, 142, 0.84)";
+      ctx.lineWidth = 8 * scale;
+
+      ctx.beginPath();
+      ctx.arc(neckX, shoulderY - 26 * scale, head, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(neckX, shoulderY - 8 * scale);
+      ctx.quadraticCurveTo(cx - sway * 0.35, shoulderY + 32 * scale, cx, hipY);
+      ctx.stroke();
+
+      ctx.lineWidth = 6 * scale;
+      ctx.beginPath();
+      ctx.moveTo(neckX - 8 * scale, shoulderY + 6 * scale);
+      ctx.quadraticCurveTo(cx - 46 * scale, shoulderY - (24 + armA * 28) * scale, cx - (82 + armA * 10) * scale, shoulderY + (8 + armB * 12) * scale);
+      ctx.moveTo(neckX + 8 * scale, shoulderY + 6 * scale);
+      ctx.quadraticCurveTo(cx + 44 * scale, shoulderY - (12 + armB * 30) * scale, cx + (80 + armB * 12) * scale, shoulderY + (12 - armA * 10) * scale);
+      ctx.stroke();
+
+      ctx.lineWidth = 7 * scale;
+      ctx.beginPath();
+      ctx.moveTo(cx, hipY);
+      ctx.quadraticCurveTo(cx - (24 + legA * 14) * scale, hipY + 36 * scale, cx - (44 + legA * 22) * scale, baseY);
+      ctx.moveTo(cx, hipY);
+      ctx.quadraticCurveTo(cx + (24 + legB * 14) * scale, hipY + 34 * scale, cx + (42 + legB * 20) * scale, baseY - Math.abs(legA) * 10 * scale);
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    const render = (time: number) => {
+      const t = time * 0.001;
+      ctx.clearRect(0, 0, width, height);
+
+      const base = ctx.createLinearGradient(0, 0, width, height);
+      base.addColorStop(0, "rgba(17, 8, 1, 0.72)");
+      base.addColorStop(0.5, "rgba(48, 25, 4, 0.58)");
+      base.addColorStop(1, "rgba(8, 4, 1, 0.8)");
+      ctx.fillStyle = base;
+      ctx.fillRect(0, 0, width, height);
+
+      const rayShift = Math.sin(t * 0.12) * width * 0.08;
+      for (let i = 0; i < 5; i++) {
+        ctx.save();
+        ctx.translate(width * (0.18 + i * 0.16) + rayShift, -height * 0.08);
+        ctx.rotate((-18 + i * 9 + Math.sin(t * 0.08 + i) * 3) * Math.PI / 180);
+        const ray = ctx.createLinearGradient(0, 0, 0, height * 1.2);
+        ray.addColorStop(0, "rgba(255, 213, 127, 0.24)");
+        ray.addColorStop(0.62, "rgba(212, 169, 76, 0.09)");
+        ray.addColorStop(1, "rgba(212, 169, 76, 0)");
+        ctx.fillStyle = ray;
+        ctx.beginPath();
+        ctx.moveTo(-width * 0.035, 0);
+        ctx.lineTo(width * 0.035, 0);
+        ctx.lineTo(width * 0.16, height * 1.22);
+        ctx.lineTo(-width * 0.16, height * 1.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      particles.forEach((p) => {
+        const py = ((p.y * height - (t * p.speed * height * 0.22)) % (height + 80) + height + 80) % (height + 80) - 40;
+        const px = p.x * width + Math.sin(t * 0.45 + p.phase) * p.sway;
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = "rgba(255, 226, 168, 0.82)";
+        ctx.shadowColor = "rgba(255, 216, 145, 0.55)";
+        ctx.shadowBlur = 9;
+        ctx.beginPath();
+        ctx.arc(px, py, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+
+      dancers.forEach((d) => drawDancer(width * d.x, height * d.y, d.s * Math.min(width / 1280, 1.05), t * d.speed + d.phase, d.alpha));
+
+      const vignette = ctx.createRadialGradient(width * 0.5, height * 0.42, height * 0.18, width * 0.5, height * 0.52, height * 0.76);
+      vignette.addColorStop(0, "rgba(0,0,0,0.02)");
+      vignette.addColorStop(0.72, "rgba(0,0,0,0.22)");
+      vignette.addColorStop(1, "rgba(0,0,0,0.52)");
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, width, height);
+      frame = requestAnimationFrame(render);
+    };
+    frame = requestAnimationFrame(render);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full transform-gpu" />;
+}
+
 function useCountdown(target: Date | null) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -48,45 +208,72 @@ function useCountdown(target: Date | null) {
   return { d, h, m, s, done: diff === 0 };
 }
 
-/* ---------- Premium live backdrop: continuous luxury motion only ---------- */
-function PremiumWorkshopBackdrop() {
+/* ---------- Workshop detail backdrop: one immediate live-motion layer ---------- */
+function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
   const { scrollYProgress } = useScroll();
-  const nearLayerY = useTransform(scrollYProgress, [0, 1], ["0vh", "-12vh"]);
-  const farLayerY = useTransform(scrollYProgress, [0, 1], ["0vh", "8vh"]);
+  const liveY = useTransform(scrollYProgress, [0, 1], ["0vh", "-7vh"]);
+  const farY = useTransform(scrollYProgress, [0, 1], ["0vh", "5vh"]);
   const particles = useMemo(
     () =>
-      Array.from({ length: 46 }).map((_, i) => ({
+      Array.from({ length: 28 }).map((_, i) => ({
         x: (i * 29.7) % 100,
         y: (i * 47.3) % 100,
         size: 2 + (i % 3),
-        duration: 28 + (i % 8) * 4,
-        driftX: (i % 2 ? 1 : -1) * (16 + (i % 5) * 4),
-        driftY: -18 - (i % 6) * 3,
-        opacity: 0.14 + (i % 5) * 0.025,
+        duration: 36 + (i % 7) * 5,
+        driftX: (i % 2 ? 1 : -1) * (18 + (i % 5) * 5),
+        driftY: -24 - (i % 6) * 4,
+        opacity: 0.16 + (i % 4) * 0.025,
       })),
     []
   );
   const dancers = [
-    { pose: "hiphop", left: "6%", bottom: "2%", scale: 0.9, dur: 26, opacity: 0.1, blur: 0.5 },
-    { pose: "contemporary", left: "42%", bottom: "0%", scale: 1.08, dur: 32, opacity: 0.085, blur: 1 },
-    { pose: "freestyle", left: "78%", bottom: "4%", scale: 0.86, dur: 30, opacity: 0.095, blur: 0.5 },
-    { pose: "contemporary", left: "22%", bottom: "10%", scale: 0.55, dur: 38, opacity: 0.055, blur: 3 },
-    { pose: "hiphop", left: "62%", bottom: "12%", scale: 0.58, dur: 34, opacity: 0.055, blur: 3 },
+    { pose: "hiphop", left: "4%", bottom: "18%", scale: 1.28, dur: 34, opacity: 0.34, blur: 0.2 },
+    { pose: "contemporary", left: "36%", bottom: "16%", scale: 1.46, dur: 42, opacity: 0.28, blur: 0.35 },
+    { pose: "freestyle", left: "74%", bottom: "18%", scale: 1.22, dur: 38, opacity: 0.31, blur: 0.2 },
+    { pose: "contemporary", left: "19%", bottom: "34%", scale: 0.78, dur: 48, opacity: 0.16, blur: 1.4 },
+    { pose: "hiphop", left: "62%", bottom: "35%", scale: 0.82, dur: 46, opacity: 0.16, blur: 1.4 },
   ];
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#050301]">
-      <motion.div style={{ y: farLayerY }} className="absolute -inset-[12%] will-change-transform">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_35%,rgba(217,174,86,0.14),transparent_58%),linear-gradient(135deg,rgba(62,34,7,0.46),rgba(5,3,1,0)_34%,rgba(116,73,18,0.25)_62%,rgba(5,3,1,0.92))]" />
-        <div className="absolute left-[-18%] top-[10%] h-[42rem] w-[42rem] rounded-full blur-3xl bg-[radial-gradient(circle,rgba(212,169,76,0.24),transparent_67%)] plb-mesh-a" />
-        <div className="absolute right-[-18%] bottom-[2%] h-[48rem] w-[48rem] rounded-full blur-3xl bg-[radial-gradient(circle,rgba(149,91,23,0.30),transparent_70%)] plb-mesh-b" />
-        <div className="absolute left-[28%] top-[24%] h-[34rem] w-[34rem] rounded-full blur-3xl bg-[radial-gradient(circle,rgba(255,214,132,0.11),transparent_72%)] plb-mesh-c" />
+    <div aria-hidden className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050301] contain-paint">
+      <motion.div style={{ y: liveY }} className="absolute -inset-[8%] will-change-transform transform-gpu">
+        {media?.media_kind === "video" && media.media_url ? (
+          <video
+            src={media.media_url}
+            poster={media.poster_url ?? undefined}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            className="h-full w-full scale-[1.04] object-cover opacity-[0.42] transform-gpu"
+          />
+        ) : media?.media_url ? (
+          <img
+            src={media.media_url}
+            alt=""
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className="h-full w-full scale-[1.04] object-cover opacity-[0.38] transform-gpu"
+          />
+        ) : (
+          <div className="h-full w-full bg-[radial-gradient(ellipse_at_50%_36%,rgba(217,174,86,0.22),transparent_58%),linear-gradient(135deg,rgba(62,34,7,0.68),rgba(5,3,1,0.92)_58%,rgba(116,73,18,0.38))]" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/50 via-[#050301]/34 to-[#050301]/72" />
       </motion.div>
 
-      <motion.div style={{ y: nearLayerY }} className="absolute inset-0 will-change-transform">
+      <motion.div style={{ y: farY }} className="absolute -inset-[14%] will-change-transform transform-gpu">
+        <div className="absolute left-[-12%] top-[8%] h-[42rem] w-[42rem] rounded-full bg-[radial-gradient(circle,rgba(212,169,76,0.22),transparent_68%)] wlb-mesh-a" />
+        <div className="absolute right-[-16%] bottom-[2%] h-[50rem] w-[50rem] rounded-full bg-[radial-gradient(circle,rgba(149,91,23,0.28),transparent_72%)] wlb-mesh-b" />
+        <div className="absolute left-[25%] top-[18%] h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(circle,rgba(255,214,132,0.12),transparent_74%)] wlb-mesh-c" />
+      </motion.div>
+
+      <motion.div style={{ y: liveY }} className="absolute inset-0 will-change-transform transform-gpu">
         {particles.map((p, i) => (
           <span
             key={i}
-            className="absolute rounded-full bg-amber-200/80 shadow-[0_0_10px_rgba(255,215,140,0.55)] plb-particle"
+            className="absolute rounded-full bg-amber-200/80 shadow-[0_0_10px_rgba(255,215,140,0.55)] wlb-particle"
             style={
               {
                 left: `${p.x}%`,
@@ -104,7 +291,7 @@ function PremiumWorkshopBackdrop() {
       </motion.div>
 
       <svg
-        className="absolute left-1/2 top-[-36%] h-[168%] w-[150%] -translate-x-1/2 opacity-[0.14] mix-blend-screen plb-rays"
+        className="absolute left-1/2 top-[-35%] h-[168%] w-[150%] -translate-x-1/2 opacity-[0.13] mix-blend-screen wlb-rays transform-gpu"
         viewBox="0 0 800 800"
         preserveAspectRatio="xMidYMid slice"
       >
@@ -125,23 +312,23 @@ function PremiumWorkshopBackdrop() {
         ))}
       </svg>
 
-      <div className="absolute -top-24 left-[10%] h-[72vh] w-[55vw] rounded-full blur-3xl mix-blend-screen plb-spot-a"
+      <div className="absolute -top-24 left-[8%] h-[72vh] w-[55vw] rounded-full mix-blend-screen wlb-spot-a"
         style={{ background: "radial-gradient(circle, rgba(245,199,106,0.24), rgba(212,169,76,0.06) 45%, transparent 70%)" }} />
-      <div className="absolute top-[6%] right-[4%] h-[68vh] w-[52vw] rounded-full blur-3xl mix-blend-screen plb-spot-b"
+      <div className="absolute top-[6%] right-[3%] h-[68vh] w-[52vw] rounded-full mix-blend-screen wlb-spot-b"
         style={{ background: "radial-gradient(circle, rgba(255,220,140,0.18), rgba(184,134,11,0.05) 45%, transparent 70%)" }} />
 
-      <div className="absolute inset-0 plb-fog">
+      <div className="absolute inset-0 wlb-fog transform-gpu">
         <div
-          className="absolute left-[-18%] top-[45%] h-[55vh] w-[90vw] rounded-full blur-3xl opacity-35"
+          className="absolute left-[-18%] top-[45%] h-[55vh] w-[90vw] rounded-full opacity-35"
           style={{ background: "radial-gradient(circle, rgba(200,160,90,0.18), transparent 70%)" }}
         />
       </div>
 
-      <motion.div style={{ y: nearLayerY }} className="absolute inset-x-0 bottom-0 h-[85vh] will-change-transform">
+      <motion.div style={{ y: liveY }} className="absolute inset-x-0 bottom-0 h-[85vh] will-change-transform transform-gpu">
         {dancers.map((d, i) => (
           <div
             key={i}
-            className="absolute plb-dancer"
+            className="absolute wlb-dancer"
             style={
               {
                 left: d.left,
@@ -159,66 +346,68 @@ function PremiumWorkshopBackdrop() {
         ))}
       </motion.div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/70 via-[#050301]/44 to-[#050301]/86" />
-      <div className="absolute inset-x-0 bottom-0 h-[48vh] bg-gradient-to-t from-black/78 via-black/35 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/18 via-[#050301]/6 to-[#050301]/38" />
+      <div className="absolute inset-x-0 bottom-0 h-[42vh] bg-gradient-to-t from-black/46 via-black/12 to-transparent" />
 
       <style>{`
-        .plb-mesh-a { animation: plb-mesh-a 42s ease-in-out infinite; will-change: transform; }
-        .plb-mesh-b { animation: plb-mesh-b 48s ease-in-out infinite; will-change: transform; }
-        .plb-mesh-c { animation: plb-mesh-c 54s ease-in-out infinite; will-change: transform; }
-        @keyframes plb-mesh-a { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(9vw,4vh,0) scale(1.12); } }
-        @keyframes plb-mesh-b { 0%,100% { transform: translate3d(0,0,0) scale(1.04); } 50% { transform: translate3d(-8vw,-4vh,0) scale(0.96); } }
-        @keyframes plb-mesh-c { 0%,100% { transform: translate3d(0,0,0) scale(0.98); } 50% { transform: translate3d(4vw,-6vh,0) scale(1.08); } }
+        .contain-paint { contain: paint; }
+        .wlb-mesh-a, .wlb-mesh-b, .wlb-mesh-c, .wlb-spot-a, .wlb-spot-b, .wlb-fog > div { filter: blur(56px); transform: translate3d(0,0,0); }
+        .wlb-mesh-a { animation: wlb-mesh-a 58s ease-in-out infinite; will-change: transform; }
+        .wlb-mesh-b { animation: wlb-mesh-b 64s ease-in-out infinite; will-change: transform; }
+        .wlb-mesh-c { animation: wlb-mesh-c 72s ease-in-out infinite; will-change: transform; }
+        @keyframes wlb-mesh-a { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(8vw,4vh,0) scale(1.1); } }
+        @keyframes wlb-mesh-b { 0%,100% { transform: translate3d(0,0,0) scale(1.03); } 50% { transform: translate3d(-7vw,-4vh,0) scale(0.97); } }
+        @keyframes wlb-mesh-c { 0%,100% { transform: translate3d(0,0,0) scale(0.99); } 50% { transform: translate3d(4vw,-5vh,0) scale(1.07); } }
 
-        .plb-particle { animation: plb-float var(--dur) ease-in-out infinite; will-change: transform; }
-        @keyframes plb-float {
+        .wlb-particle { animation: wlb-float var(--dur) ease-in-out infinite; will-change: transform; transform: translate3d(0,0,0); }
+        @keyframes wlb-float {
           0%,100% { transform: translate3d(0,0,0); }
           50% { transform: translate3d(var(--dx),var(--dy),0); }
         }
 
-        .plb-rays { animation: plb-rot 150s linear infinite; transform-origin: 50% 0%; will-change: transform; }
-        @keyframes plb-rot { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
+        .wlb-rays { animation: wlb-rot 180s linear infinite; transform-origin: 50% 0%; will-change: transform; }
+        @keyframes wlb-rot { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
 
-        .plb-spot-a { will-change: transform; animation: plb-spot-a 44s ease-in-out infinite; }
-        .plb-spot-b { will-change: transform; animation: plb-spot-b 52s ease-in-out infinite; }
-        @keyframes plb-spot-a {
+        .wlb-spot-a { will-change: transform; animation: wlb-spot-a 56s ease-in-out infinite; }
+        .wlb-spot-b { will-change: transform; animation: wlb-spot-b 62s ease-in-out infinite; }
+        @keyframes wlb-spot-a {
           0%,100% { transform: translate3d(0,0,0) scale(1); }
-          50%     { transform: translate3d(14vw,5vh,0) scale(1.1); }
+          50%     { transform: translate3d(11vw,4vh,0) scale(1.08); }
         }
-        @keyframes plb-spot-b {
+        @keyframes wlb-spot-b {
           0%,100% { transform: translate3d(0,0,0) scale(1); }
-          50%     { transform: translate3d(-12vw,-3vh,0) scale(1.08); }
+          50%     { transform: translate3d(-10vw,-3vh,0) scale(1.06); }
         }
 
-        .plb-fog { will-change: transform; animation: plb-fog 76s ease-in-out infinite; }
-        @keyframes plb-fog {
+        .wlb-fog { will-change: transform; animation: wlb-fog 86s ease-in-out infinite; }
+        @keyframes wlb-fog {
           0%,100% { transform: translate3d(0,0,0); }
           50%     { transform: translate3d(5vw,-2vh,0); }
         }
 
-        .plb-dancer {
+        .wlb-dancer {
           width: 170px;
           height: 300px;
           transform-origin: 50% 100%;
           will-change: transform;
-          animation-name: plb-sway;
+          animation-name: wlb-sway;
           animation-timing-function: ease-in-out;
           animation-iteration-count: infinite;
           animation-direction: alternate;
         }
-        @keyframes plb-sway {
+        @keyframes wlb-sway {
           0%   { transform: translate3d(0,0,0) rotate(-0.9deg) scale(var(--scale)); }
           50%  { transform: translate3d(5px,-4px,0) rotate(0.45deg) scale(var(--scale)); }
           100% { transform: translate3d(-4px,-2px,0) rotate(-0.35deg) scale(var(--scale)); }
         }
 
         @media (max-width: 768px) {
-          .plb-dancer { width: 118px; height: 250px; }
-          .plb-particle:nth-child(n+28) { display: none; }
+          .wlb-dancer { width: 118px; height: 250px; }
+          .wlb-particle:nth-child(n+20) { display: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .plb-mesh-a, .plb-mesh-b, .plb-mesh-c, .plb-particle, .plb-rays, .plb-spot-a, .plb-spot-b, .plb-fog, .plb-dancer { animation: none !important; }
+          .wlb-mesh-a, .wlb-mesh-b, .wlb-mesh-c, .wlb-particle, .wlb-rays, .wlb-spot-a, .wlb-spot-b, .wlb-fog, .wlb-dancer { animation: none !important; }
         }
       `}</style>
     </div>
@@ -346,25 +535,25 @@ function WorkshopDetailPage() {
   ];
 
   return (
-    <div className="relative min-h-screen pb-40 md:pb-24 text-amber-50 selection:bg-amber-400/30">
-      <PremiumWorkshopBackdrop />
+    <div className="workshop-detail-page relative isolate min-h-screen pb-40 md:pb-24 text-amber-50 selection:bg-amber-400/30">
+      <WorkshopLiveBackdrop media={heroMedia} />
 
 
       {/* ==================== HERO ==================== */}
       <section ref={heroRef} className="relative w-full min-h-[100svh] overflow-hidden">
-        {/* poster background parallax (blurred) */}
-        <motion.div style={{ y: yBg }} className="absolute inset-0 will-change-transform">
+        {/* hero depth overlay only; live background is owned by WorkshopLiveBackdrop */}
+        <motion.div style={{ y: yBg }} className="absolute inset-0 will-change-transform transform-gpu">
           {heroMedia?.media_url ? (
             heroMedia.media_kind === "video" ? (
               <video src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
-                autoPlay muted loop playsInline preload="metadata"
-                className="w-full h-full object-cover opacity-30 blur-2xl scale-110" />
+                autoPlay muted loop playsInline preload="auto"
+                className="w-full h-full object-cover opacity-[0.18] scale-105 transform-gpu" />
             ) : (
-              <img src={heroMedia.media_url} alt="" className="w-full h-full object-cover opacity-30 blur-2xl scale-110" />
+              <img src={heroMedia.media_url} alt="" loading="eager" fetchPriority="high" className="w-full h-full object-cover opacity-[0.16] scale-105 transform-gpu" />
             )
           ) : null}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.18),transparent_60%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/70 via-[#050301]/60 to-[#050301]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.12),transparent_62%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/34 via-[#050301]/18 to-[#050301]/42" />
         </motion.div>
 
         <motion.div style={{ opacity: fadeHero }}
@@ -376,7 +565,7 @@ function WorkshopDetailPage() {
             </Link>
 
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-400/40 bg-amber-500/5 backdrop-blur">
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-400/40 bg-[#140d03]/55 shadow-[0_10px_30px_-20px_rgba(245,199,106,0.55)]">
               <Sparkles size={12} className="text-amber-400" />
               <span className="text-[10px] tracking-[0.3em] uppercase text-amber-300">
                 {program.category ?? "Featured Workshop"}
@@ -428,7 +617,7 @@ function WorkshopDetailPage() {
             <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden border border-amber-400/40 shadow-[0_40px_100px_-30px_rgba(212,169,76,0.5)] bg-black">
               {heroMedia?.media_kind === "video" && heroMedia.media_url ? (
                 <video src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
-                  autoPlay muted loop playsInline preload="metadata"
+                  autoPlay muted loop playsInline preload="auto"
                   className="w-full h-full object-cover" />
               ) : heroMedia?.media_url ? (
                 <img src={heroMedia.media_url} alt={program.name} className="w-full h-full object-cover" />
@@ -464,7 +653,7 @@ function WorkshopDetailPage() {
 
       {/* ==================== COUNTDOWN ==================== */}
       {countdown && !countdown.done && (
-        <section id="countdown" className="relative py-14 border-y border-amber-400/15 bg-black/40 backdrop-blur">
+        <section id="countdown" className="relative py-14 border-y border-amber-400/15 bg-black/48">
           <div className="max-w-5xl mx-auto px-6 flex flex-col items-center gap-6">
             <p className="text-[11px] tracking-[0.4em] uppercase text-amber-400">Divine Alignment In</p>
             <div className="grid grid-cols-4 gap-3 sm:gap-8">
@@ -518,7 +707,7 @@ function WorkshopDetailPage() {
               <motion.div key={c.label}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="group relative rounded-2xl border border-amber-400/25 bg-gradient-to-b from-amber-950/20 to-black/60 backdrop-blur p-8 text-center overflow-hidden hover:border-amber-400/60 hover:shadow-[0_20px_60px_-20px_rgba(212,169,76,0.4)] transition-all">
+                className="group relative rounded-2xl border border-amber-400/25 bg-gradient-to-b from-amber-950/28 to-black/72 p-8 text-center overflow-hidden hover:border-amber-400/60 hover:shadow-[0_20px_60px_-20px_rgba(212,169,76,0.4)] transition-all">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,169,76,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
                 <c.icon className="mx-auto text-amber-400" size={28} />
                 <p className="mt-4 text-[11px] tracking-[0.3em] uppercase text-amber-400">{c.label}</p>
@@ -559,7 +748,7 @@ function WorkshopDetailPage() {
           </div>
 
           <div className="mt-14 grid sm:grid-cols-2 gap-5">
-            <div className="rounded-2xl border border-amber-400/20 bg-black/40 backdrop-blur p-6">
+            <div className="rounded-2xl border border-amber-400/20 bg-black/52 p-6">
               <p className="text-[11px] tracking-[0.3em] uppercase text-amber-400">Learning Outcomes</p>
               <ul className="mt-4 space-y-3 text-sm text-amber-50/85">
                 {["Master choreography from start to finish", "Sharpen technique, musicality & expression", "Build stage presence & confidence", "Perform the final piece with the group"].map((t) => (
@@ -567,7 +756,7 @@ function WorkshopDetailPage() {
                 ))}
               </ul>
             </div>
-            <div className="rounded-2xl border border-amber-400/20 bg-black/40 backdrop-blur p-6">
+            <div className="rounded-2xl border border-amber-400/20 bg-black/52 p-6">
               <p className="text-[11px] tracking-[0.3em] uppercase text-amber-400">What to Bring</p>
               <ul className="mt-4 space-y-3 text-sm text-amber-50/85">
                 {["Comfortable dance-ready clothing", "Clean indoor shoes / sneakers", "Water bottle & small towel", "A whole lot of energy"].map((t) => (
@@ -624,7 +813,7 @@ function WorkshopDetailPage() {
           >
             {/* glow */}
             <div className="absolute -inset-6 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.35),transparent_70%)] blur-2xl" />
-            <div className="relative rounded-3xl border border-amber-400/60 bg-gradient-to-b from-amber-950/40 to-black/80 backdrop-blur-xl p-10 text-center shadow-[0_30px_80px_-20px_rgba(212,169,76,0.5)]">
+            <div className="relative rounded-3xl border border-amber-400/60 bg-gradient-to-b from-amber-950/48 to-black/88 p-10 text-center shadow-[0_30px_80px_-20px_rgba(212,169,76,0.5)]">
               {/* BEST ribbon */}
               <div className="absolute -top-3 -right-3 rotate-12 px-3 py-1 rounded-md bg-gradient-to-b from-amber-300 to-amber-500 text-black text-[10px] font-black tracking-widest shadow-lg">
                 BEST
@@ -683,7 +872,7 @@ function WorkshopDetailPage() {
               <motion.div key={s.n}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.07 }}
-                className="group relative rounded-2xl border border-amber-400/20 bg-black/40 backdrop-blur p-5 text-center hover:border-amber-400/60 hover:-translate-y-1 transition-all">
+                className="group relative rounded-2xl border border-amber-400/20 bg-black/52 p-5 text-center hover:border-amber-400/60 hover:-translate-y-1 transition-all">
                 <p className="font-serif text-4xl text-amber-300/90" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
                   Step {s.n}
                 </p>
@@ -707,7 +896,7 @@ function WorkshopDetailPage() {
                     className="w-full h-full border-0 grayscale-[40%] contrast-125" allowFullScreen />
                 )}
               </div>
-              <div className="rounded-3xl border border-amber-400/30 bg-gradient-to-b from-amber-950/30 to-black/70 backdrop-blur p-8 flex flex-col">
+              <div className="rounded-3xl border border-amber-400/30 bg-gradient-to-b from-amber-950/38 to-black/82 p-8 flex flex-col">
                 <MapPin className="text-amber-400" size={22} />
                 <p className="mt-3 text-[11px] tracking-[0.3em] uppercase text-amber-400">Venue</p>
                 <p className="mt-2 font-serif text-2xl text-amber-100" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
