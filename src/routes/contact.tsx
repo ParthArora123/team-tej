@@ -90,9 +90,9 @@ function Contact() {
           {[
             { icon: Mail, label: "Email", value: info.email, href: info.email ? `mailto:${info.email}` : undefined },
             { icon: Phone, label: "Phone", value: info.phone, href: info.phone ? `tel:${String(info.phone).replace(/[^+\d]/g, "")}` : undefined },
-            { icon: MessageCircle, label: "WhatsApp", value: info.whatsapp, href: info.whatsapp ? `https://wa.me/${String(info.whatsapp).replace(/[^\d]/g, "")}` : undefined },
+            { icon: MessageCircle, label: "WhatsApp", value: info.whatsapp, href: waHref, isWa: true },
             { icon: MapPin, label: "Studio", value: info.address },
-          ].filter((c) => c.value).map((c, i) => (
+          ].filter((c) => c.value).map((c: any, i) => (
             <motion.div
               key={c.label}
               initial={{ opacity: 0, x: -20 }}
@@ -104,13 +104,24 @@ function Contact() {
               <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
                 <c.icon size={16} className="text-primary" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   {c.label}
                 </p>
                 {c.href ? (
-                  <a href={c.href} target={c.label === "WhatsApp" ? "_blank" : undefined} rel="noreferrer"
-                    className="mt-1 text-base hover:text-primary transition break-words">{c.value}</a>
+                  <a
+                    href={c.href}
+                    target={c.isWa ? "_blank" : undefined}
+                    rel={c.isWa ? "noreferrer" : undefined}
+                    className="mt-1 inline-flex items-center gap-2 text-base hover:text-primary transition break-words"
+                  >
+                    <span>{c.value}</span>
+                    {c.isWa && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#25D366]/15 text-[#25D366]">
+                        <MessageCircle size={12} /> Chat
+                      </span>
+                    )}
+                  </a>
                 ) : (
                   <p className="mt-1 text-base">{c.value}</p>
                 )}
