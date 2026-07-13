@@ -476,6 +476,14 @@ function WorkshopDetailPage() {
   const full = seatsLeft === 0;
   const silverPrice = program?.silver_seat_price ?? 1000;
 
+  const allowSingle = (program as any).allow_single !== false;
+  const allowBoth = !!(program as any).allow_both;
+  const singlePrice = program?.price_inr ?? 0;
+  const bothPrice = allowBoth ? ((program as any).both_price ?? singlePrice) : 0;
+  const w1Name = (program as any).workshop1_name || "Workshop 1";
+  const w2Name = (program as any).workshop2_name || "Workshop 2";
+
+
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
 
   const bookNow = () => {
@@ -731,66 +739,111 @@ function WorkshopDetailPage() {
         </section>
       )}
 
-      {/* ==================== REGISTRATION FEE ==================== */}
+      {/* ==================== REGISTRATION OPTIONS ==================== */}
       <section className="relative py-24">
-        <div className="max-w-3xl mx-auto px-6">
-          <SectionHeader eyebrow="Clear & Simple" title="Registration Fee" />
+        <div className="max-w-6xl mx-auto px-6">
+          <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
-            className="relative mt-14 mx-auto max-w-md"
-          >
-            {/* glow */}
-            <div className="absolute -inset-6 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.35),transparent_70%)] blur-2xl" />
-            <div className="relative rounded-3xl border border-amber-400/60 bg-gradient-to-b from-amber-950/48 to-black/88 p-10 text-center shadow-[0_30px_80px_-20px_rgba(212,169,76,0.5)]">
-              {/* BEST ribbon */}
-              <div className="absolute -top-3 -right-3 rotate-12 px-3 py-1 rounded-md bg-gradient-to-b from-amber-300 to-amber-500 text-black text-[10px] font-black tracking-widest shadow-lg">
-                BEST
-              </div>
-              <p className="text-[11px] tracking-[0.35em] uppercase text-amber-400">Complete Access Pass</p>
-              <div className="mt-6 flex items-baseline justify-center gap-1">
-                <span className="text-amber-300 text-2xl">₹</span>
-                <span className="font-serif text-7xl font-semibold text-amber-100 drop-shadow-[0_6px_30px_rgba(212,169,76,0.5)]"
-                      style={{ fontFamily: '"Cormorant Garamond",serif' }}>
-                  {program.price_inr.toLocaleString("en-IN")}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-amber-100/50">all inclusive single fee</p>
+          <div className={`mt-14 grid gap-6 items-stretch ${allowSingle && allowBoth ? "md:grid-cols-2" : "max-w-md mx-auto"}`}>
+            {allowSingle && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
+                className="relative rounded-3xl border border-amber-400/40 bg-gradient-to-b from-amber-950/40 to-black/90 p-8 shadow-[0_30px_80px_-30px_rgba(212,169,76,0.35)]"
+              >
+                <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.25),transparent_70%)] blur-2xl" />
+                <div className="relative">
+                  <p className="text-[11px] tracking-[0.35em] uppercase text-amber-400">Single Workshop</p>
+                  <h3 className="mt-3 font-serif text-3xl text-amber-100" style={{ fontFamily: '"Cormorant Garamond",serif' }}>Individual Entry</h3>
+                  <p className="mt-2 text-sm text-amber-100/60">Register for an individual workshop.</p>
 
-              <div className="my-6 h-px w-24 mx-auto bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
+                  <div className="mt-6 flex items-baseline gap-1">
+                    <span className="text-amber-300 text-xl">₹</span>
+                    <span className="font-serif text-5xl font-semibold text-amber-100 drop-shadow-[0_6px_30px_rgba(212,169,76,0.5)]" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
+                      {singlePrice.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-amber-100/50">per person</p>
 
-              <ul className="space-y-3 text-left text-sm text-amber-50/90 max-w-xs mx-auto">
-                {[
-                  program.duration ? `${program.duration} Immersive Session` : "Full Immersive Workshop",
-                  program.instructor ? `Guided by ${program.instructor}` : "Guided Live Sessions",
-                  "Complete Movement Experience",
-                  "Post-event Community Connection",
-                ].map((t) => (
-                  <li key={t} className="flex gap-3"><span className="text-amber-400">✔</span>{t}</li>
-                ))}
-              </ul>
+                  <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
 
-              {program.silver_seat_enabled && (
-                <div className="mt-6 rounded-xl border border-amber-400/30 bg-amber-500/5 p-4 text-left">
-                  <p className="text-xs font-semibold text-amber-300 flex items-center gap-2">
-                    <Ticket size={14} /> Silver Seat Add-on (+ ₹{silverPrice.toLocaleString("en-IN")})
-                  </p>
-                  <p className="mt-1 text-[11px] text-amber-100/60 leading-relaxed">
-                    A professionally shot & edited solo dance video — ready for socials & portfolio.
-                  </p>
+                  <div className="space-y-2 text-sm text-amber-50/90">
+                    <p className="text-xs uppercase tracking-widest text-amber-400/80">Available workshops</p>
+                    <ul className="space-y-1">
+                      {(program as any).workshop1_name ? (
+                        <li className="flex gap-2"><span className="text-amber-400">✔</span>{w1Name}</li>
+                      ) : null}
+                      {(program as any).workshop2_name ? (
+                        <li className="flex gap-2"><span className="text-amber-400">✔</span>{w2Name}</li>
+                      ) : null}
+                      {!(program as any).workshop1_name && !(program as any).workshop2_name ? (
+                        <li className="flex gap-2"><span className="text-amber-400">✔</span>{program.name}</li>
+                      ) : null}
+                    </ul>
+                  </div>
                 </div>
-              )}
+              </motion.div>
+            )}
 
+            {allowBoth && (
+              <motion.div
+                initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
+                className="relative rounded-3xl border border-amber-400/60 bg-gradient-to-b from-amber-950/48 to-black/88 p-8 shadow-[0_30px_80px_-20px_rgba(212,169,76,0.5)]"
+              >
+                <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.35),transparent_70%)] blur-2xl" />
+                <div className="relative">
+                  {allowSingle && (
+                    <div className="absolute -top-2 -right-2 rotate-12 px-3 py-1 rounded-md bg-gradient-to-b from-amber-300 to-amber-500 text-black text-[10px] font-black tracking-widest shadow-lg">
+                      BEST
+                    </div>
+                  )}
+                  <p className="text-[11px] tracking-[0.35em] uppercase text-amber-400">Both Workshops</p>
+                  <h3 className="mt-3 font-serif text-3xl text-amber-100" style={{ fontFamily: '"Cormorant Garamond",serif' }}>Combined Pass</h3>
+                  <p className="mt-2 text-sm text-amber-100/60">Register for both workshops with a single registration.</p>
 
-              {seatsLeft != null && (
-                <p className="mt-4 text-[11px] uppercase tracking-widest text-amber-200/70">
-                  <AnimatedCounter value={seatsLeft} /> of {program.capacity} seats remaining
-                </p>
-              )}
-            </div>
-          </motion.div>
+                  <div className="mt-6 flex items-baseline gap-1">
+                    <span className="text-amber-300 text-xl">₹</span>
+                    <span className="font-serif text-5xl font-semibold text-amber-100 drop-shadow-[0_6px_30px_rgba(212,169,76,0.5)]" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
+                      {bothPrice.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-amber-100/50">for both workshops</p>
+
+                  <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+
+                  <div className="space-y-2 text-sm text-amber-50/90">
+                    <p className="text-xs uppercase tracking-widest text-amber-400/80">Includes</p>
+                    <ul className="space-y-1">
+                      <li className="flex gap-2"><span className="text-amber-400">✔</span>{w1Name}</li>
+                      <li className="flex gap-2"><span className="text-amber-400">✔</span>{w2Name}</li>
+                    </ul>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {program.silver_seat_enabled && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
+              className="mt-8 max-w-2xl mx-auto rounded-2xl border border-amber-400/30 bg-amber-500/5 p-5 text-center"
+            >
+              <p className="text-xs font-semibold text-amber-300 flex items-center justify-center gap-2">
+                <Ticket size={14} /> Silver Seat Add-on (+ ₹{silverPrice.toLocaleString("en-IN")})
+              </p>
+              <p className="mt-1 text-[11px] text-amber-100/60 leading-relaxed">
+                A professionally shot & edited solo dance video — ready for socials & portfolio.
+              </p>
+            </motion.div>
+          )}
+
+          {seatsLeft != null && (
+            <p className="mt-8 text-center text-[11px] uppercase tracking-widest text-amber-200/70">
+              <AnimatedCounter value={seatsLeft} /> of {program.capacity} seats remaining
+            </p>
+          )}
         </div>
       </section>
+
 
       {/* ==================== TIMELINE ==================== */}
       <section className="relative py-24">
