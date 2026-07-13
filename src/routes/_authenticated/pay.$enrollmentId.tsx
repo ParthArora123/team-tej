@@ -42,6 +42,7 @@ function PayUpload() {
   const loadSiteContent = useServerFn(getSiteContent);
   const [enr, setEnr] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [paymentReference, setPaymentReference] = useState("");
   const [validated, setValidated] = useState<ValidatedPaymentProof | null>(null);
   const [preview, setPreview] = useState<string>("");
   const [err, setErr] = useState("");
@@ -89,6 +90,11 @@ function PayUpload() {
 
   const submit = async () => {
     if (!file || !validated || !enr || busy || validating) return;
+    const ref = paymentReference.trim();
+    if (ref.length < 6 || ref.length > 64 || !/^[A-Za-z0-9-]+$/.test(ref)) {
+      setErr("Please enter a valid UPI/Transaction Reference ID (6–64 letters/digits).");
+      return;
+    }
     setErr(""); setBusy(true);
     let uploadedPath: string | null = null;
     try {
@@ -104,8 +110,8 @@ function PayUpload() {
       });
       if (up.error) throw new Error(`Upload failed: ${up.error.message}. Please check your connection and try again.`);
       uploadedPath = path;
-      const result = await submitPay({ data: { enrollmentId: enr.id, proofPath: path } });
-      const ticket = (result as any)?.ticket ?? enr.ticket_code ?? null;
+      const result = await submitPay({ data: { enrollmentId: enr.id, proofPath: path, paymentReference: ref } });
+      const ticket = (result as any)?.ticketCode ?? enr.ticket_code ?? null;
       setConfirmed({ ticket });
       setDone(true);
       // Auto-open WhatsApp addressed to the student's registered number with
@@ -242,7 +248,8 @@ function PayUpload() {
     );
   }
 
-  const canSubmit = !!file && !!validated && !validating && !busy;
+  const canSubmit = !!file && !!validated && !validating && !busy
+    && /^[A-Za-z0-9-]{6,64}$/.test(paymentReference.trim());
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-6 max-w-xl mx-auto">
@@ -270,6 +277,22 @@ function PayUpload() {
 
       <div className="mt-6 rounded-xl border border-border bg-card p-5">
         <label className="text-xs uppercase tracking-wider text-muted-foreground">
+          UPI / Transaction Reference ID (UTR)
+        </label>
+        <input
+          type="text"
+          value={paymentReference}
+          onChange={(e) => setPaymentReference(e.target.value)}
+          disabled={busy}
+          placeholder="e.g. 123456789012"
+          maxLength={64}
+          className="mt-2 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"
+        />
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          Enter the UTR / Reference number shown in your UPI app or bank SMS for this payment (6–64 letters/digits).
+        </p>
+
+        <label className="mt-5 block text-xs uppercase tracking-wider text-muted-foreground">
           Payment screenshot (.jpg, .jpeg, .png, .webp — max 8 MB)
         </label>
         <div className="mt-3 flex items-center gap-2 text-sm font-medium text-primary">
