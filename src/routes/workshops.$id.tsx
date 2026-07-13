@@ -2,9 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import {
-  Calendar, MapPin, Users, Clock, ChevronDown, Sparkles, Star,
-  Phone, MessageCircle, Share2, Heart, Navigation, ArrowLeft, CheckCircle2, Package,
-  Ticket, Mail, PlayCircle,
+  Calendar, MapPin, Clock, ChevronDown, Sparkles,
+  ArrowLeft, CheckCircle2, Package,
+  Ticket, PlayCircle,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getProgram } from "@/lib/catalog.functions";
