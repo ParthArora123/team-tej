@@ -120,6 +120,32 @@ export function EnrollDialog({ klass, onClose }: Props) {
                 <Field label="State" v={d.state} on={(v) => setD({...d, state: v})} />
                 <Field label="Emergency contact" v={d.emergencyContact} on={(v) => setD({...d, emergencyContact: v})} span2 />
 
+                {(allowSingle || allowBoth) && (allowSingle && allowBoth ? (
+                  <div className="col-span-2 rounded-xl border border-primary/40 bg-primary/5 p-3 space-y-2">
+                    <p className="text-xs uppercase tracking-widest text-primary font-medium">Workshop Selection</p>
+                    <label className="flex items-center justify-between gap-3 cursor-pointer">
+                      <span className="flex items-center gap-2 text-sm">
+                        <input type="radio" name="regType" checked={regType === "single"} onChange={() => setRegType("single")} />
+                        Single Workshop
+                      </span>
+                      <span className="text-sm font-medium">₹{klass.price.toLocaleString("en-IN")}</span>
+                    </label>
+                    <label className="flex items-center justify-between gap-3 cursor-pointer">
+                      <span className="flex items-center gap-2 text-sm">
+                        <input type="radio" name="regType" checked={regType === "both"} onChange={() => setRegType("both")} />
+                        Both Workshops
+                      </span>
+                      <span className="text-sm font-medium">₹{(klass.bothPrice ?? 0).toLocaleString("en-IN")}</span>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="col-span-2 rounded-xl border border-primary/40 bg-primary/5 p-3 flex items-center justify-between">
+                    <span className="text-sm font-medium">{regType === "both" ? "Both Workshops" : "Single Workshop"}</span>
+                    <span className="text-sm font-medium">₹{basePrice.toLocaleString("en-IN")}</span>
+                  </div>
+                ))}
+
+
                 {klass.silverSeatEnabled && (
                   <label className="col-span-2 flex items-start gap-3 rounded-xl border border-primary/40 bg-primary/5 p-3 cursor-pointer">
                     <input type="checkbox" checked={silver} onChange={(e) => setSilver(e.target.checked)} className="mt-1" />
