@@ -18,9 +18,7 @@ import { CursorGlow } from "../components/site/CursorGlow";
 import { AmbientBlobs } from "../components/site/AmbientBlobs";
 import { SmoothScroll } from "../components/site/SmoothScroll";
 import { ScrollToTop } from "../components/site/ScrollToTop";
-import { AuroraBackground } from "../components/site/AuroraBackground";
-import { ParticleField } from "../components/site/ParticleField";
-import { FloatingShapes3D } from "../components/site/FloatingShapes3D";
+import { StageAmbience } from "../components/site/StageAmbience";
 import { DeferMount } from "../components/site/DeferMount";
 
 
@@ -144,11 +142,9 @@ function RootComponent() {
         <SmoothScroll />
       </DeferMount>
       <div className="min-h-screen grain-bg relative">
-        <AuroraBackground />
+        <StageAmbience />
         <DeferMount>
           <AmbientBlobs />
-          <ParticleField />
-          <FloatingShapes3D />
           <CursorGlow />
         </DeferMount>
         <ScrollProgress />
