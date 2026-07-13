@@ -270,6 +270,8 @@ function WorkshopDetailPage() {
   return (
     <div className="relative min-h-screen pb-40 md:pb-24 text-amber-50 selection:bg-amber-400/30">
       <GoldParticles />
+      <GoldStageAmbience />
+
 
       {/* ==================== HERO ==================== */}
       <section ref={heroRef} className="relative w-full min-h-[100svh] overflow-hidden">
