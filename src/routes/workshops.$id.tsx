@@ -49,17 +49,27 @@ function useCountdown(target: Date | null) {
   return { d, h, m, s, done: diff === 0 };
 }
 
-/* ---------- Ambient gold particles background ---------- */
+/* ---------- Ambient premium live backdrop ---------- */
 function GoldParticles() {
   const dots = useMemo(
     () =>
-      Array.from({ length: 60 }).map((_, i) => ({
+      Array.from({ length: 70 }).map((_, i) => ({
         x: (i * 137.5) % 100,
         y: (i * 53.3) % 100,
         s: (i % 4) + 1,
         d: 6 + (i % 7),
         delay: (i % 10) * 0.4,
-        o: 0.15 + ((i % 6) / 10),
+        o: 0.18 + ((i % 6) / 10),
+      })),
+    []
+  );
+  const sparks = useMemo(
+    () =>
+      Array.from({ length: 14 }).map((_, i) => ({
+        left: (i * 73) % 100,
+        delay: (i % 7) * 1.1,
+        dur: 7 + (i % 5),
+        drift: (i % 2 ? 1 : -1) * (20 + (i % 4) * 10),
       })),
     []
   );
@@ -69,18 +79,83 @@ function GoldParticles() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.10),transparent_70%)]" />
       {/* faint grid */}
       <div className="absolute inset-0 opacity-[0.05] [background-image:linear-gradient(to_right,#d4a94c_1px,transparent_1px),linear-gradient(to_bottom,#d4a94c_1px,transparent_1px)] [background-size:80px_80px]" />
+
+      {/* aurora blobs — slow drifting gold/amber glow */}
+      <motion.div
+        className="absolute -top-32 -left-24 h-[45rem] w-[45rem] rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle at 30% 30%, rgba(212,169,76,0.28), transparent 60%)" }}
+        animate={{ x: [0, 80, -20, 0], y: [0, 40, -30, 0], scale: [1, 1.1, 0.95, 1] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute -bottom-40 -right-24 h-[50rem] w-[50rem] rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle at 60% 60%, rgba(184,134,11,0.25), transparent 65%)" }}
+        animate={{ x: [0, -60, 30, 0], y: [0, -30, 40, 0], scale: [1, 1.15, 0.9, 1] }}
+        transition={{ duration: 28, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute top-1/3 left-1/2 h-[30rem] w-[30rem] -translate-x-1/2 rounded-full blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(255,215,120,0.14), transparent 70%)" }}
+        animate={{ opacity: [0.5, 0.9, 0.5], scale: [0.9, 1.1, 0.9] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* diagonal light sweep */}
+      <motion.div
+        className="absolute -inset-x-1/2 top-0 h-full"
+        style={{
+          background:
+            "linear-gradient(115deg, transparent 40%, rgba(255,220,150,0.06) 50%, transparent 60%)",
+        }}
+        animate={{ x: ["-30%", "30%", "-30%"] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* soft scanline shimmer */}
+      <motion.div
+        className="absolute inset-x-0 h-24"
+        style={{
+          background:
+            "linear-gradient(to bottom, transparent, rgba(255,215,140,0.06), transparent)",
+        }}
+        animate={{ y: ["-10%", "110%"] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+      />
+
+      {/* floating particles */}
       {dots.map((p, i) => (
         <motion.span
           key={i}
-          className="absolute rounded-full bg-amber-300"
+          className="absolute rounded-full bg-amber-300 shadow-[0_0_6px_rgba(255,200,120,0.7)]"
           style={{ left: `${p.x}%`, top: `${p.y}%`, width: p.s, height: p.s, opacity: p.o }}
-          animate={{ y: [0, -18, 0], opacity: [p.o * 0.4, p.o, p.o * 0.4] }}
+          animate={{ y: [0, -22, 0], opacity: [p.o * 0.35, p.o, p.o * 0.35] }}
           transition={{ duration: p.d, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
         />
       ))}
+
+      {/* rising ember sparks */}
+      {sparks.map((s, i) => (
+        <motion.span
+          key={`sp-${i}`}
+          className="absolute bottom-0 h-1 w-1 rounded-full bg-amber-200 shadow-[0_0_8px_rgba(255,210,140,0.9)]"
+          style={{ left: `${s.left}%` }}
+          animate={{ y: [0, -700], x: [0, s.drift, 0], opacity: [0, 1, 0] }}
+          transition={{ duration: s.dur, repeat: Infinity, delay: s.delay, ease: "easeOut" }}
+        />
+      ))}
+
+      {/* subtle grain */}
+      <div
+        className="absolute inset-0 opacity-[0.05] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>\")",
+        }}
+      />
     </div>
   );
 }
+
 
 /* ---------- Section label + serif heading (Manthan style) ---------- */
 function SectionHeader({ eyebrow, title, center = true }: { eyebrow: string; title: string; center?: boolean }) {
