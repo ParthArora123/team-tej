@@ -53,7 +53,7 @@ function PayUpload() {
       seenHashes.current.add(v.sha256);
       setFile(f);
       setValidated(v);
-      setPreview(URL.createObjectURL(new Blob([v.bytes], { type: v.mime })));
+      setPreview(URL.createObjectURL(new Blob([v.bytes as BlobPart], { type: v.mime })));
     } catch (e: any) {
       setFile(null);
       setValidated(null);
