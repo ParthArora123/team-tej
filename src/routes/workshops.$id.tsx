@@ -235,6 +235,7 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
   ];
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#050301] contain-paint">
+      <DanceMotionCanvas />
       <motion.div style={{ y: liveY }} className="absolute -inset-[8%] will-change-transform transform-gpu">
         {media?.media_kind === "video" && media.media_url ? (
           <video
