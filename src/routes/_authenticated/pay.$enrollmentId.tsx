@@ -57,6 +57,9 @@ function PayUpload() {
     fetchEnrollments().then((rows: any[]) => {
       setEnr(rows.find((r) => r.id === enrollmentId) ?? null);
     });
+    loadSiteContent({ data: { key: "contact" } }).then((v: any) => {
+      if (v?.whatsapp) setWhatsapp(String(v.whatsapp));
+    }).catch(() => {});
   }, [enrollmentId]);
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
