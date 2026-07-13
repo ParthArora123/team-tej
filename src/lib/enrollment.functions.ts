@@ -212,7 +212,8 @@ export async function verifyPaymentScreenshot(dataUrl: string, ctx: VerifyCtx) {
         {
           role: "system",
           content:
-            "You are a strict forensic validator for Indian UPI payment confirmation screenshots (Google Pay, PhonePe, Paytm, BHIM, Amazon Pay, Cred, WhatsApp Pay, or a bank UPI app). Return ONLY valid JSON with keys: is_payment_screenshot (bool), is_screenshot_not_photo (bool), is_supported_upi_app (bool), detected_app (string or null), appears_manipulated (bool — true if the image looks edited, cropped to hide key fields, has inconsistent fonts/alignment/pixelation around numbers/status, mismatched anti-aliasing, cloned regions, or is AI/synthetically generated), manipulation_reason (string or null), payment_status (one of successful|failed|pending|processing|cancelled|refunded|reversed|unknown), recipient_name (string or null), recipient_upi_id (string or null), payer_upi_id (string or null), amount (number or null), payment_date (YYYY-MM-DD or null), payment_time (HH:MM or null), transaction_reference (string or null — the UTR / UPI Reference ID / bank reference number shown on the receipt; return the longest unique alphanumeric ID visible, no spaces), has_all_required_fields (bool — true only if UPI Reference ID, payment status, amount, and date/time are all clearly visible), extraction_confidence (low|medium|high), reason (short human-readable string). Extract the RECIPIENT (payee / To) UPI ID and name, never the payer's. Reject camera photos of screens, cropped images hiding key info, screenshots from non-UPI apps, and any image that looks edited or AI-generated.",
+            "You are a validator for Indian UPI payment confirmation screenshots (Google Pay, PhonePe, Paytm, BHIM, Amazon Pay, Cred, WhatsApp Pay, or any bank UPI app). Different apps format dates, times, and amounts very differently (e.g. '13 Jul 2026, 4:32 PM', '2026-07-13', '13/07/26', 'Today 4:32 PM', 'Just now'). Treat those as valid — never flag a screenshot as manipulated just because the layout, fonts, or date format is unfamiliar. Return ONLY valid JSON with keys: is_payment_screenshot (bool), is_screenshot_not_photo (bool), is_supported_upi_app (bool), detected_app (string or null), appears_manipulated (bool — set true ONLY when there is strong, obvious visual evidence of tampering such as clearly mismatched fonts inside the amount/status/date fields, visible clone-stamp or eraser artifacts, pixel-level splicing seams, or an obviously AI-generated fake receipt; DO NOT set true for unfamiliar layouts, unusual date formats, minor compression artifacts, OCR ambiguity, unknown banks, dark-mode UIs, or screenshots that merely 'look different'), manipulation_evidence (array of short strings describing the specific tampering artifacts you can point to; empty array if none), manipulation_reason (string or null), payment_status (one of successful|failed|pending|processing|cancelled|refunded|reversed|unknown), recipient_name (string or null), recipient_upi_id (string or null), payer_upi_id (string or null), amount (number or null), payment_date (YYYY-MM-DD or null — normalise from ANY format you see, including relative ones like 'Today'/'Yesterday' using the current date provided in the user message), payment_time (HH:MM or null), transaction_reference (string or null — the UTR / UPI Reference ID / bank reference number shown on the receipt; return the longest unique alphanumeric ID visible, no spaces), has_all_required_fields (bool — true if UPI Reference ID, payment status, amount, and date/time are all clearly visible), extraction_confidence (low|medium|high), reason (short human-readable string). Extract the RECIPIENT (payee / To) UPI ID and name, never the payer's. Reject camera photos of screens and screenshots from non-UPI apps. When unsure whether an image is manipulated, prefer appears_manipulated=false — false positives are worse than false negatives here.",
+
         },
         {
           role: "user",
@@ -220,11 +221,12 @@ export async function verifyPaymentScreenshot(dataUrl: string, ctx: VerifyCtx) {
             {
               type: "text",
               text: `Validate this payment confirmation screenshot for a dance workshop.
+Today's date (for resolving 'Today'/'Yesterday' or relative timestamps): ${today}
 Expected recipient name (any one of these is acceptable): ${ctx.recipientNames.map((n) => `"${n}"`).join(" or ")}
 Expected recipient UPI ID: "${ctx.officialUpi}"
 Expected amount: INR ${ctx.amountInr}
-Payment must be dated between ${openOn} and ${eventOn} (inclusive).
-Inspect the image forensically for signs of tampering, editing, cropping that hides required fields, or AI generation, and set appears_manipulated accordingly. If any required field (UPI Reference ID, status, amount, date/time) is missing or not clearly visible, set has_all_required_fields to false.`,
+Payment must be dated between ${openOn} and ${eventOn} (inclusive). Accept any date format the app uses and normalise it to YYYY-MM-DD.
+Only set appears_manipulated=true if you can point to specific tampering artifacts in manipulation_evidence. Unfamiliar layout, unusual date/time format, unknown bank, dark mode, or minor compression noise are NOT tampering. If any required field (UPI Reference ID, status, amount, date/time) is missing or not clearly visible, set has_all_required_fields to false instead.`,
             },
             { type: "image_url", image_url: { url: dataUrl } },
           ],
@@ -256,7 +258,14 @@ Inspect the image forensically for signs of tampering, editing, cropping that hi
   if (p.is_screenshot_not_photo === false) {
     return { accepted: false, reason: "Please upload the original payment screenshot from your app — not a photo of a screen." };
   }
-  if (p.appears_manipulated === true) {
+  // Only reject on tampering when the model has HIGH confidence AND cites at
+  // least one specific visual artifact. This avoids false positives from
+  // unfamiliar UPI-app layouts, unusual date formats, or minor OCR ambiguity.
+  const evidence: string[] = Array.isArray(p.manipulation_evidence)
+    ? p.manipulation_evidence.map((x: any) => String(x ?? "").trim()).filter(Boolean)
+    : [];
+  const confidence = String(p.extraction_confidence ?? "").toLowerCase();
+  if (p.appears_manipulated === true && confidence === "high" && evidence.length > 0) {
     return { accepted: false, reason: `This screenshot appears to be edited, cropped, or AI-generated${p.manipulation_reason ? ` (${p.manipulation_reason})` : ""}. Please upload an unedited payment confirmation screenshot from your UPI app.` };
   }
   if (p.is_supported_upi_app === false) {
