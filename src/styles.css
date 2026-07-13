@@ -120,3 +120,14 @@ html, body {
     radial-gradient(ellipse 80% 60% at 50% -10%, oklch(0.78 0.16 65 / 12%), transparent 70%),
     radial-gradient(ellipse 60% 50% at 90% 110%, oklch(0.65 0.2 35 / 10%), transparent 70%);
 }
+
+.workshop-detail-shell .backdrop-blur,
+.workshop-detail-shell .backdrop-blur-sm,
+.workshop-detail-shell .backdrop-blur-md,
+.workshop-detail-shell .backdrop-blur-lg,
+.workshop-detail-shell .backdrop-blur-xl,
+.workshop-detail-shell .backdrop-blur-2xl,
+.workshop-detail-shell .backdrop-blur-3xl {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
