@@ -117,14 +117,18 @@ function PayBundle() {
         const dateStr = first?.event_date ? new Date(first.event_date).toDateString() : "—";
         const timeStr = first?.event_time || "—";
         const venueStr = first?.venue || "—";
+        const verifyLines = tickets
+          .map((t: string) => `${window.location.origin}/verify?code=${encodeURIComponent(t)}`)
+          .join("\n");
         const message =
           `🎉 Hi ${participant},\n\n` +
-          `Your payment has been successfully verified and your seat has been confirmed for ${workshops}.\n\n` +
+          `✅ Payment confirmed. Your seat has been confirmed for ${workshops}.\n\n` +
           `Registration ID: ${ids}\n` +
           `Date: ${dateStr}\n` +
           `Time: ${timeStr}\n` +
           `Venue: ${venueStr}\n\n` +
-          `Please bring your QR Code/Registration ID during check-in.\n\n` +
+          (verifyLines ? `Your QR code(s) for entry/check-in:\n${verifyLines}\n\n` : "") +
+          `Please keep your QR code(s) safe and present them at the venue during check-in.\n\n` +
           `We look forward to welcoming you to the workshop!\n\n` +
           `– Tejas D Dhoke`;
         window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
@@ -152,14 +156,18 @@ function PayBundle() {
     const dateStr = firstProgram?.event_date ? new Date(firstProgram.event_date).toDateString() : "—";
     const timeStr = firstProgram?.event_time || "—";
     const venueStr = firstProgram?.venue || "—";
+    const verifyLines = typeof window !== "undefined"
+      ? tickets.map((t: string) => `${window.location.origin}/verify?code=${encodeURIComponent(t)}`).join("\n")
+      : "";
     const waMessage =
       `🎉 Hi ${participant},\n\n` +
-      `Your payment has been successfully verified and your seat has been confirmed for ${workshops}.\n\n` +
+      `✅ Payment confirmed. Your seat has been confirmed for ${workshops}.\n\n` +
       `Registration ID: ${ids}\n` +
       `Date: ${dateStr}\n` +
       `Time: ${timeStr}\n` +
       `Venue: ${venueStr}\n\n` +
-      `Please bring your QR Code/Registration ID during check-in.\n\n` +
+      (verifyLines ? `Your QR code(s) for entry/check-in:\n${verifyLines}\n\n` : "") +
+      `Please keep your QR code(s) safe and present them at the venue during check-in.\n\n` +
       `We look forward to welcoming you to the workshop!\n\n` +
       `– Tejas D Dhoke`;
     const waHref = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}` : undefined;
