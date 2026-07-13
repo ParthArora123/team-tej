@@ -3,7 +3,7 @@ import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react"
 import { motion, useScroll, useTransform } from "motion/react";
 import {
   Calendar, MapPin, Clock, ChevronDown, Sparkles,
-  ArrowLeft, CheckCircle2, Package,
+  ArrowLeft,
   Ticket, PlayCircle,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
@@ -572,7 +572,7 @@ function WorkshopDetailPage() {
               </span>
             </motion.div>
 
-            <p className="mt-6 text-xs tracking-[0.35em] uppercase text-amber-200/80">Presented by Team Tej</p>
+            <p className="mt-6 text-xs tracking-[0.35em] uppercase text-amber-200/80">Presented by Tejas D Dhoke</p>
 
             <motion.h1
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
@@ -633,7 +633,7 @@ function WorkshopDetailPage() {
               <div className="pointer-events-none absolute bottom-4 right-4 w-10 h-10 border-b border-r border-amber-300/70 rounded-br-lg" />
               {/* bottom label */}
               <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                <p className="text-[10px] tracking-[0.3em] uppercase text-amber-300">Team Tej Presents</p>
+                <p className="text-[10px] tracking-[0.3em] uppercase text-amber-300">Tejas D Dhoke Presents</p>
                 <p className="font-serif text-xl text-amber-100 mt-1" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
                   {program.name}
                 </p>
@@ -719,54 +719,6 @@ function WorkshopDetailPage() {
         </div>
       </section>
 
-      {/* ==================== ABOUT ==================== */}
-      <section id="about" className="relative py-24">
-        <div className="max-w-4xl mx-auto px-6">
-          <SectionHeader eyebrow="The Sacred Philosophy" title={`About ${program.name}`} />
-          <motion.blockquote
-            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="mt-12 font-serif italic text-xl md:text-2xl leading-relaxed text-amber-50/90 text-center"
-            style={{ fontFamily: '"Cormorant Garamond",Georgia,serif' }}
-          >
-            "{program.description ?? `Join us for ${program.name}. A curated movement experience presented by Team Tej${program.instructor ? ` and guided by ${program.instructor}` : ""} — an opportunity to expand craft, expression and presence.`}"
-          </motion.blockquote>
-
-          {program.venue && (
-            <p className="mt-10 text-center text-sm tracking-[0.3em] uppercase text-amber-400">
-              Happening in {program.city ?? program.venue.split(",")[0]}
-            </p>
-          )}
-
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-amber-100/70 text-sm">
-            {["Devotion", "Expression", "Alignment"].map((w, i, a) => (
-              <span key={w} className="flex items-center gap-3">
-                <span className="text-amber-400">✔</span> {w}
-                {i < a.length - 1 && <span className="text-amber-400/40 ml-6">|</span>}
-              </span>
-            ))}
-          </div>
-
-          <div className="mt-14 grid sm:grid-cols-2 gap-5">
-            <div className="rounded-2xl border border-amber-400/20 bg-black/52 p-6">
-              <p className="text-[11px] tracking-[0.3em] uppercase text-amber-400">Learning Outcomes</p>
-              <ul className="mt-4 space-y-3 text-sm text-amber-50/85">
-                {["Master choreography from start to finish", "Sharpen technique, musicality & expression", "Build stage presence & confidence", "Perform the final piece with the group"].map((t) => (
-                  <li key={t} className="flex gap-2"><CheckCircle2 size={16} className="text-amber-400 shrink-0 mt-0.5" /><span>{t}</span></li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-2xl border border-amber-400/20 bg-black/52 p-6">
-              <p className="text-[11px] tracking-[0.3em] uppercase text-amber-400">What to Bring</p>
-              <ul className="mt-4 space-y-3 text-sm text-amber-50/85">
-                {["Comfortable dance-ready clothing", "Clean indoor shoes / sneakers", "Water bottle & small towel", "A whole lot of energy"].map((t) => (
-                  <li key={t} className="flex gap-2"><Package size={16} className="text-amber-400 shrink-0 mt-0.5" /><span>{t}</span></li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ==================== GALLERY ==================== */}
       {galleryItems.length > 0 && (
