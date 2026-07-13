@@ -58,41 +58,6 @@ function WorkshopBanner({ r }: { r: any }) {
 }
 
 /** Animated ambient background: floating light orbs + soft grid + parallax gradient. */
-function LivingBackdrop() {
-  const { scrollYProgress } = useScroll();
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -120]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, 180]);
-
-  return (
-    <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <motion.div style={{ y: y1 }}
-        className="absolute -top-40 -left-40 h-[520px] w-[520px] rounded-full blur-3xl opacity-40"
-        animate={{ scale: [1, 1.15, 1], opacity: [0.35, 0.55, 0.35] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <div className="h-full w-full rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--primary)_70%,transparent),transparent_60%)]" />
-      </motion.div>
-      <motion.div style={{ y: y2 }}
-        className="absolute top-1/3 -right-40 h-[600px] w-[600px] rounded-full blur-3xl opacity-30"
-        animate={{ scale: [1.1, 1, 1.1], opacity: [0.25, 0.5, 0.25] }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <div className="h-full w-full rounded-full bg-[radial-gradient(circle,color-mix(in_oklab,var(--accent)_70%,transparent),transparent_60%)]" />
-      </motion.div>
-      <div className="absolute inset-0 opacity-[0.04] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:44px_44px]" />
-      {/* Floating particles */}
-      {Array.from({ length: 14 }).map((_, i) => (
-        <motion.span
-          key={i}
-          className="absolute h-1 w-1 rounded-full bg-primary/60"
-          style={{ left: `${(i * 73) % 100}%`, top: `${(i * 41) % 100}%` }}
-          animate={{ y: [0, -30, 0], opacity: [0.2, 0.8, 0.2] }}
-          transition={{ duration: 6 + (i % 5), repeat: Infinity, delay: i * 0.3, ease: "easeInOut" }}
-        />
-      ))}
-    </div>
-  );
-}
 
 function WorkshopsPage() {
   const fetchPrograms = useServerFn(listPrograms);
