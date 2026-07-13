@@ -296,6 +296,14 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!f.allow_single && !f.allow_both) {
+      toast.error("Enable at least one registration option (Single or Both).");
+      return;
+    }
+    if (f.allow_both && !(Number(f.both_price) > 0)) {
+      toast.error("Enter a Both Workshops price.");
+      return;
+    }
     setBusy(true);
     try {
       await onSave({ data: {
@@ -303,6 +311,9 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
         silver_seat_price: f.silver_seat_enabled ? Number(f.silver_seat_price || 1000) : 1000,
+        allow_single: !!f.allow_single,
+        allow_both: !!f.allow_both,
+        both_price: f.allow_both ? Number(f.both_price) : null,
         upi_id: f.upi_id?.trim() || undefined,
         clear_upi: !!f.clear_upi,
         silver_seat_enabled: !!f.silver_seat_enabled,
