@@ -74,7 +74,7 @@ function PayUpload() {
       if (!uid) throw new Error("Please sign in again.");
       const safeName = sanitizeFileName(file.name, validated.ext);
       const path = `${uid}/${enr.id}-${Date.now()}-${validated.sha256.slice(0, 12)}-${safeName}`;
-      const uploadBlob = new Blob([validated.bytes], { type: validated.mime });
+      const uploadBlob = new Blob([validated.bytes as BlobPart], { type: validated.mime });
       const up = await supabase.storage.from("payment-proofs").upload(path, uploadBlob, {
         contentType: validated.mime,
         upsert: false,
