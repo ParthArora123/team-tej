@@ -258,7 +258,14 @@ Only set appears_manipulated=true if you can point to specific tampering artifac
   if (p.is_screenshot_not_photo === false) {
     return { accepted: false, reason: "Please upload the original payment screenshot from your app — not a photo of a screen." };
   }
-  if (p.appears_manipulated === true) {
+  // Only reject on tampering when the model has HIGH confidence AND cites at
+  // least one specific visual artifact. This avoids false positives from
+  // unfamiliar UPI-app layouts, unusual date formats, or minor OCR ambiguity.
+  const evidence: string[] = Array.isArray(p.manipulation_evidence)
+    ? p.manipulation_evidence.map((x: any) => String(x ?? "").trim()).filter(Boolean)
+    : [];
+  const confidence = String(p.extraction_confidence ?? "").toLowerCase();
+  if (p.appears_manipulated === true && confidence === "high" && evidence.length > 0) {
     return { accepted: false, reason: `This screenshot appears to be edited, cropped, or AI-generated${p.manipulation_reason ? ` (${p.manipulation_reason})` : ""}. Please upload an unedited payment confirmation screenshot from your UPI app.` };
   }
   if (p.is_supported_upi_app === false) {
