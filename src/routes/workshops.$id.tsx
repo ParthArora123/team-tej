@@ -234,7 +234,7 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
     { pose: "hiphop", left: "63%", bottom: "13%", scale: 0.58, dur: 46, opacity: 0.07, blur: 3 },
   ];
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#050301] contain-paint">
+    <div aria-hidden className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050301] contain-paint">
       <motion.div style={{ y: liveY }} className="absolute -inset-[8%] will-change-transform transform-gpu">
         {media?.media_kind === "video" && media.media_url ? (
           <video
@@ -348,8 +348,8 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
         ))}
       </motion.div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/48 via-[#050301]/28 to-[#050301]/76" />
-      <div className="absolute inset-x-0 bottom-0 h-[48vh] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/30 via-[#050301]/14 to-[#050301]/58" />
+      <div className="absolute inset-x-0 bottom-0 h-[48vh] bg-gradient-to-t from-black/58 via-black/18 to-transparent" />
 
       <style>{`
         .contain-paint { contain: paint; }
@@ -537,7 +537,7 @@ function WorkshopDetailPage() {
   ];
 
   return (
-    <div className="relative min-h-screen pb-40 md:pb-24 text-amber-50 selection:bg-amber-400/30">
+    <div className="workshop-detail-page relative isolate min-h-screen pb-40 md:pb-24 text-amber-50 selection:bg-amber-400/30">
       <WorkshopLiveBackdrop media={heroMedia} />
 
 
