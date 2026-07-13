@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Upload, ArrowLeft } from "lucide-react";
+import { Upload, ArrowLeft, MessageCircle, Check, Ticket, Download } from "lucide-react";
+import { QRCodeCanvas } from "qrcode.react";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, markPaymentSubmitted } from "@/lib/enrollment.functions";
+import { getSiteContent } from "@/lib/site-content.functions";
 import { supabase } from "@/integrations/supabase/client";
 import {
   validatePaymentProofFile,
