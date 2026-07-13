@@ -142,17 +142,26 @@ function PayBundle() {
     const tickets = confirmedTickets.length
       ? confirmedTickets
       : (enrollments ?? []).map((e: any) => e.ticket_code).filter(Boolean);
-    const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
-    const participant = purchase?.full_name || "—";
-    const workshops = (enrollments ?? []).map((e: any) => e.program?.name).filter(Boolean).join(", ");
+    const studentNumber = String(purchase?.phone ?? "").replace(/[^\d]/g, "");
+    const businessNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+    const waNumber = studentNumber || businessNumber;
+    const participant = purchase?.full_name || "there";
+    const workshops = (enrollments ?? []).map((e: any) => e.program?.name).filter(Boolean).join(", ") || "the workshops";
     const ids = tickets.length ? tickets.join(", ") : purchaseId;
+    const firstProgram = enrollments?.[0]?.program;
+    const dateStr = firstProgram?.event_date ? new Date(firstProgram.event_date).toDateString() : "—";
+    const timeStr = firstProgram?.event_time || "—";
+    const venueStr = firstProgram?.venue || "—";
     const waMessage =
-      `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
-      `Participant Name: ${participant}\n` +
-      `Workshop Name(s): ${workshops || "—"}\n` +
-      `Registration/Ticket ID(s): ${ids}\n` +
-      `Payment Status: Confirmed\n\n` +
-      `My Registration ID is: ${ids}.`;
+      `🎉 Hi ${participant},\n\n` +
+      `Your payment has been successfully verified and your seat has been confirmed for ${workshops}.\n\n` +
+      `Registration ID: ${ids}\n` +
+      `Date: ${dateStr}\n` +
+      `Time: ${timeStr}\n` +
+      `Venue: ${venueStr}\n\n` +
+      `Please bring your QR Code/Registration ID during check-in.\n\n` +
+      `We look forward to welcoming you to the workshop!\n\n` +
+      `– Team Naach`;
     const waHref = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}` : undefined;
     return (
       <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-3xl mx-auto">
