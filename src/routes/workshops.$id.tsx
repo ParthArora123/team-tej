@@ -48,7 +48,7 @@ function useCountdown(target: Date | null) {
   return { d, h, m, s, done: diff === 0 };
 }
 
-/* ---------- Premium live backdrop: no blinking, flashing or opacity flicker ---------- */
+/* ---------- Premium live backdrop: continuous luxury motion only ---------- */
 function PremiumWorkshopBackdrop() {
   const { scrollYProgress } = useScroll();
   const nearLayerY = useTransform(scrollYProgress, [0, 1], ["0vh", "-12vh"]);
