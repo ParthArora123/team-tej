@@ -208,72 +208,83 @@ function useCountdown(target: Date | null) {
   return { d, h, m, s, done: diff === 0 };
 }
 
-/* ---------- Workshop detail backdrop: one immediate live-motion layer ---------- */
+/* ---------- Workshop detail backdrop: stable, premium floating layer ---------- */
 function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
   const { scrollYProgress } = useScroll();
-  const liveY = useTransform(scrollYProgress, [0, 1], ["0vh", "-7vh"]);
-  const farY = useTransform(scrollYProgress, [0, 1], ["0vh", "5vh"]);
+  const mediaY = useTransform(scrollYProgress, [0, 1], ["0vh", "-6vh"]);
+
+  // Deterministic floating light particles (no opacity flicker, only smooth translation)
   const particles = useMemo(
     () =>
-      Array.from({ length: 28 }).map((_, i) => ({
-        x: (i * 29.7) % 100,
-        y: (i * 47.3) % 100,
+      Array.from({ length: 22 }).map((_, i) => ({
+        x: (i * 37.3) % 100,
+        y: (i * 53.7) % 100,
         size: 2 + (i % 3),
-        duration: 36 + (i % 7) * 5,
-        driftX: (i % 2 ? 1 : -1) * (18 + (i % 5) * 5),
-        driftY: -24 - (i % 6) * 4,
-        opacity: 0.16 + (i % 4) * 0.025,
+        duration: 42 + (i % 6) * 6,
+        delay: -(i * 2.1),
+        driftX: (i % 2 ? 1 : -1) * (14 + (i % 5) * 4),
+        driftY: -20 - (i % 5) * 5,
+        opacity: 0.22 + (i % 4) * 0.05,
       })),
     []
   );
-  const dancers = [
-    { pose: "hiphop", left: "4%", bottom: "18%", scale: 1.28, dur: 34, opacity: 0.34, blur: 0.2 },
-    { pose: "contemporary", left: "36%", bottom: "16%", scale: 1.46, dur: 42, opacity: 0.28, blur: 0.35 },
-    { pose: "freestyle", left: "74%", bottom: "18%", scale: 1.22, dur: 38, opacity: 0.31, blur: 0.2 },
-    { pose: "contemporary", left: "19%", bottom: "34%", scale: 0.78, dur: 48, opacity: 0.16, blur: 1.4 },
-    { pose: "hiphop", left: "62%", bottom: "35%", scale: 0.82, dur: 46, opacity: 0.16, blur: 1.4 },
-  ];
+
+  // Floating workshop-themed glyphs: music notes + dancer silhouettes
+  const glyphs = useMemo(
+    () => [
+      { type: "note",    left: "8%",  top: "22%", size: 44, dur: 26, delay: 0,   opacity: 0.16 },
+      { type: "note2",   left: "82%", top: "18%", size: 38, dur: 30, delay: -6,  opacity: 0.14 },
+      { type: "dancer",  left: "14%", top: "62%", size: 130, dur: 34, delay: -3, opacity: 0.10 },
+      { type: "dancer2", left: "72%", top: "58%", size: 140, dur: 38, delay: -9, opacity: 0.10 },
+      { type: "note",    left: "48%", top: "12%", size: 32, dur: 28, delay: -12, opacity: 0.12 },
+      { type: "note2",   left: "30%", top: "78%", size: 34, dur: 32, delay: -4,  opacity: 0.13 },
+      { type: "dancer",  left: "56%", top: "72%", size: 110, dur: 40, delay: -14,opacity: 0.08 },
+      { type: "note",    left: "90%", top: "70%", size: 30, dur: 36, delay: -2,  opacity: 0.13 },
+    ],
+    []
+  );
+
   return (
-    <div aria-hidden className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050301] contain-paint">
-      <motion.div style={{ y: liveY }} className="absolute -inset-[8%] will-change-transform transform-gpu">
+    <div
+      aria-hidden
+      className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050301]"
+      style={{ contain: "paint" }}
+    >
+      {/* Hero media — stable, no scale/opacity animations */}
+      <motion.div style={{ y: mediaY }} className="absolute -inset-[6%] will-change-transform transform-gpu">
         {media?.media_kind === "video" && media.media_url ? (
           <video
             src={media.media_url}
             poster={media.poster_url ?? undefined}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            disablePictureInPicture
-            className="h-full w-full scale-[1.04] object-cover opacity-[0.42] transform-gpu"
+            autoPlay muted loop playsInline preload="auto" disablePictureInPicture
+            className="h-full w-full object-cover opacity-[0.38]"
           />
         ) : media?.media_url ? (
           <img
             src={media.media_url}
             alt=""
             loading="eager"
-            fetchPriority="high"
             decoding="async"
-            className="h-full w-full scale-[1.04] object-cover opacity-[0.38] transform-gpu"
+            className="h-full w-full object-cover opacity-[0.34]"
           />
         ) : (
           <div className="h-full w-full bg-[radial-gradient(ellipse_at_50%_36%,rgba(217,174,86,0.22),transparent_58%),linear-gradient(135deg,rgba(62,34,7,0.68),rgba(5,3,1,0.92)_58%,rgba(116,73,18,0.38))]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/50 via-[#050301]/34 to-[#050301]/72" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/55 via-[#050301]/40 to-[#050301]/78" />
       </motion.div>
 
-      <motion.div style={{ y: farY }} className="absolute -inset-[14%] will-change-transform transform-gpu">
-        <div className="absolute left-[-12%] top-[8%] h-[42rem] w-[42rem] rounded-full bg-[radial-gradient(circle,rgba(212,169,76,0.22),transparent_68%)] wlb-mesh-a" />
-        <div className="absolute right-[-16%] bottom-[2%] h-[50rem] w-[50rem] rounded-full bg-[radial-gradient(circle,rgba(149,91,23,0.28),transparent_72%)] wlb-mesh-b" />
-        <div className="absolute left-[25%] top-[18%] h-[34rem] w-[34rem] rounded-full bg-[radial-gradient(circle,rgba(255,214,132,0.12),transparent_74%)] wlb-mesh-c" />
-      </motion.div>
+      {/* Smooth ambient gradient wash (very slow, no pulsing opacity) */}
+      <div className="absolute -left-[18%] top-[6%] h-[46rem] w-[46rem] rounded-full opacity-40 blur-3xl wlb-drift-a"
+        style={{ background: "radial-gradient(circle, rgba(212,169,76,0.35), transparent 68%)" }} />
+      <div className="absolute -right-[14%] bottom-[4%] h-[52rem] w-[52rem] rounded-full opacity-35 blur-3xl wlb-drift-b"
+        style={{ background: "radial-gradient(circle, rgba(149,91,23,0.42), transparent 70%)" }} />
 
-      <motion.div style={{ y: liveY }} className="absolute inset-0 will-change-transform transform-gpu">
+      {/* Floating light particles */}
+      <div className="absolute inset-0">
         {particles.map((p, i) => (
           <span
             key={i}
-            className="absolute rounded-full bg-amber-200/80 shadow-[0_0_10px_rgba(255,215,140,0.55)] wlb-particle"
+            className="absolute rounded-full bg-amber-200 shadow-[0_0_10px_rgba(255,215,140,0.45)] wlb-particle"
             style={
               {
                 left: `${p.x}%`,
@@ -284,133 +295,121 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
                 "--dx": `${p.driftX}px`,
                 "--dy": `${p.driftY}px`,
                 "--dur": `${p.duration}s`,
+                animationDelay: `${p.delay}s`,
               } as CSSProperties
             }
           />
         ))}
-      </motion.div>
-
-      <svg
-        className="absolute left-1/2 top-[-35%] h-[168%] w-[150%] -translate-x-1/2 opacity-[0.13] mix-blend-screen wlb-rays transform-gpu"
-        viewBox="0 0 800 800"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        <defs>
-          <radialGradient id="gsa-ray" cx="50%" cy="0%" r="65%">
-            <stop offset="0%" stopColor="#f5c76a" stopOpacity="0.7" />
-            <stop offset="60%" stopColor="#d4a94c" stopOpacity="0.05" />
-            <stop offset="100%" stopColor="#d4a94c" stopOpacity="0" />
-          </radialGradient>
-        </defs>
-        {Array.from({ length: 7 }).map((_, i) => (
-          <polygon
-            key={i}
-            points="400,0 378,800 422,800"
-            fill="url(#gsa-ray)"
-            transform={`rotate(${(i - 3) * 13} 400 0)`}
-          />
-        ))}
-      </svg>
-
-      <div className="absolute -top-24 left-[8%] h-[72vh] w-[55vw] rounded-full mix-blend-screen wlb-spot-a"
-        style={{ background: "radial-gradient(circle, rgba(245,199,106,0.24), rgba(212,169,76,0.06) 45%, transparent 70%)" }} />
-      <div className="absolute top-[6%] right-[3%] h-[68vh] w-[52vw] rounded-full mix-blend-screen wlb-spot-b"
-        style={{ background: "radial-gradient(circle, rgba(255,220,140,0.18), rgba(184,134,11,0.05) 45%, transparent 70%)" }} />
-
-      <div className="absolute inset-0 wlb-fog transform-gpu">
-        <div
-          className="absolute left-[-18%] top-[45%] h-[55vh] w-[90vw] rounded-full opacity-35"
-          style={{ background: "radial-gradient(circle, rgba(200,160,90,0.18), transparent 70%)" }}
-        />
       </div>
 
-      <motion.div style={{ y: liveY }} className="absolute inset-x-0 bottom-0 h-[85vh] will-change-transform transform-gpu">
-        {dancers.map((d, i) => (
+      {/* Floating workshop-themed glyphs: music notes + dancer silhouettes */}
+      <div className="absolute inset-0">
+        {glyphs.map((g, i) => (
           <div
             key={i}
-            className="absolute wlb-dancer"
+            className="absolute wlb-glyph text-amber-300/80"
             style={
               {
-                left: d.left,
-                bottom: d.bottom,
-                opacity: d.opacity,
-                animationDuration: `${d.dur}s`,
-                filter: `blur(${d.blur}px)`,
-                color: "#f5c76a",
-                "--scale": d.scale,
+                left: g.left,
+                top: g.top,
+                width: g.size,
+                height: g.size,
+                opacity: g.opacity,
+                animationDuration: `${g.dur}s`,
+                animationDelay: `${g.delay}s`,
               } as CSSProperties
             }
           >
-            <GoldDancerSVG pose={d.pose as any} />
+            {g.type === "note" && <MusicNoteGlyph />}
+            {g.type === "note2" && <MusicNoteGlyph variant="double" />}
+            {g.type === "dancer" && <DancerSilhouette pose="a" />}
+            {g.type === "dancer2" && <DancerSilhouette pose="b" />}
           </div>
         ))}
-      </motion.div>
+      </div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/18 via-[#050301]/6 to-[#050301]/38" />
-      <div className="absolute inset-x-0 bottom-0 h-[42vh] bg-gradient-to-t from-black/46 via-black/12 to-transparent" />
+      {/* Bottom vignette so foreground text stays legible */}
+      <div className="absolute inset-x-0 bottom-0 h-[42vh] bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
 
       <style>{`
-        .contain-paint { contain: paint; }
-        .wlb-mesh-a, .wlb-mesh-b, .wlb-mesh-c, .wlb-spot-a, .wlb-spot-b, .wlb-fog > div { filter: blur(56px); transform: translate3d(0,0,0); }
-        .wlb-mesh-a { animation: wlb-mesh-a 58s ease-in-out infinite; will-change: transform; }
-        .wlb-mesh-b { animation: wlb-mesh-b 64s ease-in-out infinite; will-change: transform; }
-        .wlb-mesh-c { animation: wlb-mesh-c 72s ease-in-out infinite; will-change: transform; }
-        @keyframes wlb-mesh-a { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(8vw,4vh,0) scale(1.1); } }
-        @keyframes wlb-mesh-b { 0%,100% { transform: translate3d(0,0,0) scale(1.03); } 50% { transform: translate3d(-7vw,-4vh,0) scale(0.97); } }
-        @keyframes wlb-mesh-c { 0%,100% { transform: translate3d(0,0,0) scale(0.99); } 50% { transform: translate3d(4vw,-5vh,0) scale(1.07); } }
-
-        .wlb-particle { animation: wlb-float var(--dur) ease-in-out infinite; will-change: transform; transform: translate3d(0,0,0); }
-        @keyframes wlb-float {
-          0%,100% { transform: translate3d(0,0,0); }
-          50% { transform: translate3d(var(--dx),var(--dy),0); }
-        }
-
-        .wlb-rays { animation: wlb-rot 180s linear infinite; transform-origin: 50% 0%; will-change: transform; }
-        @keyframes wlb-rot { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
-
-        .wlb-spot-a { will-change: transform; animation: wlb-spot-a 56s ease-in-out infinite; }
-        .wlb-spot-b { will-change: transform; animation: wlb-spot-b 62s ease-in-out infinite; }
-        @keyframes wlb-spot-a {
+        .wlb-drift-a { animation: wlb-drift-a 60s ease-in-out infinite; will-change: transform; }
+        .wlb-drift-b { animation: wlb-drift-b 72s ease-in-out infinite; will-change: transform; }
+        @keyframes wlb-drift-a {
           0%,100% { transform: translate3d(0,0,0) scale(1); }
-          50%     { transform: translate3d(11vw,4vh,0) scale(1.08); }
+          50%     { transform: translate3d(6vw, 3vh, 0) scale(1.06); }
         }
-        @keyframes wlb-spot-b {
-          0%,100% { transform: translate3d(0,0,0) scale(1); }
-          50%     { transform: translate3d(-10vw,-3vh,0) scale(1.06); }
-        }
-
-        .wlb-fog { will-change: transform; animation: wlb-fog 86s ease-in-out infinite; }
-        @keyframes wlb-fog {
-          0%,100% { transform: translate3d(0,0,0); }
-          50%     { transform: translate3d(5vw,-2vh,0); }
+        @keyframes wlb-drift-b {
+          0%,100% { transform: translate3d(0,0,0) scale(1.02); }
+          50%     { transform: translate3d(-5vw,-3vh,0) scale(0.98); }
         }
 
-        .wlb-dancer {
-          width: 170px;
-          height: 300px;
-          transform-origin: 50% 100%;
-          will-change: transform;
-          animation-name: wlb-sway;
+        .wlb-particle {
+          animation-name: wlb-float;
+          animation-duration: var(--dur);
           animation-timing-function: ease-in-out;
           animation-iteration-count: infinite;
           animation-direction: alternate;
+          will-change: transform;
         }
-        @keyframes wlb-sway {
-          0%   { transform: translate3d(0,0,0) rotate(-0.9deg) scale(var(--scale)); }
-          50%  { transform: translate3d(5px,-4px,0) rotate(0.45deg) scale(var(--scale)); }
-          100% { transform: translate3d(-4px,-2px,0) rotate(-0.35deg) scale(var(--scale)); }
+        @keyframes wlb-float {
+          from { transform: translate3d(0,0,0); }
+          to   { transform: translate3d(var(--dx), var(--dy), 0); }
+        }
+
+        .wlb-glyph {
+          animation-name: wlb-glyph-float;
+          animation-timing-function: ease-in-out;
+          animation-iteration-count: infinite;
+          animation-direction: alternate;
+          will-change: transform;
+        }
+        @keyframes wlb-glyph-float {
+          from { transform: translate3d(0, 0, 0) rotate(-3deg); }
+          to   { transform: translate3d(10px, -18px, 0) rotate(3deg); }
         }
 
         @media (max-width: 768px) {
-          .wlb-dancer { width: 118px; height: 250px; }
-          .wlb-particle:nth-child(n+20) { display: none; }
+          .wlb-glyph:nth-child(n+6) { display: none; }
+          .wlb-particle:nth-child(n+14) { display: none; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .wlb-mesh-a, .wlb-mesh-b, .wlb-mesh-c, .wlb-particle, .wlb-rays, .wlb-spot-a, .wlb-spot-b, .wlb-fog, .wlb-dancer { animation: none !important; }
+          .wlb-drift-a, .wlb-drift-b, .wlb-particle, .wlb-glyph { animation: none !important; }
         }
       `}</style>
     </div>
+  );
+}
+
+function MusicNoteGlyph({ variant }: { variant?: "double" }) {
+  if (variant === "double") {
+    return (
+      <svg viewBox="0 0 64 64" className="w-full h-full" fill="currentColor">
+        <path d="M20 8v32a10 10 0 1 1-6-9V14l30-6v28a10 10 0 1 1-6-9V12L20 16V8z" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 64 64" className="w-full h-full" fill="currentColor">
+      <path d="M26 8v34a10 10 0 1 1-6-9V14l22-6v6L26 20V8z" />
+    </svg>
+  );
+}
+
+function DancerSilhouette({ pose }: { pose: "a" | "b" }) {
+  if (pose === "a") {
+    return (
+      <svg viewBox="0 0 120 220" className="w-full h-full" fill="currentColor">
+        <circle cx="62" cy="24" r="12" />
+        <path d="M62 38 C 50 60, 44 78, 52 108 L 40 172 L 30 210 L 42 210 L 56 174 L 62 130 L 70 176 L 82 210 L 94 210 L 84 172 L 76 108 C 84 82, 82 62, 72 44 L 96 70 L 104 62 L 78 34 Z" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 120 220" className="w-full h-full" fill="currentColor">
+      <circle cx="58" cy="22" r="12" />
+      <path d="M58 36 C 46 54, 46 80, 56 104 L 42 168 L 28 210 L 42 210 L 58 172 L 62 128 L 68 172 L 84 210 L 98 210 L 86 168 L 74 106 C 84 82, 88 58, 80 40 L 60 22 L 22 42 L 26 52 L 58 40 Z" />
+    </svg>
   );
 }
 
