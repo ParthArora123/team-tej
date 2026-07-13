@@ -160,8 +160,13 @@ function PayBundle() {
     const dateStr = firstProgram?.event_date ? new Date(firstProgram.event_date).toDateString() : "—";
     const timeStr = firstProgram?.event_time || "—";
     const venueStr = firstProgram?.venue || "—";
-    const verifyLines = typeof window !== "undefined"
-      ? tickets.map((t: string) => `${window.location.origin}/verify?code=${encodeURIComponent(t)}`).join("\n")
+    const qrLines = typeof window !== "undefined"
+      ? tickets
+          .map(
+            (t: string) =>
+              `• ${t}\n  https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(t)}`,
+          )
+          .join("\n")
       : "";
     const waMessage =
       `🎉 Hi ${participant},\n\n` +
@@ -171,9 +176,9 @@ function PayBundle() {
       `Date: ${dateStr}\n` +
       `Time: ${timeStr}\n` +
       `Venue: ${venueStr}\n\n` +
-      (verifyLines ? `🎫 These QR codes are your workshop entry passes:\n${verifyLines}\n\n` : "") +
-      `🔍 These QR codes will be scanned by the Workshop Manager at the venue during check-in.\n\n` +
-      `Please keep your QR code(s) safe and present them at the workshop.\n\n` +
+      (qrLines ? `🎫 Your Workshop Entry QR Codes (tap each link to view / save the image):\n${qrLines}\n\n` : "") +
+      `🔍 Present these QR codes to the Workshop Manager at the venue — they will scan them during check-in.\n\n` +
+      `Please keep your QR code(s) safe and bring them to the workshop.\n\n` +
       `– Tejas D Dhoke`;
     const waHref = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}` : undefined;
     return (
