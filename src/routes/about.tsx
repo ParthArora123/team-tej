@@ -58,14 +58,10 @@ function About() {
     values: defaultValues,
   });
   const [founder, setFounder] = useState<any | null>(null);
-  const [contact, setContact] = useState<any>({ phone: "+91 98765 43210", whatsapp: "+91 98765 43210" });
-  const [waMessage, setWaMessage] = useState("");
-
 
   useEffect(() => {
     loadContent({ data: { key: "about" } }).then((v: any) => v && setContent((c: any) => ({ ...c, ...v }))).catch(() => {});
     loadContent({ data: { key: "founder" } }).then((v: any) => v && setFounder(v)).catch(() => {});
-    loadContent({ data: { key: "contact" } }).then((v: any) => v && setContact((c: any) => ({ ...c, ...v }))).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
