@@ -413,37 +413,8 @@ function DancerSilhouette({ pose }: { pose: "a" | "b" }) {
   );
 }
 
-function GoldDancerSVG({ pose }: { pose: "hiphop" | "contemporary" | "freestyle" }) {
-  if (pose === "hiphop") {
-    return (
-      <svg viewBox="0 0 200 360" className="w-full h-full" fill="currentColor">
-        <circle cx="100" cy="46" r="22" />
-        <path d="M78 70 Q100 78 122 70 L138 150 Q140 170 130 180 L118 220 L128 300 L118 340 L104 340 L100 260 L92 340 L78 340 L86 260 L70 180 Q60 170 62 150 Z" />
-        <path d="M62 155 L36 210 L28 270 L42 274 L52 220 L72 178 Z" />
-        <path d="M138 155 L170 200 L182 258 L170 264 L156 214 L132 178 Z" />
-      </svg>
-    );
-  }
-  if (pose === "contemporary") {
-    return (
-      <svg viewBox="0 0 200 360" className="w-full h-full" fill="currentColor">
-        <circle cx="90" cy="40" r="20" />
-        <path d="M72 60 Q92 68 112 62 L128 140 L118 180 L138 260 L128 340 L114 340 L112 270 L96 220 L82 270 L84 340 L70 340 L70 260 L82 180 Z" />
-        <path d="M112 68 L170 20 L178 30 L120 82 Z" />
-        <path d="M74 78 L40 150 L30 148 L60 70 Z" />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 200 360" className="w-full h-full" fill="currentColor">
-      <circle cx="104" cy="60" r="20" />
-      <path d="M84 80 Q106 88 128 82 L142 160 Q136 190 118 200 L136 260 L126 320 L112 322 L108 260 L96 220 L82 260 L78 322 L64 320 L74 260 L60 200 Q54 190 62 160 Z" />
-      <path d="M128 86 L172 40 L182 50 L136 100 Z" />
-      <path d="M84 86 L36 46 L28 58 L78 102 Z" />
-      <path d="M112 280 L170 300 L172 314 L108 300 Z" />
-    </svg>
-  );
-}
+
+
 
 
 
