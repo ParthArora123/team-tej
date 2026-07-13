@@ -403,6 +403,7 @@ export const submitBundlePayment = createServerFn({ method: "POST" })
       status: "confirmed",
       payment_reference: ref,
       payment_proof_path: data.proofPath,
+      payment_proof_sha256: validated.sha256,
       payment_confirmed_at: now,
     }).eq("id", bp.id);
 
