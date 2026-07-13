@@ -465,6 +465,9 @@ const workshopSchema = z.object({
   published: z.boolean().default(false),
   silver_seat_enabled: z.boolean().optional(),
   silver_seat_price: z.number().int().min(0).optional(),
+  allow_single: z.boolean().optional(),
+  allow_both: z.boolean().optional(),
+  both_price: z.number().int().min(0).optional().nullable(),
   upi_id: z.string().max(120).optional().or(z.literal("")),
   clear_upi: z.boolean().optional(),
   bank_account_holder: z.string().min(2).max(120),
@@ -487,6 +490,9 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       registration_open_on: rest.registration_open_on || null,
       silver_seat_enabled: !!rest.silver_seat_enabled,
       silver_seat_price: rest.silver_seat_price ?? 1000,
+      allow_single: rest.allow_single !== false,
+      allow_both: !!rest.allow_both,
+      both_price: rest.allow_both ? (rest.both_price ?? null) : null,
     };
     if (clear_upi) {
       clean.upi_id_encrypted = null;
