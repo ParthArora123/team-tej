@@ -103,9 +103,22 @@ function PayUpload() {
       });
       if (up.error) throw new Error(`Upload failed: ${up.error.message}. Please check your connection and try again.`);
       uploadedPath = path;
-      await submitPay({ data: { enrollmentId: enr.id, proofPath: path } });
+      const result = await submitPay({ data: { enrollmentId: enr.id, proofPath: path } });
+      const ticket = (result as any)?.ticket ?? enr.ticket_code ?? null;
+      setConfirmed({ ticket });
       setDone(true);
-      setTimeout(() => navigate({ to: "/dashboard" }), 1600);
+      // Open WhatsApp with the business number and pre-filled confirmation message.
+      const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+      if (waNumber) {
+        const message =
+          `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
+          `Participant Name: ${enr.full_name || "—"}\n` +
+          `Workshop Name: ${enr.program?.name || "—"}\n` +
+          `Registration/Ticket ID: ${ticket || enr.id}\n` +
+          `Payment Status: Confirmed\n\n` +
+          `My Registration ID is: ${ticket || enr.id}.`;
+        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+      }
     } catch (e: any) {
       // If the DB step failed after upload, clean up so no orphan file lingers.
       if (uploadedPath) {
