@@ -5,8 +5,7 @@ import { Calendar, MapPin, User, Users, Clock, Sparkles, Ticket } from "lucide-r
 import { useServerFn } from "@tanstack/react-start";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
-import { listActiveBundles } from "@/lib/bundles.functions";
-import { BundleOfferPicker } from "@/components/site/BundleOfferPicker";
+
 import { WorkshopHero } from "@/components/site/WorkshopHero";
 import { WorkshopGallery } from "@/components/site/WorkshopGallery";
 import { TiltCard } from "@/components/site/TiltCard";
@@ -61,14 +60,11 @@ function WorkshopBanner({ r }: { r: any }) {
 
 function WorkshopsPage() {
   const fetchPrograms = useServerFn(listPrograms);
-  const fetchBundles = useServerFn(listActiveBundles);
   const [rows, setRows] = useState<any[]>([]);
-  const [bundles, setBundles] = useState<any[]>([]);
   const [sel, setSel] = useState<EnrollClass | null>(null);
 
   const load = () => {
     fetchPrograms({ data: { kind: "workshop" } }).then(setRows);
-    fetchBundles().then(setBundles).catch(() => {});
   };
   useEffect(() => {
     load();
@@ -105,11 +101,6 @@ function WorkshopsPage() {
           </p>
         </Reveal>
 
-        <Reveal delay={0.15}>
-          <div className="mt-6 rounded-2xl border border-border/60 bg-card/50 backdrop-blur-xl p-1 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.5)]">
-            <BundleOfferPicker workshops={rows} bundles={bundles} />
-          </div>
-        </Reveal>
 
         <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
           {rows.map((r, i) => {
