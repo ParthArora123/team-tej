@@ -144,7 +144,7 @@ function RootComponent() {
       <DeferMount delay={200}>
         <SmoothScroll />
       </DeferMount>
-      <div className="min-h-screen grain-bg relative">
+      <div className={`min-h-screen relative ${isWorkshopDetailPage ? "workshop-detail-shell bg-[#050301]" : "grain-bg"}`}>
         {!isWorkshopDetailPage && <StageAmbience />}
         {!isWorkshopDetailPage && (
           <DeferMount>
