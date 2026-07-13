@@ -215,23 +215,10 @@ function WorkshopsPage() {
                           ₹{r.price_inr.toLocaleString("en-IN")}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Link to="/workshops/$id" params={{ id: r.id }}
-                          className="px-3 py-2 rounded-xl border border-border/70 text-sm hover:bg-muted/60 backdrop-blur transition-colors">
-                          Details
-                        </Link>
-                        <MagneticButton>
-                          <button
-                            disabled={full}
-                            onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled, silverSeatPrice: silverPrice })}
-                            className="group/btn relative inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm font-medium shadow-lg shadow-primary/25 disabled:opacity-50 disabled:shadow-none overflow-hidden"
-                          >
-                            <span className="relative z-10">{full ? "Full" : "Register"}</span>
-                            {!full && <ArrowRight size={14} className="relative z-10 transition-transform group-hover/btn:translate-x-0.5" />}
-                            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
-                          </button>
-                        </MagneticButton>
-                      </div>
+                      <Link to="/workshops/$id" params={{ id: r.id }}
+                        className="px-5 py-2.5 rounded-xl border border-border/70 text-sm hover:bg-muted/60 backdrop-blur transition-colors">
+                        Details
+                      </Link>
                     </div>
                   </div>
                 </TiltCard>
