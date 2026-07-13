@@ -38,37 +38,64 @@ function PayBundle() {
   const submitPay = useServerFn(submitBundlePayment);
   const [state, setState] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [validated, setValidated] = useState<ValidatedPaymentProof | null>(null);
   const [preview, setPreview] = useState("");
   const [err, setErr] = useState("");
+  const [validating, setValidating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const seenHashes = useRef<Set<string>>(new Set());
 
   const reload = () => fetchPurchase({ data: { id: purchaseId } }).then(setState).catch((e) => setErr(e.message));
   useEffect(() => { reload(); }, [purchaseId]);
+  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 
-  const onPick = (f: File | null) => {
-    setErr("");
-    if (!f) { setFile(null); setPreview(""); return; }
-    if (!/^image\/(png|jpe?g|webp)$/.test(f.type)) { setErr("PNG, JPG or WEBP only."); return; }
-    if (f.size > 8 * 1024 * 1024) { setErr("Max 8 MB."); return; }
-    setFile(f); setPreview(URL.createObjectURL(f));
+  const onPick = async (f: File | null) => {
+    setErr(""); setValidated(null);
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview("");
+    if (!f) { setFile(null); return; }
+    setValidating(true);
+    try {
+      const v = await validatePaymentProofFile(f);
+      if (seenHashes.current.has(v.sha256)) {
+        throw new Error("You've already tried uploading this same screenshot. Please choose a different image.");
+      }
+      seenHashes.current.add(v.sha256);
+      setFile(f);
+      setValidated(v);
+      setPreview(URL.createObjectURL(new Blob([v.bytes as BlobPart], { type: v.mime })));
+    } catch (e: any) {
+      setFile(null); setValidated(null);
+      if (inputRef.current) inputRef.current.value = "";
+      setErr(e?.message ?? "Please upload a valid payment screenshot.");
+    } finally {
+      setValidating(false);
+    }
   };
 
   const submit = async () => {
-    if (!file || !state) return;
+    if (!file || !validated || !state || busy || validating) return;
     setErr(""); setBusy(true);
+    let uploadedPath: string | null = null;
     try {
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData.user?.id;
       if (!uid) throw new Error("Please sign in again.");
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-      const path = `${uid}/bundle-${purchaseId}-${Date.now()}.${ext}`;
-      const up = await supabase.storage.from("payment-proofs").upload(path, file, { contentType: file.type, upsert: false });
-      if (up.error) throw up.error;
+      const safeName = sanitizeFileName(file.name, validated.ext);
+      const path = `${uid}/bundle-${purchaseId}-${Date.now()}-${validated.sha256.slice(0, 12)}-${safeName}`;
+      const uploadBlob = new Blob([validated.bytes as BlobPart], { type: validated.mime });
+      const up = await supabase.storage.from("payment-proofs").upload(path, uploadBlob, { contentType: validated.mime, upsert: false });
+      if (up.error) throw new Error(`Upload failed: ${up.error.message}. Please check your connection and try again.`);
+      uploadedPath = path;
       await submitPay({ data: { purchaseId, proofPath: path } });
       setDone(true);
       setTimeout(() => navigate({ to: "/dashboard" }), 1600);
     } catch (e: any) {
+      if (uploadedPath) {
+        await supabase.storage.from("payment-proofs").remove([uploadedPath]).catch(() => {});
+      }
       setErr(e?.message ?? "Please upload a valid payment screenshot.");
     } finally { setBusy(false); }
   };
