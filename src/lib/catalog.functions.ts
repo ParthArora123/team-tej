@@ -13,7 +13,7 @@ function pub() {
 
 // Public reads go through the `programs_public` view, which excludes upi_id_encrypted.
 const PUBLIC_COLS =
-  "id,kind,name,description,banner_url,banner_path,banner_video_path,banner_gif_path,event_date,event_time,venue,city,instructor,duration,capacity,seats_taken,price_inr,registration_open_on,category,style,published,silver_seat_enabled,silver_seat_price,bank_account_holder,created_at";
+  "id,kind,name,description,banner_url,banner_path,banner_video_path,banner_gif_path,event_date,event_time,venue,city,instructor,duration,capacity,seats_taken,price_inr,registration_open_on,category,style,published,silver_seat_enabled,silver_seat_price,bank_account_holder,allow_single,allow_both,both_price,created_at";
 
 const BANNER_TTL = 60 * 60 * 24 * 7; // 7 days
 
