@@ -4,7 +4,6 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -136,22 +135,18 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const isWorkshopDetailPage = /^\/workshops\/[^/]+/.test(pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
       <DeferMount delay={200}>
         <SmoothScroll />
       </DeferMount>
-      <div className={`min-h-screen relative ${isWorkshopDetailPage ? "workshop-detail-shell bg-[#050301]" : "grain-bg"}`}>
-        {!isWorkshopDetailPage && <StageAmbience />}
-        {!isWorkshopDetailPage && (
-          <DeferMount>
-            <AmbientBlobs />
-            <CursorGlow />
-          </DeferMount>
-        )}
+      <div className="min-h-screen relative grain-bg">
+        <StageAmbience />
+        <DeferMount>
+          <AmbientBlobs />
+          <CursorGlow />
+        </DeferMount>
         <ScrollProgress />
         <Header />
         <main className="pt-16">
