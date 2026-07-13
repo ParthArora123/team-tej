@@ -60,14 +60,11 @@ function WorkshopBanner({ r }: { r: any }) {
 
 function WorkshopsPage() {
   const fetchPrograms = useServerFn(listPrograms);
-  const fetchBundles = useServerFn(listActiveBundles);
   const [rows, setRows] = useState<any[]>([]);
-  const [bundles, setBundles] = useState<any[]>([]);
   const [sel, setSel] = useState<EnrollClass | null>(null);
 
   const load = () => {
     fetchPrograms({ data: { kind: "workshop" } }).then(setRows);
-    fetchBundles().then(setBundles).catch(() => {});
   };
   useEffect(() => {
     load();
