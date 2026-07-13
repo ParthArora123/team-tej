@@ -103,7 +103,7 @@ function PayBundle() {
       setConfirmedTickets(tickets);
       setDone(true);
       // Auto-open WhatsApp addressed to the student's registered number with
-      // the confirmation from Team Naach — mirrors the wa.me flow used on the
+      // the confirmation from Tejas D Dhoke — mirrors the wa.me flow used on the
       // Contact page. Falls back to the business number if the student didn't
       // provide a phone.
       const studentNumber = String(updated?.purchase?.phone ?? "").replace(/[^\d]/g, "");
@@ -126,7 +126,7 @@ function PayBundle() {
           `Venue: ${venueStr}\n\n` +
           `Please bring your QR Code/Registration ID during check-in.\n\n` +
           `We look forward to welcoming you to the workshop!\n\n` +
-          `– Team Naach`;
+          `– Tejas D Dhoke`;
         window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
       }
     } catch (e: any) {
@@ -161,7 +161,7 @@ function PayBundle() {
       `Venue: ${venueStr}\n\n` +
       `Please bring your QR Code/Registration ID during check-in.\n\n` +
       `We look forward to welcoming you to the workshop!\n\n` +
-      `– Team Naach`;
+      `– Tejas D Dhoke`;
     const waHref = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}` : undefined;
     return (
       <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-3xl mx-auto">
