@@ -131,12 +131,81 @@ function PayUpload() {
   };
 
   if (done) {
+    const ticket = confirmed?.ticket ?? enr?.ticket_code ?? null;
+    const verifyUrl = typeof window !== "undefined" && ticket
+      ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
+      : "";
     return (
-      <div className="min-h-screen pt-24 pb-16 px-6 max-w-xl mx-auto text-center">
-        <h1 className="font-display text-3xl font-bold">Payment screenshot uploaded</h1>
-        <p className="mt-3 text-muted-foreground">
-          Your payment is now <strong>Pending Verification</strong>. An admin will review it and your ticket will appear in your dashboard once approved.
-        </p>
+      <div className="min-h-screen pt-24 pb-16 px-6 max-w-xl mx-auto">
+        <div className="text-center">
+          <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/15 flex items-center justify-center">
+            <Check className="text-emerald-500" size={28} />
+          </div>
+          <h1 className="mt-4 font-display text-3xl font-bold">Registration Successful</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Your payment has been verified and your workshop registration is confirmed.
+          </p>
+        </div>
+
+        {enr && (
+          <div className="mt-6 rounded-2xl border border-border bg-card p-5">
+            <p className="text-xs uppercase tracking-widest text-primary">Workshop Details</p>
+            <p className="mt-1 font-display text-xl font-bold">{enr.program?.name}</p>
+            <div className="mt-3 space-y-1 text-sm text-muted-foreground">
+              {enr.program?.event_date && <p>📅 {new Date(enr.program.event_date).toDateString()}{enr.program?.event_time ? ` · ${enr.program.event_time}` : ""}</p>}
+              {enr.program?.venue && <p>📍 {enr.program.venue}</p>}
+              {enr.program?.duration && <p>⏱ {enr.program.duration}</p>}
+              <p>💰 ₹{(enr.amount_inr ?? 0).toLocaleString("en-IN")}{enr.silver_seat ? " · includes Silver Seat" : ""}</p>
+            </div>
+            <div className="mt-4 pt-4 border-t border-border">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration / Ticket ID</p>
+              <p className="mt-1 font-mono text-lg flex items-center gap-2">
+                <Ticket size={18} className="text-primary" /> {ticket || enr.id}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {ticket && verifyUrl && (
+          <div className="mt-6 rounded-2xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5">
+            <p className="text-xs uppercase tracking-widest text-primary text-center">Generated QR Code</p>
+            <div className="mt-4 flex flex-col items-center gap-3">
+              <div id="ticket-qr-success" className="bg-white p-2 rounded-lg">
+                <QRCodeCanvas value={verifyUrl} size={220} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" />
+              </div>
+              <button
+                type="button"
+                onClick={() => downloadQrPng("ticket-qr-success", `ticket-${ticket}.png`)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
+                <Download size={12} /> Download QR
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 flex flex-col gap-3">
+          <a
+            href={(() => {
+              const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+              if (!waNumber || !enr) return undefined;
+              const message =
+                `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
+                `Participant Name: ${enr.full_name || "—"}\n` +
+                `Workshop Name: ${enr.program?.name || "—"}\n` +
+                `Registration/Ticket ID: ${ticket || enr.id}\n` +
+                `Payment Status: Confirmed\n\n` +
+                `My Registration ID is: ${ticket || enr.id}.`;
+              return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+            })()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium inline-flex items-center justify-center gap-2">
+            <MessageCircle size={16} /> I Have Completed My Payment
+          </a>
+          <Link to="/dashboard" className="w-full text-center px-5 py-2.5 rounded-lg border border-border text-sm hover:bg-muted transition">
+            Go to dashboard
+          </Link>
+        </div>
       </div>
     );
   }
