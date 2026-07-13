@@ -4,11 +4,11 @@ import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    next: typeof s.next === "string" ? s.next : "",
-  }),
+  validateSearch: (s: Record<string, unknown>): { next?: string } =>
+    typeof s.next === "string" && s.next ? { next: s.next } : {},
   component: AuthPage,
 });
+
 
 // Only follow same-origin relative paths, and never bounce back to /auth itself.
 function safeNext(next: string): string | null {
@@ -20,7 +20,8 @@ function safeNext(next: string): string | null {
 function AuthPage() {
   const navigate = useNavigate();
   const { next } = Route.useSearch();
-  const nextPath = safeNext(next);
+  const nextPath = safeNext(next ?? "");
+
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
