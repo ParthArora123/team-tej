@@ -131,3 +131,8 @@ html, body {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
+
+.workshop-detail-page > :not(.workshop-live-backdrop) {
+  position: relative;
+  z-index: 1;
+}
