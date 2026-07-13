@@ -32,6 +32,166 @@ type Media = {
   caption: string | null;
 };
 
+function DanceMotionCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
+
+    let frame = 0;
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    const resize = () => {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener("resize", resize, { passive: true });
+
+    const dancers = [
+      { x: 0.16, y: 0.72, s: 1.05, speed: 0.62, phase: 0.2, alpha: 0.42 },
+      { x: 0.44, y: 0.67, s: 1.28, speed: 0.5, phase: 2.1, alpha: 0.34 },
+      { x: 0.74, y: 0.73, s: 0.98, speed: 0.58, phase: 4.2, alpha: 0.38 },
+      { x: 0.28, y: 0.82, s: 0.72, speed: 0.46, phase: 5.4, alpha: 0.24 },
+      { x: 0.62, y: 0.81, s: 0.76, speed: 0.54, phase: 3.5, alpha: 0.24 },
+    ];
+    const particles = Array.from({ length: 72 }).map((_, i) => ({
+      x: ((i * 37) % 100) / 100,
+      y: ((i * 61) % 100) / 100,
+      r: 0.8 + (i % 4) * 0.45,
+      speed: 0.08 + (i % 7) * 0.018,
+      sway: 10 + (i % 6) * 7,
+      phase: i * 0.83,
+      alpha: 0.18 + (i % 5) * 0.035,
+    }));
+
+    const drawDancer = (cx: number, baseY: number, scale: number, t: number, alpha: number) => {
+      const sway = Math.sin(t) * 8 * scale;
+      const lift = Math.sin(t * 1.6) * 5 * scale;
+      const torso = 72 * scale;
+      const leg = 74 * scale;
+      const head = 13 * scale;
+      const shoulderY = baseY - leg - torso + lift;
+      const hipY = baseY - leg + lift;
+      const neckX = cx + sway;
+      const armA = Math.sin(t + 0.7);
+      const armB = Math.sin(t + 2.4);
+      const legA = Math.sin(t + 1.1);
+      const legB = Math.sin(t + 3.0);
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.shadowColor = "rgba(245, 199, 106, 0.42)";
+      ctx.shadowBlur = 18 * scale;
+      ctx.strokeStyle = "rgba(246, 203, 116, 0.74)";
+      ctx.fillStyle = "rgba(246, 203, 116, 0.68)";
+      ctx.lineWidth = 8 * scale;
+
+      ctx.beginPath();
+      ctx.arc(neckX, shoulderY - 26 * scale, head, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(neckX, shoulderY - 8 * scale);
+      ctx.quadraticCurveTo(cx - sway * 0.35, shoulderY + 32 * scale, cx, hipY);
+      ctx.stroke();
+
+      ctx.lineWidth = 6 * scale;
+      ctx.beginPath();
+      ctx.moveTo(neckX - 8 * scale, shoulderY + 6 * scale);
+      ctx.quadraticCurveTo(cx - 46 * scale, shoulderY - (24 + armA * 28) * scale, cx - (82 + armA * 10) * scale, shoulderY + (8 + armB * 12) * scale);
+      ctx.moveTo(neckX + 8 * scale, shoulderY + 6 * scale);
+      ctx.quadraticCurveTo(cx + 44 * scale, shoulderY - (12 + armB * 30) * scale, cx + (80 + armB * 12) * scale, shoulderY + (12 - armA * 10) * scale);
+      ctx.stroke();
+
+      ctx.lineWidth = 7 * scale;
+      ctx.beginPath();
+      ctx.moveTo(cx, hipY);
+      ctx.quadraticCurveTo(cx - (24 + legA * 14) * scale, hipY + 36 * scale, cx - (44 + legA * 22) * scale, baseY);
+      ctx.moveTo(cx, hipY);
+      ctx.quadraticCurveTo(cx + (24 + legB * 14) * scale, hipY + 34 * scale, cx + (42 + legB * 20) * scale, baseY - Math.abs(legA) * 10 * scale);
+      ctx.stroke();
+      ctx.restore();
+    };
+
+    const render = (time: number) => {
+      const t = time * 0.001;
+      ctx.clearRect(0, 0, width, height);
+
+      const base = ctx.createLinearGradient(0, 0, width, height);
+      base.addColorStop(0, "rgba(10, 5, 1, 0.82)");
+      base.addColorStop(0.5, "rgba(28, 15, 4, 0.72)");
+      base.addColorStop(1, "rgba(5, 3, 1, 0.92)");
+      ctx.fillStyle = base;
+      ctx.fillRect(0, 0, width, height);
+
+      const rayShift = Math.sin(t * 0.12) * width * 0.08;
+      for (let i = 0; i < 5; i++) {
+        ctx.save();
+        ctx.translate(width * (0.18 + i * 0.16) + rayShift, -height * 0.08);
+        ctx.rotate((-18 + i * 9 + Math.sin(t * 0.08 + i) * 3) * Math.PI / 180);
+        const ray = ctx.createLinearGradient(0, 0, 0, height * 1.2);
+        ray.addColorStop(0, "rgba(255, 213, 127, 0.13)");
+        ray.addColorStop(0.62, "rgba(212, 169, 76, 0.045)");
+        ray.addColorStop(1, "rgba(212, 169, 76, 0)");
+        ctx.fillStyle = ray;
+        ctx.beginPath();
+        ctx.moveTo(-width * 0.035, 0);
+        ctx.lineTo(width * 0.035, 0);
+        ctx.lineTo(width * 0.16, height * 1.22);
+        ctx.lineTo(-width * 0.16, height * 1.22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      particles.forEach((p) => {
+        const py = ((p.y * height - (t * p.speed * height * 0.22)) % (height + 80) + height + 80) % (height + 80) - 40;
+        const px = p.x * width + Math.sin(t * 0.45 + p.phase) * p.sway;
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = "rgba(255, 226, 168, 0.82)";
+        ctx.shadowColor = "rgba(255, 216, 145, 0.55)";
+        ctx.shadowBlur = 9;
+        ctx.beginPath();
+        ctx.arc(px, py, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
+
+      dancers.forEach((d) => drawDancer(width * d.x, height * d.y, d.s * Math.min(width / 1280, 1.05), t * d.speed + d.phase, d.alpha));
+
+      const vignette = ctx.createRadialGradient(width * 0.5, height * 0.42, height * 0.18, width * 0.5, height * 0.52, height * 0.76);
+      vignette.addColorStop(0, "rgba(0,0,0,0.05)");
+      vignette.addColorStop(0.72, "rgba(0,0,0,0.36)");
+      vignette.addColorStop(1, "rgba(0,0,0,0.78)");
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, width, height);
+      frame = requestAnimationFrame(render);
+    };
+    frame = requestAnimationFrame(render);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 h-full w-full transform-gpu" />;
+}
+
 function useCountdown(target: Date | null) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
