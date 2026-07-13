@@ -572,11 +572,24 @@ function WorkshopDetailPage() {
               </span>
             </motion.div>
 
-            <p className="mt-6 text-xs tracking-[0.35em] uppercase text-amber-200/80">Presented by Tejas D Dhoke</p>
+            <motion.div
+              initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.05 }}
+              className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/15 to-amber-300/8 px-4 py-2 shadow-[0_0_40px_-12px_rgba(212,169,76,0.45)] backdrop-blur-md">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-400/20 text-amber-300">
+                <User size={14} strokeWidth={2.5} />
+              </div>
+              <div>
+                <p className="text-[10px] tracking-[0.3em] uppercase text-amber-200/80 leading-none">Guided by</p>
+                <p className="mt-0.5 font-serif text-sm sm:text-base font-semibold text-amber-200 leading-none"
+                   style={{ fontFamily: '"Cormorant Garamond","Playfair Display",Georgia,serif' }}>
+                  Tejas D. Dhoke
+                </p>
+              </div>
+            </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
-              className="mt-3 font-serif text-6xl sm:text-7xl lg:text-8xl font-semibold leading-[0.95] bg-gradient-to-b from-amber-100 via-amber-300 to-amber-600 bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(212,169,76,0.25)]"
+              className="mt-5 font-serif text-6xl sm:text-7xl lg:text-8xl font-semibold leading-[0.95] bg-gradient-to-b from-amber-100 via-amber-300 to-amber-600 bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(212,169,76,0.25)]"
               style={{ fontFamily: '"Cormorant Garamond","Playfair Display",Georgia,serif' }}
             >
               {program.name}
@@ -590,12 +603,6 @@ function WorkshopDetailPage() {
             )}
 
             <div className="mt-6 h-px w-32 bg-gradient-to-r from-amber-400/70 to-transparent" />
-
-            {program.instructor && (
-              <p className="mt-6 text-sm tracking-[0.2em] uppercase text-amber-100/70">
-                Guided by <span className="text-amber-300 font-semibold">{program.instructor}</span>
-              </p>
-            )}
 
             {program.description && (
               <p className="mt-6 text-base sm:text-lg text-amber-50/70 max-w-xl leading-relaxed line-clamp-4">
