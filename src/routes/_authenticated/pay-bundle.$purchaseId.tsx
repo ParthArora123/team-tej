@@ -95,8 +95,27 @@ function PayBundle() {
       if (up.error) throw new Error(`Upload failed: ${up.error.message}. Please check your connection and try again.`);
       uploadedPath = path;
       await submitPay({ data: { purchaseId, proofPath: path } });
+      // Refetch to get the freshly generated ticket codes for the success page.
+      const updated = await fetchPurchase({ data: { id: purchaseId } });
+      setState(updated);
+      const tickets = (updated?.enrollments ?? []).map((e: any) => e.ticket_code).filter(Boolean);
+      setConfirmedTickets(tickets);
       setDone(true);
-      setTimeout(() => navigate({ to: "/dashboard" }), 1600);
+      // Open WhatsApp with the business number and pre-filled confirmation message.
+      const waNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
+      if (waNumber) {
+        const participant = updated?.purchase?.full_name || purchase?.full_name || "—";
+        const workshops = (updated?.enrollments ?? enrollments ?? []).map((e: any) => e.program?.name).filter(Boolean).join(", ");
+        const ids = tickets.length ? tickets.join(", ") : purchaseId;
+        const message =
+          `Hi, I have successfully completed my workshop registration. Please confirm my registration.\n\n` +
+          `Participant Name: ${participant}\n` +
+          `Workshop Name(s): ${workshops || "—"}\n` +
+          `Registration/Ticket ID(s): ${ids}\n` +
+          `Payment Status: Confirmed\n\n` +
+          `My Registration ID is: ${ids}.`;
+        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+      }
     } catch (e: any) {
       if (uploadedPath) {
         await supabase.storage.from("payment-proofs").remove([uploadedPath]).catch(() => {});
