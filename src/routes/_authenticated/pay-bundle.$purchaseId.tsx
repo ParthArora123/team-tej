@@ -37,6 +37,7 @@ function PayBundle() {
   const navigate = useNavigate();
   const fetchPurchase = useServerFn(getBundlePurchase);
   const submitPay = useServerFn(submitBundlePayment);
+  const loadSiteContent = useServerFn(getSiteContent);
   const [state, setState] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
   const [validated, setValidated] = useState<ValidatedPaymentProof | null>(null);
@@ -45,11 +46,18 @@ function PayBundle() {
   const [validating, setValidating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [confirmedTickets, setConfirmedTickets] = useState<string[]>([]);
+  const [whatsapp, setWhatsapp] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   
 
   const reload = () => fetchPurchase({ data: { id: purchaseId } }).then(setState).catch((e) => setErr(e.message));
   useEffect(() => { reload(); }, [purchaseId]);
+  useEffect(() => {
+    loadSiteContent({ data: { key: "contact" } }).then((v: any) => {
+      if (v?.whatsapp) setWhatsapp(String(v.whatsapp));
+    }).catch(() => {});
+  }, []);
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 
   const onPick = async (f: File | null) => {
