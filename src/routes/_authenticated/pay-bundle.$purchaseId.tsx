@@ -1,10 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { Upload, ArrowLeft, Sparkles, Download } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getBundlePurchase, submitBundlePayment } from "@/lib/bundles.functions";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  validatePaymentProofFile,
+  sanitizeFileName,
+  type ValidatedPaymentProof,
+} from "@/lib/payment-proof-validation";
 
 async function downloadQrPng(containerId: string, filename: string, size = 720) {
   const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
@@ -33,37 +38,64 @@ function PayBundle() {
   const submitPay = useServerFn(submitBundlePayment);
   const [state, setState] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [validated, setValidated] = useState<ValidatedPaymentProof | null>(null);
   const [preview, setPreview] = useState("");
   const [err, setErr] = useState("");
+  const [validating, setValidating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const seenHashes = useRef<Set<string>>(new Set());
 
   const reload = () => fetchPurchase({ data: { id: purchaseId } }).then(setState).catch((e) => setErr(e.message));
   useEffect(() => { reload(); }, [purchaseId]);
+  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 
-  const onPick = (f: File | null) => {
-    setErr("");
-    if (!f) { setFile(null); setPreview(""); return; }
-    if (!/^image\/(png|jpe?g|webp)$/.test(f.type)) { setErr("PNG, JPG or WEBP only."); return; }
-    if (f.size > 8 * 1024 * 1024) { setErr("Max 8 MB."); return; }
-    setFile(f); setPreview(URL.createObjectURL(f));
+  const onPick = async (f: File | null) => {
+    setErr(""); setValidated(null);
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview("");
+    if (!f) { setFile(null); return; }
+    setValidating(true);
+    try {
+      const v = await validatePaymentProofFile(f);
+      if (seenHashes.current.has(v.sha256)) {
+        throw new Error("You've already tried uploading this same screenshot. Please choose a different image.");
+      }
+      seenHashes.current.add(v.sha256);
+      setFile(f);
+      setValidated(v);
+      setPreview(URL.createObjectURL(new Blob([v.bytes as BlobPart], { type: v.mime })));
+    } catch (e: any) {
+      setFile(null); setValidated(null);
+      if (inputRef.current) inputRef.current.value = "";
+      setErr(e?.message ?? "Please upload a valid payment screenshot.");
+    } finally {
+      setValidating(false);
+    }
   };
 
   const submit = async () => {
-    if (!file || !state) return;
+    if (!file || !validated || !state || busy || validating) return;
     setErr(""); setBusy(true);
+    let uploadedPath: string | null = null;
     try {
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData.user?.id;
       if (!uid) throw new Error("Please sign in again.");
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
-      const path = `${uid}/bundle-${purchaseId}-${Date.now()}.${ext}`;
-      const up = await supabase.storage.from("payment-proofs").upload(path, file, { contentType: file.type, upsert: false });
-      if (up.error) throw up.error;
+      const safeName = sanitizeFileName(file.name, validated.ext);
+      const path = `${uid}/bundle-${purchaseId}-${Date.now()}-${validated.sha256.slice(0, 12)}-${safeName}`;
+      const uploadBlob = new Blob([validated.bytes as BlobPart], { type: validated.mime });
+      const up = await supabase.storage.from("payment-proofs").upload(path, uploadBlob, { contentType: validated.mime, upsert: false });
+      if (up.error) throw new Error(`Upload failed: ${up.error.message}. Please check your connection and try again.`);
+      uploadedPath = path;
       await submitPay({ data: { purchaseId, proofPath: path } });
       setDone(true);
       setTimeout(() => navigate({ to: "/dashboard" }), 1600);
     } catch (e: any) {
+      if (uploadedPath) {
+        await supabase.storage.from("payment-proofs").remove([uploadedPath]).catch(() => {});
+      }
       setErr(e?.message ?? "Please upload a valid payment screenshot.");
     } finally { setBusy(false); }
   };
@@ -133,16 +165,18 @@ function PayBundle() {
       </div>
 
       <div className="mt-6 rounded-xl border border-border bg-card p-5">
-        <label className="text-xs uppercase tracking-wider text-muted-foreground">Upload payment screenshot</label>
+        <label className="text-xs uppercase tracking-wider text-muted-foreground">Upload payment screenshot (.jpg, .jpeg, .png, .webp — max 8 MB)</label>
         <div className="mt-2 flex items-center gap-2 text-sm font-medium text-primary"><Upload size={16}/> {file ? "Change screenshot" : "Choose screenshot"}</div>
-        <input type="file" accept="image/png,image/jpeg,image/webp"
+        <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp,.jpg,.jpeg,.png,.webp"
+          disabled={busy}
           onChange={(e) => onPick(e.target.files?.[0] ?? null)}
-          className="mt-2 block w-full cursor-pointer rounded-md border border-border bg-background text-sm file:mr-3 file:cursor-pointer file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-foreground" />
+          className="mt-2 block w-full cursor-pointer rounded-md border border-border bg-background text-sm file:mr-3 file:cursor-pointer file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-foreground disabled:opacity-60" />
+        {validating && <p className="mt-2 text-xs text-muted-foreground">Checking your screenshot…</p>}
         {preview && <img src={preview} alt="" className="mt-4 max-h-72 rounded-md border border-border mx-auto" />}
-        {err && <p className="mt-3 text-sm text-destructive">{err}</p>}
-        <button disabled={busy || !file} onClick={submit}
-          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60">
-          {busy ? "Verifying payment…" : "I Have Completed the Payment"}
+        {err && <p className="mt-3 text-sm text-destructive whitespace-pre-line">{err}</p>}
+        <button disabled={busy || validating || !file || !validated} onClick={submit}
+          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">
+          {busy ? "Uploading & verifying…" : validating ? "Validating…" : "I Have Completed the Payment"}
         </button>
         <p className="mt-3 text-[11px] text-muted-foreground">The screenshot must show a successful payment of ₹{purchase.final_amount_inr.toLocaleString("en-IN")} to the official UPI ID.</p>
       </div>

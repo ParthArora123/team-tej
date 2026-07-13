@@ -333,16 +333,25 @@ export const submitBundlePayment = createServerFn({ method: "POST" })
 
     const dl = await supabaseAdmin.storage.from("payment-proofs").download(data.proofPath);
     if (dl.error || !dl.data) throw new Error("Could not read the uploaded screenshot.");
-    const blob = dl.data;
-    let contentType = (blob.type || "").toLowerCase();
-    if (!contentType || contentType === "application/octet-stream") {
-      const ext = (data.proofPath.split(".").pop() || "").toLowerCase();
-      contentType = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : /jpe?g/.test(ext) ? "image/jpeg" : contentType || "image/jpeg";
+    const { validatePaymentProofBytes } = await import("./payment-proof-validation");
+    const rawBytes = new Uint8Array(await dl.data.arrayBuffer());
+    let validated;
+    try {
+      validated = await validatePaymentProofBytes(rawBytes, data.proofPath.split("/").pop() ?? null);
+    } catch (e: any) {
+      await supabaseAdmin.storage.from("payment-proofs").remove([data.proofPath]).catch(() => {});
+      throw e;
     }
-    if (!/^image\/(png|jpe?g|webp)$/.test(contentType)) throw new Error("Please upload a PNG, JPG, or WEBP screenshot.");
-    if (blob.size > 8 * 1024 * 1024) throw new Error("Screenshot is too large. Max 8 MB.");
-    const buf = Buffer.from(await blob.arrayBuffer());
-    const dataUrl = `data:${contentType};base64,${buf.toString("base64")}`;
+    const [{ data: dupProofE }, { data: dupProofB }] = await Promise.all([
+      supabaseAdmin.from("enrollments").select("id").eq("payment_proof_sha256", validated.sha256).maybeSingle(),
+      supabaseAdmin.from("bundle_purchases").select("id").eq("payment_proof_sha256", validated.sha256).neq("id", bp.id).maybeSingle(),
+    ]);
+    if (dupProofE || dupProofB) {
+      await supabaseAdmin.storage.from("payment-proofs").remove([data.proofPath]).catch(() => {});
+      throw new Error("This payment screenshot has already been used for another registration. Please upload a fresh screenshot of your actual payment.");
+    }
+    const contentType = validated.mime;
+    const dataUrl = `data:${contentType};base64,${Buffer.from(validated.bytes).toString("base64")}`;
 
     const verification = await verifyPaymentScreenshot(dataUrl, {
       amountInr: bp.final_amount_inr,
@@ -378,6 +387,7 @@ export const submitBundlePayment = createServerFn({ method: "POST" })
       await supabaseAdmin.from("enrollments").update({
         status: "confirmed", ticket_code: ticket,
         payment_proof_path: data.proofPath,
+        payment_proof_sha256: validated.sha256,
         payment_reference: ref,
         payment_confirmed_at: now,
         ticket_generated_at: now,
@@ -393,6 +403,7 @@ export const submitBundlePayment = createServerFn({ method: "POST" })
       status: "confirmed",
       payment_reference: ref,
       payment_proof_path: data.proofPath,
+      payment_proof_sha256: validated.sha256,
       payment_confirmed_at: now,
     }).eq("id", bp.id);
 
