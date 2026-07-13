@@ -338,12 +338,10 @@ function WorkshopDetailPage() {
   const [media, setMedia] = useState<Media[]>([]);
   const [heroIdx, setHeroIdx] = useState(0);
   const [sel, setSel] = useState<EnrollClass | null>(null);
-  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (!initialProgram) fetchProgram({ data: { id: params.id } }).then(setProgram).catch(() => {});
     fetchMedia({ data: { programId: params.id } }).then((r: any[]) => setMedia(r as Media[])).catch(() => {});
-    try { setSaved(localStorage.getItem(`fav:${params.id}`) === "1"); } catch {}
   }, [params.id]);
 
   const heroRef = useRef<HTMLDivElement>(null);
