@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Upload, ArrowLeft, MessageCircle, Check, Ticket, Download } from "lucide-react";
+import { Upload, ArrowLeft, Check, Ticket, Download } from "lucide-react";
+import { WhatsAppIcon } from "@/components/site/WhatsAppIcon";
 import { QRCodeCanvas } from "qrcode.react";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, markPaymentSubmitted } from "@/lib/enrollment.functions";
