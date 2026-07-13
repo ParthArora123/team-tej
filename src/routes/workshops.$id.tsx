@@ -825,19 +825,6 @@ function WorkshopDetailPage() {
           <p className="mt-4 text-amber-100/60 text-sm">
             Questions about payment, venue, dates or booking confirmation? Reach out — we're happy to help.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <a href={callLink} className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-amber-400/40 bg-black/40 backdrop-blur text-amber-100 text-sm hover:bg-amber-400/10">
-              <Phone size={16} className="text-amber-400" /> Call Support
-            </a>
-            <a href={waLink} target="_blank" rel="noopener noreferrer"
-               className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-amber-400/40 bg-black/40 backdrop-blur text-amber-100 text-sm hover:bg-amber-400/10">
-              <MessageCircle size={16} className="text-amber-400" /> WhatsApp
-            </a>
-            <a href="mailto:info@teamtej.com"
-               className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-amber-400/40 bg-black/40 backdrop-blur text-amber-100 text-sm hover:bg-amber-400/10">
-              <Mail size={16} className="text-amber-400" /> Send Email
-            </a>
-          </div>
         </div>
       </section>
 
