@@ -3,10 +3,25 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/auth")({ component: AuthPage });
+export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>): { next?: string } =>
+    typeof s.next === "string" && s.next ? { next: s.next } : {},
+  component: AuthPage,
+});
+
+
+// Only follow same-origin relative paths, and never bounce back to /auth itself.
+function safeNext(next: string): string | null {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+  if (next.startsWith("/auth")) return null;
+  return next;
+}
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
+  const nextPath = safeNext(next ?? "");
+
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,28 +31,38 @@ function AuthPage() {
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => { if (data.user) navigate({ to: "/dashboard" }); });
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        if (nextPath) window.location.assign(nextPath);
+        else navigate({ to: "/dashboard" });
+      }
+    });
   }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true); setErr(null);
     try {
+      const emailRedirect = nextPath
+        ? `${window.location.origin}${nextPath}`
+        : window.location.origin;
       if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: window.location.origin, data: { full_name: name, phone } },
+          options: { emailRedirectTo: emailRedirect, data: { full_name: name, phone } },
         });
         if (error) throw error;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
-      navigate({ to: "/dashboard" });
+      if (nextPath) window.location.assign(nextPath);
+      else navigate({ to: "/dashboard" });
     } catch (e: any) {
       setErr(e.message ?? "Something went wrong");
     } finally { setLoading(false); }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 pt-20 pb-10">
