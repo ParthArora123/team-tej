@@ -167,6 +167,7 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
         status: "confirmed",
         ticket_code: ticket,
         payment_proof_path: data.proofPath,
+        payment_proof_sha256: validated.sha256,
         payment_reference: ref,
         payment_confirmed_at: now,
         ticket_generated_at: now,
