@@ -235,16 +235,26 @@ function Dashboard() {
 
               {r.status === "confirmed" && (
                 <div className="mt-5 relative rounded-xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 text-primary">
                         <Ticket size={16} /><span className="text-xs uppercase tracking-widest font-semibold">Ticket · Confirmed</span>
                       </div>
-                      <p className="mt-2 font-mono text-lg">{r.ticket_code}</p>
+                      <p className="mt-2 font-mono text-lg break-all">{r.ticket_code}</p>
                       <p className="text-xs text-muted-foreground">Show this at the studio on your first day.</p>
                     </div>
-                    <div className="flex flex-col items-center gap-2">
-                      <div id={`ticket-qr-${r.id}`} className="bg-white p-2 rounded"><QRCodeCanvas value={verifyUrl || r.ticket_code || ""} size={132} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" /></div>
+                    <div className="flex flex-col items-center gap-2 w-full sm:w-auto shrink-0">
+                      <div id={`ticket-qr-${r.id}`} className="bg-white p-2 rounded inline-block">
+                        <QRCodeCanvas
+                          value={verifyUrl || r.ticket_code || ""}
+                          size={132}
+                          level="Q"
+                          marginSize={4}
+                          bgColor="#ffffff"
+                          fgColor="#000000"
+                          style={{ display: "block", maxWidth: "100%", height: "auto" }}
+                        />
+                      </div>
                       <button
                         type="button"
                         onClick={() => downloadQrPng(`ticket-qr-${r.id}`, `ticket-${r.ticket_code}.png`)}
