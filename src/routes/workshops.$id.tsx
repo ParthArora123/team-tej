@@ -235,7 +235,6 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
   ];
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#050301] contain-paint">
-      <DanceMotionCanvas />
       <motion.div style={{ y: liveY }} className="absolute -inset-[8%] will-change-transform transform-gpu">
         {media?.media_kind === "video" && media.media_url ? (
           <video
@@ -261,8 +260,10 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
         ) : (
           <div className="h-full w-full bg-[radial-gradient(ellipse_at_50%_36%,rgba(217,174,86,0.22),transparent_58%),linear-gradient(135deg,rgba(62,34,7,0.68),rgba(5,3,1,0.92)_58%,rgba(116,73,18,0.38))]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/62 via-[#050301]/45 to-[#050301]/88" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/50 via-[#050301]/34 to-[#050301]/72" />
       </motion.div>
+
+      <DanceMotionCanvas />
 
       <motion.div style={{ y: farY }} className="absolute -inset-[14%] will-change-transform transform-gpu">
         <div className="absolute left-[-12%] top-[8%] h-[42rem] w-[42rem] rounded-full bg-[radial-gradient(circle,rgba(212,169,76,0.22),transparent_68%)] wlb-mesh-a" />
@@ -347,8 +348,8 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
         ))}
       </motion.div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/72 via-[#050301]/48 to-[#050301]/88" />
-      <div className="absolute inset-x-0 bottom-0 h-[48vh] bg-gradient-to-t from-black/78 via-black/35 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/48 via-[#050301]/28 to-[#050301]/76" />
+      <div className="absolute inset-x-0 bottom-0 h-[48vh] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
 
       <style>{`
         .contain-paint { contain: paint; }
