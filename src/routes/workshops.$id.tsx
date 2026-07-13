@@ -156,6 +156,161 @@ function GoldParticles() {
   );
 }
 
+/* ---------- Gold stage ambience: rays, spotlights, drifting dancer silhouettes ---------- */
+function GoldStageAmbience() {
+  const dancers = [
+    { pose: "hiphop",       left: "6%",  bottom: "4%",  scale: 0.95, dur: 16, delay: 0,  opacity: 0.10, blur: 0.5 },
+    { pose: "contemporary", left: "44%", bottom: "2%",  scale: 1.15, dur: 20, delay: -5, opacity: 0.09, blur: 1 },
+    { pose: "freestyle",    left: "78%", bottom: "6%",  scale: 0.9,  dur: 18, delay: -9, opacity: 0.10, blur: 0.5 },
+    { pose: "contemporary", left: "22%", bottom: "10%", scale: 0.55, dur: 24, delay: -3, opacity: 0.06, blur: 3 },
+    { pose: "hiphop",       left: "62%", bottom: "12%", scale: 0.6,  dur: 22, delay: -11,opacity: 0.06, blur: 3 },
+  ];
+  return (
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      {/* Volumetric gold light rays — slow rotate */}
+      <svg
+        className="absolute left-1/2 top-[-30%] h-[160%] w-[140%] -translate-x-1/2 opacity-[0.18] mix-blend-screen gsa-rays"
+        viewBox="0 0 800 800"
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <defs>
+          <radialGradient id="gsa-ray" cx="50%" cy="0%" r="65%">
+            <stop offset="0%" stopColor="#f5c76a" stopOpacity="0.7" />
+            <stop offset="60%" stopColor="#d4a94c" stopOpacity="0.05" />
+            <stop offset="100%" stopColor="#d4a94c" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {Array.from({ length: 7 }).map((_, i) => (
+          <polygon
+            key={i}
+            points="400,0 378,800 422,800"
+            fill="url(#gsa-ray)"
+            transform={`rotate(${(i - 3) * 13} 400 0)`}
+          />
+        ))}
+      </svg>
+
+      {/* Two elegant moving spotlights (no blink) */}
+      <div
+        className="absolute -top-20 left-[15%] h-[70vh] w-[55vw] rounded-full blur-3xl mix-blend-screen gsa-spot-a"
+        style={{ background: "radial-gradient(circle, rgba(245,199,106,0.28), rgba(212,169,76,0.06) 45%, transparent 70%)" }}
+      />
+      <div
+        className="absolute top-[8%] right-[8%] h-[65vh] w-[50vw] rounded-full blur-3xl mix-blend-screen gsa-spot-b"
+        style={{ background: "radial-gradient(circle, rgba(255,220,140,0.22), rgba(184,134,11,0.05) 45%, transparent 70%)" }}
+      />
+
+      {/* Soft atmospheric fog */}
+      <div className="absolute inset-0 gsa-fog">
+        <div
+          className="absolute left-[-15%] top-[45%] h-[55vh] w-[85vw] rounded-full blur-3xl opacity-40"
+          style={{ background: "radial-gradient(circle, rgba(200,160,90,0.20), transparent 70%)" }}
+        />
+      </div>
+
+      {/* Parallax dancer silhouettes at stage floor */}
+      <div className="absolute inset-x-0 bottom-0 h-[85vh]">
+        {dancers.map((d, i) => (
+          <div
+            key={i}
+            className="absolute gsa-dancer"
+            style={{
+              left: d.left,
+              bottom: d.bottom,
+              transform: `scale(${d.scale})`,
+              opacity: d.opacity,
+              animationDuration: `${d.dur}s`,
+              animationDelay: `${d.delay}s`,
+              filter: `blur(${d.blur}px)`,
+              color: "#f5c76a",
+            }}
+          >
+            <GoldDancerSVG pose={d.pose as any} />
+          </div>
+        ))}
+      </div>
+
+      {/* Stage floor gradient for grounding */}
+      <div className="absolute inset-x-0 bottom-0 h-[45vh] bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+
+      <style>{`
+        .gsa-rays { animation: gsa-rot 120s linear infinite; transform-origin: 50% 0%; will-change: transform; }
+        @keyframes gsa-rot { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
+
+        .gsa-spot-a { will-change: transform; animation: gsa-spot-a 38s ease-in-out infinite; }
+        .gsa-spot-b { will-change: transform; animation: gsa-spot-b 46s ease-in-out infinite; }
+        @keyframes gsa-spot-a {
+          0%,100% { transform: translate3d(0,0,0) scale(1); }
+          50%     { transform: translate3d(16vw,5vh,0) scale(1.15); }
+        }
+        @keyframes gsa-spot-b {
+          0%,100% { transform: translate3d(0,0,0) scale(1); }
+          50%     { transform: translate3d(-14vw,-4vh,0) scale(1.1); }
+        }
+
+        .gsa-fog { will-change: transform; animation: gsa-fog 70s ease-in-out infinite; }
+        @keyframes gsa-fog {
+          0%,100% { transform: translate3d(0,0,0); }
+          50%     { transform: translate3d(5vw,-2vh,0); }
+        }
+
+        .gsa-dancer {
+          width: 170px;
+          height: 300px;
+          transform-origin: 50% 100%;
+          will-change: transform, opacity;
+          animation-name: gsa-sway;
+          animation-timing-function: ease-in-out;
+          animation-iteration-count: infinite;
+          animation-direction: alternate;
+        }
+        @keyframes gsa-sway {
+          0%   { transform: translate3d(0,0,0) rotate(-1.2deg); }
+          50%  { transform: translate3d(5px,-4px,0) rotate(0.6deg); }
+          100% { transform: translate3d(-4px,-2px,0) rotate(-0.4deg); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .gsa-rays, .gsa-spot-a, .gsa-spot-b, .gsa-fog, .gsa-dancer { animation: none !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function GoldDancerSVG({ pose }: { pose: "hiphop" | "contemporary" | "freestyle" }) {
+  if (pose === "hiphop") {
+    return (
+      <svg viewBox="0 0 200 360" className="w-full h-full" fill="currentColor">
+        <circle cx="100" cy="46" r="22" />
+        <path d="M78 70 Q100 78 122 70 L138 150 Q140 170 130 180 L118 220 L128 300 L118 340 L104 340 L100 260 L92 340 L78 340 L86 260 L70 180 Q60 170 62 150 Z" />
+        <path d="M62 155 L36 210 L28 270 L42 274 L52 220 L72 178 Z" />
+        <path d="M138 155 L170 200 L182 258 L170 264 L156 214 L132 178 Z" />
+      </svg>
+    );
+  }
+  if (pose === "contemporary") {
+    return (
+      <svg viewBox="0 0 200 360" className="w-full h-full" fill="currentColor">
+        <circle cx="90" cy="40" r="20" />
+        <path d="M72 60 Q92 68 112 62 L128 140 L118 180 L138 260 L128 340 L114 340 L112 270 L96 220 L82 270 L84 340 L70 340 L70 260 L82 180 Z" />
+        <path d="M112 68 L170 20 L178 30 L120 82 Z" />
+        <path d="M74 78 L40 150 L30 148 L60 70 Z" />
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 200 360" className="w-full h-full" fill="currentColor">
+      <circle cx="104" cy="60" r="20" />
+      <path d="M84 80 Q106 88 128 82 L142 160 Q136 190 118 200 L136 260 L126 320 L112 322 L108 260 L96 220 L82 260 L78 322 L64 320 L74 260 L60 200 Q54 190 62 160 Z" />
+      <path d="M128 86 L172 40 L182 50 L136 100 Z" />
+      <path d="M84 86 L36 46 L28 58 L78 102 Z" />
+      <path d="M112 280 L170 300 L172 314 L108 300 Z" />
+    </svg>
+  );
+}
+
+
 
 /* ---------- Section label + serif heading (Manthan style) ---------- */
 function SectionHeader({ eyebrow, title, center = true }: { eyebrow: string; title: string; center?: boolean }) {
@@ -270,6 +425,8 @@ function WorkshopDetailPage() {
   return (
     <div className="relative min-h-screen pb-40 md:pb-24 text-amber-50 selection:bg-amber-400/30">
       <GoldParticles />
+      <GoldStageAmbience />
+
 
       {/* ==================== HERO ==================== */}
       <section ref={heroRef} className="relative w-full min-h-[100svh] overflow-hidden">
