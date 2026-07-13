@@ -29,7 +29,6 @@ export const Route = createFileRoute("/contact")({
 function Contact() {
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [messageText, setMessageText] = useState("");
   const send = useServerFn(submitContactMessage);
   const loadContent = useServerFn(getSiteContent);
   const [info, setInfo] = useState<any>({
