@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import {
   Calendar, MapPin, Clock, ChevronDown, Sparkles,
   ArrowLeft,
-  Ticket, PlayCircle,
+  Ticket, PlayCircle, User,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getProgram } from "@/lib/catalog.functions";
