@@ -29,6 +29,7 @@ export const Route = createFileRoute("/contact")({
 function Contact() {
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [messageText, setMessageText] = useState("");
   const send = useServerFn(submitContactMessage);
   const loadContent = useServerFn(getSiteContent);
   const [info, setInfo] = useState<any>({
@@ -41,6 +42,10 @@ function Contact() {
     loadContent({ data: { key: "contact" } }).then((v: any) => v && setInfo({ ...info, ...v })).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const waNumber = String(info.whatsapp ?? "").replace(/[^\d]/g, "");
+  const waText = messageText.trim() || "Hi! I would like to know more about your dance classes and workshops.";
+  const waHref = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waText)}` : undefined;
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
