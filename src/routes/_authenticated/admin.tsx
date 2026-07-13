@@ -461,11 +461,21 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 Enable Silver Seat option
               </label>
               {f.silver_seat_enabled && (
-                <FieldRow label="Silver Seat Price (₹)">
-                  <In type="number" placeholder="Enter additional Silver Seat price" v={f.silver_seat_price} on={(v) => setF({ ...f, silver_seat_price: v })} />
-                </FieldRow>
+                <>
+                  <FieldRow label="Silver Seat Price (₹)">
+                    <In type="number" placeholder="Enter additional Silver Seat price" v={f.silver_seat_price} on={(v) => setF({ ...f, silver_seat_price: v })} />
+                  </FieldRow>
+                  <FieldRow label={f.allow_both ? "Silver Seat Capacity · Workshop 1" : "Silver Seat Capacity"}>
+                    <In type="number" placeholder="Leave empty for unlimited" v={f.silver_capacity_w1} on={(v) => setF({ ...f, silver_capacity_w1: v })} />
+                  </FieldRow>
+                  {f.allow_both && (
+                    <FieldRow label="Silver Seat Capacity · Workshop 2">
+                      <In type="number" placeholder="Leave empty for unlimited" v={f.silver_capacity_w2} on={(v) => setF({ ...f, silver_capacity_w2: v })} />
+                    </FieldRow>
+                  )}
+                </>
               )}
-              <p className="text-[11px] text-muted-foreground">Default is ₹1,000. This is added on top of the workshop fee when a student picks the Silver Seat option.</p>
+              <p className="text-[11px] text-muted-foreground">Default price is ₹1,000. Leave capacity empty for unlimited silver seats.</p>
             </div>
 
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
@@ -482,12 +492,21 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 <In type="number" placeholder="Enter Single Workshop price" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
               </FieldRow>
               {f.allow_both && (
-                <FieldRow label="Both Workshops Price (₹) *">
-                  <In type="number" placeholder="Enter Both Workshops price" v={f.both_price} on={(v) => setF({ ...f, both_price: v })} />
-                </FieldRow>
+                <>
+                  <FieldRow label="Both Workshops Price (₹) *">
+                    <In type="number" placeholder="Enter Both Workshops price" v={f.both_price} on={(v) => setF({ ...f, both_price: v })} />
+                  </FieldRow>
+                  <FieldRow label="Workshop 1 Name *">
+                    <In placeholder="e.g. Bollywood Fusion" v={f.workshop1_name} on={(v) => setF({ ...f, workshop1_name: v })} />
+                  </FieldRow>
+                  <FieldRow label="Workshop 2 Name *">
+                    <In placeholder="e.g. Contemporary" v={f.workshop2_name} on={(v) => setF({ ...f, workshop2_name: v })} />
+                  </FieldRow>
+                </>
               )}
-              <p className="text-[11px] text-muted-foreground">Enable one or both options. Students will see only the enabled options on the registration form.</p>
+              <p className="text-[11px] text-muted-foreground">Enable one or both options. Workshop names are shown on the registration form when Both is enabled.</p>
             </div>
+
 
 
 
