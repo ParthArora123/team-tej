@@ -432,9 +432,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               <FieldRow label="Maximum Capacity">
                 <In type="number" placeholder="Enter maximum participants" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
               </FieldRow>
-              <FieldRow label="Workshop Fee (₹) *">
-                <In type="number" placeholder="Enter workshop fee" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
-              </FieldRow>
               <FieldRow label="Workshop Type">
                 <select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}
                   className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm">
