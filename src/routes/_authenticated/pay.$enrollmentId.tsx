@@ -266,7 +266,8 @@ function PayUpload() {
         <button
           disabled={!canSubmit}
           onClick={submit}
-          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">
+          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2">
+          <MessageCircle size={16} />
           {busy ? "Uploading & verifying…" : validating ? "Validating…" : "I Have Completed the Payment"}
         </button>
         <p className="mt-3 text-[11px] text-muted-foreground">
