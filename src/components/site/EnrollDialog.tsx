@@ -13,6 +13,9 @@ export interface EnrollClass {
   duration: string;
   silverSeatEnabled?: boolean;
   silverSeatPrice?: number;
+  allowSingle?: boolean;
+  allowBoth?: boolean;
+  bothPrice?: number | null;
 }
 
 interface Props {
@@ -32,15 +35,21 @@ export function EnrollDialog({ klass, onClose }: Props) {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [d, setD] = useState(initial);
   const [silver, setSilver] = useState(false);
+  const [regType, setRegType] = useState<"single" | "both">("single");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+
+  const allowSingle = klass?.allowSingle !== false;
+  const allowBoth = !!klass?.allowBoth && !!klass?.bothPrice;
 
   useEffect(() => {
     if (!klass) return;
     setSilver(false);
     setErr("");
     setDone(false);
+    const initialType: "single" | "both" = allowSingle ? "single" : allowBoth ? "both" : "single";
+    setRegType(initialType);
     supabase.auth.getUser().then(({ data }) => {
       setSignedIn(!!data.user);
       if (data.user?.email) setD((s) => ({ ...s, email: data.user!.email! }));
@@ -50,7 +59,8 @@ export function EnrollDialog({ klass, onClose }: Props) {
   if (!klass) return null;
 
   const silverAddon = klass.silverSeatPrice ?? 1000;
-  const total = klass.price + (klass.silverSeatEnabled && silver ? silverAddon : 0);
+  const basePrice = regType === "both" ? (klass.bothPrice ?? klass.price) : klass.price;
+  const total = basePrice + (klass.silverSeatEnabled && silver ? silverAddon : 0);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +71,7 @@ export function EnrollDialog({ klass, onClose }: Props) {
         gender: d.gender, address: d.address, city: d.city,
         state: d.state, emergencyContact: d.emergencyContact,
         silverSeat: !!(klass.silverSeatEnabled && silver),
+        registrationType: regType,
       }});
       setDone(true);
     } catch (e: any) { setErr(e.message ?? "Failed"); }
@@ -108,6 +119,32 @@ export function EnrollDialog({ klass, onClose }: Props) {
                 <Field label="City" v={d.city} on={(v) => setD({...d, city: v})} />
                 <Field label="State" v={d.state} on={(v) => setD({...d, state: v})} />
                 <Field label="Emergency contact" v={d.emergencyContact} on={(v) => setD({...d, emergencyContact: v})} span2 />
+
+                {(allowSingle || allowBoth) && (allowSingle && allowBoth ? (
+                  <div className="col-span-2 rounded-xl border border-primary/40 bg-primary/5 p-3 space-y-2">
+                    <p className="text-xs uppercase tracking-widest text-primary font-medium">Workshop Selection</p>
+                    <label className="flex items-center justify-between gap-3 cursor-pointer">
+                      <span className="flex items-center gap-2 text-sm">
+                        <input type="radio" name="regType" checked={regType === "single"} onChange={() => setRegType("single")} />
+                        Single Workshop
+                      </span>
+                      <span className="text-sm font-medium">₹{klass.price.toLocaleString("en-IN")}</span>
+                    </label>
+                    <label className="flex items-center justify-between gap-3 cursor-pointer">
+                      <span className="flex items-center gap-2 text-sm">
+                        <input type="radio" name="regType" checked={regType === "both"} onChange={() => setRegType("both")} />
+                        Both Workshops
+                      </span>
+                      <span className="text-sm font-medium">₹{(klass.bothPrice ?? 0).toLocaleString("en-IN")}</span>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="col-span-2 rounded-xl border border-primary/40 bg-primary/5 p-3 flex items-center justify-between">
+                    <span className="text-sm font-medium">{regType === "both" ? "Both Workshops" : "Single Workshop"}</span>
+                    <span className="text-sm font-medium">₹{basePrice.toLocaleString("en-IN")}</span>
+                  </div>
+                ))}
+
 
                 {klass.silverSeatEnabled && (
                   <label className="col-span-2 flex items-start gap-3 rounded-xl border border-primary/40 bg-primary/5 p-3 cursor-pointer">

@@ -13,6 +13,7 @@ const detailsSchema = z.object({
   state: z.string().min(1).max(80),
   emergencyContact: z.string().min(5).max(60),
   silverSeat: z.boolean().optional(),
+  registrationType: z.enum(["single", "both"]).optional(),
 });
 
 export const createEnrollment = createServerFn({ method: "POST" })
@@ -26,21 +27,35 @@ export const createEnrollment = createServerFn({ method: "POST" })
 
     const { data: program, error: pErr } = await supabase
       .from("programs")
-      .select("id, name, price_inr, capacity, seats_taken, silver_seat_enabled, silver_seat_price, published")
+      .select("id, name, price_inr, capacity, seats_taken, silver_seat_enabled, silver_seat_price, published, allow_single, allow_both, both_price")
       .eq("id", data.programId).maybeSingle();
     if (pErr || !program) throw new Error("Program not found");
     if (program.capacity != null && (program.seats_taken ?? 0) >= program.capacity) {
       throw new Error("Sorry, this workshop is full.");
     }
 
-    const wantSilver = !!data.silverSeat && !!(program as any).silver_seat_enabled;
+    const p = program as any;
+    const allowSingle = p.allow_single !== false;
+    const allowBoth = !!p.allow_both;
+    let regType: "single" | "both" = data.registrationType ?? (allowSingle ? "single" : allowBoth ? "both" : "single");
+    if (regType === "single" && !allowSingle) throw new Error("Single Workshop registration is not available for this workshop.");
+    if (regType === "both" && !allowBoth) throw new Error("Both Workshops registration is not available for this workshop.");
+    if (regType === "both" && (p.both_price == null || p.both_price <= 0)) {
+      throw new Error("Both Workshops price is not configured for this workshop.");
+    }
+    const baseAmount = regType === "both" ? Number(p.both_price) : Number(p.price_inr);
+
+    const wantSilver = !!data.silverSeat && !!p.silver_seat_enabled;
+    const silverAdd = wantSilver ? Number(p.silver_seat_price ?? 1000) : 0;
+
     const { data: enr, error } = await supabase.from("enrollments").insert({
-      user_id: userId, program_id: program.id, amount_inr: program.price_inr,
+      user_id: userId, program_id: program.id, amount_inr: baseAmount + silverAdd,
       status: "awaiting_payment",
       full_name: data.fullName, email: data.email, phone: data.phone,
       gender: data.gender, address: data.address, city: data.city, state: data.state,
       emergency_contact: data.emergencyContact,
       silver_seat: wantSilver,
+      registration_type: regType,
     } as any).select("*").single();
     if (error) throw error;
     return enr;
@@ -450,6 +465,9 @@ const workshopSchema = z.object({
   published: z.boolean().default(false),
   silver_seat_enabled: z.boolean().optional(),
   silver_seat_price: z.number().int().min(0).optional(),
+  allow_single: z.boolean().optional(),
+  allow_both: z.boolean().optional(),
+  both_price: z.number().int().min(0).optional().nullable(),
   upi_id: z.string().max(120).optional().or(z.literal("")),
   clear_upi: z.boolean().optional(),
   bank_account_holder: z.string().min(2).max(120),
@@ -472,6 +490,9 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       registration_open_on: rest.registration_open_on || null,
       silver_seat_enabled: !!rest.silver_seat_enabled,
       silver_seat_price: rest.silver_seat_price ?? 1000,
+      allow_single: rest.allow_single !== false,
+      allow_both: !!rest.allow_both,
+      both_price: rest.allow_both ? (rest.both_price ?? null) : null,
     };
     if (clear_upi) {
       clean.upi_id_encrypted = null;
