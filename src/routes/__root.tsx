@@ -108,7 +108,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a8e36f1a-e1da-4cbb-9dbe-66d1287fa91c/id-preview-83fff700--51d20694-4b22-4fb9-b682-2a538b5c2de3.lovable.app-1782479432942.png" },
       { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a8e36f1a-e1da-4cbb-9dbe-66d1287fa91c/id-preview-83fff700--51d20694-4b22-4fb9-b682-2a538b5c2de3.lovable.app-1782479432942.png" },
     ],
-    links: [{ rel: "stylesheet", href: appCss }],
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
