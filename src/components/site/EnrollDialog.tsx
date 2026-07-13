@@ -13,6 +13,9 @@ export interface EnrollClass {
   duration: string;
   silverSeatEnabled?: boolean;
   silverSeatPrice?: number;
+  allowSingle?: boolean;
+  allowBoth?: boolean;
+  bothPrice?: number | null;
 }
 
 interface Props {
@@ -32,15 +35,21 @@ export function EnrollDialog({ klass, onClose }: Props) {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [d, setD] = useState(initial);
   const [silver, setSilver] = useState(false);
+  const [regType, setRegType] = useState<"single" | "both">("single");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+
+  const allowSingle = klass?.allowSingle !== false;
+  const allowBoth = !!klass?.allowBoth && !!klass?.bothPrice;
 
   useEffect(() => {
     if (!klass) return;
     setSilver(false);
     setErr("");
     setDone(false);
+    const initialType: "single" | "both" = allowSingle ? "single" : allowBoth ? "both" : "single";
+    setRegType(initialType);
     supabase.auth.getUser().then(({ data }) => {
       setSignedIn(!!data.user);
       if (data.user?.email) setD((s) => ({ ...s, email: data.user!.email! }));
@@ -50,7 +59,8 @@ export function EnrollDialog({ klass, onClose }: Props) {
   if (!klass) return null;
 
   const silverAddon = klass.silverSeatPrice ?? 1000;
-  const total = klass.price + (klass.silverSeatEnabled && silver ? silverAddon : 0);
+  const basePrice = regType === "both" ? (klass.bothPrice ?? klass.price) : klass.price;
+  const total = basePrice + (klass.silverSeatEnabled && silver ? silverAddon : 0);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,6 +71,7 @@ export function EnrollDialog({ klass, onClose }: Props) {
         gender: d.gender, address: d.address, city: d.city,
         state: d.state, emergencyContact: d.emergencyContact,
         silverSeat: !!(klass.silverSeatEnabled && silver),
+        registrationType: regType,
       }});
       setDone(true);
     } catch (e: any) { setErr(e.message ?? "Failed"); }
