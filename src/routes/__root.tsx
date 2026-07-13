@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -135,6 +136,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const isWorkshopDetailPage = /^\/workshops\/[^/]+/.test(pathname);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -142,11 +145,13 @@ function RootComponent() {
         <SmoothScroll />
       </DeferMount>
       <div className="min-h-screen grain-bg relative">
-        <StageAmbience />
-        <DeferMount>
-          <AmbientBlobs />
-          <CursorGlow />
-        </DeferMount>
+        {!isWorkshopDetailPage && <StageAmbience />}
+        {!isWorkshopDetailPage && (
+          <DeferMount>
+            <AmbientBlobs />
+            <CursorGlow />
+          </DeferMount>
+        )}
         <ScrollProgress />
         <Header />
         <main className="pt-16">
