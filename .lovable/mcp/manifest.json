@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.1",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://vjtvshinrfbsjtwxpeen.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "team-tej-mcp",
+      "version": "0.1.0",
+      "title": "Team Tej Dance Studio"
+    },
+    "tools": [
+      {
+        "name": "list_programs",
+        "title": "List programs and workshops",
+        "description": "List active Team Tej programs (classes and workshops). Returns id, name, kind, price, event date, venue, instructor, and description.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "class",
+                "workshop"
+              ],
+              "description": "Filter by kind. Omit to return both."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_enrollments",
+        "title": "List my enrollments",
+        "description": "List the signed-in user's Team Tej enrollments with payment status, ticket code, and program details.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "submit_feedback",
+        "title": "Submit feedback / testimonial",
+        "description": "Post a public testimonial from the signed-in user. Appears on the homepage 'What Movers Say' section immediately.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Display name for the testimonial."
+            },
+            "role": {
+              "type": "string",
+              "description": "Optional role/title (e.g. 'Student', 'Bride 2024')."
+            },
+            "rating": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "Star rating, 1 to 5."
+            },
+            "story": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The feedback text."
+            }
+          },
+          "required": [
+            "name",
+            "rating",
+            "story"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
