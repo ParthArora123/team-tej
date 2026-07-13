@@ -79,7 +79,7 @@ function WorkshopsPage() {
 
   return (
     <div className="relative min-h-screen pb-24">
-      <LivingBackdrop />
+      <WorkshopLivingBackdrop />
 
       {/* Cinematic hero */}
       <section className="relative">
