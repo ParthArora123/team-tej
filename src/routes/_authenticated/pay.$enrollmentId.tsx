@@ -122,14 +122,15 @@ function PayUpload() {
         const verifyUrl = ticket ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}` : "";
         const message =
           `🎉 Hi ${enr.full_name || "there"},\n\n` +
-          `✅ Payment confirmed. Your seat has been confirmed for ${enr.program?.name || "the workshop"}.\n\n` +
-          `Registration ID: ${ticket || enr.id}\n` +
+          `✅ Your payment has been verified.\n` +
+          `✅ Your seat has been confirmed.\n\n` +
+          `Workshop: ${enr.program?.name || "the workshop"}\n` +
           `Date: ${dateStr}\n` +
           `Time: ${timeStr}\n` +
           `Venue: ${venueStr}\n\n` +
-          (verifyUrl ? `Your QR code for entry/check-in:\n${verifyUrl}\n\n` : "") +
-          `Please keep this QR code safe and present it at the venue during check-in.\n\n` +
-          `We look forward to welcoming you to the workshop!\n\n` +
+          (verifyUrl ? `🎫 This QR code is your workshop entry pass:\n${verifyUrl}\n\n` : "") +
+          `🔍 This QR code will be scanned by the Workshop Manager at the venue during check-in.\n\n` +
+          `Please keep this QR code safe and present it at the workshop.\n\n` +
           `– Tejas D Dhoke`;
         window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
       }
@@ -209,14 +210,15 @@ function PayUpload() {
               const venueStr = enr.program?.venue || "—";
               const message =
                 `🎉 Hi ${enr.full_name || "there"},\n\n` +
-                `✅ Payment confirmed. Your seat has been confirmed for ${enr.program?.name || "the workshop"}.\n\n` +
-                `Registration ID: ${ticket || enr.id}\n` +
+                `✅ Your payment has been verified.\n` +
+                `✅ Your seat has been confirmed.\n\n` +
+                `Workshop: ${enr.program?.name || "the workshop"}\n` +
                 `Date: ${dateStr}\n` +
                 `Time: ${timeStr}\n` +
                 `Venue: ${venueStr}\n\n` +
-                (verifyUrl ? `Your QR code for entry/check-in:\n${verifyUrl}\n\n` : "") +
-                `Please keep this QR code safe and present it at the venue during check-in.\n\n` +
-                `We look forward to welcoming you to the workshop!\n\n` +
+                (verifyUrl ? `🎫 This QR code is your workshop entry pass:\n${verifyUrl}\n\n` : "") +
+                `🔍 This QR code will be scanned by the Workshop Manager at the venue during check-in.\n\n` +
+                `Please keep this QR code safe and present it at the workshop.\n\n` +
                 `– Tejas D Dhoke`;
               return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
             })()}

@@ -122,14 +122,15 @@ function PayBundle() {
           .join("\n");
         const message =
           `🎉 Hi ${participant},\n\n` +
-          `✅ Payment confirmed. Your seat has been confirmed for ${workshops}.\n\n` +
-          `Registration ID: ${ids}\n` +
+          `✅ Your payment has been verified.\n` +
+          `✅ Your seats have been confirmed.\n\n` +
+          `Workshops: ${workshops}\n` +
           `Date: ${dateStr}\n` +
           `Time: ${timeStr}\n` +
           `Venue: ${venueStr}\n\n` +
-          (verifyLines ? `Your QR code(s) for entry/check-in:\n${verifyLines}\n\n` : "") +
-          `Please keep your QR code(s) safe and present them at the venue during check-in.\n\n` +
-          `We look forward to welcoming you to the workshop!\n\n` +
+          (verifyLines ? `🎫 These QR codes are your workshop entry passes:\n${verifyLines}\n\n` : "") +
+          `🔍 These QR codes will be scanned by the Workshop Manager at the venue during check-in.\n\n` +
+          `Please keep your QR code(s) safe and present them at the workshop.\n\n` +
           `– Tejas D Dhoke`;
         window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
       }
@@ -161,14 +162,15 @@ function PayBundle() {
       : "";
     const waMessage =
       `🎉 Hi ${participant},\n\n` +
-      `✅ Payment confirmed. Your seat has been confirmed for ${workshops}.\n\n` +
-      `Registration ID: ${ids}\n` +
+      `✅ Your payment has been verified.\n` +
+      `✅ Your seats have been confirmed.\n\n` +
+      `Workshops: ${workshops}\n` +
       `Date: ${dateStr}\n` +
       `Time: ${timeStr}\n` +
       `Venue: ${venueStr}\n\n` +
-      (verifyLines ? `Your QR code(s) for entry/check-in:\n${verifyLines}\n\n` : "") +
-      `Please keep your QR code(s) safe and present them at the venue during check-in.\n\n` +
-      `We look forward to welcoming you to the workshop!\n\n` +
+      (verifyLines ? `🎫 These QR codes are your workshop entry passes:\n${verifyLines}\n\n` : "") +
+      `🔍 These QR codes will be scanned by the Workshop Manager at the venue during check-in.\n\n` +
+      `Please keep your QR code(s) safe and present them at the workshop.\n\n` +
       `– Tejas D Dhoke`;
     const waHref = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}` : undefined;
     return (
