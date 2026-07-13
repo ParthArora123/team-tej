@@ -468,15 +468,6 @@ function WorkshopDetailPage() {
               </p>
             )}
 
-            <div className="mt-10">
-              <MagneticButton>
-                <button onClick={bookNow} disabled={full}
-                  className="group relative px-8 py-4 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs font-bold tracking-[0.25em] uppercase shadow-[0_10px_40px_-10px_rgba(212,169,76,0.7)] hover:shadow-[0_20px_60px_-10px_rgba(212,169,76,0.9)] transition-shadow disabled:opacity-40">
-                  <span className="relative z-10">{full ? "Sold Out" : "Book Now"}</span>
-                  <span className="absolute inset-0 rounded-full ring-1 ring-inset ring-amber-200/50" />
-                </button>
-              </MagneticButton>
-            </div>
           </div>
 
           {/* RIGHT column — poster card */}
