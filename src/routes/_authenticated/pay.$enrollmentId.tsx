@@ -184,9 +184,9 @@ function PayUpload() {
         {ticket && verifyUrl && (
           <div className="mt-6 rounded-2xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5">
             <p className="text-xs uppercase tracking-widest text-primary text-center">Generated QR Code</p>
-            <div className="mt-4 flex flex-col items-center gap-3">
-              <div id="ticket-qr-success" className="bg-white p-2 rounded-lg">
-                <QRCodeCanvas value={verifyUrl} size={220} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" />
+            <div className="mt-4 flex flex-col items-center justify-center gap-3">
+              <div id="ticket-qr-success" className="bg-white p-3 rounded-lg flex items-center justify-center w-full max-w-[220px]">
+                <QRCodeCanvas value={verifyUrl} size={200} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" className="w-full h-auto" />
               </div>
               <button
                 type="button"

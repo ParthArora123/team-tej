@@ -213,19 +213,19 @@ function PayBundle() {
                 : "";
               const qrId = `ticket-qr-success-${idx}`;
               return (
-                <div key={ticket} className="rounded-2xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5 text-center">
-                  <p className="text-xs uppercase tracking-widest text-primary">Ticket {idx + 1}</p>
-                  <p className="mt-1 font-mono text-sm">{ticket}</p>
-                  <div id={qrId} className="mt-3 bg-white p-2 rounded-lg inline-block">
-                    <QRCodeCanvas value={verifyUrl} size={180} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => downloadQrPng(qrId, `ticket-${ticket}.png`)}
-                    className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
-                    <Download size={12} /> Download QR
-                  </button>
+              <div key={ticket} className="rounded-2xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5 text-center flex flex-col items-center justify-center">
+                <p className="text-xs uppercase tracking-widest text-primary">Ticket {idx + 1}</p>
+                <p className="mt-1 font-mono text-sm">{ticket}</p>
+                <div id={qrId} className="mt-3 bg-white p-3 rounded-lg flex items-center justify-center w-full max-w-[180px]">
+                  <QRCodeCanvas value={verifyUrl} size={160} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" className="w-full h-auto" />
                 </div>
+                <button
+                  type="button"
+                  onClick={() => downloadQrPng(qrId, `ticket-${ticket}.png`)}
+                  className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
+                  <Download size={12} /> Download QR
+                </button>
+              </div>
               );
             })}
           </div>
