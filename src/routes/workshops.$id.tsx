@@ -2,15 +2,14 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import {
-  Calendar, MapPin, Users, Clock, ChevronDown, Sparkles, Star,
-  Phone, MessageCircle, Share2, Heart, Navigation, ArrowLeft, CheckCircle2, Package,
-  Ticket, Mail, PlayCircle,
+  Calendar, MapPin, Clock, ChevronDown, Sparkles,
+  ArrowLeft, CheckCircle2, Package,
+  Ticket, PlayCircle,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getProgram } from "@/lib/catalog.functions";
 import { listWorkshopMedia } from "@/lib/workshop-media.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
-import { MagneticButton } from "@/components/site/MagneticButton";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 
 export const Route = createFileRoute("/workshops/$id")({
@@ -338,12 +337,10 @@ function WorkshopDetailPage() {
   const [media, setMedia] = useState<Media[]>([]);
   const [heroIdx, setHeroIdx] = useState(0);
   const [sel, setSel] = useState<EnrollClass | null>(null);
-  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (!initialProgram) fetchProgram({ data: { id: params.id } }).then(setProgram).catch(() => {});
     fetchMedia({ data: { programId: params.id } }).then((r: any[]) => setMedia(r as Media[])).catch(() => {});
-    try { setSaved(localStorage.getItem(`fav:${params.id}`) === "1"); } catch {}
   }, [params.id]);
 
   const heroRef = useRef<HTMLDivElement>(null);
@@ -372,30 +369,8 @@ function WorkshopDetailPage() {
   const full = seatsLeft === 0;
   const silverPrice = program?.silver_seat_price ?? 1000;
 
-  const whatsappNumber = "919999999999";
-  const waMessage = program?.name
-    ? `Hi, I'm interested in the ${program.name} workshop. Please share the available batches and booking details.`
-    : "";
-  const waLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(waMessage)}`;
-  const callLink = `tel:+${whatsappNumber}`;
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
-  const mapsNav = program?.venue ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(program.venue)}` : null;
-  const mapsDirect = program?.venue ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(program.venue)}` : null;
 
-  const toggleSave = () => {
-    setSaved((v) => {
-      const nv = !v;
-      try { localStorage.setItem(`fav:${params.id}`, nv ? "1" : "0"); } catch {}
-      return nv;
-    });
-  };
-  const share = async () => {
-    const url = typeof window !== "undefined" ? window.location.href : "";
-    try {
-      if (navigator.share) await navigator.share({ title: program?.name, text: program?.description ?? "", url });
-      else { await navigator.clipboard.writeText(url); alert("Link copied"); }
-    } catch {}
-  };
   const bookNow = () => {
     if (!program || full) return;
     setSel({ id: program.id, name: program.name, price: program.price_inr, duration: program.duration ?? "", silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice });
@@ -492,19 +467,6 @@ function WorkshopDetailPage() {
               </p>
             )}
 
-            <div className="mt-10 flex flex-wrap items-center gap-4">
-              <MagneticButton>
-                <button onClick={bookNow} disabled={full}
-                  className="group relative px-8 py-4 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs font-bold tracking-[0.25em] uppercase shadow-[0_10px_40px_-10px_rgba(212,169,76,0.7)] hover:shadow-[0_20px_60px_-10px_rgba(212,169,76,0.9)] transition-shadow disabled:opacity-40">
-                  <span className="relative z-10">{full ? "Sold Out" : "Register Now"}</span>
-                  <span className="absolute inset-0 rounded-full ring-1 ring-inset ring-amber-200/50" />
-                </button>
-              </MagneticButton>
-              <button onClick={() => scrollTo("about")}
-                className="px-8 py-4 rounded-full border border-amber-400/40 text-amber-200 text-xs font-bold tracking-[0.25em] uppercase hover:bg-amber-400/10 transition">
-                Explore Experience
-              </button>
-            </div>
           </div>
 
           {/* RIGHT column — poster card */}
@@ -604,7 +566,6 @@ function WorkshopDetailPage() {
                 label: "Gathering Venue",
                 main: program.venue ?? "Announced soon",
                 sub: program.city ?? "India",
-                cta: mapsDirect,
               },
             ].map((c, i) => (
               <motion.div key={c.label}
@@ -616,12 +577,6 @@ function WorkshopDetailPage() {
                 <p className="mt-4 text-[11px] tracking-[0.3em] uppercase text-amber-400">{c.label}</p>
                 <p className="mt-3 font-serif text-2xl text-amber-100" style={{ fontFamily: '"Cormorant Garamond",serif' }}>{c.main}</p>
                 <p className="mt-2 text-xs text-amber-100/50">{c.sub}</p>
-                {c.cta && (
-                  <a href={c.cta} target="_blank" rel="noopener noreferrer"
-                     className="mt-4 inline-flex items-center gap-1 text-xs text-amber-300 hover:text-amber-200">
-                    View on Google Maps →
-                  </a>
-                )}
               </motion.div>
             ))}
           </div>
@@ -761,12 +716,6 @@ function WorkshopDetailPage() {
                 </div>
               )}
 
-              <MagneticButton>
-                <button onClick={bookNow} disabled={full}
-                  className="mt-8 w-full px-6 py-4 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs font-black tracking-[0.25em] uppercase shadow-[0_10px_40px_-10px_rgba(212,169,76,0.7)] hover:shadow-[0_20px_60px_-10px_rgba(212,169,76,1)] transition disabled:opacity-40">
-                  {full ? "Sold Out" : "Pay & Register Now"}
-                </button>
-              </MagneticButton>
 
               {seatsLeft != null && (
                 <p className="mt-4 text-[11px] uppercase tracking-widest text-amber-200/70">
@@ -821,12 +770,6 @@ function WorkshopDetailPage() {
                 <p className="text-xs text-amber-100/50 mt-4 leading-relaxed">
                   Entrance is signposted. Please arrive 15 mins before start time.
                 </p>
-                {mapsNav && (
-                  <a href={mapsNav} target="_blank" rel="noopener noreferrer"
-                    className="mt-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs font-bold tracking-[0.25em] uppercase shadow-lg">
-                    <Navigation size={14} /> Get Directions
-                  </a>
-                )}
               </div>
             </div>
           </div>
@@ -841,41 +784,15 @@ function WorkshopDetailPage() {
           <p className="mt-4 text-amber-100/60 text-sm">
             Questions about payment, venue, dates or booking confirmation? Reach out — we're happy to help.
           </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <a href={callLink} className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-amber-400/40 bg-black/40 backdrop-blur text-amber-100 text-sm hover:bg-amber-400/10">
-              <Phone size={16} className="text-amber-400" /> Call Support
-            </a>
-            <a href={waLink} target="_blank" rel="noopener noreferrer"
-               className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-amber-400/40 bg-black/40 backdrop-blur text-amber-100 text-sm hover:bg-amber-400/10">
-              <MessageCircle size={16} className="text-amber-400" /> WhatsApp
-            </a>
-            <a href="mailto:info@teamtej.com"
-               className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-amber-400/40 bg-black/40 backdrop-blur text-amber-100 text-sm hover:bg-amber-400/10">
-              <Mail size={16} className="text-amber-400" /> Send Email
-            </a>
-          </div>
         </div>
       </section>
 
-      {/* ==================== STICKY ACTION PANEL ==================== */}
+      {/* ==================== STICKY BOOK NOW ==================== */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 md:bottom-6">
-        <div className="flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-black/85 backdrop-blur-xl shadow-[0_20px_60px_-10px_rgba(212,169,76,0.5)] p-1.5">
-          <button onClick={bookNow} disabled={full}
-            className="px-5 md:px-6 py-2.5 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs md:text-sm font-black tracking-widest uppercase disabled:opacity-40">
-            {full ? "Sold Out" : "Book Now"}
-          </button>
-          <a href={waLink} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
-            className="p-2.5 rounded-full text-amber-200 hover:bg-amber-400/10"><MessageCircle size={16} /></a>
-          <a href={callLink} aria-label="Call" className="p-2.5 rounded-full text-amber-200 hover:bg-amber-400/10"><Phone size={16} /></a>
-          {mapsNav && (
-            <a href={mapsNav} target="_blank" rel="noopener noreferrer" aria-label="Directions"
-              className="p-2.5 rounded-full text-amber-200 hover:bg-amber-400/10"><Navigation size={16} /></a>
-          )}
-          <button onClick={share} aria-label="Share" className="p-2.5 rounded-full text-amber-200 hover:bg-amber-400/10"><Share2 size={16} /></button>
-          <button onClick={toggleSave} aria-label="Save" className="p-2.5 rounded-full text-amber-200 hover:bg-amber-400/10">
-            <Heart size={16} className={saved ? "fill-amber-400 text-amber-400" : ""} />
-          </button>
-        </div>
+        <button onClick={bookNow} disabled={full}
+          className="px-6 md:px-8 py-3 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs md:text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(212,169,76,0.5)] disabled:opacity-40">
+          {full ? "Sold Out" : "Book Now"}
+        </button>
       </div>
 
       <EnrollDialog klass={sel} onClose={() => setSel(null)} />
