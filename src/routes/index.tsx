@@ -301,10 +301,10 @@ export const Route = createFileRoute("/")({
 });
 
 const stats: { value: number; suffix: string; label: string }[] = [
-  { value: 300, suffix: "+", label: "Dancers Trained" },
-  { value: 40, suffix: "+", label: "Live Performances" },
-  { value: 60, suffix: "+", label: "Workshops" },
-  { value: 12, suffix: "+", label: "Years of Experience" },
+  { value: 100, suffix: "k+", label: "Dancers Trained" },
+  { value: 300, suffix: "+", label: "Live Performances" },
+  { value: 1000, suffix: "+", label: "Workshops" },
+  { value: 16, suffix: "+", label: "Years of Experience" },
 ];
 
 type Choreo = {
