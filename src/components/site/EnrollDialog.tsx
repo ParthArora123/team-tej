@@ -18,6 +18,7 @@ export interface EnrollClass {
   bothPrice?: number | null;
   workshop1Name?: string | null;
   workshop2Name?: string | null;
+  eventTime?: string | null;
 }
 
 interface Props {
