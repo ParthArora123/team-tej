@@ -220,8 +220,8 @@ function PayUpload() {
               const dateStr = enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "—";
               const timeStr = enr.program?.event_time || "—";
               const venueStr = enr.program?.venue || "—";
-              const qrImageUrl = ticket
-                ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(ticket)}`
+              const qrImageUrl = ticket && verifyUrl
+                ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrl)}`
                 : "";
               const message =
                 `🎉 Hi ${enr.full_name || "there"},\n\n` +
