@@ -49,7 +49,7 @@ export function ProgramListPage({ kind, eyebrow, title, blurb }: {
                   <p className="text-[11px] text-primary mt-0.5">+ ₹{silverPrice.toLocaleString("en-IN")} for Silver Seat</p>
                 )}
               </div>
-              <button onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled, silverSeatPrice: silverPrice, allowSingle: r.allow_single !== false, allowBoth: !!r.allow_both, bothPrice: r.both_price ?? null, workshop1Name: r.workshop1_name ?? null, workshop2Name: r.workshop2_name ?? null })}
+              <button onClick={() => setSel({ id: r.id, name: r.name, price: r.price_inr, duration: r.duration ?? "", silverSeatEnabled: !!r.silver_seat_enabled, silverSeatPrice: silverPrice, allowSingle: r.allow_single !== false, allowBoth: !!r.allow_both, bothPrice: r.both_price ?? null, workshop1Name: r.workshop1_name ?? null, workshop2Name: r.workshop2_name ?? null, eventTime: (r as any).event_time ?? null })}
                 className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">Enroll</button>
             </div>
           </motion.div>

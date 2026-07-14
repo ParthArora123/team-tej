@@ -18,6 +18,7 @@ export interface EnrollClass {
   bothPrice?: number | null;
   workshop1Name?: string | null;
   workshop2Name?: string | null;
+  eventTime?: string | null;
 }
 
 interface Props {
@@ -267,7 +268,15 @@ export function EnrollDialog({ klass, onClose }: Props) {
                 <Check className="text-primary" size={28} />
               </div>
               <h3 className="mt-3 text-xl font-display font-bold">Registered</h3>
-              <p className="text-sm text-muted-foreground mt-2">
+              <div className="mt-3 inline-flex flex-col gap-1 items-center text-sm">
+                <span className="px-3 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                  {regType === "both" ? "2 Classes" : "1 Class"}
+                </span>
+                {klass.eventTime && (
+                  <span className="text-muted-foreground">🕒 {klass.eventTime}</span>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground mt-3">
                 Head to your dashboard to scan the UPI QR and pay. Your ticket and QR are issued instantly after payment.
               </p>
               <button onClick={() => { onClose(); navigate({ to: "/dashboard" }); }}
