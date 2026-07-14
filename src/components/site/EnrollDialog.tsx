@@ -35,6 +35,7 @@ export function EnrollDialog({ klass, onClose }: Props) {
   const create = useServerFn(createEnrollment);
 
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [authError, setAuthError] = useState("");
   const [d, setD] = useState(initial);
   const [silverW1, setSilverW1] = useState(false);
   const [silverW2, setSilverW2] = useState(false);
@@ -59,9 +60,26 @@ export function EnrollDialog({ klass, onClose }: Props) {
     const initialType: "single" | "both" = allowSingle ? "single" : allowBoth ? "both" : "single";
     setRegType(initialType);
     setSelectedWorkshop("w1");
-    supabase.auth.getUser().then(({ data }) => {
-      setSignedIn(!!data.user);
-      if (data.user?.email) setD((s) => ({ ...s, email: data.user!.email! }));
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (data.user) {
+        setSignedIn(true);
+        if (data.user.email) setD((s) => ({ ...s, email: data.user!.email! }));
+        return;
+      }
+      // No signup required to register — create a lightweight anonymous
+      // session in the background so the existing auth-gated enrollment
+      // + payment flow (RLS, dashboard, ticket generation) keeps working
+      // untouched. Users can later add an email/password to their
+      // account from the dashboard if they want to log in elsewhere.
+      const { data: anon, error } = await supabase.auth.signInAnonymously();
+      if (error || !anon.user) {
+        setAuthError(
+          "We couldn't start your registration session. Please check your connection and try again."
+        );
+        setSignedIn(false);
+        return;
+      }
+      setSignedIn(true);
     });
   }, [klass]);
 
@@ -108,13 +126,26 @@ export function EnrollDialog({ klass, onClose }: Props) {
           className="relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-card border border-border rounded-2xl p-6 sm:p-8">
           <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-muted"><X size={18} /></button>
 
+          {signedIn === null && (
+            <div className="py-10 text-center text-sm text-muted-foreground">
+              Preparing your registration…
+            </div>
+          )}
+
           {signedIn === false && (
             <div>
-              <p className="text-xs uppercase tracking-widest text-primary">Sign in required</p>
+              <p className="text-xs uppercase tracking-widest text-destructive">Something went wrong</p>
               <h3 className="mt-2 text-2xl font-display font-bold">{klass.name}</h3>
-              <p className="text-sm text-muted-foreground mt-2">Create an account to register.</p>
-              <button onClick={() => navigate({ to: "/auth" })}
-                className="mt-5 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground">Sign in / Sign up</button>
+              <p className="text-sm text-muted-foreground mt-2">{authError}</p>
+              <button
+                onClick={() => {
+                  setSignedIn(null);
+                  supabase.auth.signInAnonymously().then(({ data, error }) => {
+                    if (error || !data.user) { setSignedIn(false); return; }
+                    setSignedIn(true);
+                  });
+                }}
+                className="mt-5 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground">Try again</button>
             </div>
           )}
 
