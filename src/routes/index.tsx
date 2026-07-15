@@ -472,141 +472,111 @@ function Index() {
 
   return (
     <>
-      {/* HERO */}
-      <section id="hero" ref={heroSectionRef} className="relative overflow-hidden">
-        {/* Fixed-aspect hero container — identical size across all slides, no layout shift */}
-        <div className="relative w-full overflow-hidden bg-black aspect-[4/5] sm:aspect-[16/10] lg:aspect-[16/9] max-h-[85vh]">
-          {heroSlides.length > 0 ? (
-            heroSlides.map((s, i) => {
-              const active = i === slideIdx;
-              // Mount current, previous-neighbor and next-neighbor only for cheap DOM
-              const neighbor =
-                heroSlides.length <= 3 ||
-                i === (slideIdx + 1) % heroSlides.length ||
-                i === (slideIdx - 1 + heroSlides.length) % heroSlides.length;
-              const shouldMount = active || (warmSlides && (i === 0 || neighbor));
-              return (
-                <div
-                  key={s.id ?? s.image_url ?? i}
-                  aria-hidden={!active}
-                  style={{
-                    opacity: active ? 1 : 0,
-                    transition: "opacity 400ms cubic-bezier(0.22, 1, 0.36, 1)",
-                    pointerEvents: active ? "auto" : "none",
-                    willChange: "opacity",
-                    transform: "translateZ(0)",
-                    backfaceVisibility: "hidden",
-                  }}
-                  className="absolute inset-0"
-                >
-                  {shouldMount && (
-                    <HeroSlideMedia
-                      src={s.image_url}
-                      alt={s.alt ?? "Hero"}
-                      active={active && heroVisible}
-                      priority={i === 0}
-                      fallbackSrc={heroImg}
-                      onReady={i === 0 ? () => setHeroReady(true) : undefined}
-                    />
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <HeroSlideMedia
-              src={heroImg}
-              alt="Tejas D Dhoke dancers in performance"
-              active
-              priority
-              onReady={() => setHeroReady(true)}
-            />
-          )}
-          {/* Cinematic stage lighting + smoke */}
-          {heroReady && showStageLights && <StageLights />}
+      {/* HERO — minimal, premium landing */}
+      <section
+        id="hero"
+        ref={heroSectionRef}
+        className="relative overflow-hidden mesh-bg"
+      >
+        {/* Soft floating blobs */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.2 }}
+            className="absolute -top-32 -left-24 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-60"
+            style={{ background: "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)" }}
+          />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.4, delay: 0.15 }}
+            className="absolute top-24 -right-24 h-[26rem] w-[26rem] rounded-full blur-3xl opacity-50"
+            style={{ background: "radial-gradient(closest-side, color-mix(in oklab, var(--accent-cyan) 55%, transparent), transparent 70%)" }}
+          />
+          {/* subtle grid */}
+          <div
+            className="absolute inset-0 opacity-[0.05] dark:opacity-[0.08]"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
+              maskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent 75%)",
+            }}
+          />
         </div>
 
-
-
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-16">
-          <MouseParallax strength={heroReady ? 14 : 0}>
+        <div className="relative max-w-5xl mx-auto px-6 lg:px-10 pt-28 pb-24 lg:pt-40 lg:pb-32 text-center">
           <motion.div
             variants={stagger}
             initial="hidden"
-            animate={heroReady ? "show" : "hidden"}
-            className="max-w-2xl"
+            animate="show"
+            className="flex flex-col items-center"
           >
-            <motion.div variants={item} className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/40 bg-background/50 backdrop-blur text-[10px] uppercase tracking-widest text-primary shadow-[0_0_30px_-8px_color-mix(in_oklab,var(--primary)_60%,transparent)]">
+            <motion.div
+              variants={item}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border glass text-[11px] uppercase tracking-[0.16em] text-muted-foreground"
+            >
               <Sparkles size={12} className="text-primary" />
               Fusion Dance Company · Est. 2013
             </motion.div>
 
             <motion.h1
               variants={item}
-              className="mt-4 font-display font-bold text-3xl sm:text-5xl lg:text-7xl leading-[1.02] text-balance tracking-tight"
-              style={{
-                textShadow:
-                  "0 2px 40px rgba(0,0,0,0.55), 0 0 60px color-mix(in oklab, var(--primary) 25%, transparent)",
-              }}
+              className="mt-6 font-display font-bold text-4xl sm:text-6xl lg:text-7xl leading-[1.02] text-balance tracking-tight max-w-4xl"
             >
-              Where movement{" "}
-              <span
-                className="italic font-light bg-clip-text text-transparent"
-                style={{ backgroundImage: "linear-gradient(120deg, #C7A34A, #7A3BFF 55%, #3B82F6)" }}
-              >
-                becomes art.
-              </span>
+              Where movement becomes{" "}
+              <span className="gradient-text italic font-light">art.</span>
             </motion.h1>
 
-            <motion.p variants={item} className="mt-3 text-sm sm:text-base lg:text-lg text-muted-foreground max-w-xl">
-              Train. Perform. Transform — with Tejas D Dhoke.
+            <motion.p
+              variants={item}
+              className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed"
+            >
+              Train, perform and transform with Tejas D Dhoke — live workshops, online mentorship
+              and stages that move India&apos;s next generation of dancers.
             </motion.p>
 
-            <motion.div variants={item} className="mt-6 flex flex-wrap gap-3">
+            <motion.div variants={item} className="mt-10 flex flex-wrap gap-3 justify-center">
               <MagneticButton>
                 <Link
                   to="/workshops"
-                  className="group relative inline-flex items-center gap-2 px-6 py-3 lg:px-7 lg:py-3.5 rounded-full bg-primary text-primary-foreground text-sm lg:text-base font-medium overflow-hidden shadow-[0_10px_60px_-8px_color-mix(in_oklab,var(--primary)_80%,transparent)]"
+                  className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-full text-primary-foreground text-sm font-medium overflow-hidden"
+                  style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
                 >
                   <span className="relative z-10 flex items-center gap-2">
-                    Register Workshop
+                    Explore Workshops
                     <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
                   </span>
-                  <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                  <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                 </Link>
               </MagneticButton>
               <MagneticButton strength={0.25}>
                 <Link
-                  to="/nritya-sadhana"
-                  className="inline-flex items-center gap-2 px-6 py-3 lg:px-7 lg:py-3.5 rounded-full border border-primary/40 text-sm lg:text-base hover:border-primary hover:text-primary transition-colors backdrop-blur-sm bg-background/30"
+                  to="/zero-to-hero"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border glass text-sm font-medium hover:border-primary hover:text-primary transition-colors"
                 >
-                  Join Classes
+                  Zero to Hero Journey
                 </Link>
               </MagneticButton>
             </motion.div>
-          </motion.div>
-          </MouseParallax>
 
-        </div>
-
-
-
-        {/* Marquee */}
-        <div className="relative border-y border-border bg-background/60 backdrop-blur overflow-hidden">
-          <motion.div
-            animate={heroReady ? { x: ["0%", "-50%"] } : { x: "0%" }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-            className="flex gap-12 py-4 whitespace-nowrap text-sm uppercase tracking-[0.3em] text-muted-foreground"
-          >
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="flex gap-12 shrink-0">
-                <span>Fusion</span><span className="text-primary">◆</span>
-                <span>Contemporary</span><span className="text-primary">◆</span>
-                <span>Bollywood</span><span className="text-primary">◆</span>
-                <span>Hip-Hop</span><span className="text-primary">◆</span>
-                <span>Kathak</span><span className="text-primary">◆</span>
-                <span>Choreography</span><span className="text-primary">◆</span>
-              </div>
-            ))}
+            {/* Trust strip */}
+            <motion.div
+              variants={item}
+              className="mt-16 grid grid-cols-3 gap-8 sm:gap-12 max-w-2xl w-full"
+            >
+              {[
+                { k: "100k+", v: "Dancers trained" },
+                { k: "16+ yrs", v: "On stage" },
+                { k: "300+", v: "Live shows" },
+              ].map((s) => (
+                <div key={s.v} className="text-center">
+                  <p className="font-display text-2xl sm:text-3xl font-bold gradient-text">{s.k}</p>
+                  <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">{s.v}</p>
+                </div>
+              ))}
+            </motion.div>
           </motion.div>
         </div>
       </section>
