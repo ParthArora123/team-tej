@@ -15,12 +15,10 @@ import { Header } from "../components/site/Header";
 import { Footer } from "../components/site/Footer";
 import { ScrollProgress } from "../components/site/ScrollProgress";
 import { CursorGlow } from "../components/site/CursorGlow";
-import { AmbientBlobs } from "../components/site/AmbientBlobs";
-import { PremiumAmbient } from "../components/site/PremiumAmbient";
 import { SmoothScroll } from "../components/site/SmoothScroll";
 import { ScrollToTop } from "../components/site/ScrollToTop";
-import { StageAmbience } from "../components/site/StageAmbience";
 import { DeferMount } from "../components/site/DeferMount";
+import { FloatingWorldScene } from "../components/site/FloatingWorldScene";
 
 
 function NotFoundComponent() {
