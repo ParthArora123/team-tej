@@ -472,114 +472,168 @@ function Index() {
 
   return (
     <>
-      {/* HERO — minimal, premium landing */}
+      {/* HERO — full-bleed carousel with premium overlay */}
       <section
         id="hero"
         ref={heroSectionRef}
-        className="relative overflow-hidden mesh-bg"
+        className="relative overflow-hidden bg-black"
       >
-        {/* Soft floating blobs */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.2 }}
-            className="absolute -top-32 -left-24 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-60"
-            style={{ background: "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)" }}
-          />
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1.4, delay: 0.15 }}
-            className="absolute top-24 -right-24 h-[26rem] w-[26rem] rounded-full blur-3xl opacity-50"
-            style={{ background: "radial-gradient(closest-side, color-mix(in oklab, var(--accent-cyan) 55%, transparent), transparent 70%)" }}
-          />
-          {/* subtle grid */}
+        <div className="relative w-full h-[70vh] min-h-[520px] lg:h-[calc(100vh-4rem)] lg:min-h-[640px]">
+          {/* Blurred background layer for full coverage */}
+          {heroSlides[slideIdx] && (
+            <div aria-hidden className="absolute inset-0 overflow-hidden">
+              <div
+                className="absolute inset-0 scale-110 blur-2xl opacity-60"
+                style={{
+                  backgroundImage: `url(${heroSlides[slideIdx]?.image_url ?? heroImg})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              />
+            </div>
+          )}
+
+          {/* Slides — RTL slide-in */}
+          <AnimatePresence mode="sync" initial={false}>
+            <motion.div
+              key={heroSlides[slideIdx]?.id ?? `fallback-${slideIdx}`}
+              initial={{ x: "100%", opacity: 0.6 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: "-100%", opacity: 0.6 }}
+              transition={{ duration: 0.9, ease: [0.22, 0.9, 0.28, 1] }}
+              className="absolute inset-0"
+            >
+              {heroSlides.length > 0 ? (
+                <HeroSlideMedia
+                  src={heroSlides[slideIdx]?.image_url}
+                  alt={heroSlides[slideIdx]?.alt ?? "Tejas D Dhoke"}
+                  active
+                  priority
+                  fallbackSrc={heroImg}
+                  onReady={() => setHeroReady(true)}
+                />
+              ) : (
+                <img
+                  src={heroImg}
+                  alt="Tejas D Dhoke"
+                  className="absolute inset-0 h-full w-full object-cover"
+                  fetchPriority="high"
+                  decoding="async"
+                  onLoad={() => setHeroReady(true)}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Warm neighbours off-screen */}
+          {warmSlides && heroSlides.length > 1 && (
+            <div aria-hidden className="hidden">
+              {heroSlides.map((s, i) =>
+                i !== slideIdx ? (
+                  <HeroSlideMedia
+                    key={`warm-${s.id ?? i}`}
+                    src={s.image_url}
+                    alt=""
+                    active={false}
+                    fallbackSrc={heroImg}
+                  />
+                ) : null,
+              )}
+            </div>
+          )}
+
+          {/* Cinematic gradient + stage lights */}
           <div
-            className="absolute inset-0 opacity-[0.05] dark:opacity-[0.08]"
+            aria-hidden
+            className="absolute inset-0 pointer-events-none"
             style={{
-              backgroundImage:
-                "linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)",
-              backgroundSize: "48px 48px",
-              maskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent 75%)",
+              background:
+                "linear-gradient(180deg, oklch(0 0 0 / 25%) 0%, transparent 30%, oklch(0 0 0 / 15%) 60%, oklch(0 0 0 / 75%) 100%)",
             }}
           />
-        </div>
+          {showStageLights && <StageLights />}
 
-        <div className="relative max-w-5xl mx-auto px-6 lg:px-10 pt-28 pb-24 lg:pt-40 lg:pb-32 text-center">
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            animate="show"
-            className="flex flex-col items-center"
-          >
+          {/* Overlay content */}
+          <div className="relative z-10 max-w-6xl mx-auto h-full px-6 lg:px-10 flex flex-col justify-end pb-14 lg:pb-20">
             <motion.div
-              variants={item}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border glass text-[11px] uppercase tracking-[0.16em] text-muted-foreground"
+              variants={stagger}
+              initial="hidden"
+              animate="show"
+              className="max-w-3xl"
             >
-              <Sparkles size={12} className="text-primary" />
-              Fusion Dance Company · Est. 2013
+              <motion.div
+                variants={item}
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] uppercase tracking-[0.16em] text-white/90"
+              >
+                <Sparkles size={12} className="text-white" />
+                Fusion Dance Company · Est. 2013
+              </motion.div>
+
+              <motion.h1
+                variants={item}
+                className="mt-5 font-display font-bold text-4xl sm:text-6xl lg:text-7xl leading-[1.02] tracking-tight text-white text-balance drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]"
+              >
+                Where movement becomes{" "}
+                <span className="holo-gradient bg-clip-text text-transparent italic font-light">art.</span>
+              </motion.h1>
+
+              <motion.p
+                variants={item}
+                className="mt-5 text-base sm:text-lg text-white/85 max-w-xl leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]"
+              >
+                Train, perform and transform with Tejas D Dhoke — live workshops, online mentorship
+                and stages that move India&apos;s next generation of dancers.
+              </motion.p>
+
+              <motion.div variants={item} className="mt-8 flex flex-wrap gap-3">
+                <MagneticButton>
+                  <Link
+                    to="/workshops"
+                    className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-full text-primary-foreground text-sm font-medium overflow-hidden"
+                    style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      Explore Workshops
+                      <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
+                    </span>
+                    <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                  </Link>
+                </MagneticButton>
+                <MagneticButton strength={0.25}>
+                  <Link
+                    to="/zero-to-hero"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/25 bg-white/10 backdrop-blur-md text-sm font-medium text-white hover:bg-white/20 transition-colors"
+                  >
+                    Zero to Hero Journey
+                  </Link>
+                </MagneticButton>
+              </motion.div>
             </motion.div>
+          </div>
 
-            <motion.h1
-              variants={item}
-              className="mt-6 font-display font-bold text-4xl sm:text-6xl lg:text-7xl leading-[1.02] text-balance tracking-tight max-w-4xl"
-            >
-              Where movement becomes{" "}
-              <span className="gradient-text italic font-light">art.</span>
-            </motion.h1>
-
-            <motion.p
-              variants={item}
-              className="mt-6 text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed"
-            >
-              Train, perform and transform with Tejas D Dhoke — live workshops, online mentorship
-              and stages that move India&apos;s next generation of dancers.
-            </motion.p>
-
-            <motion.div variants={item} className="mt-10 flex flex-wrap gap-3 justify-center">
-              <MagneticButton>
-                <Link
-                  to="/workshops"
-                  className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-full text-primary-foreground text-sm font-medium overflow-hidden"
-                  style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    Explore Workshops
-                    <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
-                  </span>
-                  <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                </Link>
-              </MagneticButton>
-              <MagneticButton strength={0.25}>
-                <Link
-                  to="/zero-to-hero"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border glass text-sm font-medium hover:border-primary hover:text-primary transition-colors"
-                >
-                  Zero to Hero Journey
-                </Link>
-              </MagneticButton>
-            </motion.div>
-
-            {/* Trust strip */}
-            <motion.div
-              variants={item}
-              className="mt-16 grid grid-cols-3 gap-8 sm:gap-12 max-w-2xl w-full"
-            >
-              {[
-                { k: "100k+", v: "Dancers trained" },
-                { k: "16+ yrs", v: "On stage" },
-                { k: "300+", v: "Live shows" },
-              ].map((s) => (
-                <div key={s.v} className="text-center">
-                  <p className="font-display text-2xl sm:text-3xl font-bold gradient-text">{s.k}</p>
-                  <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">{s.v}</p>
-                </div>
+          {/* Dots */}
+          {heroSlides.length > 1 && (
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+              {heroSlides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSlideIdx(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  className="group h-1.5 rounded-full transition-all"
+                  style={{
+                    width: i === slideIdx ? 28 : 8,
+                    background:
+                      i === slideIdx
+                        ? "var(--gradient-primary)"
+                        : "color-mix(in oklab, white 45%, transparent)",
+                  }}
+                />
               ))}
-            </motion.div>
-          </motion.div>
+            </div>
+          )}
         </div>
       </section>
+
 
       {/* WORKSHOPS — dynamic (primary CTA — placed directly after hero) */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-8 lg:pt-24 lg:pb-12">
