@@ -1,47 +1,65 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Youtube, Mail } from "lucide-react";
+import { Instagram, Youtube, Mail, ArrowUpRight } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t border-border mt-32">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16 grid gap-12 md:grid-cols-4">
-        <div className="md:col-span-2">
+    <footer className="relative mt-32 border-t border-border">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 -top-px h-px"
+        style={{ background: "linear-gradient(90deg, transparent, var(--primary), transparent)" }}
+      />
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-20 grid gap-12 md:grid-cols-12">
+        <div className="md:col-span-5">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-primary" />
-            <span className="font-display font-bold text-lg">TEJAS D DHOKE</span>
+            <span
+              aria-hidden
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ background: "var(--gradient-primary)" }}
+            />
+            <span className="font-display font-bold text-base tracking-tight">Tejas D Dhoke</span>
           </div>
-          <p className="mt-4 text-sm text-muted-foreground max-w-sm">
-            A fusion dance company training movers, choreographing stages, and shaping
-            India's next generation of performers.
+          <p className="mt-4 text-sm text-muted-foreground max-w-sm leading-relaxed">
+            A fusion dance company training movers, choreographing stages, and shaping India&apos;s
+            next generation of performers.
           </p>
+          <Link
+            to="/contact"
+            className="mt-6 inline-flex items-center gap-1.5 text-sm font-medium gradient-text hover:gap-2.5 transition-all"
+          >
+            Get in touch <ArrowUpRight size={14} />
+          </Link>
         </div>
 
-        <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">
-            Explore
-          </p>
-          <ul className="space-y-2 text-sm">
-            <li><Link to="/nritya-sadhana" className="hover:text-primary transition">Classes</Link></li>
-            <li><Link to="/workshops" className="hover:text-primary transition">Workshops</Link></li>
-            <li><Link to="/workshops" className="hover:text-primary transition">Events</Link></li>
-            <li><Link to="/about" className="hover:text-primary transition">About</Link></li>
-            <li><Link to="/contact" className="hover:text-primary transition">Contact</Link></li>
+        <div className="md:col-span-3">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-4">Explore</p>
+          <ul className="space-y-2.5 text-sm">
+            <li><Link to="/workshops" className="hover:text-primary transition-colors">Workshops</Link></li>
+            <li><Link to="/zero-to-hero" className="hover:text-primary transition-colors">Zero to Hero</Link></li>
+            <li><Link to="/online-trainings" className="hover:text-primary transition-colors">Online Trainings</Link></li>
+            <li><Link to="/testimonials" className="hover:text-primary transition-colors">Testimonials</Link></li>
           </ul>
         </div>
 
-        <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground mb-4">
-            Follow
-          </p>
-          <div className="flex gap-3">
-            <a href="#" className="p-2 rounded-full border border-border hover:border-primary hover:text-primary transition" aria-label="Instagram">
-              <Instagram size={16} />
+        <div className="md:col-span-2">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-4">Company</p>
+          <ul className="space-y-2.5 text-sm">
+            <li><Link to="/about" className="hover:text-primary transition-colors">About</Link></li>
+            <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
+          </ul>
+        </div>
+
+        <div className="md:col-span-2">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground mb-4">Follow</p>
+          <div className="flex gap-2">
+            <a href="#" aria-label="Instagram" className="p-2 rounded-full border border-border hover:border-primary hover:text-primary transition">
+              <Instagram size={15} />
             </a>
-            <a href="#" className="p-2 rounded-full border border-border hover:border-primary hover:text-primary transition" aria-label="YouTube">
-              <Youtube size={16} />
+            <a href="#" aria-label="YouTube" className="p-2 rounded-full border border-border hover:border-primary hover:text-primary transition">
+              <Youtube size={15} />
             </a>
-            <a href="mailto:hello@teamtej.com" className="p-2 rounded-full border border-border hover:border-primary hover:text-primary transition" aria-label="Email">
-              <Mail size={16} />
+            <a href="mailto:hello@teamtej.com" aria-label="Email" className="p-2 rounded-full border border-border hover:border-primary hover:text-primary transition">
+              <Mail size={15} />
             </a>
           </div>
         </div>
