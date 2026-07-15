@@ -144,10 +144,8 @@ function RootComponent() {
         <SmoothScroll />
       </DeferMount>
       <div className="min-h-screen relative grain-bg">
-        <StageAmbience />
         <DeferMount>
-          <PremiumAmbient />
-          <AmbientBlobs />
+          <FloatingWorldScene />
           <CursorGlow />
         </DeferMount>
         <ScrollProgress />
