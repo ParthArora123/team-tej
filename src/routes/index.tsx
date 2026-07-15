@@ -472,165 +472,202 @@ function Index() {
 
   return (
     <>
-      {/* HERO — full-bleed carousel with premium overlay */}
+      {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
       <section
         id="hero"
         ref={heroSectionRef}
-        className="relative overflow-hidden bg-black"
+        className="relative overflow-hidden border-b border-border"
+        style={{ background: "var(--background)" }}
       >
-        <div className="relative w-full h-[70vh] min-h-[520px] lg:h-[calc(100vh-4rem)] lg:min-h-[640px]">
-          {/* Blurred background layer for full coverage */}
-          {heroSlides[slideIdx] && (
-            <div aria-hidden className="absolute inset-0 overflow-hidden">
-              <div
-                className="absolute inset-0 scale-110 blur-2xl opacity-60"
-                style={{
-                  backgroundImage: `url(${heroSlides[slideIdx]?.image_url ?? heroImg})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              />
-            </div>
-          )}
-
-          {/* Slides — RTL slide-in */}
-          <AnimatePresence mode="sync" initial={false}>
-            <motion.div
-              key={heroSlides[slideIdx]?.id ?? `fallback-${slideIdx}`}
-              initial={{ x: "100%", opacity: 0.6 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0.6 }}
-              transition={{ duration: 0.9, ease: [0.22, 0.9, 0.28, 1] }}
-              className="absolute inset-0"
-            >
-              {heroSlides.length > 0 ? (
-                <HeroSlideMedia
-                  src={heroSlides[slideIdx]?.image_url}
-                  alt={heroSlides[slideIdx]?.alt ?? "Tejas D Dhoke"}
-                  active
-                  priority
-                  fallbackSrc={heroImg}
-                  onReady={() => setHeroReady(true)}
-                />
-              ) : (
-                <img
-                  src={heroImg}
-                  alt="Tejas D Dhoke"
-                  className="absolute inset-0 h-full w-full object-cover"
-                  fetchPriority="high"
-                  decoding="async"
-                  onLoad={() => setHeroReady(true)}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Warm neighbours off-screen */}
-          {warmSlides && heroSlides.length > 1 && (
-            <div aria-hidden className="hidden">
-              {heroSlides.map((s, i) =>
-                i !== slideIdx ? (
-                  <HeroSlideMedia
-                    key={`warm-${s.id ?? i}`}
-                    src={s.image_url}
-                    alt=""
-                    active={false}
-                    fallbackSrc={heroImg}
-                  />
-                ) : null,
-              )}
-            </div>
-          )}
-
-          {/* Cinematic gradient + stage lights */}
+        {/* Stage-lighting radial glows */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 -z-0">
           <div
-            aria-hidden
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(180deg, oklch(0 0 0 / 25%) 0%, transparent 30%, oklch(0 0 0 / 15%) 60%, oklch(0 0 0 / 75%) 100%)",
-            }}
+            className="absolute -top-40 -left-40 h-[38rem] w-[38rem] rounded-full blur-[120px] opacity-60"
+            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 65%)" }}
           />
-          {showStageLights && <StageLights />}
+          <div
+            className="absolute top-1/3 -right-40 h-[42rem] w-[42rem] rounded-full blur-[130px] opacity-50"
+            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent-cyan) 45%, transparent), transparent 65%)" }}
+          />
+          <div
+            className="absolute -bottom-40 left-1/3 h-[32rem] w-[32rem] rounded-full blur-[120px] opacity-40"
+            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent-pink) 40%, transparent), transparent 65%)" }}
+          />
+        </div>
 
-          {/* Overlay content */}
-          <div className="relative z-10 max-w-6xl mx-auto h-full px-6 lg:px-10 flex flex-col justify-end pb-14 lg:pb-20">
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              animate="show"
-              className="max-w-3xl"
-            >
+        <div className="relative grid grid-cols-1 lg:grid-cols-2 min-h-[calc(100vh-4rem)]">
+          {/* LEFT — Portrait carousel (cinematic) */}
+          <div className="relative min-h-[70vh] lg:min-h-[calc(100vh-4rem)] overflow-hidden order-2 lg:order-1"
+               style={{ background: "var(--surface)" }}>
+            {/* Blurred backdrop layer for full coverage */}
+            {heroSlides[slideIdx] && (
+              <div aria-hidden className="absolute inset-0 overflow-hidden">
+                <div
+                  className="absolute inset-0 scale-110 blur-2xl opacity-50"
+                  style={{
+                    backgroundImage: `url(${heroSlides[slideIdx]?.image_url ?? heroImg})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                />
+              </div>
+            )}
+
+            <AnimatePresence mode="sync" initial={false}>
               <motion.div
-                variants={item}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] uppercase tracking-[0.16em] text-white/90"
+                key={heroSlides[slideIdx]?.id ?? `fallback-${slideIdx}`}
+                initial={{ opacity: 0, scale: 1.04 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.02 }}
+                transition={{ duration: 1.1, ease: [0.22, 0.9, 0.28, 1] }}
+                className="absolute inset-0"
               >
-                <Sparkles size={12} className="text-white" />
-                Fusion Dance Company · Est. 2013
+                {heroSlides.length > 0 ? (
+                  <HeroSlideMedia
+                    src={heroSlides[slideIdx]?.image_url}
+                    alt={heroSlides[slideIdx]?.alt ?? "Tejas D Dhoke"}
+                    active
+                    priority
+                    fallbackSrc={heroImg}
+                    onReady={() => setHeroReady(true)}
+                  />
+                ) : (
+                  <img
+                    src={heroImg}
+                    alt="Tejas D Dhoke"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    fetchPriority="high"
+                    decoding="async"
+                    onLoad={() => setHeroReady(true)}
+                  />
+                )}
               </motion.div>
+            </AnimatePresence>
+
+            {/* Warm neighbours off-screen */}
+            {warmSlides && heroSlides.length > 1 && (
+              <div aria-hidden className="hidden">
+                {heroSlides.map((s, i) =>
+                  i !== slideIdx ? (
+                    <HeroSlideMedia
+                      key={`warm-${s.id ?? i}`}
+                      src={s.image_url}
+                      alt=""
+                      active={false}
+                      fallbackSrc={heroImg}
+                    />
+                  ) : null,
+                )}
+              </div>
+            )}
+
+            {/* Luminosity tint + edge gradient bleeding into right side */}
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "linear-gradient(180deg, oklch(0 0 0 / 15%) 0%, transparent 40%, oklch(0 0 0 / 55%) 100%)",
+              }}
+            />
+            <div
+              aria-hidden
+              className="hidden lg:block absolute inset-y-0 right-0 w-40 pointer-events-none"
+              style={{ background: "linear-gradient(90deg, transparent, var(--background))" }}
+            />
+            {showStageLights && <StageLights />}
+
+            {/* Corner artist label */}
+            <div className="absolute bottom-8 left-8 z-10">
+              <div className="h-px w-16 mb-4" style={{ background: "var(--accent-cyan)" }} />
+              <p className="text-[10px] uppercase tracking-[0.4em] font-semibold" style={{ color: "var(--accent-cyan)" }}>
+                Movement Architect
+              </p>
+            </div>
+
+            {/* Dots */}
+            {heroSlides.length > 1 && (
+              <div className="absolute bottom-8 right-8 z-20 flex gap-2">
+                {heroSlides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSlideIdx(i)}
+                    aria-label={`Go to slide ${i + 1}`}
+                    className="h-1.5 rounded-full transition-all"
+                    style={{
+                      width: i === slideIdx ? 28 : 8,
+                      background:
+                        i === slideIdx
+                          ? "var(--gradient-primary)"
+                          : "color-mix(in oklab, white 40%, transparent)",
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT — Editorial intro */}
+          <div className="relative flex flex-col justify-center px-6 py-16 md:px-12 lg:px-16 xl:px-24 order-1 lg:order-2 z-10">
+            <motion.div variants={stagger} initial="hidden" animate="show" className="max-w-xl">
+              <motion.span
+                variants={item}
+                className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.35em] font-semibold mb-6"
+                style={{ color: "var(--accent-cyan)" }}
+              >
+                <Sparkles size={12} /> The World of
+              </motion.span>
 
               <motion.h1
                 variants={item}
-                className="mt-5 font-display font-bold text-4xl sm:text-6xl lg:text-7xl leading-[1.02] tracking-tight text-white text-balance drop-shadow-[0_4px_24px_rgba(0,0,0,0.55)]"
+                className="font-display text-5xl sm:text-7xl lg:text-8xl xl:text-9xl leading-[0.95] tracking-tight text-foreground text-balance"
               >
-                Where movement becomes{" "}
-                <span className="holo-gradient bg-clip-text text-transparent italic font-light">art.</span>
+                Tejas D <br />
+                <span style={{ color: "var(--primary)" }} className="italic">Dhoke</span>
               </motion.h1>
 
               <motion.p
                 variants={item}
-                className="mt-5 text-base sm:text-lg text-white/85 max-w-xl leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]"
+                className="mt-8 text-base sm:text-lg text-muted-foreground max-w-md leading-relaxed"
               >
-                Train, perform and transform with Tejas D Dhoke — live workshops, online mentorship
-                and stages that move India&apos;s next generation of dancers.
+                Defining the next era of cinematic movement. A masterclass in rhythm,
+                space, and the raw architecture of emotion.
               </motion.p>
 
-              <motion.div variants={item} className="mt-8 flex flex-wrap gap-3">
+              <motion.div variants={item} className="mt-10 flex flex-wrap gap-4">
                 <MagneticButton>
                   <Link
                     to="/workshops"
-                    className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-full text-primary-foreground text-sm font-medium overflow-hidden"
+                    className="group relative inline-flex items-center gap-2 px-8 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.2em] overflow-hidden"
                     style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      Explore Workshops
-                      <ArrowUpRight size={16} className="group-hover:rotate-45 transition-transform" />
+                      Explore Experiences
+                      <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
                     </span>
-                    <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                    <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/25 to-transparent" />
                   </Link>
                 </MagneticButton>
                 <MagneticButton strength={0.25}>
                   <Link
                     to="/zero-to-hero"
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/25 bg-white/10 backdrop-blur-md text-sm font-medium text-white hover:bg-white/20 transition-colors"
+                    className="inline-flex items-center gap-2 px-8 py-4 border text-[11px] font-bold uppercase tracking-[0.2em] text-foreground transition-colors"
+                    style={{ borderColor: "var(--border)" }}
                   >
-                    Zero to Hero Journey
+                    The Journey
                   </Link>
                 </MagneticButton>
               </motion.div>
+
+              {/* Est. line */}
+              <motion.div variants={item} className="mt-14 flex items-center gap-4">
+                <div className="h-px w-12" style={{ background: "var(--primary)" }} />
+                <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground font-semibold">
+                  Fusion Dance Company · Est. 2013
+                </p>
+              </motion.div>
             </motion.div>
           </div>
-
-          {/* Dots */}
-          {heroSlides.length > 1 && (
-            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-              {heroSlides.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSlideIdx(i)}
-                  aria-label={`Go to slide ${i + 1}`}
-                  className="group h-1.5 rounded-full transition-all"
-                  style={{
-                    width: i === slideIdx ? 28 : 8,
-                    background:
-                      i === slideIdx
-                        ? "var(--gradient-primary)"
-                        : "color-mix(in oklab, white 45%, transparent)",
-                  }}
-                />
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
