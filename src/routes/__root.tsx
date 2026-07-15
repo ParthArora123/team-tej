@@ -16,6 +16,7 @@ import { Footer } from "../components/site/Footer";
 import { ScrollProgress } from "../components/site/ScrollProgress";
 import { CursorGlow } from "../components/site/CursorGlow";
 import { AmbientBlobs } from "../components/site/AmbientBlobs";
+import { PremiumAmbient } from "../components/site/PremiumAmbient";
 import { SmoothScroll } from "../components/site/SmoothScroll";
 import { ScrollToTop } from "../components/site/ScrollToTop";
 import { StageAmbience } from "../components/site/StageAmbience";
@@ -147,6 +148,7 @@ function RootComponent() {
       <div className="min-h-screen relative grain-bg">
         <StageAmbience />
         <DeferMount>
+          <PremiumAmbient />
           <AmbientBlobs />
           <CursorGlow />
         </DeferMount>
