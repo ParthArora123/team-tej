@@ -625,11 +625,11 @@ function Index() {
                 <Sparkles size={11} className="opacity-80" /> The World of Tejas
               </motion.span>
 
-              <motion.div variants={item} className="mb-6 flex items-center gap-4">
-                <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden ring-2 ring-primary/40 shadow-[0_10px_40px_-10px_var(--primary)]">
+              <motion.div variants={item} className="mb-8 flex items-center gap-5">
+                <div className="relative h-32 w-32 sm:h-40 sm:w-40 md:h-48 md:w-48 rounded-full overflow-hidden ring-[3px] ring-primary/40 shadow-[0_12px_60px_-12px_var(--primary)]">
                   <div
                     aria-hidden
-                    className="absolute -inset-1 rounded-full blur-xl opacity-70"
+                    className="absolute -inset-2 rounded-full blur-xl opacity-70"
                     style={{ background: "conic-gradient(from 180deg, var(--primary), var(--accent-cyan), var(--accent-pink), var(--primary))" }}
                   />
                   <img
@@ -640,7 +640,7 @@ function Index() {
                     decoding="async"
                   />
                 </div>
-                <div className="h-px flex-1 max-w-[6rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
+                <div className="h-px flex-1 max-w-[8rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
               </motion.div>
 
               <motion.h1
