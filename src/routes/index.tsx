@@ -625,11 +625,11 @@ function Index() {
                 <Sparkles size={11} className="opacity-80" /> The World of Tejas
               </motion.span>
 
-              <motion.div variants={item} className="mb-8 flex items-center gap-5">
-                <div className="relative h-32 w-32 sm:h-40 sm:w-40 md:h-48 md:w-48 rounded-full overflow-hidden ring-[3px] ring-primary/40 shadow-[0_12px_60px_-12px_var(--primary)]">
+              <motion.div variants={item} className="mb-8 flex flex-col items-center sm:items-start gap-5">
+                <div className="relative h-44 w-44 sm:h-52 sm:w-52 md:h-64 md:w-64 lg:h-72 lg:w-72 rounded-full overflow-hidden ring-[4px] ring-primary/40 shadow-[0_18px_80px_-12px_var(--primary)]">
                   <div
                     aria-hidden
-                    className="absolute -inset-2 rounded-full blur-xl opacity-70"
+                    className="absolute -inset-3 rounded-full blur-xl opacity-70"
                     style={{ background: "conic-gradient(from 180deg, var(--primary), var(--accent-cyan), var(--accent-pink), var(--primary))" }}
                   />
                   <img
@@ -640,7 +640,12 @@ function Index() {
                     decoding="async"
                   />
                 </div>
-                <div className="h-px flex-1 max-w-[8rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
+                {founder?.intro && (
+                  <p className="text-sm sm:text-base text-muted-foreground max-w-xs sm:max-w-sm leading-relaxed text-center sm:text-left">
+                    {founder.intro}
+                  </p>
+                )}
+                <div className="h-px w-full max-w-[12rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
               </motion.div>
 
               <motion.h1
