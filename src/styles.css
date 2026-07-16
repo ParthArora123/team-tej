@@ -74,6 +74,9 @@
   --accent-cyan: oklch(0.72 0.16 235);        /* electric blue */
   --accent-pink: oklch(0.78 0.15 60);         /* warm gold */
   --accent-blue: oklch(0.55 0.18 260);        /* midnight blue */
+  --accent-emerald: oklch(0.6 0.14 165);      /* emerald */
+  --accent-gold: oklch(0.72 0.13 80);         /* warm gold */
+
 
   --gradient-primary: linear-gradient(135deg, oklch(0.45 0.22 285), oklch(0.72 0.16 235));
   --gradient-hero: radial-gradient(ellipse 80% 60% at 20% 0%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 60%),
