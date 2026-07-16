@@ -33,7 +33,11 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-surface: var(--surface);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-emerald: var(--accent-emerald);
+  --color-accent-cyan: var(--accent-cyan);
 }
+
 
 /* Light theme — warm ivory with royal purple & electric blue accents */
 :root {
