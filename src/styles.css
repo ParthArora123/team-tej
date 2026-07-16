@@ -151,7 +151,9 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.022em;
+    letter-spacing: -0.01em;
+    font-weight: 400;
+    text-transform: none;
   }
   ::selection {
     background: color-mix(in oklab, var(--primary) 35%, transparent);
