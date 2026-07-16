@@ -73,20 +73,32 @@ function Contact() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-20 pb-32">
+    <section className="relative max-w-7xl mx-auto px-6 lg:px-10 pt-28 pb-32">
+      <div
+        aria-hidden
+        className="absolute -top-10 right-0 h-[520px] w-[520px] max-w-full rounded-full blur-3xl opacity-40 pointer-events-none"
+        style={{ background: "var(--gradient-primary)" }}
+      />
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
+        transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+        className="relative"
       >
-        <p className="text-xs uppercase tracking-widest text-primary">Contact</p>
-        <h1 className="mt-3 font-display text-5xl lg:text-7xl font-bold leading-[1.05] text-balance max-w-4xl">
-          Let's talk movement.
+        <p className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-primary">
+          <span aria-hidden className="h-px w-8 bg-primary/60" />
+          Contact
+        </p>
+        <h1 className="mt-5 font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.02] text-balance max-w-4xl">
+          Let's talk <span className="gradient-text">movement</span>.
         </h1>
+        <p className="mt-5 max-w-xl text-lg text-muted-foreground">
+          Classes, bookings, collaborations — we usually reply within a day.
+        </p>
       </motion.div>
 
-      <div className="mt-16 grid lg:grid-cols-5 gap-12 lg:gap-20">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="mt-16 grid lg:grid-cols-5 gap-10 lg:gap-16">
+        <div className="lg:col-span-2 space-y-4">
           {[
             { icon: Mail, label: "Email", value: info.email, href: info.email ? `mailto:${info.email}` : undefined },
             { icon: Phone, label: "Phone", value: info.phone, href: info.phone ? `tel:${String(info.phone).replace(/[^+\d]/g, "")}` : undefined },
@@ -98,14 +110,20 @@ function Contact() {
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="flex gap-4"
+              transition={{ delay: i * 0.08, duration: 0.5 }}
+              className="group flex gap-4 p-5 rounded-2xl glass-card hover-lift"
             >
-              <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                <c.icon size={16} className="text-primary" />
+              <div
+                className="h-11 w-11 rounded-xl flex items-center justify-center shrink-0"
+                style={{
+                  background: "color-mix(in oklab, var(--primary) 15%, transparent)",
+                  color: "var(--primary)",
+                }}
+              >
+                <c.icon size={18} />
               </div>
-              <div className="min-w-0">
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                   {c.label}
                 </p>
                 {c.href ? (
@@ -129,11 +147,11 @@ function Contact() {
             </motion.div>
           ))}
 
-          <div className="pt-6 border-t border-border">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">
+          <div className="p-5 rounded-2xl border border-border/60">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
               Studio hours
             </p>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
               {info.hours_line1}{info.hours_line2 ? <><br />{info.hours_line2}</> : null}
             </p>
           </div>
@@ -144,15 +162,23 @@ function Contact() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="lg:col-span-3 p-8 lg:p-10 rounded-2xl border border-border bg-card space-y-5"
+          transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
+          className="lg:col-span-3 relative p-8 lg:p-10 rounded-3xl glass-card space-y-5"
         >
+          <div
+            aria-hidden
+            className="absolute -top-px left-8 right-8 h-px opacity-70"
+            style={{ background: "linear-gradient(90deg, transparent, var(--primary), transparent)" }}
+          />
           {sent ? (
-            <div className="py-10 text-center">
-              <div className="mx-auto h-14 w-14 rounded-full bg-primary/15 flex items-center justify-center">
-                <Check className="text-primary" size={28} />
+            <div className="py-12 text-center">
+              <div
+                className="mx-auto h-16 w-16 rounded-full flex items-center justify-center"
+                style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+              >
+                <Check className="text-primary-foreground" size={30} />
               </div>
-              <h3 className="mt-4 font-display text-2xl font-bold">Message sent.</h3>
+              <h3 className="mt-6 font-display text-3xl font-bold">Message sent.</h3>
               <p className="mt-2 text-muted-foreground">We'll be in touch within 24 hours.</p>
             </div>
           ) : (
@@ -163,7 +189,7 @@ function Contact() {
               </div>
               <Field label="Subject" name="subject" />
               <div>
-                <label className="text-xs uppercase tracking-widest text-muted-foreground">
+                <label className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                   Message
                 </label>
                 <textarea
@@ -173,19 +199,30 @@ function Contact() {
                   maxLength={4000}
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
-                  className="mt-2 w-full bg-background border border-border rounded-lg px-4 py-3 focus:border-primary outline-none transition resize-none"
+                  className="mt-2 w-full bg-background/40 backdrop-blur-md border border-border rounded-xl px-4 py-3 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none"
                   placeholder="Tell us what you're after — a class, a booking, a collab..."
                 />
-
-
               </div>
-              <button
-                type="submit"
-                disabled={busy}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition disabled:opacity-60"
-              >
-                <Send size={16} /> {busy ? "Sending..." : "Send message"}
-              </button>
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="shine-sweep inline-flex items-center gap-2 h-12 px-8 rounded-full font-medium tracking-wide text-primary-foreground disabled:opacity-60 transition-all hover:-translate-y-0.5 hover:brightness-110"
+                  style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+                >
+                  <Send size={16} /> {busy ? "Sending..." : "Send message"}
+                </button>
+                {waHref && (
+                  <a
+                    href={waHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 h-12 px-6 rounded-full border border-border bg-background/40 backdrop-blur-md text-sm hover:border-primary/40 hover:text-primary transition"
+                  >
+                    <MessageCircle size={15} /> WhatsApp instead
+                  </a>
+                )}
+              </div>
             </>
           )}
         </motion.form>
@@ -200,15 +237,13 @@ function Field({
 }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <div>
-      <label className="text-xs uppercase tracking-widest text-muted-foreground">
+      <label className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
         {label}
       </label>
       <input
         {...rest}
-        className="mt-2 w-full bg-background border border-border rounded-lg px-4 py-3 focus:border-primary outline-none transition"
+        className="mt-2 w-full bg-background/40 backdrop-blur-md border border-border rounded-xl px-4 py-3 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
       />
     </div>
   );
 }
-
-
