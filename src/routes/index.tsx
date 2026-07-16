@@ -609,21 +609,27 @@ function Index() {
 
           {/* RIGHT — Editorial intro */}
           <div className="relative flex flex-col justify-center px-6 py-16 md:px-12 lg:px-16 xl:px-24 order-1 lg:order-2 z-10">
-            <motion.div variants={stagger} initial="hidden" animate="show" className="max-w-xl">
-              <motion.span
-                variants={item}
-                className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.35em] font-semibold mb-6"
-                style={{ color: "var(--accent-cyan)" }}
-              >
-                <Sparkles size={12} /> The World of
+            {/* Subtle grid backdrop */}
+            <div aria-hidden className="hero-grid pointer-events-none absolute inset-0 opacity-40" />
+            {/* Floating ornament */}
+            <motion.div
+              aria-hidden
+              animate={{ y: [0, -14, 0], rotate: [0, 6, 0] }}
+              transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+              className="pointer-events-none absolute top-16 right-10 h-28 w-28 rounded-full blur-3xl opacity-70"
+              style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent-gold) 65%, transparent), transparent 70%)" }}
+            />
+            <motion.div variants={stagger} initial="hidden" animate="show" className="relative max-w-xl">
+              <motion.span variants={item} className="eyebrow-pill eyebrow-pill-pill eyebrow-pill-dot mb-8">
+                <Sparkles size={11} className="opacity-80" /> The World of Tejas
               </motion.span>
 
               <motion.h1
                 variants={item}
-                className="font-display text-5xl sm:text-7xl lg:text-8xl xl:text-9xl leading-[0.95] tracking-tight text-foreground text-balance"
+                className="font-display text-5xl sm:text-7xl lg:text-8xl xl:text-[8.5rem] leading-[0.92] tracking-tight text-foreground text-balance"
               >
                 Tejas D <br />
-                <span style={{ color: "var(--primary)" }} className="italic">Dhoke</span>
+                <span className="italic shimmer-text">Dhoke</span>
               </motion.h1>
 
               <motion.p
@@ -638,36 +644,36 @@ function Index() {
                 <MagneticButton>
                   <Link
                     to="/workshops"
-                    className="group relative inline-flex items-center gap-2 px-8 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.2em] overflow-hidden"
+                    className="group relative inline-flex items-center gap-2 rounded-full px-9 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
                     style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
                   >
                     <span className="relative z-10 flex items-center gap-2">
                       Explore Experiences
                       <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
                     </span>
-                    <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out bg-gradient-to-r from-transparent via-white/25 to-transparent" />
                   </Link>
                 </MagneticButton>
                 <MagneticButton strength={0.25}>
                   <Link
                     to="/zero-to-hero"
-                    className="inline-flex items-center gap-2 px-8 py-4 border text-[11px] font-bold uppercase tracking-[0.2em] text-foreground transition-colors"
-                    style={{ borderColor: "var(--border)" }}
+                    className="group inline-flex items-center gap-2 rounded-full px-9 py-4 text-[11px] font-bold uppercase tracking-[0.22em] text-foreground border border-white/15 bg-white/5 backdrop-blur-xl hover:bg-white/10 hover:border-white/30 transition-all"
                   >
                     The Journey
+                    <ArrowUpRight size={14} className="opacity-70 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </Link>
                 </MagneticButton>
               </motion.div>
 
               {/* Est. line */}
               <motion.div variants={item} className="mt-14 flex items-center gap-4">
-                <div className="h-px w-12" style={{ background: "var(--primary)" }} />
+                <div className="h-px w-12" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
                 <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground font-semibold">
                   Fusion Dance Company · Est. 2013
                 </p>
               </motion.div>
             </motion.div>
           </div>
+
         </div>
       </section>
 
