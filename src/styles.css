@@ -112,13 +112,19 @@
   --accent-cyan: oklch(0.78 0.15 235);         /* electric blue */
   --accent-pink: oklch(0.82 0.14 80);          /* warm amber gold */
   --accent-blue: oklch(0.55 0.18 265);         /* midnight blue */
+  --accent-emerald: oklch(0.68 0.15 165);      /* #059669 emerald */
+  --accent-gold: oklch(0.78 0.13 80);          /* #d4a24c warm gold */
 
   --gradient-primary: linear-gradient(135deg, oklch(0.5 0.24 288), oklch(0.78 0.15 235));
+  --gradient-royal: linear-gradient(135deg, oklch(0.5 0.24 288) 0%, oklch(0.4 0.2 275) 50%, oklch(0.78 0.15 235) 100%);
+  --gradient-aurora: linear-gradient(120deg, oklch(0.5 0.24 288), oklch(0.68 0.15 165) 45%, oklch(0.78 0.13 80));
   --gradient-hero: radial-gradient(ellipse 70% 55% at 15% 0%, color-mix(in oklab, var(--primary) 42%, transparent), transparent 60%),
                    radial-gradient(ellipse 55% 45% at 90% 20%, color-mix(in oklab, var(--accent-cyan) 32%, transparent), transparent 65%),
                    radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in oklab, var(--accent-pink) 20%, transparent), transparent 60%);
   --shadow-soft: 0 1px 2px oklch(0 0 0 / 50%), 0 12px 36px -8px oklch(0 0 0 / 60%);
   --shadow-glow: 0 20px 70px -20px color-mix(in oklab, var(--primary) 75%, transparent);
+  --shadow-gold: 0 10px 40px -12px color-mix(in oklab, var(--accent-gold) 55%, transparent);
+
 }
 
 @layer base {
