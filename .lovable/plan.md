@@ -1,60 +1,55 @@
-## Workshop admin enhancements — plan
+# Complete Website Redesign — Phased Plan
 
-Three new capabilities in the admin portal, wired to the /workshops page.
+This is a UI/UX-only redesign. Zero functional, routing, DB, API, auth, or business-logic changes. Every form field, submit handler, query, mutation, and integration (payments, QR, WhatsApp, admin CRUD) stays wired exactly as today — only the surrounding markup, tokens, motion, and layout change.
 
-### 1. Workshop Hero Carousel (new)
+Given the size (30+ pages, admin, modals, forms), doing everything in one shot would produce a shallow, inconsistent result and risk regressions. I'll ship it in **6 focused phases**, each independently reviewable in the preview. You approve/tweak after each phase before I move on.
 
-- New table `workshop_hero_slides` — separate from the existing homepage `hero_slides` so nothing on the home page changes.
-- Each slide: media (image / video / GIF), title, subtitle, description, CTA text, CTA link, sort order, active toggle, optional start & end dates.
-- Admin UI: new "Workshop Hero" tab in the admin portal with add / edit / delete, drag-and-drop reordering (arrow buttons + drag handle), preview thumbnail, active toggle, date range pickers.
-- Frontend: new hero carousel at the top of `/workshops`, auto-advancing every 6s, fade transition, keyboard + swipe navigation, respects active flag and date window. Videos autoplay muted + loop + `playsInline`. Uses existing `poster` while loading.
+## Design Language (applied globally in Phase 1)
 
-### 2. Per-workshop banner (video / image / GIF)
+- **Palette**: Deep Midnight (#08090d base), Royal Purple (#6d28d9), Emerald (#059669), Warm Gold (#d4a24c), Electric Blue accent, soft white text. All via OKLCH tokens in `src/styles.css` — no hardcoded colors in components.
+- **Typography**: DM Serif Display (headlines) + Fira Sans (body), already loaded. Tighten scale, add editorial display sizes.
+- **Surfaces**: Glassmorphism (backdrop-blur + border-white/10 + subtle gradient), gradient borders, aurora glows, gold hairlines.
+- **Motion**: Framer Motion reveals, magnetic CTAs, tilt cards, scroll parallax, smooth page transitions. Existing `FloatingWorldScene` backdrop stays.
+- **Components**: Redesigned Button, Card, Input, Dialog, Dropdown, Table, Badge shadcn variants — same APIs, new visuals.
 
-- Extend existing `programs` table with three optional columns: `banner_video_url`, `banner_video_path`, `banner_gif_url` (the current `banner_url` becomes the image fallback — no data migration needed).
-- Admin workshop dialog gains a "Banner media" section with three uploaders (image / video / GIF). Video uploader accepts up to 500 MB, MP4 / WebM / MOV.
-- Selection order at render time: video → GIF → image → nothing.
-- `/workshops` cards render the chosen banner: `<video>` with `preload="metadata"`, `autoPlay muted loop playsInline`, poster set to the image if present so the card never shows a blank frame while loading.
+## Phases
 
-### 3. Per-workshop media gallery (new)
+**Phase 1 — Foundation (tokens + primitives + nav)**
+- Refresh `src/styles.css` palette, gradients, shadows, glass utilities.
+- Redesign shadcn primitives (button, input, card, dialog, dropdown, table, tabs, badge) — variants only, no API changes.
+- Redesigned `Header` (floating glass navbar w/ animated active indicator, premium mobile drawer) and `Footer`.
 
-- New table `workshop_media` (workshop_id fk, kind image|video|gif, url, path, sort_order, caption). Deleting a workshop cascades.
-- Admin gets a "Media" panel inside each workshop's edit dialog: multi-upload, thumbnail grid, reorder (drag/arrows), delete, replace, live preview before saving.
-- Frontend workshop detail block on `/workshops` shows the gallery as a lazy-loaded strip below the card; clicking opens a lightbox (existing motion). Videos in the strip lazy-load with a play overlay and only start on user click; the muted autoplay is limited to the banner slot to preserve performance.
+**Phase 2 — Marketing pages**
+- Homepage sections (below hero — stats, choreography, styles, testimonials, CTA).
+- About, Contact (WhatsApp pill preserved), Testimonials.
 
-### Storage
+**Phase 3 — Workshops flow**
+- Workshops index (listing), Workshop detail (`workshops.$id`), Program list (Zero-to-Hero, Online Trainings, Nritya Sadhana).
+- `EnrollDialog` redesign — same fields, same submit logic.
 
-- Reuse existing private `workshop-images` bucket for images/GIFs.
-- Create a new private `workshop-videos` bucket for videos (500 MB per object, mp4/webm/mov). Signed URLs at read time via existing helpers.
-- All image uploads run through `src/lib/compress-image.ts` (already in place). Videos are not re-encoded client-side (would be too slow / lossy in-browser); we serve them with `preload="metadata"` and byte-range playback so only the initial fragment loads until the user hits play.
+**Phase 4 — Payment & ticket flow**
+- `pay.$enrollmentId`, dashboard QR ticket, verify page, success states.
+- All UPI/QR/WhatsApp/screenshot upload logic untouched.
 
-### Server functions (new / edited)
+**Phase 5 — Auth & Admin**
+- Auth page, `_authenticated/admin` shell, all CMS tabs (Workshop Hero, Media, Zero-to-Hero, Messages, Site Content), tables, forms, modals. Premium SaaS dashboard feel.
 
-- `src/lib/workshop-hero.functions.ts` — `listPublicWorkshopHero`, `adminListWorkshopHero`, `adminSaveWorkshopHero`, `adminDeleteWorkshopHero`, `adminReorderWorkshopHero`, `adminUploadWorkshopHeroMedia`.
-- `src/lib/workshop-media.functions.ts` — same shape for gallery items.
-- Extend `catalog.functions.ts` / `admin` workshop functions to persist the three new banner columns and return signed URLs.
-- Admin-only calls guarded via `requireSupabaseAuth` + `has_role('admin')`.
+**Phase 6 — Edge states & polish**
+- 404, loading skeletons, empty states, toasts, tooltips.
+- Cross-page motion consistency pass, responsive audit (mobile/tablet/desktop), a11y sweep, perf check.
 
-### RLS
+## Guardrails per phase
 
-- `workshop_hero_slides` and `workshop_media`: public SELECT for rows where `active = true` (and, for hero, within date window); admin full access via `has_role`.
-- `GRANT` blocks in the same migration for `anon`, `authenticated`, `service_role`.
+- Only JSX, className, tokens, and motion wrappers change. Handlers, hooks, queries, server functions, routes, and props stay identical.
+- No file deletions. No route changes. No schema changes.
+- Verify build after each phase; spot-check the affected flows in preview.
 
-### Frontend polish
+## Technical notes
 
-- Carousel: motion fade + subtle Ken-Burns zoom on images, magnetic CTA button (reuses `MagneticButton`).
-- All media lazy-loaded (`loading="lazy"` on `<img>`, `preload="metadata"` on `<video>`, IntersectionObserver-gated play).
-- Skeleton placeholder while media loads.
-- `prefers-reduced-motion` disables autoplay + auto-advance.
+- New/updated files will be scoped per phase (e.g. Phase 1 touches `styles.css`, `Header.tsx`, `Footer.tsx`, `src/components/ui/*`).
+- Existing effects (`FloatingWorldScene`, `PremiumAmbient`, `CursorGlow`, `StageLights`, `AuroraBackground`) stay; I'll reconcile them so only one ambient layer runs per page for perf.
+- All redesigns respect `prefers-reduced-motion` and stay 60fps on mobile.
 
-### Out of scope (call out)
+---
 
-- Server-side video transcoding / automatic thumbnail extraction from uploaded videos requires a Node/ffmpeg host — the Cloudflare Worker runtime that hosts server functions does not support it (see server-runtime constraints). Workaround built into the UI: the admin can optionally upload a poster image beside each video slide; if none is provided we render the workshop's existing banner image as the poster. If you want true auto-thumbnail extraction, we'd add an external worker (e.g. Cloudflare Stream) as a follow-up.
-
-### Files touched (technical)
-
-- **Migrations**: create `workshop_hero_slides`, `workshop_media`; add three columns to `programs`; create `workshop-videos` bucket + storage policies.
-- **New server fns**: `src/lib/workshop-hero.functions.ts`, `src/lib/workshop-media.functions.ts`.
-- **Edited server fns**: `src/lib/catalog.functions.ts` (banner columns), `src/lib/enrollment.functions.ts` (unchanged, referenced only), admin save/list in `admin.tsx`.
-- **Admin UI**: new `WorkshopHeroTab` component, extend `WorkshopsTab` dialog with banner-media + gallery sections in `src/routes/_authenticated/admin.tsx`.
-- **Public UI**: `src/routes/workshops.tsx` — mount hero carousel, upgrade banner rendering, add gallery strip + lightbox.
+**Shall I start with Phase 1 (foundation + nav)?** Once approved, I'll ship it and you can review in the preview before I move to Phase 2. If you'd rather I compress this into fewer/larger phases or reorder priorities (e.g. Admin first), tell me now.
