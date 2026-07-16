@@ -13,7 +13,8 @@ import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Fac
 
 import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
-// aboutImg no longer used on homepage after workshops teaser was replaced with dynamic grid
+import aboutImg from "@/assets/about.jpg";
+
 import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
 import { MagneticButton } from "@/components/site/MagneticButton";
