@@ -93,10 +93,10 @@ function DanceMotionCanvas() {
       ctx.globalAlpha = alpha;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      ctx.shadowColor = "rgba(245, 199, 106, 0.62)";
+      ctx.shadowColor = "rgba(232,121,249, 0.62)";
       ctx.shadowBlur = 18 * scale;
-      ctx.strokeStyle = "rgba(255, 220, 142, 0.9)";
-      ctx.fillStyle = "rgba(255, 220, 142, 0.84)";
+      ctx.strokeStyle = "rgba(207,250,254, 0.9)";
+      ctx.fillStyle = "rgba(207,250,254, 0.84)";
       ctx.lineWidth = 8 * scale;
 
       ctx.beginPath();
@@ -131,9 +131,9 @@ function DanceMotionCanvas() {
       ctx.clearRect(0, 0, width, height);
 
       const base = ctx.createLinearGradient(0, 0, width, height);
-      base.addColorStop(0, "rgba(17, 8, 1, 0.72)");
-      base.addColorStop(0.5, "rgba(48, 25, 4, 0.58)");
-      base.addColorStop(1, "rgba(8, 4, 1, 0.8)");
+      base.addColorStop(0, "rgba(10,10,18, 0.72)");
+      base.addColorStop(0.5, "rgba(20,20,40, 0.58)");
+      base.addColorStop(1, "rgba(10,10,18, 0.8)");
       ctx.fillStyle = base;
       ctx.fillRect(0, 0, width, height);
 
@@ -143,9 +143,9 @@ function DanceMotionCanvas() {
         ctx.translate(width * (0.18 + i * 0.16) + rayShift, -height * 0.08);
         ctx.rotate((-18 + i * 9 + Math.sin(t * 0.08 + i) * 3) * Math.PI / 180);
         const ray = ctx.createLinearGradient(0, 0, 0, height * 1.2);
-        ray.addColorStop(0, "rgba(255, 213, 127, 0.24)");
-        ray.addColorStop(0.62, "rgba(212, 169, 76, 0.09)");
-        ray.addColorStop(1, "rgba(212, 169, 76, 0)");
+        ray.addColorStop(0, "rgba(34,211,238, 0.24)");
+        ray.addColorStop(0.62, "rgba(34,211,238, 0.09)");
+        ray.addColorStop(1, "rgba(34,211,238, 0)");
         ctx.fillStyle = ray;
         ctx.beginPath();
         ctx.moveTo(-width * 0.035, 0);
@@ -161,8 +161,8 @@ function DanceMotionCanvas() {
         const py = ((p.y * height - (t * p.speed * height * 0.22)) % (height + 80) + height + 80) % (height + 80) - 40;
         const px = p.x * width + Math.sin(t * 0.45 + p.phase) * p.sway;
         ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = "rgba(255, 226, 168, 0.82)";
-        ctx.shadowColor = "rgba(255, 216, 145, 0.55)";
+        ctx.fillStyle = "rgba(232,121,249, 0.82)";
+        ctx.shadowColor = "rgba(34,211,238, 0.55)";
         ctx.shadowBlur = 9;
         ctx.beginPath();
         ctx.arc(px, py, p.r, 0, Math.PI * 2);
@@ -247,7 +247,7 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
   return (
     <div
       aria-hidden
-      className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#050301]"
+      className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#0a0a12]"
       style={{ contain: "paint" }}
     >
       {/* Hero media — stable, no scale/opacity animations */}
@@ -268,23 +268,23 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
             className="h-full w-full object-cover opacity-[0.34]"
           />
         ) : (
-          <div className="h-full w-full bg-[radial-gradient(ellipse_at_50%_36%,rgba(217,174,86,0.22),transparent_58%),linear-gradient(135deg,rgba(62,34,7,0.68),rgba(5,3,1,0.92)_58%,rgba(116,73,18,0.38))]" />
+          <div className="h-full w-full bg-[radial-gradient(ellipse_at_50%_36%,rgba(34,211,238,0.22),transparent_58%),linear-gradient(135deg,rgba(20,20,40,0.68),rgba(5,3,1,0.92)_58%,rgba(232,121,249,0.38))]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/55 via-[#050301]/40 to-[#050301]/78" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a12]/55 via-[#0a0a12]/40 to-[#0a0a12]/78" />
       </motion.div>
 
       {/* Smooth ambient gradient wash (very slow, no pulsing opacity) */}
       <div className="absolute -left-[18%] top-[6%] h-[46rem] w-[46rem] rounded-full opacity-40 blur-3xl wlb-drift-a"
-        style={{ background: "radial-gradient(circle, rgba(212,169,76,0.35), transparent 68%)" }} />
+        style={{ background: "radial-gradient(circle, rgba(34,211,238,0.35), transparent 68%)" }} />
       <div className="absolute -right-[14%] bottom-[4%] h-[52rem] w-[52rem] rounded-full opacity-35 blur-3xl wlb-drift-b"
-        style={{ background: "radial-gradient(circle, rgba(149,91,23,0.42), transparent 70%)" }} />
+        style={{ background: "radial-gradient(circle, rgba(232,121,249,0.42), transparent 70%)" }} />
 
       {/* Floating light particles */}
       <div className="absolute inset-0">
         {particles.map((p, i) => (
           <span
             key={i}
-            className="absolute rounded-full bg-amber-200 shadow-[0_0_10px_rgba(255,215,140,0.45)] wlb-particle"
+            className="absolute rounded-full bg-cyan-200 shadow-[0_0_10px_rgba(34,211,238,0.45)] wlb-particle"
             style={
               {
                 left: `${p.x}%`,
@@ -307,7 +307,7 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
         {glyphs.map((g, i) => (
           <div
             key={i}
-            className="absolute wlb-glyph text-amber-300/80"
+            className="absolute wlb-glyph text-cyan-300/80"
             style={
               {
                 left: g.left,
@@ -422,14 +422,14 @@ function DancerSilhouette({ pose }: { pose: "a" | "b" }) {
 function SectionHeader({ eyebrow, title, center = true }: { eyebrow: string; title: string; center?: boolean }) {
   return (
     <div className={center ? "text-center" : ""}>
-      <p className="text-[11px] tracking-[0.35em] uppercase text-amber-400/90">{eyebrow}</p>
+      <p className="text-[11px] tracking-[0.35em] uppercase text-cyan-400/90">{eyebrow}</p>
       <h2
-        className="mt-3 font-serif text-4xl md:text-5xl lg:text-6xl font-semibold bg-gradient-to-b from-amber-200 via-amber-300 to-amber-500 bg-clip-text text-transparent"
-        style={{ fontFamily: '"Cormorant Garamond","Playfair Display",Georgia,serif' }}
+        className="mt-3 font-display text-4xl md:text-5xl lg:text-6xl font-semibold bg-gradient-to-b from-cyan-200 via-cyan-300 to-cyan-500 bg-clip-text text-transparent"
+        style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}
       >
         {title}
       </h2>
-      <div className={`mt-4 h-px w-24 bg-gradient-to-r from-transparent via-amber-400/70 to-transparent ${center ? "mx-auto" : ""}`} />
+      <div className={`mt-4 h-px w-24 bg-gradient-to-r from-transparent via-cyan-400/70 to-transparent ${center ? "mx-auto" : ""}`} />
     </div>
   );
 }
@@ -494,10 +494,10 @@ function WorkshopDetailPage() {
 
   if (!program) {
     return (
-      <div className="min-h-screen grid place-items-center px-6 bg-[#050301] text-amber-100">
+      <div className="min-h-screen grid place-items-center px-6 bg-[#0a0a12] text-cyan-100">
         <div className="text-center">
-          <p className="text-amber-100/60">Workshop not found or no longer available.</p>
-          <Link to="/workshops" className="mt-4 inline-block text-amber-400 underline">Back to workshops</Link>
+          <p className="text-cyan-100/60">Workshop not found or no longer available.</p>
+          <Link to="/workshops" className="mt-4 inline-block text-cyan-400 underline">Back to workshops</Link>
         </div>
       </div>
     );
@@ -513,7 +513,7 @@ function WorkshopDetailPage() {
   ];
 
   return (
-    <div className="workshop-detail-page relative isolate min-h-screen pb-40 md:pb-24 text-amber-50 selection:bg-amber-400/30">
+    <div className="workshop-detail-page relative isolate min-h-screen pb-40 md:pb-24 text-cyan-50 selection:bg-cyan-400/30">
       <WorkshopLiveBackdrop media={heroMedia} />
 
 
@@ -530,36 +530,36 @@ function WorkshopDetailPage() {
               <img src={heroMedia.media_url} alt="" loading="eager" fetchPriority="high" className="w-full h-full object-cover opacity-[0.16] scale-105 transform-gpu" />
             )
           ) : null}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.12),transparent_62%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050301]/34 via-[#050301]/18 to-[#050301]/42" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.12),transparent_62%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a12]/34 via-[#0a0a12]/18 to-[#0a0a12]/42" />
         </motion.div>
 
         <motion.div style={{ opacity: fadeHero }}
           className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-28 pb-24 grid lg:grid-cols-2 gap-12 items-center">
           {/* LEFT column */}
           <div>
-            <Link to="/workshops" className="inline-flex items-center gap-1.5 text-xs text-amber-200/70 hover:text-amber-300 mb-8 w-fit">
+            <Link to="/workshops" className="inline-flex items-center gap-1.5 text-xs text-cyan-200/70 hover:text-cyan-300 mb-8 w-fit">
               <ArrowLeft size={14} /> All workshops
             </Link>
 
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-400/40 bg-[#140d03]/55 shadow-[0_10px_30px_-20px_rgba(245,199,106,0.55)]">
-              <Sparkles size={12} className="text-amber-400" />
-              <span className="text-[10px] tracking-[0.3em] uppercase text-amber-300">
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-400/40 bg-[#141428]/55 shadow-[0_10px_30px_-20px_rgba(232,121,249,0.55)]">
+              <Sparkles size={12} className="text-cyan-400" />
+              <span className="text-[10px] tracking-[0.3em] uppercase text-cyan-300">
                 {program.category ?? "Featured Workshop"}
               </span>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.05 }}
-              className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-amber-400/50 bg-gradient-to-r from-amber-500/15 to-amber-300/8 px-4 py-2 shadow-[0_0_40px_-12px_rgba(212,169,76,0.45)] backdrop-blur-md">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-400/20 text-amber-300">
+              className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-cyan-400/50 bg-gradient-to-r from-cyan-500/15 to-cyan-300/8 px-4 py-2 shadow-[0_0_40px_-12px_rgba(34,211,238,0.45)] backdrop-blur-md">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-400/20 text-cyan-300">
                 <User size={14} strokeWidth={2.5} />
               </div>
               <div>
-                <p className="text-[10px] tracking-[0.3em] uppercase text-amber-200/80 leading-none">Guided by</p>
-                <p className="mt-0.5 font-serif text-sm sm:text-base font-semibold text-amber-200 leading-none"
-                   style={{ fontFamily: '"Cormorant Garamond","Playfair Display",Georgia,serif' }}>
+                <p className="text-[10px] tracking-[0.3em] uppercase text-cyan-200/80 leading-none">Guided by</p>
+                <p className="mt-0.5 font-display text-sm sm:text-base font-semibold text-cyan-200 leading-none"
+                   style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                   Tejas D. Dhoke
                 </p>
               </div>
@@ -567,23 +567,23 @@ function WorkshopDetailPage() {
 
             <motion.h1
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
-              className="mt-5 font-serif text-6xl sm:text-7xl lg:text-8xl font-semibold leading-[0.95] bg-gradient-to-b from-amber-100 via-amber-300 to-amber-600 bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(212,169,76,0.25)]"
-              style={{ fontFamily: '"Cormorant Garamond","Playfair Display",Georgia,serif' }}
+              className="mt-5 font-display text-6xl sm:text-7xl lg:text-8xl font-semibold leading-[0.95] bg-gradient-to-b from-cyan-100 via-cyan-300 to-fuchsia-600 bg-clip-text text-transparent drop-shadow-[0_10px_30px_rgba(34,211,238,0.25)]"
+              style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}
             >
               {program.name}
             </motion.h1>
 
             {program.style && (
-              <p className="mt-4 font-serif italic text-2xl text-amber-100/85"
-                 style={{ fontFamily: '"Cormorant Garamond",Georgia,serif' }}>
+              <p className="mt-4 font-display italic text-2xl text-cyan-100/85"
+                 style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                 The {program.style} Experience
               </p>
             )}
 
-            <div className="mt-6 h-px w-32 bg-gradient-to-r from-amber-400/70 to-transparent" />
+            <div className="mt-6 h-px w-32 bg-gradient-to-r from-cyan-400/70 to-transparent" />
 
             {program.description && (
-              <p className="mt-6 text-base sm:text-lg text-amber-50/70 max-w-xl leading-relaxed line-clamp-4">
+              <p className="mt-6 text-base sm:text-lg text-cyan-50/70 max-w-xl leading-relaxed line-clamp-4">
                 {program.description}
               </p>
             )}
@@ -598,8 +598,8 @@ function WorkshopDetailPage() {
             className="relative mx-auto w-full max-w-md aspect-[4/5] [perspective:1400px]"
           >
             {/* gold glow */}
-            <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(212,169,76,0.35),transparent_65%)] blur-2xl" />
-            <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden border border-amber-400/40 shadow-[0_40px_100px_-30px_rgba(212,169,76,0.5)] bg-black">
+            <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.35),transparent_65%)] blur-2xl" />
+            <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden border border-cyan-400/40 shadow-[0_40px_100px_-30px_rgba(34,211,238,0.5)] bg-black">
               {heroMedia?.media_kind === "video" && heroMedia.media_url ? (
                 <video src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
                   autoPlay muted loop playsInline preload="auto"
@@ -607,19 +607,19 @@ function WorkshopDetailPage() {
               ) : heroMedia?.media_url ? (
                 <img src={heroMedia.media_url} alt={program.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full grid place-items-center bg-gradient-to-br from-amber-900/40 to-black">
-                  <Sparkles className="text-amber-400/60" size={48} />
+                <div className="w-full h-full grid place-items-center bg-gradient-to-br from-fuchsia-900/40 to-black">
+                  <Sparkles className="text-cyan-400/60" size={48} />
                 </div>
               )}
               {/* corner ornament */}
-              <div className="pointer-events-none absolute top-4 left-4 w-10 h-10 border-t border-l border-amber-300/70 rounded-tl-lg" />
-              <div className="pointer-events-none absolute top-4 right-4 w-10 h-10 border-t border-r border-amber-300/70 rounded-tr-lg" />
-              <div className="pointer-events-none absolute bottom-4 left-4 w-10 h-10 border-b border-l border-amber-300/70 rounded-bl-lg" />
-              <div className="pointer-events-none absolute bottom-4 right-4 w-10 h-10 border-b border-r border-amber-300/70 rounded-br-lg" />
+              <div className="pointer-events-none absolute top-4 left-4 w-10 h-10 border-t border-l border-cyan-300/70 rounded-tl-lg" />
+              <div className="pointer-events-none absolute top-4 right-4 w-10 h-10 border-t border-r border-cyan-300/70 rounded-tr-lg" />
+              <div className="pointer-events-none absolute bottom-4 left-4 w-10 h-10 border-b border-l border-cyan-300/70 rounded-bl-lg" />
+              <div className="pointer-events-none absolute bottom-4 right-4 w-10 h-10 border-b border-r border-cyan-300/70 rounded-br-lg" />
               {/* bottom label */}
               <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
-                <p className="text-[10px] tracking-[0.3em] uppercase text-amber-300">Tejas D Dhoke Presents</p>
-                <p className="font-serif text-xl text-amber-100 mt-1" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
+                <p className="text-[10px] tracking-[0.3em] uppercase text-cyan-300">Tejas D Dhoke Presents</p>
+                <p className="font-display text-xl text-cyan-100 mt-1" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                   {program.name}
                 </p>
               </div>
@@ -628,7 +628,7 @@ function WorkshopDetailPage() {
         </motion.div>
 
         <button onClick={() => scrollTo("countdown")} aria-label="Scroll down"
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-amber-200/70 hover:text-amber-300">
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-cyan-200/70 hover:text-cyan-300">
           <span className="text-[9px] tracking-[0.35em] uppercase">Scroll Down</span>
           <motion.span animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.6 }}>
             <ChevronDown size={18} />
@@ -638,9 +638,9 @@ function WorkshopDetailPage() {
 
       {/* ==================== COUNTDOWN ==================== */}
       {countdown && !countdown.done && (
-        <section id="countdown" className="relative py-14 border-y border-amber-400/15 bg-black/48">
+        <section id="countdown" className="relative py-14 border-y border-cyan-400/15 bg-black/48">
           <div className="max-w-5xl mx-auto px-6 flex flex-col items-center gap-6">
-            <p className="text-[11px] tracking-[0.4em] uppercase text-amber-400">Divine Alignment In</p>
+            <p className="text-[11px] tracking-[0.4em] uppercase text-cyan-400">Divine Alignment In</p>
             <div className="grid grid-cols-4 gap-3 sm:gap-8">
               {[
                 { l: "Days", v: countdown.d },
@@ -650,13 +650,13 @@ function WorkshopDetailPage() {
               ].map((c, i) => (
                 <div key={c.l} className="text-center">
                   <div className="relative">
-                    <p className="font-serif text-4xl sm:text-6xl font-semibold text-amber-200 tabular-nums drop-shadow-[0_4px_20px_rgba(212,169,76,0.4)]"
-                       style={{ fontFamily: '"Cormorant Garamond",serif' }}>
+                    <p className="font-display text-4xl sm:text-6xl font-semibold text-cyan-200 tabular-nums drop-shadow-[0_4px_20px_rgba(34,211,238,0.4)]"
+                       style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {String(c.v).padStart(2, "0")}
                     </p>
-                    {i < 3 && <span className="hidden sm:block absolute -right-5 top-1/2 -translate-y-1/2 text-amber-400/50 text-4xl">:</span>}
+                    {i < 3 && <span className="hidden sm:block absolute -right-5 top-1/2 -translate-y-1/2 text-cyan-400/50 text-4xl">:</span>}
                   </div>
-                  <p className="mt-1 text-[10px] tracking-[0.3em] uppercase text-amber-100/50">{c.l}</p>
+                  <p className="mt-1 text-[10px] tracking-[0.3em] uppercase text-cyan-100/50">{c.l}</p>
                 </div>
               ))}
             </div>
@@ -692,12 +692,12 @@ function WorkshopDetailPage() {
               <motion.div key={c.label}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="group relative rounded-2xl border border-amber-400/25 bg-gradient-to-b from-amber-950/28 to-black/72 p-8 text-center overflow-hidden hover:border-amber-400/60 hover:shadow-[0_20px_60px_-20px_rgba(212,169,76,0.4)] transition-all">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,169,76,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
-                <c.icon className="mx-auto text-amber-400" size={28} />
-                <p className="mt-4 text-[11px] tracking-[0.3em] uppercase text-amber-400">{c.label}</p>
-                <p className="mt-3 font-serif text-2xl text-amber-100" style={{ fontFamily: '"Cormorant Garamond",serif' }}>{c.main}</p>
-                <p className="mt-2 text-xs text-amber-100/50">{c.sub}</p>
+                className="group relative rounded-2xl border border-cyan-400/25 bg-gradient-to-b from-slate-950/28 to-black/72 p-8 text-center overflow-hidden hover:border-cyan-400/60 hover:shadow-[0_20px_60px_-20px_rgba(34,211,238,0.4)] transition-all">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <c.icon className="mx-auto text-cyan-400" size={28} />
+                <p className="mt-4 text-[11px] tracking-[0.3em] uppercase text-cyan-400">{c.label}</p>
+                <p className="mt-3 font-display text-2xl text-cyan-100" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>{c.main}</p>
+                <p className="mt-2 text-xs text-cyan-100/50">{c.sub}</p>
               </motion.div>
             ))}
           </div>
@@ -710,7 +710,7 @@ function WorkshopDetailPage() {
         <section className="relative py-24">
           <div className="max-w-6xl mx-auto px-6">
             <SectionHeader eyebrow="Moments" title="The Experience" />
-            <div className="mt-12 relative rounded-3xl overflow-hidden border border-amber-400/30 aspect-video bg-black shadow-[0_30px_80px_-30px_rgba(212,169,76,0.4)]">
+            <div className="mt-12 relative rounded-3xl overflow-hidden border border-cyan-400/30 aspect-video bg-black shadow-[0_30px_80px_-30px_rgba(34,211,238,0.4)]">
               {heroMedia?.media_kind === "video" ? (
                 <video key={heroMedia.media_url ?? ""} src={heroMedia.media_url ?? undefined} poster={heroMedia.poster_url ?? undefined}
                        controls playsInline className="w-full h-full object-contain bg-black" />
@@ -722,11 +722,11 @@ function WorkshopDetailPage() {
               <div className="mt-4 flex gap-3 overflow-x-auto pb-2 snap-x">
                 {galleryItems.map((m, i) => (
                   <button key={m.id} onClick={() => setHeroIdx(i)}
-                    className={`relative shrink-0 h-20 w-32 rounded-lg overflow-hidden bg-black snap-start border-2 transition ${i === heroIdx ? "border-amber-400 shadow-[0_0_20px_rgba(212,169,76,0.5)]" : "border-amber-400/10 hover:border-amber-400/40"}`}>
+                    className={`relative shrink-0 h-20 w-32 rounded-lg overflow-hidden bg-black snap-start border-2 transition ${i === heroIdx ? "border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.5)]" : "border-cyan-400/10 hover:border-cyan-400/40"}`}>
                     {m.media_kind === "video" ? (
                       <>
                         <video src={m.media_url ?? undefined} poster={m.poster_url ?? undefined} muted playsInline preload="metadata" className="w-full h-full object-cover" />
-                        <PlayCircle className="absolute inset-0 m-auto text-amber-300/90" size={22} />
+                        <PlayCircle className="absolute inset-0 m-auto text-cyan-300/90" size={22} />
                       </>
                     ) : (
                       <img src={m.media_url ?? ""} alt="" loading="lazy" className="w-full h-full object-cover" />
@@ -748,35 +748,35 @@ function WorkshopDetailPage() {
             {allowSingle && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
-                className="relative rounded-3xl border border-amber-400/40 bg-gradient-to-b from-amber-950/40 to-black/90 p-8 shadow-[0_30px_80px_-30px_rgba(212,169,76,0.35)]"
+                className="relative rounded-3xl border border-cyan-400/40 bg-gradient-to-b from-slate-950/40 to-black/90 p-8 shadow-[0_30px_80px_-30px_rgba(34,211,238,0.35)]"
               >
-                <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.25),transparent_70%)] blur-2xl" />
+                <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.25),transparent_70%)] blur-2xl" />
                 <div className="relative">
-                  <p className="text-[11px] tracking-[0.35em] uppercase text-amber-400">Single Workshop</p>
-                  <h3 className="mt-3 font-serif text-3xl text-amber-100" style={{ fontFamily: '"Cormorant Garamond",serif' }}>Individual Entry</h3>
-                  <p className="mt-2 text-sm text-amber-100/60">Register for an individual workshop.</p>
+                  <p className="text-[11px] tracking-[0.35em] uppercase text-cyan-400">Single Workshop</p>
+                  <h3 className="mt-3 font-display text-3xl text-cyan-100" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Individual Entry</h3>
+                  <p className="mt-2 text-sm text-cyan-100/60">Register for an individual workshop.</p>
 
                   <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-amber-300 text-xl">₹</span>
-                    <span className="font-serif text-5xl font-semibold text-amber-100 drop-shadow-[0_6px_30px_rgba(212,169,76,0.5)]" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
+                    <span className="text-cyan-300 text-xl">₹</span>
+                    <span className="font-display text-5xl font-semibold text-cyan-100 drop-shadow-[0_6px_30px_rgba(34,211,238,0.5)]" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {singlePrice.toLocaleString("en-IN")}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-amber-100/50">per person</p>
+                  <p className="mt-1 text-xs text-cyan-100/50">per person</p>
 
-                  <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+                  <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
 
-                  <div className="space-y-2 text-sm text-amber-50/90">
-                    <p className="text-xs uppercase tracking-widest text-amber-400/80">Available workshops</p>
+                  <div className="space-y-2 text-sm text-cyan-50/90">
+                    <p className="text-xs uppercase tracking-widest text-cyan-400/80">Available workshops</p>
                     <ul className="space-y-1">
                       {(program as any).workshop1_name ? (
-                        <li className="flex gap-2"><span className="text-amber-400">✔</span>{w1Name}</li>
+                        <li className="flex gap-2"><span className="text-cyan-400">✔</span>{w1Name}</li>
                       ) : null}
                       {(program as any).workshop2_name ? (
-                        <li className="flex gap-2"><span className="text-amber-400">✔</span>{w2Name}</li>
+                        <li className="flex gap-2"><span className="text-cyan-400">✔</span>{w2Name}</li>
                       ) : null}
                       {!(program as any).workshop1_name && !(program as any).workshop2_name ? (
-                        <li className="flex gap-2"><span className="text-amber-400">✔</span>{program.name}</li>
+                        <li className="flex gap-2"><span className="text-cyan-400">✔</span>{program.name}</li>
                       ) : null}
                     </ul>
                   </div>
@@ -787,34 +787,34 @@ function WorkshopDetailPage() {
             {allowBoth && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
-                className="relative rounded-3xl border border-amber-400/60 bg-gradient-to-b from-amber-950/48 to-black/88 p-8 shadow-[0_30px_80px_-20px_rgba(212,169,76,0.5)]"
+                className="relative rounded-3xl border border-cyan-400/60 bg-gradient-to-b from-slate-950/48 to-black/88 p-8 shadow-[0_30px_80px_-20px_rgba(34,211,238,0.5)]"
               >
-                <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(212,169,76,0.35),transparent_70%)] blur-2xl" />
+                <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.35),transparent_70%)] blur-2xl" />
                 <div className="relative">
                   {allowSingle && (
-                    <div className="absolute -top-2 -right-2 rotate-12 px-3 py-1 rounded-md bg-gradient-to-b from-amber-300 to-amber-500 text-black text-[10px] font-black tracking-widest shadow-lg">
+                    <div className="absolute -top-2 -right-2 rotate-12 px-3 py-1 rounded-md bg-gradient-to-b from-cyan-300 to-cyan-500 text-black text-[10px] font-black tracking-widest shadow-lg">
                       BEST
                     </div>
                   )}
-                  <p className="text-[11px] tracking-[0.35em] uppercase text-amber-400">Both Workshops</p>
-                  <h3 className="mt-3 font-serif text-3xl text-amber-100" style={{ fontFamily: '"Cormorant Garamond",serif' }}>Combined Pass</h3>
-                  <p className="mt-2 text-sm text-amber-100/60">Register for both workshops with a single registration.</p>
+                  <p className="text-[11px] tracking-[0.35em] uppercase text-cyan-400">Both Workshops</p>
+                  <h3 className="mt-3 font-display text-3xl text-cyan-100" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Combined Pass</h3>
+                  <p className="mt-2 text-sm text-cyan-100/60">Register for both workshops with a single registration.</p>
 
                   <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-amber-300 text-xl">₹</span>
-                    <span className="font-serif text-5xl font-semibold text-amber-100 drop-shadow-[0_6px_30px_rgba(212,169,76,0.5)]" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
+                    <span className="text-cyan-300 text-xl">₹</span>
+                    <span className="font-display text-5xl font-semibold text-cyan-100 drop-shadow-[0_6px_30px_rgba(34,211,238,0.5)]" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {bothPrice.toLocaleString("en-IN")}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-amber-100/50">for both workshops</p>
+                  <p className="mt-1 text-xs text-cyan-100/50">for both workshops</p>
 
-                  <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+                  <div className="my-5 h-px w-full bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
 
-                  <div className="space-y-2 text-sm text-amber-50/90">
-                    <p className="text-xs uppercase tracking-widest text-amber-400/80">Includes</p>
+                  <div className="space-y-2 text-sm text-cyan-50/90">
+                    <p className="text-xs uppercase tracking-widest text-cyan-400/80">Includes</p>
                     <ul className="space-y-1">
-                      <li className="flex gap-2"><span className="text-amber-400">✔</span>{w1Name}</li>
-                      <li className="flex gap-2"><span className="text-amber-400">✔</span>{w2Name}</li>
+                      <li className="flex gap-2"><span className="text-cyan-400">✔</span>{w1Name}</li>
+                      <li className="flex gap-2"><span className="text-cyan-400">✔</span>{w2Name}</li>
                     </ul>
                   </div>
                 </div>
@@ -825,19 +825,19 @@ function WorkshopDetailPage() {
           {program.silver_seat_enabled && (
             <motion.div
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
-              className="mt-8 max-w-2xl mx-auto rounded-2xl border border-amber-400/30 bg-amber-500/5 p-5 text-center"
+              className="mt-8 max-w-2xl mx-auto rounded-2xl border border-cyan-400/30 bg-cyan-500/5 p-5 text-center"
             >
-              <p className="text-xs font-semibold text-amber-300 flex items-center justify-center gap-2">
+              <p className="text-xs font-semibold text-cyan-300 flex items-center justify-center gap-2">
                 <Ticket size={14} /> Silver Seat Add-on (+ ₹{silverPrice.toLocaleString("en-IN")})
               </p>
-              <p className="mt-1 text-[11px] text-amber-100/60 leading-relaxed">
+              <p className="mt-1 text-[11px] text-cyan-100/60 leading-relaxed">
                 A professionally shot & edited solo dance video — ready for socials & portfolio.
               </p>
             </motion.div>
           )}
 
           {seatsLeft != null && (
-            <p className="mt-8 text-center text-[11px] uppercase tracking-widest text-amber-200/70">
+            <p className="mt-8 text-center text-[11px] uppercase tracking-widest text-cyan-200/70">
               <AnimatedCounter value={seatsLeft} /> of {program.capacity} seats remaining
             </p>
           )}
@@ -854,12 +854,12 @@ function WorkshopDetailPage() {
               <motion.div key={s.n}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.07 }}
-                className="group relative rounded-2xl border border-amber-400/20 bg-black/52 p-5 text-center hover:border-amber-400/60 hover:-translate-y-1 transition-all">
-                <p className="font-serif text-4xl text-amber-300/90" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
+                className="group relative rounded-2xl border border-cyan-400/20 bg-black/52 p-5 text-center hover:border-cyan-400/60 hover:-translate-y-1 transition-all">
+                <p className="font-display text-4xl text-cyan-300/90" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                   Step {s.n}
                 </p>
-                <p className="mt-3 text-[10px] tracking-[0.25em] uppercase text-amber-400">{s.t}</p>
-                <p className="mt-2 text-xs text-amber-100/60 leading-relaxed">{s.d}</p>
+                <p className="mt-3 text-[10px] tracking-[0.25em] uppercase text-cyan-400">{s.t}</p>
+                <p className="mt-2 text-xs text-cyan-100/60 leading-relaxed">{s.d}</p>
               </motion.div>
             ))}
           </div>
@@ -872,20 +872,20 @@ function WorkshopDetailPage() {
           <div className="max-w-6xl mx-auto px-6">
             <SectionHeader eyebrow="Reach The Studio" title="Location & Directions" />
             <div className="mt-14 grid lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 rounded-3xl overflow-hidden border border-amber-400/30 aspect-[16/10] bg-black shadow-[0_30px_80px_-30px_rgba(212,169,76,0.4)]">
+              <div className="lg:col-span-2 rounded-3xl overflow-hidden border border-cyan-400/30 aspect-[16/10] bg-black shadow-[0_30px_80px_-30px_rgba(34,211,238,0.4)]">
                 {mapsEmbed && (
                   <iframe title="Venue map" src={mapsEmbed} loading="lazy" referrerPolicy="no-referrer-when-downgrade"
                     className="w-full h-full border-0 grayscale-[40%] contrast-125" allowFullScreen />
                 )}
               </div>
-              <div className="rounded-3xl border border-amber-400/30 bg-gradient-to-b from-amber-950/38 to-black/82 p-8 flex flex-col">
-                <MapPin className="text-amber-400" size={22} />
-                <p className="mt-3 text-[11px] tracking-[0.3em] uppercase text-amber-400">Venue</p>
-                <p className="mt-2 font-serif text-2xl text-amber-100" style={{ fontFamily: '"Cormorant Garamond",serif' }}>
+              <div className="rounded-3xl border border-cyan-400/30 bg-gradient-to-b from-slate-950/38 to-black/82 p-8 flex flex-col">
+                <MapPin className="text-cyan-400" size={22} />
+                <p className="mt-3 text-[11px] tracking-[0.3em] uppercase text-cyan-400">Venue</p>
+                <p className="mt-2 font-display text-2xl text-cyan-100" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                   {program.venue}
                 </p>
-                {program.city && <p className="text-sm text-amber-100/60 mt-1">{program.city}</p>}
-                <p className="text-xs text-amber-100/50 mt-4 leading-relaxed">
+                {program.city && <p className="text-sm text-cyan-100/60 mt-1">{program.city}</p>}
+                <p className="text-xs text-cyan-100/50 mt-4 leading-relaxed">
                   Entrance is signposted. Please arrive 15 mins before start time.
                 </p>
               </div>
@@ -897,9 +897,9 @@ function WorkshopDetailPage() {
       {/* ==================== SUPPORT ==================== */}
       <section className="relative py-24">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <p className="text-[11px] tracking-[0.35em] uppercase text-amber-400">Need Help?</p>
-          <h2 className="mt-3 font-serif text-4xl text-amber-100" style={{ fontFamily: '"Cormorant Garamond",serif' }}>Contact Support</h2>
-          <p className="mt-4 text-amber-100/60 text-sm">
+          <p className="text-[11px] tracking-[0.35em] uppercase text-cyan-400">Need Help?</p>
+          <h2 className="mt-3 font-display text-4xl text-cyan-100" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Contact Support</h2>
+          <p className="mt-4 text-cyan-100/60 text-sm">
             Questions about payment, venue, dates or booking confirmation? Reach out — we're happy to help.
           </p>
         </div>
@@ -908,7 +908,7 @@ function WorkshopDetailPage() {
       {/* ==================== STICKY BOOK NOW ==================== */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 md:bottom-6">
         <button onClick={bookNow} disabled={full}
-          className="px-6 md:px-8 py-3 rounded-full bg-gradient-to-b from-amber-300 via-amber-400 to-amber-600 text-black text-xs md:text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(212,169,76,0.5)] disabled:opacity-40">
+          className="px-6 md:px-8 py-3 rounded-full bg-gradient-to-b from-cyan-300 via-cyan-400 to-fuchsia-600 text-black text-xs md:text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(34,211,238,0.5)] disabled:opacity-40">
           {full ? "Sold Out" : "Book Now"}
         </button>
       </div>
