@@ -625,11 +625,11 @@ function Index() {
                 <Sparkles size={11} className="opacity-80" /> The World of Tejas
               </motion.span>
 
-              <motion.div variants={item} className="mb-8 flex flex-col items-center sm:items-start gap-5">
-                <div className="relative h-44 w-44 sm:h-52 sm:w-52 md:h-64 md:w-64 lg:h-72 lg:w-72 rounded-full overflow-hidden ring-[4px] ring-primary/40 shadow-[0_18px_80px_-12px_var(--primary)]">
+              <motion.div variants={item} className="mb-8 flex flex-col items-center sm:items-start gap-6">
+                <div className="relative h-60 w-60 sm:h-72 sm:w-72 md:h-80 md:w-80 lg:h-[28rem] lg:w-[28rem] xl:h-[32rem] xl:w-[32rem] rounded-full overflow-hidden ring-[5px] ring-primary/40 shadow-[0_24px_100px_-16px_var(--primary)]">
                   <div
                     aria-hidden
-                    className="absolute -inset-3 rounded-full blur-xl opacity-70"
+                    className="absolute -inset-4 rounded-full blur-2xl opacity-80"
                     style={{ background: "conic-gradient(from 180deg, var(--primary), var(--accent-cyan), var(--accent-pink), var(--primary))" }}
                   />
                   <img
@@ -641,11 +641,11 @@ function Index() {
                   />
                 </div>
                 {founder?.intro && (
-                  <p className="text-sm sm:text-base text-muted-foreground max-w-xs sm:max-w-sm leading-relaxed text-center sm:text-left">
+                  <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-xs sm:max-w-sm lg:max-w-md leading-relaxed text-center sm:text-left">
                     {founder.intro}
                   </p>
                 )}
-                <div className="h-px w-full max-w-[12rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
+                <div className="h-px w-full max-w-[14rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
               </motion.div>
 
               <motion.h1
