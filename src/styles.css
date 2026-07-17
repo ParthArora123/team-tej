@@ -501,3 +501,57 @@ body:has(.workshop-detail-page) .grain-bg > [aria-hidden].pointer-events-none.fi
   position: relative;
   z-index: 1;
 }
+
+/* ---------- Light-mode override for the Workshop Detail page ----------
+   The page was originally styled with a neon-midnight (black + cyan) palette.
+   In light mode we neutralise the dark backgrounds, black gradients, and
+   neon accents so it matches the rest of the premium light theme.
+   All rules are scoped to :root (light) .workshop-detail-page — dark mode
+   keeps its original cinematic appearance. */
+:root .workshop-detail-page.workshop-live-backdrop,
+:root .workshop-detail-page .workshop-live-backdrop {
+  background: linear-gradient(180deg, var(--tone-ivory), var(--tone-champagne)) !important;
+  opacity: 1 !important;
+}
+:root .workshop-detail-page {
+  color: var(--foreground);
+}
+:root .workshop-detail-page [class*="bg-black"],
+:root .workshop-detail-page [class*="bg-[#0a0a12]"],
+:root .workshop-detail-page [class*="bg-[#141428]"] {
+  background-color: color-mix(in oklab, var(--card) 92%, transparent) !important;
+}
+:root .workshop-detail-page [class*="from-black"],
+:root .workshop-detail-page [class*="to-black"],
+:root .workshop-detail-page [class*="from-slate-9"],
+:root .workshop-detail-page [class*="via-black"] {
+  --tw-gradient-from: color-mix(in oklab, var(--tone-champagne) 60%, transparent) !important;
+  --tw-gradient-to:   color-mix(in oklab, var(--tone-pearl) 40%, transparent) !important;
+  --tw-gradient-via:  color-mix(in oklab, var(--tone-sand) 40%, transparent) !important;
+  background-image: linear-gradient(180deg,
+    color-mix(in oklab, var(--tone-champagne) 55%, transparent),
+    color-mix(in oklab, var(--tone-pearl) 30%, transparent)) !important;
+}
+/* Preserve legibility overlays that sit on top of hero images */
+:root .workshop-detail-page .absolute[class*="from-black"][class*="to-transparent"] {
+  background-image: linear-gradient(to top,
+    color-mix(in oklab, var(--foreground) 22%, transparent),
+    transparent) !important;
+}
+:root .workshop-detail-page [class*="border-cyan"],
+:root .workshop-detail-page [class*="border-fuchsia"] {
+  border-color: color-mix(in oklab, var(--accent-gold) 55%, var(--border)) !important;
+}
+:root .workshop-detail-page [class*="text-cyan"],
+:root .workshop-detail-page [class*="text-fuchsia"] {
+  color: var(--primary) !important;
+}
+:root .workshop-detail-page [class*="shadow-[0_"] {
+  box-shadow: var(--shadow-soft) !important;
+}
+:root .workshop-detail-page [class*="from-fuchsia"] {
+  background-image: linear-gradient(135deg,
+    color-mix(in oklab, var(--accent-gold) 25%, transparent),
+    color-mix(in oklab, var(--primary) 15%, transparent)) !important;
+}
+
