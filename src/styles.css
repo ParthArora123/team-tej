@@ -204,6 +204,43 @@
 .dark body { background-image: none; }
 .dark body::before { display: none; }
 
+/* Section tone variation in light mode — gently alternates the surface color
+   of top-level <section> elements so the page reads as layered surfaces
+   instead of one flat white plane. Dark mode keeps its cinematic backdrop. */
+:root main > section,
+:root main > div > section {
+  position: relative;
+}
+:root main > section:nth-of-type(6n+1) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-ivory) 65%, transparent), transparent 90%); }
+:root main > section:nth-of-type(6n+2) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-champagne) 70%, transparent), color-mix(in oklab, var(--tone-pearl) 40%, transparent)); }
+:root main > section:nth-of-type(6n+3) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-sage) 55%, transparent), transparent 92%); }
+:root main > section:nth-of-type(6n+4) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-mist) 55%, transparent), color-mix(in oklab, var(--tone-pearl) 30%, transparent)); }
+:root main > section:nth-of-type(6n+5) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-blush) 45%, transparent), transparent 90%); }
+:root main > section:nth-of-type(6n+6) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-sand) 55%, transparent), color-mix(in oklab, var(--tone-champagne) 35%, transparent)); }
+
+/* Elegant hairline separators between sections */
+:root main > section + section::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent-gold) 55%, transparent), transparent);
+  pointer-events: none;
+}
+
+.dark main > section { background: none; }
+.dark main > section + section::before { display: none; }
+
+/* Reusable section tone utilities for explicit use */
+@utility section-ivory     { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-ivory) 70%, transparent), transparent); }
+@utility section-champagne { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-champagne) 70%, transparent), transparent); }
+@utility section-sand      { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-sand) 65%, transparent), transparent); }
+@utility section-sage      { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-sage) 60%, transparent), transparent); }
+@utility section-mist      { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-mist) 60%, transparent), transparent); }
+@utility section-blush     { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-blush) 50%, transparent), transparent); }
+@utility section-pearl     { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-pearl) 80%, transparent), transparent); }
+
+
 
 @utility text-balance {
   text-wrap: balance;
