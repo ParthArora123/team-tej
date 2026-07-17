@@ -904,12 +904,46 @@ function WorkshopDetailPage() {
 
       {/* ==================== SUPPORT ==================== */}
       <section className="relative py-24">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <p className="text-[11px] tracking-[0.35em] uppercase text-cyan-400">Need Help?</p>
-          <h2 className="mt-3 font-display text-4xl text-cyan-100" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Contact Support</h2>
-          <p className="mt-4 text-cyan-100/60 text-sm">
-            Questions about payment, venue, dates or booking confirmation? Reach out — we're happy to help.
-          </p>
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center">
+            <p className="text-[11px] tracking-[0.35em] uppercase text-cyan-400">Need Help?</p>
+            <h2 className="mt-3 font-display text-4xl md:text-5xl text-cyan-100" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Contact Support</h2>
+            <p className="mt-4 max-w-2xl mx-auto text-cyan-100/60 text-sm">
+              Questions about payment, venue, dates or booking confirmation? Reach out — we're happy to help.
+            </p>
+          </div>
+
+          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              { icon: Mail, label: "Email", value: contactInfo.email, href: contactInfo.email ? `mailto:${contactInfo.email}` : undefined },
+              { icon: Phone, label: "Phone", value: contactInfo.phone, href: contactInfo.phone ? `tel:${String(contactInfo.phone).replace(/[^+\d]/g, "")}` : undefined },
+              { icon: MessageCircle, label: "WhatsApp", value: contactInfo.whatsapp, href: `https://wa.me/${String(contactInfo.whatsapp ?? "").replace(/[^\d]/g, "")}?text=${encodeURIComponent("Hi! I have a question about a workshop booking.")}`, isWa: true },
+            ].filter((c) => c.value).map((c, i) => (
+              <motion.div key={c.label}
+                initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                className="group relative rounded-2xl border border-cyan-400/25 bg-gradient-to-b from-slate-950/40 to-black/80 p-6 text-center hover:border-cyan-400/60 hover:-translate-y-1 transition-all">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+                <div className="relative mx-auto h-12 w-12 rounded-xl flex items-center justify-center bg-cyan-400/10 text-cyan-400 mb-4">
+                  <c.icon size={22} />
+                </div>
+                <p className="text-[11px] tracking-[0.3em] uppercase text-cyan-400">{c.label}</p>
+                {c.href ? (
+                  <a href={c.href} target={c.isWa ? "_blank" : undefined} rel={c.isWa ? "noreferrer" : undefined}
+                    className="mt-2 inline-flex items-center gap-2 text-lg text-cyan-100 hover:text-cyan-300 transition break-words">
+                    <span>{c.value}</span>
+                    {c.isWa && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#25D366]/15 text-[#25D366]">
+                        <MessageCircle size={12} /> Chat
+                      </span>
+                    )}
+                  </a>
+                ) : (
+                  <p className="mt-2 text-lg text-cyan-100">{c.value}</p>
+                )}
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
