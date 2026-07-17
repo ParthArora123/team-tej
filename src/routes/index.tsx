@@ -625,7 +625,15 @@ function Index() {
                 <Sparkles size={11} className="opacity-80" /> The World of Tejas
               </motion.span>
 
-              <motion.div variants={item} className="mb-6 flex flex-col items-center sm:items-start gap-5">
+              <motion.h1
+                variants={item}
+                className="font-display text-5xl sm:text-7xl lg:text-8xl xl:text-[8.5rem] leading-[0.92] tracking-tight text-foreground text-balance"
+              >
+                Tejas D <br />
+                <span className="italic shimmer-text">Dhoke</span>
+              </motion.h1>
+
+              <motion.div variants={item} className="mt-8 mb-10 flex flex-col items-center sm:items-start gap-5">
                 <div className="relative h-72 w-72 sm:h-96 sm:w-96 md:h-[28rem] md:w-[28rem] lg:h-[36rem] lg:w-[36rem] xl:h-[42rem] xl:w-[42rem] rounded-full overflow-hidden ring-[6px] ring-primary/40 shadow-[0_28px_120px_-20px_var(--primary)]">
                   <div
                     aria-hidden
@@ -648,53 +656,36 @@ function Index() {
                 <div className="h-px w-full max-w-[16rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
               </motion.div>
 
-              <motion.h1
-                variants={item}
-                className="font-display text-5xl sm:text-7xl lg:text-8xl xl:text-[8.5rem] leading-[0.92] tracking-tight text-foreground text-balance"
-              >
-                Tejas D <br />
-                <span className="italic shimmer-text">Dhoke</span>
-              </motion.h1>
-
-
-              <motion.p
-                variants={item}
-                className="mt-8 text-base sm:text-lg text-muted-foreground max-w-md leading-relaxed"
-              >
-                Defining the next era of cinematic movement. A masterclass in rhythm,
-                space, and the raw architecture of emotion.
-              </motion.p>
-
-              <motion.div variants={item} className="mt-10 flex flex-wrap gap-4">
+              <motion.div variants={item} className="flex flex-wrap gap-4">
                 <MagneticButton>
-                  <Link
-                    to="/workshops"
+                  <a
+                    href="#workshops"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
+                    }}
                     className="group relative inline-flex items-center gap-2 rounded-full px-9 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
                     style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
                   >
                     <span className="relative z-10 flex items-center gap-2">
-                      Explore Experiences
+                      Explore Workshops
                       <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
                     </span>
-                  </Link>
+                  </a>
                 </MagneticButton>
                 <MagneticButton strength={0.25}>
-                  <Link
-                    to="/zero-to-hero"
+                  <a
+                    href="#classes"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById("classes")?.scrollIntoView({ behavior: "smooth" });
+                    }}
                     className="group inline-flex items-center gap-2 rounded-full px-9 py-4 text-[11px] font-bold uppercase tracking-[0.22em] text-foreground border border-white/15 bg-white/5 backdrop-blur-xl hover:bg-white/10 hover:border-white/30 transition-all"
                   >
-                    The Journey
+                    Explore Classes
                     <ArrowUpRight size={14} className="opacity-70 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </Link>
+                  </a>
                 </MagneticButton>
-              </motion.div>
-
-              {/* Est. line */}
-              <motion.div variants={item} className="mt-14 flex items-center gap-4">
-                <div className="h-px w-12" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
-                <p className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground font-semibold">
-                  Fusion Dance Company · Est. 2013
-                </p>
               </motion.div>
             </motion.div>
           </div>
@@ -704,7 +695,7 @@ function Index() {
 
 
       {/* WORKSHOPS — dynamic (primary CTA — placed directly after hero) */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-8 lg:pt-24 lg:pb-12">
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-8 lg:pt-24 lg:pb-12">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
@@ -869,7 +860,7 @@ function Index() {
 
 
       {/* DANCE STYLES */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
         <div className="mb-12 flex items-end justify-between gap-6">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
