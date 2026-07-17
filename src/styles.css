@@ -588,3 +588,14 @@ html:not(.dark) .workshop-detail-page [class*="border-fuchsia"],
 html:not(.dark) .workshop-detail-page [class*="border-amber"] {
   border-color: color-mix(in oklab, var(--accent) 40%, var(--border)) !important;
 }
+
+/* Workshop detail: keep the site footer above the fixed "Book Now" pill
+   so it becomes fully visible when scrolled into view. */
+body:has(.workshop-detail-page) footer {
+  position: relative;
+  z-index: 50;
+  background-color: var(--background);
+}
+html:not(.dark) body:has(.workshop-detail-page) footer {
+  background-color: color-mix(in oklab, var(--surface) 92%, var(--background));
+}
