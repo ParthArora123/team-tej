@@ -39,60 +39,51 @@
 }
 
 
-/* Light theme — Luxury Atelier v2: layered ivory / champagne / sage / mist blue / blush */
+/* Light theme — Luxury Atelier: warm ivory, champagne, sage & muted teal with taupe accents */
 :root {
   --radius: 0.75rem;
 
-  --background: oklch(0.958 0.014 82);
-  --foreground: oklch(0.22 0.02 55);
-  --surface: oklch(0.935 0.018 80);
+  --background: oklch(0.965 0.012 85);         /* warm ivory */
+  --foreground: oklch(0.22 0.02 55);           /* deep taupe-charcoal */
+  --surface: oklch(0.94 0.016 82);             /* champagne mist */
 
-  --card: oklch(0.982 0.010 85);
+  --card: oklch(0.975 0.010 85);               /* soft porcelain */
   --card-foreground: oklch(0.22 0.02 55);
-  --popover: oklch(0.985 0.008 85);
+  --popover: oklch(0.98 0.008 85);
   --popover-foreground: oklch(0.22 0.02 55);
 
-  --primary: oklch(0.46 0.055 178);
-  --primary-foreground: oklch(0.985 0.008 85);
+  --primary: oklch(0.48 0.045 175);            /* muted teal — refined jewel */
+  --primary-foreground: oklch(0.98 0.008 85);
 
-  --secondary: oklch(0.905 0.020 78);
+  --secondary: oklch(0.91 0.018 80);           /* sand */
   --secondary-foreground: oklch(0.25 0.025 55);
 
-  --muted: oklch(0.918 0.016 82);
-  --muted-foreground: oklch(0.44 0.022 60);
+  --muted: oklch(0.92 0.014 82);               /* stone */
+  --muted-foreground: oklch(0.46 0.02 60);     /* muted taupe */
 
-  --accent: oklch(0.72 0.075 82);
+  --accent: oklch(0.72 0.065 85);              /* champagne gold */
   --accent-foreground: oklch(0.22 0.025 55);
 
   --destructive: oklch(0.52 0.14 28);
   --destructive-foreground: oklch(0.98 0.005 85);
 
-  --border: oklch(0.84 0.018 76);
-  --input: oklch(0.88 0.014 80);
-  --ring: oklch(0.52 0.055 178);
+  --border: oklch(0.86 0.014 78);              /* soft taupe hairline */
+  --input: oklch(0.89 0.012 80);
+  --ring: oklch(0.55 0.05 175);
 
-  --accent-cyan: oklch(0.55 0.06 190);
-  --accent-pink: oklch(0.7 0.06 22);
-  --accent-blue: oklch(0.55 0.055 235);
-  --accent-emerald: oklch(0.55 0.065 155);
-  --accent-gold: oklch(0.74 0.095 85);
+  --accent-cyan: oklch(0.55 0.055 190);        /* muted teal */
+  --accent-pink: oklch(0.68 0.055 25);         /* dusty terracotta */
+  --accent-blue: oklch(0.48 0.045 220);        /* slate blue */
+  --accent-emerald: oklch(0.52 0.06 155);      /* olive-sage */
+  --accent-gold: oklch(0.74 0.09 85);          /* champagne gold */
 
-  /* Layered section tones */
-  --tone-ivory:     oklch(0.965 0.014 82);
-  --tone-champagne: oklch(0.945 0.022 78);
-  --tone-sand:      oklch(0.928 0.028 74);
-  --tone-sage:      oklch(0.938 0.024 150);
-  --tone-mist:      oklch(0.942 0.020 230);
-  --tone-blush:     oklch(0.950 0.020 25);
-  --tone-pearl:     oklch(0.972 0.008 90);
-
-  --gradient-primary: linear-gradient(135deg, oklch(0.48 0.055 178), oklch(0.74 0.095 85));
-  --gradient-royal: linear-gradient(135deg, oklch(0.46 0.055 178) 0%, oklch(0.55 0.065 155) 50%, oklch(0.74 0.095 85) 100%);
-  --gradient-aurora: linear-gradient(120deg, var(--tone-champagne), var(--tone-sage) 45%, var(--tone-blush));
+  --gradient-primary: linear-gradient(135deg, oklch(0.5 0.05 175), oklch(0.74 0.09 85));
+  --gradient-royal: linear-gradient(135deg, oklch(0.48 0.045 175) 0%, oklch(0.52 0.06 155) 50%, oklch(0.74 0.09 85) 100%);
+  --gradient-aurora: linear-gradient(120deg, oklch(0.94 0.02 82), oklch(0.92 0.03 155) 45%, oklch(0.93 0.035 85));
   --gradient-hero:
-    radial-gradient(ellipse 90% 65% at 15% 0%, color-mix(in oklab, var(--accent-gold) 26%, transparent), transparent 62%),
-    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, var(--accent-emerald) 20%, transparent), transparent 65%),
-    radial-gradient(ellipse 80% 60% at 50% 100%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 60%);
+    radial-gradient(ellipse 90% 65% at 15% 0%, color-mix(in oklab, var(--accent-gold) 22%, transparent), transparent 62%),
+    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, var(--accent-emerald) 16%, transparent), transparent 65%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, color-mix(in oklab, var(--primary) 12%, transparent), transparent 60%);
   --shadow-soft:
     0 1px 2px oklch(0.28 0.03 55 / 6%),
     0 12px 36px -14px oklch(0.28 0.03 55 / 14%),
@@ -203,43 +194,6 @@
 }
 .dark body { background-image: none; }
 .dark body::before { display: none; }
-
-/* Section tone variation in light mode — gently alternates the surface color
-   of top-level <section> elements so the page reads as layered surfaces
-   instead of one flat white plane. Dark mode keeps its cinematic backdrop. */
-:root main > section,
-:root main > div > section {
-  position: relative;
-}
-:root main > section:nth-of-type(6n+1) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-ivory) 65%, transparent), transparent 90%); }
-:root main > section:nth-of-type(6n+2) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-champagne) 70%, transparent), color-mix(in oklab, var(--tone-pearl) 40%, transparent)); }
-:root main > section:nth-of-type(6n+3) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-sage) 55%, transparent), transparent 92%); }
-:root main > section:nth-of-type(6n+4) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-mist) 55%, transparent), color-mix(in oklab, var(--tone-pearl) 30%, transparent)); }
-:root main > section:nth-of-type(6n+5) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-blush) 45%, transparent), transparent 90%); }
-:root main > section:nth-of-type(6n+6) { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-sand) 55%, transparent), color-mix(in oklab, var(--tone-champagne) 35%, transparent)); }
-
-/* Elegant hairline separators between sections */
-:root main > section + section::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 10%; right: 10%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--accent-gold) 55%, transparent), transparent);
-  pointer-events: none;
-}
-
-.dark main > section { background: none; }
-.dark main > section + section::before { display: none; }
-
-/* Reusable section tone utilities for explicit use */
-@utility section-ivory     { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-ivory) 70%, transparent), transparent); }
-@utility section-champagne { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-champagne) 70%, transparent), transparent); }
-@utility section-sand      { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-sand) 65%, transparent), transparent); }
-@utility section-sage      { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-sage) 60%, transparent), transparent); }
-@utility section-mist      { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-mist) 60%, transparent), transparent); }
-@utility section-blush     { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-blush) 50%, transparent), transparent); }
-@utility section-pearl     { background: linear-gradient(180deg, color-mix(in oklab, var(--tone-pearl) 80%, transparent), transparent); }
-
 
 
 @utility text-balance {
@@ -501,57 +455,3 @@ body:has(.workshop-detail-page) .grain-bg > [aria-hidden].pointer-events-none.fi
   position: relative;
   z-index: 1;
 }
-
-/* ---------- Light-mode override for the Workshop Detail page ----------
-   The page was originally styled with a neon-midnight (black + cyan) palette.
-   In light mode we neutralise the dark backgrounds, black gradients, and
-   neon accents so it matches the rest of the premium light theme.
-   All rules are scoped to :root (light) .workshop-detail-page — dark mode
-   keeps its original cinematic appearance. */
-:root .workshop-detail-page.workshop-live-backdrop,
-:root .workshop-detail-page .workshop-live-backdrop {
-  background: linear-gradient(180deg, var(--tone-ivory), var(--tone-champagne)) !important;
-  opacity: 1 !important;
-}
-:root .workshop-detail-page {
-  color: var(--foreground);
-}
-:root .workshop-detail-page [class*="bg-black"],
-:root .workshop-detail-page [class*="bg-[#0a0a12]"],
-:root .workshop-detail-page [class*="bg-[#141428]"] {
-  background-color: color-mix(in oklab, var(--card) 92%, transparent) !important;
-}
-:root .workshop-detail-page [class*="from-black"],
-:root .workshop-detail-page [class*="to-black"],
-:root .workshop-detail-page [class*="from-slate-9"],
-:root .workshop-detail-page [class*="via-black"] {
-  --tw-gradient-from: color-mix(in oklab, var(--tone-champagne) 60%, transparent) !important;
-  --tw-gradient-to:   color-mix(in oklab, var(--tone-pearl) 40%, transparent) !important;
-  --tw-gradient-via:  color-mix(in oklab, var(--tone-sand) 40%, transparent) !important;
-  background-image: linear-gradient(180deg,
-    color-mix(in oklab, var(--tone-champagne) 55%, transparent),
-    color-mix(in oklab, var(--tone-pearl) 30%, transparent)) !important;
-}
-/* Preserve legibility overlays that sit on top of hero images */
-:root .workshop-detail-page .absolute[class*="from-black"][class*="to-transparent"] {
-  background-image: linear-gradient(to top,
-    color-mix(in oklab, var(--foreground) 22%, transparent),
-    transparent) !important;
-}
-:root .workshop-detail-page [class*="border-cyan"],
-:root .workshop-detail-page [class*="border-fuchsia"] {
-  border-color: color-mix(in oklab, var(--accent-gold) 55%, var(--border)) !important;
-}
-:root .workshop-detail-page [class*="text-cyan"],
-:root .workshop-detail-page [class*="text-fuchsia"] {
-  color: var(--primary) !important;
-}
-:root .workshop-detail-page [class*="shadow-[0_"] {
-  box-shadow: var(--shadow-soft) !important;
-}
-:root .workshop-detail-page [class*="from-fuchsia"] {
-  background-image: linear-gradient(135deg,
-    color-mix(in oklab, var(--accent-gold) 25%, transparent),
-    color-mix(in oklab, var(--primary) 15%, transparent)) !important;
-}
-
