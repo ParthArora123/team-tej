@@ -441,15 +441,21 @@ function WorkshopDetailPage() {
   const params = Route.useParams();
   const fetchProgram = useServerFn(getProgram);
   const fetchMedia = useServerFn(listWorkshopMedia);
+  const fetchSiteContent = useServerFn(getSiteContent);
 
   const [program, setProgram] = useState<any>(initialProgram ?? null);
   const [media, setMedia] = useState<Media[]>([]);
   const [heroIdx, setHeroIdx] = useState(0);
   const [sel, setSel] = useState<EnrollClass | null>(null);
+  const [contactInfo, setContactInfo] = useState({
+    email: "hello@teamtej.com", phone: "+91 98765 43210", whatsapp: "+91 98765 43210",
+    address: "12 Linking Road, Bandra West, Mumbai 400050",
+  });
 
   useEffect(() => {
     if (!initialProgram) fetchProgram({ data: { id: params.id } }).then(setProgram).catch(() => {});
     fetchMedia({ data: { programId: params.id } }).then((r: any[]) => setMedia(r as Media[])).catch(() => {});
+    fetchSiteContent({ data: { key: "contact" } }).then((v: any) => v && setContactInfo((prev) => ({ ...prev, ...v }))).catch(() => {});
   }, [params.id]);
 
   const heroRef = useRef<HTMLDivElement>(null);
