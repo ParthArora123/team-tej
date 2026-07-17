@@ -460,3 +460,131 @@ body:has(.workshop-detail-page) .grain-bg > [aria-hidden].pointer-events-none.fi
   position: relative;
   z-index: 1;
 }
+
+/* ==========================================================
+   Workshop Detail Page — Mist Blue light-mode reskin.
+   The page uses hardcoded neon/dark utilities (cyan, black,
+   fuchsia). In light mode we remap those to the Mist Blue
+   palette without touching the JSX or any functionality.
+   Dark mode is untouched.
+   ========================================================== */
+
+html:not(.dark) .workshop-detail-page {
+  color: var(--foreground);
+}
+
+/* Living backdrop: swap obsidian for layered mist blue */
+html:not(.dark) .workshop-live-backdrop {
+  background: linear-gradient(180deg,
+    oklch(0.968 0.010 248) 0%,
+    oklch(0.945 0.014 250) 55%,
+    oklch(0.918 0.018 250) 100%) !important;
+}
+html:not(.dark) .workshop-live-backdrop > div[class*="bg-[radial-gradient"],
+html:not(.dark) .workshop-live-backdrop > div[class*="bg-gradient-to-b"] {
+  background: radial-gradient(ellipse at 50% 36%,
+    color-mix(in oklab, var(--primary) 14%, transparent),
+    transparent 60%),
+    linear-gradient(135deg,
+      color-mix(in oklab, var(--surface) 90%, transparent),
+      color-mix(in oklab, var(--card) 88%, transparent) 58%,
+      color-mix(in oklab, var(--accent) 22%, transparent)) !important;
+}
+html:not(.dark) .wlb-particle {
+  background: color-mix(in oklab, var(--primary) 55%, white) !important;
+  box-shadow: 0 0 10px color-mix(in oklab, var(--primary) 45%, transparent) !important;
+}
+html:not(.dark) .wlb-glyph {
+  color: color-mix(in oklab, var(--primary) 70%, transparent) !important;
+}
+
+/* Text color remaps (cyan family -> foreground / primary) */
+html:not(.dark) .workshop-detail-page [class*="text-cyan-50"],
+html:not(.dark) .workshop-detail-page [class*="text-cyan-100"],
+html:not(.dark) .workshop-detail-page [class*="text-cyan-200"] {
+  color: var(--foreground) !important;
+}
+html:not(.dark) .workshop-detail-page [class*="text-cyan-300"],
+html:not(.dark) .workshop-detail-page [class*="text-cyan-400"],
+html:not(.dark) .workshop-detail-page [class*="text-cyan-500"] {
+  color: var(--primary) !important;
+}
+html:not(.dark) .workshop-detail-page [class*="text-cyan-100/"],
+html:not(.dark) .workshop-detail-page [class*="text-cyan-50/"] {
+  color: var(--muted-foreground) !important;
+}
+
+/* Border color remaps */
+html:not(.dark) .workshop-detail-page [class*="border-cyan-400"],
+html:not(.dark) .workshop-detail-page [class*="border-cyan-300"] {
+  border-color: color-mix(in oklab, var(--primary) 35%, var(--border)) !important;
+}
+
+/* Dark-hex backgrounds -> card surfaces */
+html:not(.dark) .workshop-detail-page [class*="bg-[#0a0a12]"],
+html:not(.dark) .workshop-detail-page [class*="bg-[#141428]"],
+html:not(.dark) .workshop-detail-page [class*="bg-black"],
+html:not(.dark) .workshop-detail-page [class*="from-slate-950"],
+html:not(.dark) .workshop-detail-page [class*="to-black"],
+html:not(.dark) .workshop-detail-page [class*="from-black"],
+html:not(.dark) .workshop-detail-page [class*="to-slate-950"] {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Premium glass card treatment for the neon-bordered blocks */
+html:not(.dark) .workshop-detail-page [class*="rounded-3xl"][class*="border-cyan"],
+html:not(.dark) .workshop-detail-page [class*="rounded-2xl"][class*="border-cyan"] {
+  background-color: color-mix(in oklab, var(--card) 92%, transparent) !important;
+  border-color: color-mix(in oklab, var(--primary) 30%, var(--border)) !important;
+  box-shadow: var(--shadow-soft) !important;
+  backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Video / media frames should keep a neutral canvas */
+html:not(.dark) .workshop-detail-page video,
+html:not(.dark) .workshop-detail-page .aspect-video {
+  background-color: color-mix(in oklab, var(--surface) 90%, transparent) !important;
+}
+
+/* Cyan gradient headlines -> royal-blue text */
+html:not(.dark) .workshop-detail-page [class*="bg-clip-text"][class*="text-transparent"] {
+  background-image: linear-gradient(180deg, var(--foreground), var(--primary)) !important;
+  color: transparent !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+/* Countdown / logistic band strips */
+html:not(.dark) .workshop-detail-page section[class*="border-y"][class*="border-cyan"] {
+  background-color: color-mix(in oklab, var(--surface) 80%, transparent) !important;
+  border-color: color-mix(in oklab, var(--primary) 20%, var(--border)) !important;
+}
+
+/* Small pill icons that used cyan tint */
+html:not(.dark) .workshop-detail-page [class*="bg-cyan-400/"] {
+  background-color: color-mix(in oklab, var(--primary) 14%, transparent) !important;
+}
+
+/* Radial-gradient decorative divs -> soft mist blue glow */
+html:not(.dark) .workshop-detail-page div[class*="bg-[radial-gradient"] {
+  background-image: radial-gradient(ellipse at center,
+    color-mix(in oklab, var(--primary) 18%, transparent),
+    transparent 65%) !important;
+}
+
+/* Selection color */
+html:not(.dark) .workshop-detail-page ::selection {
+  background: color-mix(in oklab, var(--primary) 30%, transparent);
+  color: var(--foreground);
+}
+
+/* Fuchsia/amber accents recolor to secondary accent */
+html:not(.dark) .workshop-detail-page [class*="text-fuchsia"],
+html:not(.dark) .workshop-detail-page [class*="text-amber"] {
+  color: var(--accent) !important;
+}
+html:not(.dark) .workshop-detail-page [class*="border-fuchsia"],
+html:not(.dark) .workshop-detail-page [class*="border-amber"] {
+  border-color: color-mix(in oklab, var(--accent) 40%, var(--border)) !important;
+}
