@@ -5,10 +5,12 @@ import {
   Calendar, MapPin, Clock, ChevronDown, Sparkles,
   ArrowLeft,
   Ticket, PlayCircle, User,
+  Mail, Phone, MessageCircle,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getProgram } from "@/lib/catalog.functions";
 import { listWorkshopMedia } from "@/lib/workshop-media.functions";
+import { getSiteContent } from "@/lib/site-content.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 
