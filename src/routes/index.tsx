@@ -625,11 +625,11 @@ function Index() {
                 <Sparkles size={11} className="opacity-80" /> The World of Tejas
               </motion.span>
 
-              <motion.div variants={item} className="mb-8 flex flex-col items-center sm:items-start gap-6">
-                <div className="relative h-60 w-60 sm:h-72 sm:w-72 md:h-80 md:w-80 lg:h-[28rem] lg:w-[28rem] xl:h-[32rem] xl:w-[32rem] rounded-full overflow-hidden ring-[5px] ring-primary/40 shadow-[0_24px_100px_-16px_var(--primary)]">
+              <motion.div variants={item} className="mb-6 flex flex-col items-center sm:items-start gap-5">
+                <div className="relative h-72 w-72 sm:h-96 sm:w-96 md:h-[28rem] md:w-[28rem] lg:h-[36rem] lg:w-[36rem] xl:h-[42rem] xl:w-[42rem] rounded-full overflow-hidden ring-[6px] ring-primary/40 shadow-[0_28px_120px_-20px_var(--primary)]">
                   <div
                     aria-hidden
-                    className="absolute -inset-4 rounded-full blur-2xl opacity-80"
+                    className="absolute -inset-5 rounded-full blur-3xl opacity-90"
                     style={{ background: "conic-gradient(from 180deg, var(--primary), var(--accent-cyan), var(--accent-pink), var(--primary))" }}
                   />
                   <img
@@ -645,7 +645,7 @@ function Index() {
                     {founder.intro}
                   </p>
                 )}
-                <div className="h-px w-full max-w-[14rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
+                <div className="h-px w-full max-w-[16rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
               </motion.div>
 
               <motion.h1
