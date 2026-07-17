@@ -39,51 +39,60 @@
 }
 
 
-/* Light theme — Luxury Atelier: warm ivory, champagne, sage & muted teal with taupe accents */
+/* Light theme — Luxury Atelier v2: layered ivory / champagne / sage / mist blue / blush */
 :root {
   --radius: 0.75rem;
 
-  --background: oklch(0.965 0.012 85);         /* warm ivory */
-  --foreground: oklch(0.22 0.02 55);           /* deep taupe-charcoal */
-  --surface: oklch(0.94 0.016 82);             /* champagne mist */
+  --background: oklch(0.958 0.014 82);
+  --foreground: oklch(0.22 0.02 55);
+  --surface: oklch(0.935 0.018 80);
 
-  --card: oklch(0.975 0.010 85);               /* soft porcelain */
+  --card: oklch(0.982 0.010 85);
   --card-foreground: oklch(0.22 0.02 55);
-  --popover: oklch(0.98 0.008 85);
+  --popover: oklch(0.985 0.008 85);
   --popover-foreground: oklch(0.22 0.02 55);
 
-  --primary: oklch(0.48 0.045 175);            /* muted teal — refined jewel */
-  --primary-foreground: oklch(0.98 0.008 85);
+  --primary: oklch(0.46 0.055 178);
+  --primary-foreground: oklch(0.985 0.008 85);
 
-  --secondary: oklch(0.91 0.018 80);           /* sand */
+  --secondary: oklch(0.905 0.020 78);
   --secondary-foreground: oklch(0.25 0.025 55);
 
-  --muted: oklch(0.92 0.014 82);               /* stone */
-  --muted-foreground: oklch(0.46 0.02 60);     /* muted taupe */
+  --muted: oklch(0.918 0.016 82);
+  --muted-foreground: oklch(0.44 0.022 60);
 
-  --accent: oklch(0.72 0.065 85);              /* champagne gold */
+  --accent: oklch(0.72 0.075 82);
   --accent-foreground: oklch(0.22 0.025 55);
 
   --destructive: oklch(0.52 0.14 28);
   --destructive-foreground: oklch(0.98 0.005 85);
 
-  --border: oklch(0.86 0.014 78);              /* soft taupe hairline */
-  --input: oklch(0.89 0.012 80);
-  --ring: oklch(0.55 0.05 175);
+  --border: oklch(0.84 0.018 76);
+  --input: oklch(0.88 0.014 80);
+  --ring: oklch(0.52 0.055 178);
 
-  --accent-cyan: oklch(0.55 0.055 190);        /* muted teal */
-  --accent-pink: oklch(0.68 0.055 25);         /* dusty terracotta */
-  --accent-blue: oklch(0.48 0.045 220);        /* slate blue */
-  --accent-emerald: oklch(0.52 0.06 155);      /* olive-sage */
-  --accent-gold: oklch(0.74 0.09 85);          /* champagne gold */
+  --accent-cyan: oklch(0.55 0.06 190);
+  --accent-pink: oklch(0.7 0.06 22);
+  --accent-blue: oklch(0.55 0.055 235);
+  --accent-emerald: oklch(0.55 0.065 155);
+  --accent-gold: oklch(0.74 0.095 85);
 
-  --gradient-primary: linear-gradient(135deg, oklch(0.5 0.05 175), oklch(0.74 0.09 85));
-  --gradient-royal: linear-gradient(135deg, oklch(0.48 0.045 175) 0%, oklch(0.52 0.06 155) 50%, oklch(0.74 0.09 85) 100%);
-  --gradient-aurora: linear-gradient(120deg, oklch(0.94 0.02 82), oklch(0.92 0.03 155) 45%, oklch(0.93 0.035 85));
+  /* Layered section tones */
+  --tone-ivory:     oklch(0.965 0.014 82);
+  --tone-champagne: oklch(0.945 0.022 78);
+  --tone-sand:      oklch(0.928 0.028 74);
+  --tone-sage:      oklch(0.938 0.024 150);
+  --tone-mist:      oklch(0.942 0.020 230);
+  --tone-blush:     oklch(0.950 0.020 25);
+  --tone-pearl:     oklch(0.972 0.008 90);
+
+  --gradient-primary: linear-gradient(135deg, oklch(0.48 0.055 178), oklch(0.74 0.095 85));
+  --gradient-royal: linear-gradient(135deg, oklch(0.46 0.055 178) 0%, oklch(0.55 0.065 155) 50%, oklch(0.74 0.095 85) 100%);
+  --gradient-aurora: linear-gradient(120deg, var(--tone-champagne), var(--tone-sage) 45%, var(--tone-blush));
   --gradient-hero:
-    radial-gradient(ellipse 90% 65% at 15% 0%, color-mix(in oklab, var(--accent-gold) 22%, transparent), transparent 62%),
-    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, var(--accent-emerald) 16%, transparent), transparent 65%),
-    radial-gradient(ellipse 80% 60% at 50% 100%, color-mix(in oklab, var(--primary) 12%, transparent), transparent 60%);
+    radial-gradient(ellipse 90% 65% at 15% 0%, color-mix(in oklab, var(--accent-gold) 26%, transparent), transparent 62%),
+    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, var(--accent-emerald) 20%, transparent), transparent 65%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, color-mix(in oklab, var(--primary) 14%, transparent), transparent 60%);
   --shadow-soft:
     0 1px 2px oklch(0.28 0.03 55 / 6%),
     0 12px 36px -14px oklch(0.28 0.03 55 / 14%),
