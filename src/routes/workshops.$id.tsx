@@ -1014,3 +1014,27 @@ function WorkshopDetailPage() {
 
   );
 }
+
+function StickyRegisterButton({ full, onClick }: { full: boolean; onClick: () => void }) {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    const el = document.getElementById("register");
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setHidden(entry.isIntersecting),
+      { threshold: 0.15 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  if (hidden) return null;
+  return (
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 md:bottom-6">
+      <button onClick={onClick} disabled={full}
+        className="px-6 md:px-8 py-3 rounded-full bg-gradient-to-b from-cyan-300 via-cyan-400 to-fuchsia-600 text-black text-xs md:text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(34,211,238,0.5)] disabled:opacity-40">
+        {full ? "Sold Out" : "Register Now"}
+      </button>
+    </div>
+  );
+}
+
