@@ -119,15 +119,12 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
     finally { setBusy(false); }
   };
 
-  return (
-    <AnimatePresence>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md flex items-center justify-center p-4"
-        onClick={onClose}>
-        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
-          onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-card border border-border rounded-2xl p-6 sm:p-8">
-          <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-muted"><X size={18} /></button>
+  const content = (
+    <>
+      {!inline && (
+        <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-muted"><X size={18} /></button>
+      )}
+
 
           {signedIn === null && (
             <div className="py-10 text-center text-sm text-muted-foreground">
