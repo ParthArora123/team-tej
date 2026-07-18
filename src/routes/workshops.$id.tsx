@@ -1007,8 +1007,6 @@ function WorkshopDetailPage() {
         </div>
       </section>
 
-      {/* ==================== STICKY BOOK NOW ==================== */}
-      <StickyRegisterButton full={full} onClick={scrollToRegister} />
 
     </div>
 
