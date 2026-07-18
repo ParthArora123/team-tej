@@ -865,17 +865,24 @@ function WorkshopDetailPage() {
           </div>
 
           {program.silver_seat_enabled && (
-            <motion.div
+            <motion.button
+              type="button"
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
-              className="mt-8 max-w-2xl mx-auto rounded-2xl border border-cyan-400/30 bg-cyan-500/5 p-5 text-center"
+              onClick={() => {
+                scrollToRegister();
+                setTimeout(() => {
+                  window.dispatchEvent(new CustomEvent("enroll:add-silver", { detail: { programId: program.id, which: "w1" } }));
+                }, 400);
+              }}
+              className="mt-8 max-w-2xl mx-auto w-full block rounded-2xl border border-cyan-400/30 bg-cyan-500/5 p-5 text-center hover:border-cyan-400/60 hover:bg-cyan-500/10 transition cursor-pointer"
             >
               <p className="text-xs font-semibold text-cyan-300 flex items-center justify-center gap-2">
                 <Ticket size={14} /> Silver Seat Add-on (+ ₹{silverPrice.toLocaleString("en-IN")})
               </p>
               <p className="mt-1 text-[11px] text-cyan-100/60 leading-relaxed">
-                A professionally shot & edited solo dance video — ready for socials & portfolio.
+                A professionally shot & edited solo dance video — ready for socials & portfolio. <span className="text-cyan-300">Tap to add in the form below ↓</span>
               </p>
-            </motion.div>
+            </motion.button>
           )}
 
           {seatsLeft != null && (
