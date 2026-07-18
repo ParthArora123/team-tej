@@ -120,36 +120,18 @@ function PayUpload() {
       setConfirmed({ ticket });
       setDone(true);
       // Auto-open WhatsApp addressed to the student's registered number with
-      // the confirmation from Tejas D Dhoke — mirrors the wa.me flow used on the
-      // Contact page. Falls back to the business number if the student didn't
-      // provide a phone.
-      const studentNumber = String(enr.phone ?? "").replace(/[^\d]/g, "");
-      const businessNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
-      const waNumber = studentNumber || businessNumber;
-      if (waNumber) {
-        const dateStr = enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "—";
-        const timeStr = enr.program?.event_time || "—";
-        const venueStr = enr.program?.venue || "—";
-        const verifyUrlForWa = ticket && typeof window !== "undefined"
-          ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
-          : "";
-        const qrImageUrl = verifyUrlForWa
-          ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrlForWa)}`
-          : "";
-        const message =
-          `🎉 Hi ${enr.full_name || "there"},\n\n` +
-          `✅ Your payment has been verified.\n` +
-          `✅ Your seat has been confirmed.\n\n` +
-          `Workshop: ${enr.program?.name || "the workshop"}\n` +
-          `Date: ${dateStr}\n` +
-          `Time: ${timeStr}\n` +
-          `Venue: ${venueStr}\n\n` +
-          (ticket ? `🎫 Ticket ID: ${ticket}\n` : "") +
-          (qrImageUrl ? `Your Workshop Entry QR Code (tap to view / save the image):\n${qrImageUrl}\n\n` : "") +
-          `🔍 Present this QR code to the Workshop Manager at the venue — they will scan it during check-in.\n\n` +
-          `Please keep this QR code safe and bring it to the workshop.\n\n` +
-          `– Tejas D Dhoke`;
-        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+      // the admin-configured confirmation template. Sends only once per
+      // successful payment; failures are logged and never block the flow.
+      try {
+        const waUrl = buildWaUrl(enr, ticket, waTemplate, whatsapp);
+        const sentKey = `wa-sent-${enr.id}`;
+        const alreadySent = typeof window !== "undefined" && window.localStorage.getItem(sentKey);
+        if (waUrl && !alreadySent) {
+          window.open(waUrl, "_blank", "noopener,noreferrer");
+          try { window.localStorage.setItem(sentKey, "1"); } catch {}
+        }
+      } catch (waErr) {
+        console.error("[whatsapp] failed to send confirmation", waErr);
       }
     } catch (e: any) {
       // If the DB step failed after upload, clean up so no orphan file lingers.
