@@ -33,7 +33,7 @@ const initial = {
   address: "", city: "", state: "", emergencyContact: "",
 };
 
-export function EnrollDialog({ klass, onClose }: Props) {
+export function EnrollDialog({ klass, onClose, inline = false }: Props) {
   const navigate = useNavigate();
   const create = useServerFn(createEnrollment);
 
