@@ -95,7 +95,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
     };
     window.addEventListener("enroll:add-silver", handler as EventListener);
     return () => window.removeEventListener("enroll:add-silver", handler as EventListener);
-  }, [klass]);
+  }, [klass?.id]);
 
   if (!klass) return null;
 
