@@ -126,6 +126,8 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
       }
       await create({ data: payload });
       setDone(true);
+      onClose();
+      navigate({ to: "/dashboard" });
     } catch (e: any) { setErr(e.message ?? "Failed"); }
     finally { setBusy(false); }
   };
