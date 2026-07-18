@@ -249,11 +249,9 @@ function PayUpload() {
             className="w-full text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium inline-flex items-center justify-center gap-2">
             <WhatsAppIcon size={16} /> I Have Completed My Payment
           </a>
-          <Link to="/dashboard" className="w-full text-center px-5 py-2.5 rounded-lg border border-border text-sm hover:bg-muted transition">
-            Go to dashboard
-          </Link>
         </div>
         <p className="mt-4 text-center text-xs text-muted-foreground">Redirecting to your dashboard…</p>
+
       </div>
     );
   }
