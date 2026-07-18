@@ -165,6 +165,12 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
               <p className="text-xs uppercase tracking-widest text-primary">Registration</p>
               <h3 className="mt-2 text-2xl font-display font-bold">{klass.name}</h3>
               <p className="text-sm text-muted-foreground mt-1">{klass.duration} · ₹{total.toLocaleString("en-IN")}</p>
+              {klass.silverSeatEnabled && silverCount > 0 && (
+                <div className="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground flex items-center justify-between">
+                  <span>Base ₹{basePrice.toLocaleString("en-IN")} + Silver Seat ₹{(silverCount * silverAddon).toLocaleString("en-IN")}</span>
+                  <span className="font-semibold text-primary">= ₹{total.toLocaleString("en-IN")}</span>
+                </div>
+              )}
 
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <Field label="Full name" v={d.fullName} on={(v) => setD({...d, fullName: v})} span2 />
