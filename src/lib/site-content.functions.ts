@@ -49,7 +49,7 @@ export const getSiteContent = createServerFn({ method: "GET" })
 export const adminSaveSiteContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
-    key: z.enum(["contact", "about", "founder"]),
+    key: z.enum(["contact", "about", "founder", "whatsapp_template"]),
     value: z.any(),
   }).parse(i))
   .handler(async ({ data, context }) => {
