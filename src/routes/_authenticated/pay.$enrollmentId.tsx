@@ -52,6 +52,7 @@ function PayUpload() {
   const [done, setDone] = useState(false);
   const [confirmed, setConfirmed] = useState<{ ticket: string | null } | null>(null);
   const [whatsapp, setWhatsapp] = useState("");
+  const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
   const inputRef = useRef<HTMLInputElement>(null);
   
   
