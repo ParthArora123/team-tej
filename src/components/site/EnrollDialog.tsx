@@ -24,7 +24,9 @@ export interface EnrollClass {
 interface Props {
   klass: EnrollClass | null;
   onClose: () => void;
+  inline?: boolean;
 }
+
 
 const initial = {
   fullName: "", email: "", phone: "", gender: "Female",
