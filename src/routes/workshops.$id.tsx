@@ -494,11 +494,27 @@ function WorkshopDetailPage() {
 
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
 
-  const bookNow = () => {
-    if (!program || full) return;
-    setSel({ id: program.id, name: program.name, price: program.price_inr, duration: program.duration ?? "", silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice, allowSingle: (program as any).allow_single !== false, allowBoth: !!(program as any).allow_both, bothPrice: (program as any).both_price ?? null, workshop1Name: (program as any).workshop1_name ?? null, workshop2Name: (program as any).workshop2_name ?? null, eventTime: (program as any).event_time ?? null });
+  const enrollKlass: EnrollClass | null = program ? {
+    id: program.id, name: program.name, price: program.price_inr, duration: program.duration ?? "",
+    silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice,
+    allowSingle: (program as any).allow_single !== false, allowBoth: !!(program as any).allow_both,
+    bothPrice: (program as any).both_price ?? null,
+    workshop1Name: (program as any).workshop1_name ?? null,
+    workshop2Name: (program as any).workshop2_name ?? null,
+    eventTime: (program as any).event_time ?? null,
+  } : null;
+
+  const scrollToRegister = () => {
+    const el = document.getElementById("register");
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    el.classList.remove("register-flash");
+    // reflow to restart animation
+    void el.offsetWidth;
+    el.classList.add("register-flash");
   };
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+
 
   if (!program) {
     return (
@@ -596,7 +612,25 @@ function WorkshopDetailPage() {
               </p>
             )}
 
+            <div className="mt-8 flex flex-wrap gap-4">
+              <button
+                onClick={scrollToRegister}
+                disabled={full}
+                className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-cyan-300 via-cyan-400 to-fuchsia-600 text-black text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(34,211,238,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
+              >
+                <Sparkles size={16} />
+                {full ? "Sold Out" : "Register Now"}
+              </button>
+              <button
+                onClick={() => scrollTo("countdown")}
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-cyan-400/40 text-cyan-100 text-xs font-semibold tracking-widest uppercase hover:bg-cyan-400/10 transition-colors"
+              >
+                View Details
+              </button>
+            </div>
+
           </div>
+
 
           {/* RIGHT column — poster card */}
           <motion.div
@@ -947,15 +981,33 @@ function WorkshopDetailPage() {
         </div>
       </section>
 
+      {/* ==================== INLINE REGISTRATION ==================== */}
+      <section id="register" className="relative py-24 scroll-mt-24">
+        <div className="max-w-6xl mx-auto px-6">
+          <SectionHeader eyebrow="Secure Your Seat" title="Register Now" />
+          <p className="mt-4 text-center text-cyan-100/60 text-sm max-w-xl mx-auto">
+            Fill in your details below. After submission you'll be taken to the secure UPI payment step.
+          </p>
+          <div className="mt-12">
+            {full ? (
+              <div className="max-w-2xl mx-auto text-center rounded-2xl border border-cyan-400/30 bg-black/60 p-10 text-cyan-100/70">
+                This workshop is sold out.
+              </div>
+            ) : (
+              <EnrollDialog klass={enrollKlass} onClose={() => {}} inline />
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ==================== STICKY BOOK NOW ==================== */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 md:bottom-6">
-        <button onClick={bookNow} disabled={full}
+        <button onClick={scrollToRegister} disabled={full}
           className="px-6 md:px-8 py-3 rounded-full bg-gradient-to-b from-cyan-300 via-cyan-400 to-fuchsia-600 text-black text-xs md:text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(34,211,238,0.5)] disabled:opacity-40">
-          {full ? "Sold Out" : "Book Now"}
+          {full ? "Sold Out" : "Register Now"}
         </button>
       </div>
 
-      <EnrollDialog klass={sel} onClose={() => setSel(null)} />
     </div>
   );
 }
