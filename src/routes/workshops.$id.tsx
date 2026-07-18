@@ -1008,11 +1008,8 @@ function WorkshopDetailPage() {
       </section>
 
       {/* ==================== STICKY BOOK NOW ==================== */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 md:bottom-6">
-        <button onClick={scrollToRegister} disabled={full}
-          className="px-6 md:px-8 py-3 rounded-full bg-gradient-to-b from-cyan-300 via-cyan-400 to-fuchsia-600 text-black text-xs md:text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(34,211,238,0.5)] disabled:opacity-40">
-          {full ? "Sold Out" : "Register Now"}
-        </button>
+      <StickyRegisterButton full={full} onClick={scrollToRegister} />
+
       </div>
 
     </div>
