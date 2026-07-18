@@ -282,11 +282,33 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
                 className="mt-5 w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground">Go to payment</button>
             </div>
           )}
+    </>
+  );
+
+  if (inline) {
+    if (!klass) return null;
+    return (
+      <div className="relative w-full max-w-2xl mx-auto bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-xl">
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <AnimatePresence>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md flex items-center justify-center p-4"
+        onClick={onClose}>
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-card border border-border rounded-2xl p-6 sm:p-8">
+          {content}
         </motion.div>
       </motion.div>
     </AnimatePresence>
   );
 }
+
 
 function Field({ label, v, on, type = "text", span2 }: { label: string; v: string; on: (v: string) => void; type?: string; span2?: boolean }) {
   return (
