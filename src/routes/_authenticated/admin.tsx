@@ -26,7 +26,7 @@ import {
 } from "@/lib/content.functions";
 import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/admin/CmsTabs";
 import { MessagesTab } from "@/components/admin/MessagesTab";
-import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab } from "@/components/admin/SiteContentTabs";
+import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab, WhatsappTemplateTab } from "@/components/admin/SiteContentTabs";
 
 import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
 import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
