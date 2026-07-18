@@ -253,9 +253,11 @@ function PayUpload() {
             Go to dashboard
           </Link>
         </div>
+        <p className="mt-4 text-center text-xs text-muted-foreground">Redirecting to your dashboard…</p>
       </div>
     );
   }
+
 
   const canSubmit = !!file && !!validated && !validating && !busy
     && /^[A-Za-z0-9-]{6,64}$/.test(paymentReference.trim());
