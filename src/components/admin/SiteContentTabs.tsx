@@ -637,3 +637,88 @@ export function FounderTab() {
     </form>
   );
 }
+
+// ============ WHATSAPP TEMPLATE TAB ============
+import { DEFAULT_WHATSAPP_TEMPLATE, WHATSAPP_PLACEHOLDERS, renderWhatsappTemplate } from "@/lib/whatsapp-template";
+
+export function WhatsappTemplateTab() {
+  const load = useServerFn(getSiteContent);
+  const save = useServerFn(adminSaveSiteContent);
+  const [template, setTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    load({ data: { key: "whatsapp_template" } }).then((v: any) => {
+      if (v && typeof v.template === "string") setTemplate(v.template);
+    }).catch(() => {});
+  }, []);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await save({ data: { key: "whatsapp_template", value: { template } } });
+      toast.success("WhatsApp template saved");
+    } catch (e: any) { toast.error(e.message ?? "Save failed"); }
+    finally { setBusy(false); }
+  };
+
+  const insert = (name: string) => setTemplate((t) => `${t}${t.endsWith(" ") || t === "" ? "" : " "}{{${name}}}`);
+
+  const preview = renderWhatsappTemplate(template, {
+    StudentName: "Priya Sharma",
+    WorkshopName: "Bollywood Masterclass",
+    RegistrationId: "TT-2026-00042",
+    PaymentStatus: "Verified",
+    WorkshopDate: "Sat, 15 Aug 2026",
+    WorkshopTime: "5:00 PM",
+    Venue: "Team Tej Studio, Mumbai",
+    InstructorName: "Tejas D Dhoke",
+    SupportContact: "+91 98765 43210",
+    CustomInstructions: "Please arrive 15 minutes early.",
+    QRCodeUrl: "https://example.com/verify?code=TT-2026-00042",
+    TicketUrl: "https://example.com/verify?code=TT-2026-00042",
+  });
+
+  return (
+    <form onSubmit={submit} className="mt-8 max-w-3xl space-y-5 p-6 rounded-2xl border border-border bg-card">
+      <div>
+        <p className="font-display text-lg">WhatsApp confirmation message</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Sent to the student's WhatsApp automatically after a successful payment. Use the placeholders below — they'll be replaced with real registration details.
+        </p>
+      </div>
+
+      <div>
+        <label className="text-xs uppercase tracking-widest text-muted-foreground">Available placeholders</label>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {WHATSAPP_PLACEHOLDERS.map((p) => (
+            <button type="button" key={p} onClick={() => insert(p)}
+              className="px-2 py-1 rounded border border-border bg-background text-[11px] font-mono hover:border-primary">
+              {`{{${p}}}`}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="text-xs uppercase tracking-widest text-muted-foreground">Message template</label>
+        <textarea value={template} onChange={(e) => setTemplate(e.target.value)} rows={16}
+          className="mt-2 w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-mono" />
+      </div>
+
+      <div>
+        <label className="text-xs uppercase tracking-widest text-muted-foreground">Preview</label>
+        <pre className="mt-2 whitespace-pre-wrap rounded-lg border border-border bg-background p-3 text-sm">{preview}</pre>
+      </div>
+
+      <div className="flex gap-2">
+        <button disabled={busy} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">
+          {busy ? "Saving…" : "Save template"}
+        </button>
+        <button type="button" onClick={() => setTemplate(DEFAULT_WHATSAPP_TEMPLATE)}
+          className="px-4 py-2 rounded-lg border border-border text-sm">Reset to default</button>
+      </div>
+    </form>
+  );
+}
