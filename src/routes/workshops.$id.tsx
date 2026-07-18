@@ -612,7 +612,25 @@ function WorkshopDetailPage() {
               </p>
             )}
 
+            <div className="mt-8 flex flex-wrap gap-4">
+              <button
+                onClick={scrollToRegister}
+                disabled={full}
+                className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-cyan-300 via-cyan-400 to-fuchsia-600 text-black text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(34,211,238,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
+              >
+                <Sparkles size={16} />
+                {full ? "Sold Out" : "Register Now"}
+              </button>
+              <button
+                onClick={() => scrollTo("countdown")}
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full border border-cyan-400/40 text-cyan-100 text-xs font-semibold tracking-widest uppercase hover:bg-cyan-400/10 transition-colors"
+              >
+                View Details
+              </button>
+            </div>
+
           </div>
+
 
           {/* RIGHT column — poster card */}
           <motion.div
