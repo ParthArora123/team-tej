@@ -64,6 +64,9 @@ function PayUpload() {
     loadSiteContent({ data: { key: "contact" } }).then((v: any) => {
       if (v?.whatsapp) setWhatsapp(String(v.whatsapp));
     }).catch(() => {});
+    loadSiteContent({ data: { key: "whatsapp_template" } }).then((v: any) => {
+      if (v?.template && typeof v.template === "string") setWaTemplate(v.template);
+    }).catch(() => {});
   }, [enrollmentId]);
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
