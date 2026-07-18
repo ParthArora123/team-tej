@@ -79,7 +79,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
       }
       setSignedIn(true);
     });
-  }, [klass]);
+  }, [klass?.id]);
 
   // Allow external triggers (e.g. the "Silver Seat" marketing card on the
   // workshop detail page) to pre-select silver seats when the user clicks
@@ -95,7 +95,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
     };
     window.addEventListener("enroll:add-silver", handler as EventListener);
     return () => window.removeEventListener("enroll:add-silver", handler as EventListener);
-  }, [klass]);
+  }, [klass?.id]);
 
   if (!klass) return null;
 
