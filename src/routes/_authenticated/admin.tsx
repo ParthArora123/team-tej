@@ -54,6 +54,7 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "zero_to_hero", label: "Zero to Hero media", emphasis: true },
   { id: "contact_info", label: "Contact info" },
   { id: "about_page", label: "About page" },
+  { id: "whatsapp_template", label: "WhatsApp message", emphasis: true },
 
   { id: "workshops", label: "Workshops" },
   { id: "workshop_hero", label: "Workshop hero", emphasis: true },
