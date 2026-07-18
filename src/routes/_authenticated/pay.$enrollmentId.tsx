@@ -31,6 +31,40 @@ async function downloadQrPng(containerId: string, filename: string, size = 720) 
   a.click();
 }
 
+function buildWaUrl(
+  enr: any,
+  ticket: string | null,
+  template: string,
+  fallbackWhatsapp: string,
+): string | null {
+  if (!enr) return null;
+  const studentNumber = String(enr.phone ?? "").replace(/[^\d]/g, "");
+  const businessNumber = String(fallbackWhatsapp ?? "").replace(/[^\d]/g, "");
+  const waNumber = studentNumber || businessNumber;
+  if (!waNumber) return null;
+  const verifyUrl = ticket && typeof window !== "undefined"
+    ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
+    : "";
+  const qrImageUrl = verifyUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrl)}`
+    : "";
+  const message = renderWhatsappTemplate(template || DEFAULT_WHATSAPP_TEMPLATE, {
+    StudentName: enr.full_name || "there",
+    WorkshopName: enr.program?.name || "the workshop",
+    RegistrationId: ticket || enr.id || "",
+    PaymentStatus: "Verified",
+    WorkshopDate: enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "",
+    WorkshopTime: enr.program?.event_time || "",
+    Venue: enr.program?.venue || "",
+    InstructorName: "Tejas D Dhoke",
+    SupportContact: fallbackWhatsapp || "",
+    CustomInstructions: "",
+    QRCodeUrl: qrImageUrl,
+    TicketUrl: verifyUrl,
+  });
+  return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+}
+
 export const Route = createFileRoute("/_authenticated/pay/$enrollmentId")({
   component: PayUpload,
 });
