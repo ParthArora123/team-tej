@@ -33,7 +33,7 @@ async function signIfNeeded(url: string | null | undefined): Promise<string | nu
 
 // ============= SITE CONTENT (key/value) =============
 export const getSiteContent = createServerFn({ method: "GET" })
-  .inputValidator((i) => z.object({ key: z.enum(["contact", "about", "founder"]) }).parse(i))
+  .inputValidator((i) => z.object({ key: z.enum(["contact", "about", "founder", "whatsapp_template"]) }).parse(i))
   .handler(async ({ data }) => {
     const { data: row, error } = await (pub() as any)
       .from("site_content").select("value").eq("key", data.key).maybeSingle();
@@ -49,7 +49,7 @@ export const getSiteContent = createServerFn({ method: "GET" })
 export const adminSaveSiteContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
-    key: z.enum(["contact", "about", "founder"]),
+    key: z.enum(["contact", "about", "founder", "whatsapp_template"]),
     value: z.any(),
   }).parse(i))
   .handler(async ({ data, context }) => {

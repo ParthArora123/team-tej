@@ -12,6 +12,7 @@ import {
   sanitizeFileName,
   type ValidatedPaymentProof,
 } from "@/lib/payment-proof-validation";
+import { DEFAULT_WHATSAPP_TEMPLATE, renderWhatsappTemplate } from "@/lib/whatsapp-template";
 
 async function downloadQrPng(containerId: string, filename: string, size = 720) {
   const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
@@ -28,6 +29,40 @@ async function downloadQrPng(containerId: string, filename: string, size = 720) 
   a.href = canvas.toDataURL("image/png");
   a.download = filename;
   a.click();
+}
+
+function buildWaUrl(
+  enr: any,
+  ticket: string | null,
+  template: string,
+  fallbackWhatsapp: string,
+): string | null {
+  if (!enr) return null;
+  const studentNumber = String(enr.phone ?? "").replace(/[^\d]/g, "");
+  const businessNumber = String(fallbackWhatsapp ?? "").replace(/[^\d]/g, "");
+  const waNumber = studentNumber || businessNumber;
+  if (!waNumber) return null;
+  const verifyUrl = ticket && typeof window !== "undefined"
+    ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
+    : "";
+  const qrImageUrl = verifyUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrl)}`
+    : "";
+  const message = renderWhatsappTemplate(template || DEFAULT_WHATSAPP_TEMPLATE, {
+    StudentName: enr.full_name || "there",
+    WorkshopName: enr.program?.name || "the workshop",
+    RegistrationId: ticket || enr.id || "",
+    PaymentStatus: "Verified",
+    WorkshopDate: enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "",
+    WorkshopTime: enr.program?.event_time || "",
+    Venue: enr.program?.venue || "",
+    InstructorName: "Tejas D Dhoke",
+    SupportContact: fallbackWhatsapp || "",
+    CustomInstructions: "",
+    QRCodeUrl: qrImageUrl,
+    TicketUrl: verifyUrl,
+  });
+  return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
 }
 
 export const Route = createFileRoute("/_authenticated/pay/$enrollmentId")({
@@ -51,6 +86,7 @@ function PayUpload() {
   const [done, setDone] = useState(false);
   const [confirmed, setConfirmed] = useState<{ ticket: string | null } | null>(null);
   const [whatsapp, setWhatsapp] = useState("");
+  const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
   const inputRef = useRef<HTMLInputElement>(null);
   
   
@@ -61,6 +97,9 @@ function PayUpload() {
     });
     loadSiteContent({ data: { key: "contact" } }).then((v: any) => {
       if (v?.whatsapp) setWhatsapp(String(v.whatsapp));
+    }).catch(() => {});
+    loadSiteContent({ data: { key: "whatsapp_template" } }).then((v: any) => {
+      if (v?.template && typeof v.template === "string") setWaTemplate(v.template);
     }).catch(() => {});
   }, [enrollmentId]);
 
@@ -115,36 +154,18 @@ function PayUpload() {
       setConfirmed({ ticket });
       setDone(true);
       // Auto-open WhatsApp addressed to the student's registered number with
-      // the confirmation from Tejas D Dhoke — mirrors the wa.me flow used on the
-      // Contact page. Falls back to the business number if the student didn't
-      // provide a phone.
-      const studentNumber = String(enr.phone ?? "").replace(/[^\d]/g, "");
-      const businessNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
-      const waNumber = studentNumber || businessNumber;
-      if (waNumber) {
-        const dateStr = enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "—";
-        const timeStr = enr.program?.event_time || "—";
-        const venueStr = enr.program?.venue || "—";
-        const verifyUrlForWa = ticket && typeof window !== "undefined"
-          ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
-          : "";
-        const qrImageUrl = verifyUrlForWa
-          ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrlForWa)}`
-          : "";
-        const message =
-          `🎉 Hi ${enr.full_name || "there"},\n\n` +
-          `✅ Your payment has been verified.\n` +
-          `✅ Your seat has been confirmed.\n\n` +
-          `Workshop: ${enr.program?.name || "the workshop"}\n` +
-          `Date: ${dateStr}\n` +
-          `Time: ${timeStr}\n` +
-          `Venue: ${venueStr}\n\n` +
-          (ticket ? `🎫 Ticket ID: ${ticket}\n` : "") +
-          (qrImageUrl ? `Your Workshop Entry QR Code (tap to view / save the image):\n${qrImageUrl}\n\n` : "") +
-          `🔍 Present this QR code to the Workshop Manager at the venue — they will scan it during check-in.\n\n` +
-          `Please keep this QR code safe and bring it to the workshop.\n\n` +
-          `– Tejas D Dhoke`;
-        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+      // the admin-configured confirmation template. Sends only once per
+      // successful payment; failures are logged and never block the flow.
+      try {
+        const waUrl = buildWaUrl(enr, ticket, waTemplate, whatsapp);
+        const sentKey = `wa-sent-${enr.id}`;
+        const alreadySent = typeof window !== "undefined" && window.localStorage.getItem(sentKey);
+        if (waUrl && !alreadySent) {
+          window.open(waUrl, "_blank", "noopener,noreferrer");
+          try { window.localStorage.setItem(sentKey, "1"); } catch {}
+        }
+      } catch (waErr) {
+        console.error("[whatsapp] failed to send confirmation", waErr);
       }
     } catch (e: any) {
       // If the DB step failed after upload, clean up so no orphan file lingers.
@@ -218,32 +239,7 @@ function PayUpload() {
 
         <div className="mt-6 flex flex-col gap-3">
           <a
-            href={(() => {
-              const studentNumber = String(enr?.phone ?? "").replace(/[^\d]/g, "");
-              const businessNumber = String(whatsapp ?? "").replace(/[^\d]/g, "");
-              const waNumber = studentNumber || businessNumber;
-              if (!waNumber || !enr) return undefined;
-              const dateStr = enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "—";
-              const timeStr = enr.program?.event_time || "—";
-              const venueStr = enr.program?.venue || "—";
-              const qrImageUrl = ticket && verifyUrl
-                ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrl)}`
-                : "";
-              const message =
-                `🎉 Hi ${enr.full_name || "there"},\n\n` +
-                `✅ Your payment has been verified.\n` +
-                `✅ Your seat has been confirmed.\n\n` +
-                `Workshop: ${enr.program?.name || "the workshop"}\n` +
-                `Date: ${dateStr}\n` +
-                `Time: ${timeStr}\n` +
-                `Venue: ${venueStr}\n\n` +
-                (ticket ? `🎫 Ticket ID: ${ticket}\n` : "") +
-                (qrImageUrl ? `Your Workshop Entry QR Code (tap to view / save the image):\n${qrImageUrl}\n\n` : "") +
-                `🔍 Present this QR code to the Workshop Manager at the venue — they will scan it during check-in.\n\n` +
-                `Please keep this QR code safe and bring it to the workshop.\n\n` +
-                `– Tejas D Dhoke`;
-              return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
-            })()}
+            href={buildWaUrl(enr, ticket, waTemplate, whatsapp) ?? undefined}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium inline-flex items-center justify-center gap-2">

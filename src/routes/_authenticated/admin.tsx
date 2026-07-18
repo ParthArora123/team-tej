@@ -26,7 +26,7 @@ import {
 } from "@/lib/content.functions";
 import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/admin/CmsTabs";
 import { MessagesTab } from "@/components/admin/MessagesTab";
-import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab } from "@/components/admin/SiteContentTabs";
+import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab, WhatsappTemplateTab } from "@/components/admin/SiteContentTabs";
 
 import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
 import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
@@ -38,7 +38,7 @@ import { compressImageFile } from "@/lib/compress-image";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero";
+type Tab = "overview" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero" | "whatsapp_template";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
@@ -54,6 +54,7 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "zero_to_hero", label: "Zero to Hero media", emphasis: true },
   { id: "contact_info", label: "Contact info" },
   { id: "about_page", label: "About page" },
+  { id: "whatsapp_template", label: "WhatsApp message", emphasis: true },
 
   { id: "workshops", label: "Workshops" },
   { id: "workshop_hero", label: "Workshop hero", emphasis: true },
@@ -168,6 +169,8 @@ function AdminPage() {
       {tab === "choreographies" && <ChoreographiesTab />}
 
       {tab === "founder" && <FounderTab />}
+
+      {tab === "whatsapp_template" && <WhatsappTemplateTab />}
 
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
