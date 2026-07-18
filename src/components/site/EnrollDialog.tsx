@@ -69,11 +69,6 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
         if (data.user.email) setD((s) => ({ ...s, email: data.user!.email! }));
         return;
       }
-      // No signup required to register — create a lightweight anonymous
-      // session in the background so the existing auth-gated enrollment
-      // + payment flow (RLS, dashboard, ticket generation) keeps working
-      // untouched. Users can later add an email/password to their
-      // account from the dashboard if they want to log in elsewhere.
       const { data: anon, error } = await supabase.auth.signInAnonymously();
       if (error || !anon.user) {
         setAuthError(
@@ -84,6 +79,22 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
       }
       setSignedIn(true);
     });
+  }, [klass]);
+
+  // Allow external triggers (e.g. the "Silver Seat" marketing card on the
+  // workshop detail page) to pre-select silver seats when the user clicks
+  // an "Add Silver Seat" affordance outside the form.
+  useEffect(() => {
+    if (!klass) return;
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ programId?: string; which?: "w1" | "w2" | "both" }>).detail || {};
+      if (detail.programId && detail.programId !== klass.id) return;
+      if (detail.which === "w2") setSilverW2(true);
+      else if (detail.which === "both") { setSilverW1(true); setSilverW2(true); }
+      else setSilverW1(true);
+    };
+    window.addEventListener("enroll:add-silver", handler as EventListener);
+    return () => window.removeEventListener("enroll:add-silver", handler as EventListener);
   }, [klass]);
 
   if (!klass) return null;
