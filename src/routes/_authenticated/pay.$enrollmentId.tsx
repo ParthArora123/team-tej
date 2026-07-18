@@ -157,6 +157,12 @@ function PayUpload() {
     }
   };
 
+  useEffect(() => {
+    if (!done) return;
+    const t = setTimeout(() => { navigate({ to: "/dashboard" }); }, 2500);
+    return () => clearTimeout(t);
+  }, [done, navigate]);
+
   if (done) {
     const ticket = confirmed?.ticket ?? enr?.ticket_code ?? null;
     const verifyUrl = typeof window !== "undefined" && ticket
