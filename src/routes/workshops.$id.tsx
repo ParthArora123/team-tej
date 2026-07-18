@@ -963,15 +963,33 @@ function WorkshopDetailPage() {
         </div>
       </section>
 
+      {/* ==================== INLINE REGISTRATION ==================== */}
+      <section id="register" className="relative py-24 scroll-mt-24">
+        <div className="max-w-6xl mx-auto px-6">
+          <SectionHeader eyebrow="Secure Your Seat" title="Register Now" />
+          <p className="mt-4 text-center text-cyan-100/60 text-sm max-w-xl mx-auto">
+            Fill in your details below. After submission you'll be taken to the secure UPI payment step.
+          </p>
+          <div className="mt-12">
+            {full ? (
+              <div className="max-w-2xl mx-auto text-center rounded-2xl border border-cyan-400/30 bg-black/60 p-10 text-cyan-100/70">
+                This workshop is sold out.
+              </div>
+            ) : (
+              <EnrollDialog klass={enrollKlass} onClose={() => {}} inline />
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ==================== STICKY BOOK NOW ==================== */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 md:bottom-6">
-        <button onClick={bookNow} disabled={full}
+        <button onClick={scrollToRegister} disabled={full}
           className="px-6 md:px-8 py-3 rounded-full bg-gradient-to-b from-cyan-300 via-cyan-400 to-fuchsia-600 text-black text-xs md:text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(34,211,238,0.5)] disabled:opacity-40">
-          {full ? "Sold Out" : "Book Now"}
+          {full ? "Sold Out" : "Register Now"}
         </button>
       </div>
 
-      <EnrollDialog klass={sel} onClose={() => setSel(null)} />
     </div>
   );
 }
