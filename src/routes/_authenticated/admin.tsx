@@ -170,6 +170,8 @@ function AdminPage() {
 
       {tab === "founder" && <FounderTab />}
 
+      {tab === "whatsapp_template" && <WhatsappTemplateTab />}
+
       {tab === "scan" && <ScanTab onScan={scan} />}
     </div>
   );
