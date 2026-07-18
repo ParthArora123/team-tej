@@ -12,6 +12,7 @@ import {
   sanitizeFileName,
   type ValidatedPaymentProof,
 } from "@/lib/payment-proof-validation";
+import { DEFAULT_WHATSAPP_TEMPLATE, renderWhatsappTemplate } from "@/lib/whatsapp-template";
 
 async function downloadQrPng(containerId: string, filename: string, size = 720) {
   const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
