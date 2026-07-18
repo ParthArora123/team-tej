@@ -69,11 +69,6 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
         if (data.user.email) setD((s) => ({ ...s, email: data.user!.email! }));
         return;
       }
-      // No signup required to register — create a lightweight anonymous
-      // session in the background so the existing auth-gated enrollment
-      // + payment flow (RLS, dashboard, ticket generation) keeps working
-      // untouched. Users can later add an email/password to their
-      // account from the dashboard if they want to log in elsewhere.
       const { data: anon, error } = await supabase.auth.signInAnonymously();
       if (error || !anon.user) {
         setAuthError(
@@ -84,6 +79,22 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
       }
       setSignedIn(true);
     });
+  }, [klass]);
+
+  // Allow external triggers (e.g. the "Silver Seat" marketing card on the
+  // workshop detail page) to pre-select silver seats when the user clicks
+  // an "Add Silver Seat" affordance outside the form.
+  useEffect(() => {
+    if (!klass) return;
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ programId?: string; which?: "w1" | "w2" | "both" }>).detail || {};
+      if (detail.programId && detail.programId !== klass.id) return;
+      if (detail.which === "w2") setSilverW2(true);
+      else if (detail.which === "both") { setSilverW1(true); setSilverW2(true); }
+      else setSilverW1(true);
+    };
+    window.addEventListener("enroll:add-silver", handler as EventListener);
+    return () => window.removeEventListener("enroll:add-silver", handler as EventListener);
   }, [klass]);
 
   if (!klass) return null;
@@ -154,6 +165,12 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
               <p className="text-xs uppercase tracking-widest text-primary">Registration</p>
               <h3 className="mt-2 text-2xl font-display font-bold">{klass.name}</h3>
               <p className="text-sm text-muted-foreground mt-1">{klass.duration} · ₹{total.toLocaleString("en-IN")}</p>
+              {klass.silverSeatEnabled && silverCount > 0 && (
+                <div className="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground flex items-center justify-between">
+                  <span>Base ₹{basePrice.toLocaleString("en-IN")} + Silver Seat ₹{(silverCount * silverAddon).toLocaleString("en-IN")}</span>
+                  <span className="font-semibold text-primary">= ₹{total.toLocaleString("en-IN")}</span>
+                </div>
+              )}
 
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <Field label="Full name" v={d.fullName} on={(v) => setD({...d, fullName: v})} span2 />
