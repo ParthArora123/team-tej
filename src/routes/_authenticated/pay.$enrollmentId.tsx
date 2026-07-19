@@ -153,16 +153,18 @@ function PayUpload() {
       const ticket = (result as any)?.ticketCode ?? enr.ticket_code ?? null;
       setConfirmed({ ticket });
       setDone(true);
-      // Auto-open WhatsApp addressed to the student's registered number with
-      // the admin-configured confirmation template. Sends only once per
-      // successful payment; failures are logged and never block the flow.
+      // Redirect to WhatsApp addressed to the student's registered number with
+      // the admin-configured confirmation template. Uses same-tab navigation
+      // so it isn't blocked as a popup after the async upload. Runs only once
+      // per successful payment; failures are logged and never break the flow.
       try {
         const waUrl = buildWaUrl(enr, ticket, waTemplate, whatsapp);
         const sentKey = `wa-sent-${enr.id}`;
         const alreadySent = typeof window !== "undefined" && window.localStorage.getItem(sentKey);
-        if (waUrl && !alreadySent) {
-          window.open(waUrl, "_blank", "noopener,noreferrer");
+        if (waUrl && !alreadySent && typeof window !== "undefined") {
           try { window.localStorage.setItem(sentKey, "1"); } catch {}
+          // Small delay so the success UI renders before the browser hands off to WhatsApp.
+          setTimeout(() => { window.location.href = waUrl; }, 600);
         }
       } catch (waErr) {
         console.error("[whatsapp] failed to send confirmation", waErr);
