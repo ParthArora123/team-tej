@@ -990,7 +990,7 @@ export type Database = {
         Insert: {
           allow_both?: boolean | null
           allow_single?: boolean | null
-          bank_account_holder?: string | null
+          bank_account_holder?: never
           banner_gif_path?: string | null
           banner_path?: string | null
           banner_url?: string | null
@@ -1024,7 +1024,7 @@ export type Database = {
         Update: {
           allow_both?: boolean | null
           allow_single?: boolean | null
-          bank_account_holder?: string | null
+          bank_account_holder?: never
           banner_gif_path?: string | null
           banner_path?: string | null
           banner_url?: string | null
