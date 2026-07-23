@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
 import { toast, Toaster } from "sonner";
 import { CalendarDays, Clock, ImageUp, Sparkles, Upload, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -84,15 +85,56 @@ function AdminPage() {
   const [stats, setStats] = useState<any>(null);
   const [enrs, setEnrs] = useState<any[]>([]);
   const [workshops, setWorkshops] = useState<any[]>([]);
+  const [access, setAccess] = useState<"checking" | "granted" | "denied">("checking");
 
-  useEffect(() => {
-    adminCheck().then((r) => { if (!r.isAdmin) navigate({ to: "/dashboard" }); else reload(); });
-  }, []);
   const reload = async () => {
     setStats(await fetchStats());
     setEnrs(await fetchAll());
     setWorkshops(await fetchWorkshops());
   };
+
+  useEffect(() => {
+    (async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData.user as any;
+      if (!user || user.is_anonymous) { setAccess("denied"); return; }
+      try {
+        const r = await adminCheck();
+        if (!r.isAdmin) { setAccess("denied"); return; }
+        setAccess("granted");
+        reload();
+      } catch { setAccess("denied"); }
+    })();
+  }, []);
+
+  if (access === "checking") {
+    return (
+      <div className="min-h-screen pt-24 pb-16 px-6 max-w-4xl mx-auto text-sm text-muted-foreground">
+        Verifying access…
+      </div>
+    );
+  }
+  if (access === "denied") {
+    return (
+      <div className="min-h-screen pt-24 pb-16 px-6 max-w-lg mx-auto text-center">
+        <p className="text-xs uppercase tracking-widest text-destructive">Access denied</p>
+        <h1 className="mt-2 font-display text-3xl font-bold">Admin only</h1>
+        <p className="mt-3 text-sm text-muted-foreground">
+          This area is restricted to admin accounts.
+        </p>
+        <div className="mt-6 flex gap-3 justify-center">
+          <button onClick={() => navigate({ to: "/dashboard" })}
+            className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+            Go to my dashboard
+          </button>
+          <button onClick={() => navigate({ to: "/" })}
+            className="px-4 py-2 rounded-full border border-border text-sm font-medium">
+            Back home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-6xl mx-auto">
