@@ -1,69 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Upload, ArrowLeft, Check, Ticket, Download } from "lucide-react";
+import { Upload, ArrowLeft, Clock } from "lucide-react";
 import { WhatsAppIcon } from "@/components/site/WhatsAppIcon";
-import { QRCodeCanvas } from "qrcode.react";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, markPaymentSubmitted } from "@/lib/enrollment.functions";
-import { getSiteContent } from "@/lib/site-content.functions";
 import { supabase } from "@/integrations/supabase/client";
 import {
   validatePaymentProofFile,
   sanitizeFileName,
   type ValidatedPaymentProof,
 } from "@/lib/payment-proof-validation";
-import { DEFAULT_WHATSAPP_TEMPLATE, renderWhatsappTemplate } from "@/lib/whatsapp-template";
-
-async function downloadQrPng(containerId: string, filename: string, size = 720) {
-  const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
-  if (!sourceCanvas) return;
-  const padding = Math.round(size * 0.08);
-  const qrSize = size - padding * 2;
-  const canvas = document.createElement("canvas");
-  canvas.width = size; canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, size, size);
-  ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(sourceCanvas, padding, padding, qrSize, qrSize);
-  const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/png");
-  a.download = filename;
-  a.click();
-}
-
-function buildWaUrl(
-  enr: any,
-  ticket: string | null,
-  template: string,
-  fallbackWhatsapp: string,
-): string | null {
-  if (!enr) return null;
-  const studentNumber = String(enr.phone ?? "").replace(/[^\d]/g, "");
-  const businessNumber = String(fallbackWhatsapp ?? "").replace(/[^\d]/g, "");
-  const waNumber = studentNumber || businessNumber;
-  if (!waNumber) return null;
-  const verifyUrl = ticket && typeof window !== "undefined"
-    ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
-    : "";
-  const qrImageUrl = verifyUrl
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrl)}`
-    : "";
-  const message = renderWhatsappTemplate(template || DEFAULT_WHATSAPP_TEMPLATE, {
-    StudentName: enr.full_name || "there",
-    WorkshopName: enr.program?.name || "the workshop",
-    RegistrationId: ticket || enr.id || "",
-    PaymentStatus: "Verified",
-    WorkshopDate: enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "",
-    WorkshopTime: enr.program?.event_time || "",
-    Venue: enr.program?.venue || "",
-    InstructorName: "Tejas D Dhoke",
-    SupportContact: fallbackWhatsapp || "",
-    CustomInstructions: "",
-    QRCodeUrl: qrImageUrl,
-    TicketUrl: verifyUrl,
-  });
-  return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
-}
 
 export const Route = createFileRoute("/_authenticated/pay/$enrollmentId")({
   component: PayUpload,
@@ -74,7 +20,6 @@ function PayUpload() {
   const navigate = useNavigate();
   const fetchEnrollments = useServerFn(listMyEnrollments);
   const submitPay = useServerFn(markPaymentSubmitted);
-  const loadSiteContent = useServerFn(getSiteContent);
   const [enr, setEnr] = useState<any>(null);
   const [file, setFile] = useState<File | null>(null);
   const [paymentReference, setPaymentReference] = useState("");
@@ -84,23 +29,12 @@ function PayUpload() {
   const [validating, setValidating] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
-  const [confirmed, setConfirmed] = useState<{ ticket: string | null } | null>(null);
-  const [whatsapp, setWhatsapp] = useState("");
-  const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
   const inputRef = useRef<HTMLInputElement>(null);
-  
-  
 
   useEffect(() => {
     fetchEnrollments().then((rows: any[]) => {
       setEnr(rows.find((r) => r.id === enrollmentId) ?? null);
     });
-    loadSiteContent({ data: { key: "contact" } }).then((v: any) => {
-      if (v?.whatsapp) setWhatsapp(String(v.whatsapp));
-    }).catch(() => {});
-    loadSiteContent({ data: { key: "whatsapp_template" } }).then((v: any) => {
-      if (v?.template && typeof v.template === "string") setWaTemplate(v.template);
-    }).catch(() => {});
   }, [enrollmentId]);
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
@@ -149,26 +83,12 @@ function PayUpload() {
       });
       if (up.error) throw new Error(`Upload failed: ${up.error.message}. Please check your connection and try again.`);
       uploadedPath = path;
-      const result = await submitPay({ data: { enrollmentId: enr.id, proofPath: path, paymentReference: ref } });
-      const ticket = (result as any)?.ticketCode ?? enr.ticket_code ?? null;
-      setConfirmed({ ticket });
+      await submitPay({ data: { enrollmentId: enr.id, proofPath: path, paymentReference: ref } });
+      // No ticket yet and no WhatsApp message here — the registration is now
+      // Pending Admin Approval. The confirmation WhatsApp message (with the
+      // ticket/QR details) is only sent once an admin approves the payment
+      // from the admin dashboard.
       setDone(true);
-      // Redirect to WhatsApp addressed to the student's registered number with
-      // the admin-configured confirmation template. Uses same-tab navigation
-      // so it isn't blocked as a popup after the async upload. Runs only once
-      // per successful payment; failures are logged and never break the flow.
-      try {
-        const waUrl = buildWaUrl(enr, ticket, waTemplate, whatsapp);
-        const sentKey = `wa-sent-${enr.id}`;
-        const alreadySent = typeof window !== "undefined" && window.localStorage.getItem(sentKey);
-        if (waUrl && !alreadySent && typeof window !== "undefined") {
-          try { window.localStorage.setItem(sentKey, "1"); } catch {}
-          // Small delay so the success UI renders before the browser hands off to WhatsApp.
-          setTimeout(() => { window.location.href = waUrl; }, 600);
-        }
-      } catch (waErr) {
-        console.error("[whatsapp] failed to send confirmation", waErr);
-      }
     } catch (e: any) {
       // If the DB step failed after upload, clean up so no orphan file lingers.
       if (uploadedPath) {
@@ -187,19 +107,15 @@ function PayUpload() {
   }, [done, navigate]);
 
   if (done) {
-    const ticket = confirmed?.ticket ?? enr?.ticket_code ?? null;
-    const verifyUrl = typeof window !== "undefined" && ticket
-      ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
-      : "";
     return (
       <div className="min-h-screen pt-24 pb-16 px-6 max-w-xl mx-auto">
         <div className="text-center">
-          <div className="mx-auto h-14 w-14 rounded-full bg-emerald-500/15 flex items-center justify-center">
-            <Check className="text-emerald-500" size={28} />
+          <div className="mx-auto h-14 w-14 rounded-full bg-blue-500/15 flex items-center justify-center">
+            <Clock className="text-blue-400" size={28} />
           </div>
-          <h1 className="mt-4 font-display text-3xl font-bold">Registration Successful</h1>
+          <h1 className="mt-4 font-display text-3xl font-bold">Pending Admin Approval</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Your payment has been verified and your workshop registration is confirmed.
+            Thanks! Admin will verify your payment and your ticket will appear here once approved.
           </p>
         </div>
 
@@ -213,43 +129,10 @@ function PayUpload() {
               {enr.program?.duration && <p>⏱ {enr.program.duration}</p>}
               <p>💰 ₹{(enr.amount_inr ?? 0).toLocaleString("en-IN")}{enr.silver_seat ? " · includes Silver Seat" : ""}</p>
             </div>
-            <div className="mt-4 pt-4 border-t border-border">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration / Ticket ID</p>
-              <p className="mt-1 font-mono text-lg flex items-center gap-2">
-                <Ticket size={18} className="text-primary" /> {ticket || enr.id}
-              </p>
-            </div>
           </div>
         )}
 
-        {ticket && verifyUrl && (
-          <div className="mt-6 rounded-2xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5">
-            <p className="text-xs uppercase tracking-widest text-primary text-center">Generated QR Code</p>
-            <div className="mt-4 flex flex-col items-center justify-center gap-3">
-              <div id="ticket-qr-success" className="bg-white p-3 rounded-lg flex items-center justify-center w-full max-w-[220px]">
-                <QRCodeCanvas value={verifyUrl} size={200} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" className="w-full h-auto" />
-              </div>
-              <button
-                type="button"
-                onClick={() => downloadQrPng("ticket-qr-success", `ticket-${ticket}.png`)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
-                <Download size={12} /> Download QR
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-6 flex flex-col gap-3">
-          <a
-            href={buildWaUrl(enr, ticket, waTemplate, whatsapp) ?? undefined}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium inline-flex items-center justify-center gap-2">
-            <WhatsAppIcon size={16} /> I Have Completed My Payment
-          </a>
-        </div>
         <p className="mt-4 text-center text-xs text-muted-foreground">Redirecting to your dashboard…</p>
-
       </div>
     );
   }
@@ -264,6 +147,11 @@ function PayUpload() {
         <ArrowLeft size={14} /> Back to dashboard
       </Link>
       <h1 className="font-display text-3xl font-bold mt-4">Upload payment screenshot</h1>
+      {enr?.status === "rejected" && (
+        <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+          Your previous payment couldn't be verified and was rejected. Please double-check your payment and resubmit the screenshot and UPI reference ID below.
+        </div>
+      )}
       {enr && (
         <>
           <p className="mt-2 text-sm text-muted-foreground">
