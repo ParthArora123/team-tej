@@ -109,8 +109,10 @@ export const createEnrollment = createServerFn({ method: "POST" })
 // After a student uploads a payment screenshot to the `payment-proofs` storage
 // bucket, this validates the file with pure code (magic-byte MIME check,
 // SHA256 hash for duplicate detection, user-supplied UTR uniqueness) and,
-// once it passes those checks, confirms the enrollment and issues the ticket
-// immediately — there is no admin approval step in between.
+// once it passes those checks, moves the registration to
+// "payment_submitted" (Pending Admin Approval). The ticket is NOT issued and
+// no WhatsApp message is sent here — an admin must review the screenshot in
+// the admin dashboard and Approve or Reject it (see `approveEnrollment`).
 // No AI / LLM is involved in payment validation.
 export const markPaymentSubmitted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -171,35 +173,20 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       throw new Error("This UPI Reference ID has already been used. Please verify your payment details.");
     }
 
-    const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
-    let ticket = genCode();
-    for (let i = 0; i < 5; i++) {
-      const { data: dup } = await supabaseAdmin
-        .from("enrollments").select("id").eq("ticket_code", ticket).maybeSingle();
-      if (!dup) break;
-      ticket = genCode();
-    }
-    const now = new Date().toISOString();
-
     const { error: upErr } = await supabaseAdmin
       .from("enrollments").update({
-        status: "confirmed",
+        status: "payment_submitted",
         payment_proof_path: data.proofPath,
         payment_proof_sha256: validated.sha256,
         payment_reference: ref,
-        ticket_code: ticket,
-        ticket_generated_at: now,
-        approved_at: now,
+        payment_confirmed_at: new Date().toISOString(),
       })
       .eq("id", existing.id);
     if (upErr) throw upErr;
 
-    if (existing.program_id) {
-      const { data: p } = await supabaseAdmin.from("programs").select("seats_taken").eq("id", existing.program_id).single();
-      await supabaseAdmin.from("programs").update({ seats_taken: (p?.seats_taken ?? 0) + 1 }).eq("id", existing.program_id);
-    }
-
-    return { ok: true, submitted: true, confirmed: true, ticketCode: ticket };
+    // No ticket, no seat increment, and no WhatsApp message here — those all
+    // happen once an admin approves the payment from the admin dashboard.
+    return { ok: true, submitted: true, pending: true };
   });
 
 
@@ -274,12 +261,16 @@ export const approveEnrollment = createServerFn({ method: "POST" })
         status: "confirmed", ticket_code: ticket,
         approved_by: context.userId, approved_at: now,
         ticket_generated_at: now,
-      }).eq("id", data.enrollmentId).select("program_id").single();
+      }).eq("id", data.enrollmentId).select("*, program:programs(*)").single();
       if (error) throw error;
       if (enr?.program_id) {
         const { data: p } = await supabaseAdmin.from("programs").select("seats_taken").eq("id", enr.program_id).single();
         await supabaseAdmin.from("programs").update({ seats_taken: (p?.seats_taken ?? 0) + 1 }).eq("id", enr.program_id);
       }
+      // Return the confirmed enrollment (with ticket + program details) so the
+      // caller can build and trigger the WhatsApp confirmation message, which
+      // is only ever sent after admin approval — never at submission time.
+      return { ok: true, enrollment: enr, ticketCode: ticket };
     } else {
       const { error } = await supabaseAdmin.from("enrollments").update({
         status: "rejected", approved_by: context.userId, approved_at: new Date().toISOString(),
