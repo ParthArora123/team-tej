@@ -60,3 +60,40 @@ export function renderWhatsappTemplate(
     .join("\n")
     .trim();
 }
+
+// Builds the wa.me deep link addressed to the registered student's mobile
+// number, pre-filled with the admin-configured confirmation template and the
+// registration/ticket details. Used once a registration has been approved.
+export function buildWaUrl(
+  enr: any,
+  ticket: string | null,
+  template: string,
+  fallbackWhatsapp: string,
+): string | null {
+  if (!enr) return null;
+  const studentNumber = String(enr.phone ?? "").replace(/[^\d]/g, "");
+  const businessNumber = String(fallbackWhatsapp ?? "").replace(/[^\d]/g, "");
+  const waNumber = studentNumber || businessNumber;
+  if (!waNumber) return null;
+  const verifyUrl = ticket && typeof window !== "undefined"
+    ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
+    : "";
+  const qrImageUrl = verifyUrl
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrl)}`
+    : "";
+  const message = renderWhatsappTemplate(template || DEFAULT_WHATSAPP_TEMPLATE, {
+    StudentName: enr.full_name || "there",
+    WorkshopName: enr.program?.name || "the workshop",
+    RegistrationId: ticket || enr.id || "",
+    PaymentStatus: "Verified",
+    WorkshopDate: enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "",
+    WorkshopTime: enr.program?.event_time || "",
+    Venue: enr.program?.venue || "",
+    InstructorName: "Tejas D Dhoke",
+    SupportContact: fallbackWhatsapp || "",
+    CustomInstructions: "",
+    QRCodeUrl: qrImageUrl,
+    TicketUrl: verifyUrl,
+  });
+  return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
+}
