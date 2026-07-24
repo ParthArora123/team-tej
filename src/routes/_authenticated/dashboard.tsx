@@ -4,7 +4,77 @@ import { motion } from "motion/react";
 import { QRCodeCanvas } from "qrcode.react";
 import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Download } from "lucide-react";
 
+// Minimal typing for the Web Share API (not always present in TS's default
+// lib.dom, and only partially supported across browsers).
+type ShareCapableNavigator = Navigator & {
+  canShare?: (data: { files: File[] }) => boolean;
+  share?: (data: { files: File[]; title?: string }) => Promise<void>;
+};
+
+function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    if (canvas.toBlob) {
+      canvas.toBlob((blob) => resolve(blob), "image/png");
+      return;
+    }
+    // Fallback for the rare browser without canvas.toBlob support: decode
+    // the base64 data-URL into real binary bytes ourselves rather than
+    // handing the raw data-URL string to the anchor (that raw-string
+    // approach is what produces corrupted/unsupported files).
+    try {
+      const dataUrl = canvas.toDataURL("image/png");
+      const byteString = atob(dataUrl.split(",")[1]);
+      const bytes = new Uint8Array(byteString.length);
+      for (let i = 0; i < byteString.length; i++) bytes[i] = byteString.charCodeAt(i);
+      resolve(new Blob([bytes], { type: "image/png" }));
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+function triggerBlobDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Revoke after the browser has had a chance to start the download.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function shareOrDownloadBlob(blob: Blob, filename: string) {
+  const file = new File([blob], filename, { type: "image/png" });
+  const nav = typeof navigator !== "undefined" ? (navigator as ShareCapableNavigator) : undefined;
+
+  // On phones, the browser's own "download" via <a download> is what causes
+  // the "This format is not supported" error: iOS Safari and most in-app
+  // webviews (WhatsApp/Instagram browser, some Android browsers) either
+  // ignore the download attribute or mishandle the payload, saving a
+  // corrupted/mistyped file instead of a real PNG. The native Share sheet
+  // receives an actual `image/png` File object and lets the OS save it
+  // straight into Photos/Gallery correctly — so we prefer it when available.
+  if (nav?.share && nav?.canShare?.({ files: [file] })) {
+    try {
+      await nav.share({ files: [file], title: filename });
+      return;
+    } catch (err) {
+      // User cancelled the share sheet — don't fall back to a forced
+      // download in that case, just stop.
+      if (err instanceof Error && err.name === "AbortError") return;
+      // Any other failure: fall through to the direct blob download below.
+    }
+  }
+
+  triggerBlobDownload(blob, filename);
+}
+
 async function downloadQrPng(containerId: string, filename: string, size = 720) {
+  const safeFilename = filename.toLowerCase().endsWith(".png") ? filename : `${filename}.png`;
+
   const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
   if (sourceCanvas) {
     const padding = Math.round(size * 0.08);
@@ -17,10 +87,14 @@ async function downloadQrPng(containerId: string, filename: string, size = 720) 
     ctx.fillRect(0, 0, size, size);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(sourceCanvas, padding, padding, qrSize, qrSize);
-    const a = document.createElement("a");
-    a.href = canvas.toDataURL("image/png");
-    a.download = filename;
-    a.click();
+
+    // Use canvas.toBlob() to get a real binary PNG with the correct
+    // "image/png" MIME type, instead of handing a raw base64 data-URL
+    // string to the anchor's href (that was producing corrupted/
+    // unrecognized files on save).
+    const blob = await canvasToPngBlob(canvas);
+    if (!blob) return;
+    await shareOrDownloadBlob(blob, safeFilename);
     return;
   }
 
@@ -36,10 +110,10 @@ async function downloadQrPng(containerId: string, filename: string, size = 720) 
   const ctx = canvas.getContext("2d")!;
   ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, size, size);
   ctx.drawImage(img, 0, 0, size, size);
-  const a = document.createElement("a");
-  a.href = canvas.toDataURL("image/png");
-  a.download = filename;
-  a.click();
+
+  const blob = await canvasToPngBlob(canvas);
+  if (!blob) return;
+  await shareOrDownloadBlob(blob, safeFilename);
 }
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, checkIsAdmin } from "@/lib/enrollment.functions";
@@ -160,10 +234,15 @@ function Dashboard() {
 
               {r.status === "awaiting_payment" && (
                 <div className="mt-4 flex flex-wrap gap-2">
-                
+                  <Link
+                    to="/pay/$enrollmentId"
+                    params={{ enrollmentId: r.id }}
+                    className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30 hover:opacity-90">
+                    Complete Payment
+                  </Link>
                   <button onClick={() => setOpen(open === r.id ? null : r.id)}
                     className="px-4 py-2 rounded-lg bg-secondary text-sm">
-                    {open === r.id ? "Hide payment QR" : "Pay Now"}
+                    {open === r.id ? "Hide payment QR" : "Show payment QR"}
                   </button>
                 </div>
               )}
