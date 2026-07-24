@@ -2,7 +2,19 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
-import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket, LogOut } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket, LogOut, Download } from "lucide-react";
+
+function downloadQrCanvas(id: string, filename: string) {
+  const canvas = document.getElementById(id) as HTMLCanvasElement | null;
+  if (!canvas) return;
+  const url = canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
 import {
   listMyEnrollments,
   markPaymentSubmitted,
