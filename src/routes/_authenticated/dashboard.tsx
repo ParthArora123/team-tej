@@ -272,8 +272,17 @@ function PaymentBlock({ enr, onDone }: { enr: any; onDone: () => void }) {
 
       <div className="mt-3 flex flex-col sm:flex-row gap-4 items-center">
         {p.upi_id && upiValue ? (
-          <div className="p-2 bg-white rounded shrink-0">
-            <QRCodeCanvas value={upiValue} size={148} />
+          <div className="flex flex-col items-center gap-2 shrink-0">
+            <div className="p-2 bg-white rounded">
+              <QRCodeCanvas id={`upi-qr-${enr.id}`} value={upiValue} size={148} />
+            </div>
+            <button
+              type="button"
+              onClick={() => downloadQrCanvas(`upi-qr-${enr.id}`, `payment-qr-${enr.id.slice(0, 8)}.png`)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition"
+            >
+              <Download size={12} /> Download QR
+            </button>
           </div>
         ) : (
           <div className="p-4 rounded bg-background border border-border text-xs text-muted-foreground">
