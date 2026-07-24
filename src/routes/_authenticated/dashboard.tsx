@@ -2,7 +2,19 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
-import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket, LogOut } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket, LogOut, Download } from "lucide-react";
+
+function downloadQrCanvas(id: string, filename: string) {
+  const canvas = document.getElementById(id) as HTMLCanvasElement | null;
+  if (!canvas) return;
+  const url = canvas.toDataURL("image/png");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
 import {
   listMyEnrollments,
   markPaymentSubmitted,
@@ -139,6 +151,7 @@ function EnrollmentCard({ enr, onChange }: { enr: any; onChange: () => void }) {
         <div className="mt-5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col sm:flex-row items-center gap-4">
           <div className="p-2 bg-white rounded">
             <QRCodeCanvas
+              id={`ticket-qr-${enr.id}`}
               value={`${typeof window !== "undefined" ? window.location.origin : ""}/verify?code=${enr.ticket_code}`}
               size={128}
             />
@@ -149,6 +162,12 @@ function EnrollmentCard({ enr, onChange }: { enr: any; onChange: () => void }) {
             </p>
             <p className="mt-1 font-mono text-lg font-bold">{enr.ticket_code}</p>
             <p className="text-xs text-muted-foreground mt-1">Show this QR at the venue entry.</p>
+            <button
+              onClick={() => downloadQrCanvas(`ticket-qr-${enr.id}`, `ticket-${enr.ticket_code}.png`)}
+              className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-medium hover:bg-emerald-600 transition"
+            >
+              <Download size={12} /> Download ticket QR
+            </button>
           </div>
         </div>
       )}
@@ -253,8 +272,17 @@ function PaymentBlock({ enr, onDone }: { enr: any; onDone: () => void }) {
 
       <div className="mt-3 flex flex-col sm:flex-row gap-4 items-center">
         {p.upi_id && upiValue ? (
-          <div className="p-2 bg-white rounded shrink-0">
-            <QRCodeCanvas value={upiValue} size={148} />
+          <div className="flex flex-col items-center gap-2 shrink-0">
+            <div className="p-2 bg-white rounded">
+              <QRCodeCanvas id={`upi-qr-${enr.id}`} value={upiValue} size={148} />
+            </div>
+            <button
+              type="button"
+              onClick={() => downloadQrCanvas(`upi-qr-${enr.id}`, `payment-qr-${enr.id.slice(0, 8)}.png`)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition"
+            >
+              <Download size={12} /> Download QR
+            </button>
           </div>
         ) : (
           <div className="p-4 rounded bg-background border border-border text-xs text-muted-foreground">
