@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
-import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket, LogOut } from "lucide-react";
 import {
   listMyEnrollments,
   markPaymentSubmitted,
