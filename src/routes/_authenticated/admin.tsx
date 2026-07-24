@@ -28,6 +28,8 @@ import {
 import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/admin/CmsTabs";
 import { MessagesTab } from "@/components/admin/MessagesTab";
 import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab, WhatsappTemplateTab } from "@/components/admin/SiteContentTabs";
+import { getSiteContent } from "@/lib/site-content.functions";
+import { buildWaUrl, DEFAULT_WHATSAPP_TEMPLATE } from "@/lib/whatsapp-template";
 
 import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
 import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
@@ -1233,6 +1235,19 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const [busy, setBusy] = useState<string | null>(null);
   const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
   const getProof = useServerFn(adminGetProofUrl);
+  const loadContent = useServerFn(getSiteContent);
+  const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
+  const [waFallbackNumber, setWaFallbackNumber] = useState<string>("");
+  const [blockedWa, setBlockedWa] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    loadContent({ data: { key: "whatsapp_template" } })
+      .then((v: any) => { if (v && typeof v.template === "string") setWaTemplate(v.template); })
+      .catch(() => {});
+    loadContent({ data: { key: "contact" } })
+      .then((v: any) => { if (v && typeof v.whatsapp === "string") setWaFallbackNumber(v.whatsapp); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -1253,8 +1268,23 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const act = async (id: string, approve: boolean) => {
     setBusy(id);
     try {
-      await onApprove({ data: { enrollmentId: id, approve } });
+      const res = await onApprove({ data: { enrollmentId: id, approve } });
       await reload();
+      if (approve && res?.ok && res.enrollment) {
+        const waUrl = buildWaUrl(res.enrollment, res.ticketCode ?? null, waTemplate, waFallbackNumber);
+        if (waUrl) {
+          // Open the pre-filled WhatsApp confirmation message so the admin
+          // just has to hit Send. Popup blockers can swallow window.open()
+          // calls that happen after an await, so warn if it's blocked.
+          const win = window.open(waUrl, "_blank", "noopener,noreferrer");
+          if (!win) {
+            toast.error("Approved, but the popup was blocked. Click below to send the WhatsApp confirmation.");
+            setBlockedWa((s) => ({ ...s, [id]: waUrl }));
+          }
+        } else {
+          toast.error("Approved, but this student has no phone number and no fallback WhatsApp number is set — message not sent.");
+        }
+      }
     } catch (e: any) {
       alert(e.message ?? "Failed");
     } finally {
@@ -1266,6 +1296,7 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
     <div className="mt-8 space-y-3">
       <p className="text-sm text-muted-foreground">
         Review each uploaded payment screenshot, then approve to issue the ticket and increment seats.
+        Approving opens WhatsApp with the confirmation message pre-filled — just hit Send.
       </p>
       {pending.length === 0 && (
         <div className="bg-card border border-border rounded-2xl p-8 text-center text-sm text-muted-foreground">
@@ -1289,6 +1320,12 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
                 Reject
               </button>
             </div>
+            {blockedWa[r.id] && (
+              <a href={blockedWa[r.id]} target="_blank" rel="noreferrer"
+                className="mt-3 inline-block text-xs text-primary underline underline-offset-2">
+                Open WhatsApp confirmation message
+              </a>
+            )}
           </div>
           <div>
             {proofUrls[r.id] ? (
