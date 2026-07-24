@@ -4,7 +4,38 @@ import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
 import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket, LogOut, Download } from "lucide-react";
 
-function triggerDownload(url: string, filename: string) {
+// Minimal typing for the File System-adjacent Web Share API (not always
+// present in TS's default lib.dom, and only partially supported browsers
+// declare it).
+type ShareCapableNavigator = Navigator & {
+  canShare?: (data: { files: File[] }) => boolean;
+  share?: (data: { files: File[]; title?: string }) => Promise<void>;
+};
+
+function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob | null> {
+  return new Promise((resolve) => {
+    if (canvas.toBlob) {
+      canvas.toBlob((blob) => resolve(blob), "image/png");
+      return;
+    }
+    // Fallback for the rare browser without canvas.toBlob support: decode
+    // the base64 data-URL into real binary bytes ourselves rather than
+    // handing the raw data-URL string to the anchor (that raw-string
+    // approach is what produced corrupted/unsupported files before).
+    try {
+      const dataUrl = canvas.toDataURL("image/png");
+      const byteString = atob(dataUrl.split(",")[1]);
+      const bytes = new Uint8Array(byteString.length);
+      for (let i = 0; i < byteString.length; i++) bytes[i] = byteString.charCodeAt(i);
+      resolve(new Blob([bytes], { type: "image/png" }));
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+function triggerBlobDownload(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
@@ -12,41 +43,45 @@ function triggerDownload(url: string, filename: string) {
   document.body.appendChild(a);
   a.click();
   a.remove();
+  // Revoke after the browser has had a chance to start the download.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-function downloadQrCanvasFallback(canvas: HTMLCanvasElement, filename: string) {
-  // Fallback for the rare browser without canvas.toBlob support.
-  const dataUrl = canvas.toDataURL("image/png");
-  triggerDownload(dataUrl, filename);
-}
-
-function downloadQrCanvas(id: string, filename: string) {
+async function downloadQrCanvas(id: string, filename: string) {
   const canvas = document.getElementById(id) as HTMLCanvasElement | null;
   if (!canvas) return;
 
   // Ensure the filename always has a valid .png extension.
   const safeFilename = filename.toLowerCase().endsWith(".png") ? filename : `${filename}.png`;
 
-  // Prefer canvas.toBlob(): it produces a real binary PNG file with the
-  // correct "image/png" MIME type. The previous implementation downloaded
-  // the raw base64 data-URL string directly via the anchor's href, which
-  // several mobile browsers/webviews (and some in-app browsers) save as a
-  // corrupted or truncated file instead of a valid PNG — hence "This
-  // format is not supported" when opening it in Gallery/Photos.
-  if (canvas.toBlob) {
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        downloadQrCanvasFallback(canvas, safeFilename);
-        return;
-      }
-      const url = URL.createObjectURL(blob);
-      triggerDownload(url, safeFilename);
-      // Revoke after the browser has had a chance to start the download.
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }, "image/png");
-  } else {
-    downloadQrCanvasFallback(canvas, safeFilename);
+  const blob = await canvasToPngBlob(canvas);
+  if (!blob) return;
+
+  const file = new File([blob], safeFilename, { type: "image/png" });
+  const nav = typeof navigator !== "undefined" ? (navigator as ShareCapableNavigator) : undefined;
+
+  // On phones, the browser's own "download" via <a download> is what was
+  // producing the "This format is not supported" error: iOS Safari and
+  // most in-app webviews (WhatsApp/Instagram browser, some Android
+  // browsers) either ignore the download attribute or hand off the
+  // base64 payload in a way that saves a corrupted/mistyped file instead
+  // of a real PNG. The native Share sheet, by contrast, receives an
+  // actual `image/png` File object and lets the OS save it straight into
+  // Photos/Gallery correctly — so we prefer it whenever it's available.
+  if (nav?.share && nav?.canShare?.({ files: [file] })) {
+    try {
+      await nav.share({ files: [file], title: safeFilename });
+      return;
+    } catch (err) {
+      // User cancelled the share sheet — don't fall back to a forced
+      // download in that case, just stop.
+      if (err instanceof Error && err.name === "AbortError") return;
+      // Any other failure (e.g. share API present but rejected files):
+      // fall through to the direct blob download below.
+    }
   }
+
+  triggerBlobDownload(blob, safeFilename);
 }
 import {
   listMyEnrollments,
