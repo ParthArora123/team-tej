@@ -309,7 +309,7 @@ function Dashboard() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => downloadQrPng(`ticket-qr-${r.id}`, `ticket-${r.ticket_code}.png`)}
+                        onClick={() => downloadQrPng(verifyUrl || r.ticket_code || "", `ticket-${r.ticket_code}.png`)}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary text-[11px] font-medium">
                         <Download size={11} /> Download
                       </button>
