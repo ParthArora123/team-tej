@@ -238,7 +238,7 @@ function Dashboard() {
                           <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeCanvas value={upiUrl} size={220} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" /></div>
                           <button
                             type="button"
-                            onClick={() => downloadQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
+                            onClick={() => downloadQrPng(upiUrl, `payment-qr-${r.id}.png`)}
                             className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
                             <Download size={12} /> Download QR
                           </button>
