@@ -22,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function StudentDashboard() {
   const fetchMine = useServerFn(listMyEnrollments);
   const adminCheck = useServerFn(checkIsAdmin);
+  const navigate = useNavigate();
   const [rows, setRows] = useState<any[] | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -32,6 +33,11 @@ function StudentDashboard() {
   };
 
   useEffect(() => { load(); }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-6 max-w-4xl mx-auto">
