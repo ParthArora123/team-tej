@@ -1,333 +1,362 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
-import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Download } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket, LogOut, Download } from "lucide-react";
 
-// Minimal typing for the Web Share API (not always present in TS's default
-// lib.dom, and only partially supported across browsers).
-type ShareCapableNavigator = Navigator & {
-  canShare?: (data: { files: File[] }) => boolean;
-  share?: (data: { files: File[]; title?: string }) => Promise<void>;
-};
-
-function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob | null> {
-  return new Promise((resolve) => {
-    if (canvas.toBlob) {
-      canvas.toBlob((blob) => resolve(blob), "image/png");
-      return;
-    }
-    // Fallback for the rare browser without canvas.toBlob support: decode
-    // the base64 data-URL into real binary bytes ourselves rather than
-    // handing the raw data-URL string to the anchor (that raw-string
-    // approach is what produces corrupted/unsupported files).
-    try {
-      const dataUrl = canvas.toDataURL("image/png");
-      const byteString = atob(dataUrl.split(",")[1]);
-      const bytes = new Uint8Array(byteString.length);
-      for (let i = 0; i < byteString.length; i++) bytes[i] = byteString.charCodeAt(i);
-      resolve(new Blob([bytes], { type: "image/png" }));
-    } catch {
-      resolve(null);
-    }
-  });
-}
-
-function triggerBlobDownload(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
+function downloadQrCanvas(id: string, filename: string) {
+  const canvas = document.getElementById(id) as HTMLCanvasElement | null;
+  if (!canvas) return;
+  const url = canvas.toDataURL("image/png");
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
-  a.rel = "noopener";
   document.body.appendChild(a);
   a.click();
   a.remove();
-  // Revoke after the browser has had a chance to start the download.
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-
-async function shareOrDownloadBlob(blob: Blob, filename: string) {
-  const file = new File([blob], filename, { type: "image/png" });
-  const nav = typeof navigator !== "undefined" ? (navigator as ShareCapableNavigator) : undefined;
-
-  // On phones, the browser's own "download" via <a download> is what causes
-  // the "This format is not supported" error: iOS Safari and most in-app
-  // webviews (WhatsApp/Instagram browser, some Android browsers) either
-  // ignore the download attribute or mishandle the payload, saving a
-  // corrupted/mistyped file instead of a real PNG. The native Share sheet
-  // receives an actual `image/png` File object and lets the OS save it
-  // straight into Photos/Gallery correctly — so we prefer it when available.
-  if (nav?.share && nav?.canShare?.({ files: [file] })) {
-    try {
-      await nav.share({ files: [file], title: filename });
-      return;
-    } catch (err) {
-      // User cancelled the share sheet — don't fall back to a forced
-      // download in that case, just stop.
-      if (err instanceof Error && err.name === "AbortError") return;
-      // Any other failure: fall through to the direct blob download below.
-    }
-  }
-
-  triggerBlobDownload(blob, filename);
-}
-
-async function downloadQrPng(value: string, filename: string, size = 720) {
-  if (!value) return;
-  const safeFilename = filename.toLowerCase().endsWith(".png") ? filename : `${filename}.png`;
-
-  // Generate the PNG from scratch via the `qrcode` library rather than
-  // rasterising the on-screen <canvas>. Rendering from the DOM was producing
-  // files that some mobile galleries refused to open ("format not supported"),
-  // because the WebView's canvas.toBlob output was occasionally wrapped with
-  // the wrong extension by the in-app browser. `QRCode.toDataURL` gives us a
-  // guaranteed, standards-compliant PNG payload we can decode into a Blob
-  // with the correct `image/png` MIME type.
-  const QRCode = (await import("qrcode")).default;
-  const dataUrl = await QRCode.toDataURL(value, {
-    errorCorrectionLevel: "Q",
-    margin: 4,
-    width: size,
-    color: { dark: "#000000", light: "#ffffff" },
-  });
-  const base64 = dataUrl.split(",")[1] ?? "";
-  const byteString = atob(base64);
-  const bytes = new Uint8Array(byteString.length);
-  for (let i = 0; i < byteString.length; i++) bytes[i] = byteString.charCodeAt(i);
-  const blob = new Blob([bytes], { type: "image/png" });
-  await shareOrDownloadBlob(blob, safeFilename);
-}
-import { useServerFn } from "@tanstack/react-start";
-import { listMyEnrollments, checkIsAdmin } from "@/lib/enrollment.functions";
+import {
+  listMyEnrollments,
+  markPaymentSubmitted,
+  checkIsAdmin,
+} from "@/lib/enrollment.functions";
 import { supabase } from "@/integrations/supabase/client";
-import { FeedbackForm } from "@/components/site/FeedbackForm";
+import {
+  validatePaymentProofFile,
+  sanitizeFileName,
+  type ValidatedPaymentProof,
+} from "@/lib/payment-proof-validation";
 
-export const Route = createFileRoute("/_authenticated/dashboard")({ component: Dashboard });
+export const Route = createFileRoute("/_authenticated/dashboard")({
+  component: StudentDashboard,
+});
 
-const DEFAULT_UPI_ID = "teamtej@upi";
-
-function StatusPill({ s }: { s: string }) {
-  const map: Record<string, { label: string; cls: string; Icon: any }> = {
-    awaiting_payment: { label: "Awaiting payment", cls: "bg-amber-500/15 text-amber-400", Icon: Clock },
-    payment_submitted: { label: "Pending admin approval", cls: "bg-blue-500/15 text-blue-400", Icon: Clock },
-    confirmed: { label: "Confirmed", cls: "bg-emerald-500/15 text-emerald-400", Icon: Check },
-    rejected: { label: "Rejected", cls: "bg-destructive/15 text-destructive", Icon: XIcon },
-  };
-  const m = map[s] ?? map.awaiting_payment;
-  return <span className={`inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${m.cls}`}><m.Icon size={12} />{m.label}</span>;
-}
-
-function Dashboard() {
-  const navigate = useNavigate();
-  const fetchEnrollments = useServerFn(listMyEnrollments);
+function StudentDashboard() {
+  const fetchMine = useServerFn(listMyEnrollments);
   const adminCheck = useServerFn(checkIsAdmin);
-  const [rows, setRows] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const [rows, setRows] = useState<any[] | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [open, setOpen] = useState<string | null>(null);
 
-  const reload = async () => setRows(await fetchEnrollments());
-  useEffect(() => { reload(); adminCheck().then((r) => setIsAdmin(r.isAdmin)); }, []);
+  const load = async () => {
+    const [mine, admin] = await Promise.all([fetchMine(), adminCheck()]);
+    setRows(mine as any);
+    setIsAdmin(!!admin.isAdmin);
+  };
 
-  const signOut = async () => { await supabase.auth.signOut(); navigate({ to: "/" }); };
+  useEffect(() => { load(); }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/", replace: true });
+  };
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-6xl mx-auto">
+    <div className="min-h-screen pt-24 pb-16 px-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <p className="text-xs uppercase tracking-widest text-primary">Your account</p>
-          <h1 className="font-display text-4xl font-bold mt-1">My enrollments</h1>
+          <p className="text-xs uppercase tracking-widest text-primary">My dashboard</p>
+          <h1 className="mt-1 font-display text-4xl font-bold">Your registrations</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {isAdmin && (
-            <Link to="/admin" className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-sm">
-              <Shield size={14} /> Admin
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+              <ShieldCheck size={16} /> Admin control room
             </Link>
           )}
-          <button onClick={signOut} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm">
-            <LogOut size={14} /> Sign out
+          <button
+            onClick={handleSignOut}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-muted/40 text-foreground text-sm font-medium hover:bg-muted transition"
+          >
+            <LogOut size={16} /> Sign out
           </button>
         </div>
       </div>
 
-      {rows.length === 0 && (
-        <div className="mt-10 text-center text-muted-foreground border border-dashed border-border rounded-2xl py-16">
-          <p>You haven't enrolled in anything yet.</p>
-          <Link to="/workshops" className="inline-block mt-4 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm">
-            Browse workshops
-          </Link>
+      <div className="mt-8 space-y-6">
+        {rows === null && <p className="text-sm text-muted-foreground">Loading…</p>}
+        {rows && rows.length === 0 && (
+          <div className="rounded-2xl border border-border bg-card p-8 text-center">
+            <p className="text-sm text-muted-foreground">You haven't registered for any workshops yet.</p>
+            <Link to="/workshops" className="mt-4 inline-block px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+              Explore workshops
+            </Link>
+          </div>
+        )}
+        {rows?.map((r) => (
+          <EnrollmentCard key={r.id} enr={r} onChange={load} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StatusPill({ status }: { status: string }) {
+  if (status === "confirmed") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-500 text-xs font-medium">
+        <CheckCircle2 size={12} /> Approved
+      </span>
+    );
+  }
+  if (status === "payment_submitted") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/15 text-blue-500 text-xs font-medium">
+        <Clock size={12} /> Pending admin approval
+      </span>
+    );
+  }
+  if (status === "rejected") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-destructive/15 text-destructive text-xs font-medium">
+        <XCircle size={12} /> Rejected · please resubmit
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-500 text-xs font-medium">
+      <Clock size={12} /> Awaiting payment
+    </span>
+  );
+}
+
+function EnrollmentCard({ enr, onChange }: { enr: any; onChange: () => void }) {
+  const p = enr.program ?? {};
+  const status = enr.status as string;
+  const showPaymentForm = status === "awaiting_payment" || status === "rejected";
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <p className="font-display text-xl font-bold">{p.name ?? "Workshop"}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Registration ID: <span className="font-mono text-foreground">{enr.id.slice(0, 8).toUpperCase()}</span>
+          </p>
+        </div>
+        <StatusPill status={status} />
+      </div>
+
+      <div className="mt-3 text-sm text-muted-foreground space-y-1">
+        {p.event_date && (
+          <p>📅 {new Date(p.event_date).toDateString()}{p.event_time ? ` · ${p.event_time}` : ""}</p>
+        )}
+        {p.venue && <p>📍 {p.venue}</p>}
+        <p>💰 ₹{(enr.amount_inr ?? 0).toLocaleString("en-IN")}{enr.silver_seat ? " · includes Silver Seat" : ""}</p>
+      </div>
+
+      {status === "confirmed" && enr.ticket_code && (
+        <div className="mt-5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col sm:flex-row items-center gap-4">
+          <div className="p-2 bg-white rounded">
+            <QRCodeCanvas
+              id={`ticket-qr-${enr.id}`}
+              value={`${typeof window !== "undefined" ? window.location.origin : ""}/verify?code=${enr.ticket_code}`}
+              size={128}
+            />
+          </div>
+          <div className="text-center sm:text-left">
+            <p className="text-xs uppercase tracking-widest text-emerald-500 flex items-center gap-1.5 justify-center sm:justify-start">
+              <Ticket size={12} /> Your ticket
+            </p>
+            <p className="mt-1 font-mono text-lg font-bold">{enr.ticket_code}</p>
+            <p className="text-xs text-muted-foreground mt-1">Show this QR at the venue entry.</p>
+            <button
+              onClick={() => downloadQrCanvas(`ticket-qr-${enr.id}`, `ticket-${enr.ticket_code}.png`)}
+              className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-medium hover:bg-emerald-600 transition"
+            >
+              <Download size={12} /> Download ticket QR
+            </button>
+          </div>
         </div>
       )}
 
-      <div className="mt-8 grid gap-4">
-        {rows.map((r) => {
-          // Build a spec-compliant UPI deep link. Common causes of the
-          // "Invalid QR / Invalid format" error in GPay/PhonePe/Paytm/BHIM:
-          //   - VPA missing or not in name@psp form
-          //   - amount not sent as a fixed 2-decimal number (e.g. "100" vs "100.00")
-          //   - payee name / note containing reserved URI chars (& = # ? / :)
-          //   - QR rendered without the required quiet-zone margin
-          const rawUpi = (r.program?.upi_id || "").trim().toLowerCase();
-          const validUpi = /^[a-zA-Z0-9._-]{2,64}@[a-zA-Z][a-zA-Z0-9]{1,32}$/.test(rawUpi);
-          const upiId = validUpi ? rawUpi : "";
-          const cleanText = (s: string) =>
-            String(s ?? "")
-              .replace(/[&=#?/:%]+/g, " ")     // strip URI-reserved chars
-              .replace(/[^a-zA-Z0-9 .-]/g, " ") // keep UPI-app-safe printable set
-              .replace(/\s+/g, " ")
-              .trim()
-              .slice(0, 40);
-          const payeeName = cleanText(r.program?.bank_account_holder || "Tejas D Dhoke") || "Tejas D Dhoke";
-          const payAmountInr = Number(r.amount_inr || 0);
-          const note = cleanText(r.program?.name || "Enrollment") || "Enrollment";
-          const amount = payAmountInr.toFixed(2);
-          const enc = (v: string) => encodeURIComponent(v);
-          const upiUrl = upiId
-            ? `upi://pay?pa=${upiId}&pn=${enc(payeeName)}&am=${amount}&cu=INR&tn=${enc(note)}`
-            : "";
-          const verifyUrl = typeof window !== "undefined" && r.ticket_code
-            ? `${window.location.origin}/verify?code=${encodeURIComponent(r.ticket_code)}`
-            : "";
-          return (
-            <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              className="bg-card border border-border rounded-2xl overflow-hidden">
-              {r.program?.banner_url && (
-                <div className="w-full overflow-hidden bg-muted">
-                  <img src={r.program.banner_url} alt={r.program?.name ?? ""} className="w-full h-auto object-contain" loading="lazy" />
-                </div>
-              )}
-              <div className="p-6">
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                  <p className="font-display text-xl font-bold">{r.program?.name}</p>
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    {r.program?.event_date && <span>📅 {new Date(r.program.event_date).toDateString()}{r.program?.event_time ? ` · ${r.program.event_time}` : ""}</span>}
-                    {r.program?.venue && <span>📍 {r.program.venue}</span>}
-                    {r.program?.duration && <span>⏱ {r.program.duration}</span>}
-                  </div>
-                  <p className="mt-2 text-xs text-muted-foreground">₹{r.amount_inr.toLocaleString("en-IN")}{r.silver_seat && " · includes Silver Seat"}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {r.silver_seat && (
-                      <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-primary/15 text-primary">🎥 Silver Seat</span>
-                    )}
-                  </div>
-                </div>
-                <StatusPill s={r.status} />
-              </div>
+      {status === "payment_submitted" && (
+        <div className="mt-5 rounded-xl border border-blue-500/30 bg-blue-500/5 p-4 text-sm">
+          Your payment is being verified by our admin team. Your ticket will appear here once approved.
+        </div>
+      )}
 
-              {r.status === "awaiting_payment" && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Link
-                    to="/pay/$enrollmentId"
-                    params={{ enrollmentId: r.id }}
-                    className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30 hover:opacity-90">
-                    Complete Payment
-                  </Link>
-                  <button onClick={() => setOpen(open === r.id ? null : r.id)}
-                    className="px-4 py-2 rounded-lg bg-secondary text-sm">
-                    {open === r.id ? "Hide payment QR" : "Show payment QR"}
-                  </button>
-                </div>
-              )}
-              {r.status === "awaiting_payment" && (
-                <div>
+      {showPaymentForm && <PaymentBlock enr={enr} onDone={onChange} />}
+    </div>
+  );
+}
 
-                  {open === r.id && (
-                    <div className="mt-4 flex flex-col items-center bg-muted/40 rounded-xl p-5">
-                      {upiUrl ? (
-                        <>
-                          <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeCanvas value={upiUrl} size={220} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" /></div>
-                          <button
-                            type="button"
-                            onClick={() => downloadQrPng(upiUrl, `payment-qr-${r.id}.png`)}
-                            className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
-                            <Download size={12} /> Download QR
-                          </button>
-                          <a
-                            href={upiUrl}
-                            className="mt-2 text-[11px] text-primary underline underline-offset-2">
-                            Or tap here to open in your UPI app
-                          </a>
-                        </>
-                      ) : (
-                        <p className="text-xs text-destructive text-center max-w-xs">
-                          The workshop's UPI ID is missing or invalid. Please contact the admin before paying.
-                        </p>
-                      )}
-                      <div className="mt-3 text-center">
-                        <p className="text-xs text-muted-foreground">Scan with any UPI app and pay ₹{payAmountInr.toLocaleString("en-IN")}</p>
-                        <p className="mt-3 text-[11px] uppercase tracking-widest text-muted-foreground">Official UPI ID</p>
-                        <p className="font-mono text-sm">{upiId || "—"}</p>
-                        {r.program?.bank_account_holder && (
-                          <>
-                            <p className="mt-2 text-[11px] uppercase tracking-widest text-muted-foreground">Account holder</p>
-                            <p className="text-sm font-medium">{r.program.bank_account_holder}</p>
-                            <p className="mt-2 text-[11px] text-muted-foreground max-w-xs mx-auto">Please verify the recipient name in your UPI app matches the above before paying.</p>
-                          </>
-                        )}
-                      </div>
+function PaymentBlock({ enr, onDone }: { enr: any; onDone: () => void }) {
+  const p = enr.program ?? {};
+  const submitPay = useServerFn(markPaymentSubmitted);
+  const [file, setFile] = useState<File | null>(null);
+  const [validated, setValidated] = useState<ValidatedPaymentProof | null>(null);
+  const [preview, setPreview] = useState<string>("");
+  const [paymentReference, setPaymentReference] = useState("");
+  const [err, setErr] = useState("");
+  const [validating, setValidating] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-                      <Link
-                        to="/pay/$enrollmentId"
-                        params={{ enrollmentId: r.id }}
-                        className="mt-5 w-full max-w-sm text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium">
-                        I have completed the payment
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              )}
+  useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 
+  const upiValue = useMemo(() => {
+    if (!p.upi_id) return "";
+    const params = new URLSearchParams({
+      pa: p.upi_id,
+      pn: p.bank_account_holder || "Team Tej",
+      am: String(enr.amount_inr ?? 0),
+      cu: "INR",
+      tn: `Reg ${enr.id.slice(0, 8).toUpperCase()}`,
+    });
+    return `upi://pay?${params.toString()}`;
+  }, [p.upi_id, p.bank_account_holder, enr.amount_inr, enr.id]);
 
+  const onPick = async (f: File | null) => {
+    setErr("");
+    setValidated(null);
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview("");
+    if (!f) { setFile(null); return; }
+    setValidating(true);
+    try {
+      const v = await validatePaymentProofFile(f);
+      setFile(f);
+      setValidated(v);
+      setPreview(URL.createObjectURL(new Blob([v.bytes as BlobPart], { type: v.mime })));
+    } catch (e: any) {
+      setFile(null);
+      if (inputRef.current) inputRef.current.value = "";
+      setErr(e?.message ?? "Please upload a valid payment screenshot.");
+    } finally {
+      setValidating(false);
+    }
+  };
 
-              {r.status === "payment_submitted" && (
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Thanks! Admin will verify your payment and your ticket will appear here once approved.
-                </p>
-              )}
+  const canSubmit = !!file && !!validated && !validating && !busy
+    && /^[A-Za-z0-9-]{6,64}$/.test(paymentReference.trim());
 
-              {r.status === "confirmed" && (
-                <div className="mt-5 relative rounded-xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 text-primary">
-                        <Ticket size={16} /><span className="text-xs uppercase tracking-widest font-semibold">Ticket · Confirmed</span>
-                      </div>
-                      <p className="mt-2 font-mono text-lg break-all">{r.ticket_code}</p>
-                      <p className="text-xs text-muted-foreground">Show this at the studio on your first day.</p>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 w-full sm:w-auto shrink-0">
-                      <div id={`ticket-qr-${r.id}`} className="bg-white p-2 rounded inline-block">
-                        <QRCodeCanvas
-                          value={verifyUrl || r.ticket_code || ""}
-                          size={132}
-                          level="Q"
-                          marginSize={4}
-                          bgColor="#ffffff"
-                          fgColor="#000000"
-                          style={{ display: "block", maxWidth: "100%", height: "auto" }}
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => downloadQrPng(verifyUrl || r.ticket_code || "", `ticket-${r.ticket_code}.png`)}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary text-[11px] font-medium">
-                        <Download size={11} /> Download
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
+  const submit = async () => {
+    if (!canSubmit || !file || !validated) return;
+    setErr(""); setBusy(true);
+    let uploadedPath: string | null = null;
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      if (!uid) throw new Error("Please sign in again.");
+      const safeName = sanitizeFileName(file.name, validated.ext);
+      const path = `${uid}/${enr.id}-${Date.now()}-${validated.sha256.slice(0, 12)}-${safeName}`;
+      const uploadBlob = new Blob([validated.bytes as BlobPart], { type: validated.mime });
+      const up = await supabase.storage.from("payment-proofs").upload(path, uploadBlob, {
+        contentType: validated.mime, upsert: false,
+      });
+      if (up.error) throw new Error(`Upload failed: ${up.error.message}`);
+      uploadedPath = path;
+      await submitPay({ data: { enrollmentId: enr.id, proofPath: path, paymentReference: paymentReference.trim() } });
+      onDone();
+    } catch (e: any) {
+      if (uploadedPath) {
+        await supabase.storage.from("payment-proofs").remove([uploadedPath]).catch(() => {});
+      }
+      setErr(e?.message ?? "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
+  };
 
-              {r.status === "rejected" && (
-                <p className="mt-4 text-sm text-destructive">Payment couldn't be verified. Please contact us.</p>
-              )}
-              </div>
-            </motion.div>
-          );
-        })}
+  return (
+    <div className="mt-5 rounded-xl border border-border bg-muted/30 p-4 sm:p-5">
+      {enr.status === "rejected" && (
+        <div className="mb-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+          Your previous payment couldn't be verified. Please double-check and resubmit below.
+        </div>
+      )}
+      <p className="text-xs uppercase tracking-widest text-primary">Step 1 · Pay via UPI</p>
+
+      <div className="mt-3 flex flex-col sm:flex-row gap-4 items-center">
+        {p.upi_id && upiValue ? (
+          <div className="flex flex-col items-center gap-2 shrink-0">
+            <div className="p-2 bg-white rounded">
+              <QRCodeCanvas id={`upi-qr-${enr.id}`} value={upiValue} size={148} />
+            </div>
+            <button
+              type="button"
+              onClick={() => downloadQrCanvas(`upi-qr-${enr.id}`, `payment-qr-${enr.id.slice(0, 8)}.png`)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition"
+            >
+              <Download size={12} /> Download QR
+            </button>
+          </div>
+        ) : (
+          <div className="p-4 rounded bg-background border border-border text-xs text-muted-foreground">
+            Payment QR unavailable — please contact admin.
+          </div>
+        )}
+        <div className="text-sm min-w-0">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Amount</p>
+          <p className="font-display text-2xl font-bold">₹{(enr.amount_inr ?? 0).toLocaleString("en-IN")}</p>
+          {p.upi_id && (
+            <>
+              <p className="mt-2 text-xs uppercase tracking-widest text-muted-foreground">UPI ID</p>
+              <p className="font-mono text-sm break-all">{p.upi_id}</p>
+            </>
+          )}
+          {p.bank_account_holder && (
+            <p className="mt-1 text-xs text-muted-foreground">Paid to: {p.bank_account_holder}</p>
+          )}
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Scan the QR with any UPI app, or send to the UPI ID above. Keep the payment screenshot ready.
+          </p>
+        </div>
       </div>
 
-      <FeedbackForm />
+      <div className="mt-6">
+        <p className="text-xs uppercase tracking-widest text-primary">Step 2 · Submit payment proof</p>
+
+        <label className="mt-3 block text-xs uppercase tracking-wider text-muted-foreground">
+          UPI / Transaction Reference ID (UTR) *
+        </label>
+        <input
+          type="text"
+          value={paymentReference}
+          onChange={(e) => setPaymentReference(e.target.value)}
+          disabled={busy}
+          placeholder="e.g. 123456789012"
+          maxLength={64}
+          required
+          className="mt-1 block w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+        />
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          6–64 letters/digits. Must be unique — cannot be reused across registrations.
+        </p>
+
+        <label className="mt-4 block text-xs uppercase tracking-wider text-muted-foreground">
+          Payment screenshot * (.jpg, .png, .webp — max 8 MB)
+        </label>
+        <div className="mt-2 flex items-center gap-2 text-sm font-medium text-primary">
+          <Upload size={14} /> {file ? "Change screenshot" : "Choose screenshot"}
+        </div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,.jpg,.jpeg,.png,.webp"
+          onChange={(e) => onPick(e.target.files?.[0] ?? null)}
+          disabled={busy}
+          className="mt-2 block w-full cursor-pointer rounded-md border border-border bg-background text-sm file:mr-3 file:cursor-pointer file:border-0 file:bg-primary file:px-3 file:py-2 file:text-sm file:font-medium file:text-primary-foreground"
+        />
+        {validating && <p className="mt-2 text-xs text-muted-foreground">Checking your screenshot…</p>}
+        {preview && (
+          <img src={preview} alt="Payment proof preview" className="mt-3 max-h-56 rounded border border-border" />
+        )}
+        {err && <p className="mt-3 text-sm text-destructive whitespace-pre-line">{err}</p>}
+
+        <button
+          disabled={!canSubmit}
+          onClick={submit}
+          className="mt-5 w-full px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed">
+          {busy ? "Submitting…" : "I Have Completed Payment"}
+        </button>
+        <p className="mt-2 text-[11px] text-muted-foreground">
+          Both fields are required. Your registration will be marked Pending Admin Approval, and a WhatsApp confirmation will be sent to your mobile number once admin approves.
+        </p>
+      </div>
     </div>
   );
 }
