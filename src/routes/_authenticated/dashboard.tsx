@@ -2,7 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { QRCodeCanvas } from "qrcode.react";
-import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Download } from "lucide-react";
+import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Download, Upload, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { validatePaymentProofFile } from "@/lib/payment-proof-validation";
 
 async function downloadQrPng(containerId: string, filename: string, size = 720) {
   const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
@@ -42,7 +44,7 @@ async function downloadQrPng(containerId: string, filename: string, size = 720) 
   a.click();
 }
 import { useServerFn } from "@tanstack/react-start";
-import { listMyEnrollments, checkIsAdmin } from "@/lib/enrollment.functions";
+import { listMyEnrollments, checkIsAdmin, markPaymentSubmitted } from "@/lib/enrollment.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { FeedbackForm } from "@/components/site/FeedbackForm";
 
@@ -65,14 +67,59 @@ function Dashboard() {
   const navigate = useNavigate();
   const fetchEnrollments = useServerFn(listMyEnrollments);
   const adminCheck = useServerFn(checkIsAdmin);
+  const submitPayment = useServerFn(markPaymentSubmitted);
   const [rows, setRows] = useState<any[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
+  const [proofFile, setProofFile] = useState<Record<string, File | null>>({});
+  const [reference, setReference] = useState<Record<string, string>>({});
+  const [proofError, setProofError] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState<Record<string, boolean>>({});
 
   const reload = async () => setRows(await fetchEnrollments());
   useEffect(() => { reload(); adminCheck().then((r) => setIsAdmin(r.isAdmin)); }, []);
 
   const signOut = async () => { await supabase.auth.signOut(); navigate({ to: "/" }); };
+
+  const submitProof = async (enrollmentId: string) => {
+    const file = proofFile[enrollmentId];
+    const ref = (reference[enrollmentId] || "").trim();
+    setProofError((s) => ({ ...s, [enrollmentId]: "" }));
+
+    if (!file) {
+      setProofError((s) => ({ ...s, [enrollmentId]: "Please choose a payment screenshot." }));
+      return;
+    }
+    if (!/^[A-Za-z0-9-]{6,64}$/.test(ref)) {
+      setProofError((s) => ({ ...s, [enrollmentId]: "Enter the 6–64 character UPI Reference / UTR ID from your payment app." }));
+      return;
+    }
+
+    setSubmitting((s) => ({ ...s, [enrollmentId]: true }));
+    try {
+      const validated = await validatePaymentProofFile(file);
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData.user?.id;
+      if (!userId) throw new Error("Your session expired. Please sign in again.");
+
+      const proofPath = `${userId}/${enrollmentId}-${Date.now()}.${validated.ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("payment-proofs")
+        .upload(proofPath, validated.bytes, { contentType: validated.mime, upsert: false });
+      if (upErr) throw new Error(upErr.message || "Could not upload the screenshot. Please try again.");
+
+      await submitPayment({ data: { enrollmentId, proofPath, paymentReference: ref } });
+
+      toast.success("Payment submitted! We'll confirm it shortly.");
+      setProofFile((s) => ({ ...s, [enrollmentId]: null }));
+      setReference((s) => ({ ...s, [enrollmentId]: "" }));
+      await reload();
+    } catch (e: any) {
+      setProofError((s) => ({ ...s, [enrollmentId]: e.message ?? "Something went wrong. Please try again." }));
+    } finally {
+      setSubmitting((s) => ({ ...s, [enrollmentId]: false }));
+    }
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-6xl mx-auto">
@@ -160,15 +207,10 @@ function Dashboard() {
 
               {r.status === "awaiting_payment" && (
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Link
-                    to="/pay/$enrollmentId"
-                    params={{ enrollmentId: r.id }}
+                  <button
+                    onClick={() => setOpen(open === r.id ? null : r.id)}
                     className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30 hover:opacity-90">
-                    Complete Payment
-                  </Link>
-                  <button onClick={() => setOpen(open === r.id ? null : r.id)}
-                    className="px-4 py-2 rounded-lg bg-secondary text-sm">
-                    {open === r.id ? "Hide payment QR" : "Show payment QR"}
+                    {open === r.id ? "Hide payment details" : "Complete Payment"}
                   </button>
                 </div>
               )}
@@ -210,12 +252,55 @@ function Dashboard() {
                         )}
                       </div>
 
-                      <Link
-                        to="/pay/$enrollmentId"
-                        params={{ enrollmentId: r.id }}
-                        className="mt-5 w-full max-w-sm text-center px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium">
-                        I have completed the payment
-                      </Link>
+                      <div className="mt-5 w-full max-w-sm rounded-xl border border-border bg-card p-4 space-y-3">
+                        <p className="text-xs uppercase tracking-widest text-muted-foreground text-center">
+                          Already paid? Submit proof below
+                        </p>
+
+                        <label className="flex items-center gap-3 rounded-lg border border-dashed border-border bg-muted/40 p-3 cursor-pointer">
+                          <Upload size={16} className="text-primary shrink-0" />
+                          <span className="flex-1 min-w-0 text-xs text-muted-foreground truncate">
+                            {proofFile[r.id]?.name || "Choose payment screenshot (PNG, JPG, WEBP)"}
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            className="hidden"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0] ?? null;
+                              setProofFile((s) => ({ ...s, [r.id]: f }));
+                              setProofError((s) => ({ ...s, [r.id]: "" }));
+                            }}
+                          />
+                        </label>
+
+                        <input
+                          type="text"
+                          value={reference[r.id] || ""}
+                          onChange={(e) => {
+                            setReference((s) => ({ ...s, [r.id]: e.target.value }));
+                            setProofError((s) => ({ ...s, [r.id]: "" }));
+                          }}
+                          placeholder="UPI Reference / UTR ID (from your payment app)"
+                          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm"
+                        />
+
+                        {proofError[r.id] && (
+                          <p className="text-xs text-destructive">{proofError[r.id]}</p>
+                        )}
+
+                        <button
+                          type="button"
+                          disabled={!!submitting[r.id]}
+                          onClick={() => submitProof(r.id)}
+                          className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-60">
+                          {submitting[r.id] ? (
+                            <><Loader2 size={14} className="animate-spin" /> Submitting…</>
+                          ) : (
+                            "I have completed the payment"
+                          )}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
