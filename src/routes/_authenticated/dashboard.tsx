@@ -270,6 +270,7 @@ function PaymentBlock({ enr, onDone }: { enr: any; onDone: () => void }) {
       const safeName = sanitizeFileName(file.name, validated.ext);
       const path = `${uid}/${enr.id}-${Date.now()}-${validated.sha256.slice(0, 12)}-${safeName}`;
       const uploadBlob = new Blob([validated.bytes as BlobPart], { type: validated.mime });
+      const const upiUrl = upiId
       const up = await supabase.storage.from("payment-proofs").upload(path, uploadBlob, {
         contentType: validated.mime, upsert: false,
       });
