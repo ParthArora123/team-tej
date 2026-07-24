@@ -46,13 +46,21 @@ function StudentDashboard() {
           <p className="text-xs uppercase tracking-widest text-primary">My dashboard</p>
           <h1 className="mt-1 font-display text-4xl font-bold">Your registrations</h1>
         </div>
-        {isAdmin && (
-          <Link
-            to="/admin"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-            <ShieldCheck size={16} /> Admin control room
-          </Link>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+              <ShieldCheck size={16} /> Admin control room
+            </Link>
+          )}
+          <button
+            onClick={handleSignOut}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-muted/40 text-foreground text-sm font-medium hover:bg-muted transition"
+          >
+            <LogOut size={16} /> Sign out
+          </button>
+        </div>
       </div>
 
       <div className="mt-8 space-y-6">
