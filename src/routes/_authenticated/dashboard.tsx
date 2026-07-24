@@ -160,15 +160,10 @@ function Dashboard() {
 
               {r.status === "awaiting_payment" && (
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Link
-                    to="/pay/$enrollmentId"
-                    params={{ enrollmentId: r.id }}
-                    className="px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold shadow-lg shadow-primary/30 hover:opacity-90">
-                    Complete Payment
-                  </Link>
+                
                   <button onClick={() => setOpen(open === r.id ? null : r.id)}
                     className="px-4 py-2 rounded-lg bg-secondary text-sm">
-                    {open === r.id ? "Hide payment QR" : "Show payment QR"}
+                    {open === r.id ? "Hide payment QR" : "Pay Now"}
                   </button>
                 </div>
               )}
