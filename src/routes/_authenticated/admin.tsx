@@ -43,6 +43,7 @@ type Tab = "overview" | "approvals" | "workshops" | "workshop_hero" | "profiles"
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
+  { id: "approvals", label: "Payment approvals", emphasis: true },
   { id: "messages", label: "Messages" },
   { id: "team", label: "Team roles" },
   { id: "profiles", label: "Home profiles" },
