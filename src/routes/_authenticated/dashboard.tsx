@@ -4,16 +4,42 @@ import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
 import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket, LogOut, Download } from "lucide-react";
 
-function downloadQrCanvas(id: string, filename: string) {
-  const canvas = document.getElementById(id) as HTMLCanvasElement | null;
-  if (!canvas) return;
-  const url = canvas.toDataURL("image/png");
+async function downloadQrPng(containerId: string, filename: string, size = 720) {
+  const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
+  if (sourceCanvas) {
+    const padding = Math.round(size * 0.08);
+    const qrSize = size - padding * 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(sourceCanvas, padding, padding, qrSize, qrSize);
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = filename;
+    a.click();
+    return;
+  }
+
+  const svg = document.querySelector(`#${containerId} svg`) as SVGSVGElement | null;
+  if (!svg) return;
+  const xml = new XMLSerializer().serializeToString(svg);
+  const svg64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(xml)));
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; img.src = svg64; });
+  const canvas = document.createElement("canvas");
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, size, size);
+  ctx.drawImage(img, 0, 0, size, size);
   const a = document.createElement("a");
-  a.href = url;
+  a.href = canvas.toDataURL("image/png");
   a.download = filename;
-  document.body.appendChild(a);
   a.click();
-  a.remove();
 }
 import {
   listMyEnrollments,
@@ -162,12 +188,12 @@ function EnrollmentCard({ enr, onChange }: { enr: any; onChange: () => void }) {
             </p>
             <p className="mt-1 font-mono text-lg font-bold">{enr.ticket_code}</p>
             <p className="text-xs text-muted-foreground mt-1">Show this QR at the venue entry.</p>
-            <button
-              onClick={() => downloadQrCanvas(`ticket-qr-${enr.id}`, `ticket-${enr.ticket_code}.png`)}
-              className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-medium hover:bg-emerald-600 transition"
-            >
-              <Download size={12} /> Download ticket QR
-            </button>
+<button
+                        type="button"
+                        onClick={() => downloadQrPng(`ticket-qr-${r.id}`, `ticket-${r.ticket_code}.png`)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary text-[11px] font-medium">
+                        <Download size={11} /> Download
+                      </button>
           </div>
         </div>
       )}
@@ -271,24 +297,26 @@ function PaymentBlock({ enr, onDone }: { enr: any; onDone: () => void }) {
       <p className="text-xs uppercase tracking-widest text-primary">Step 1 · Pay via UPI</p>
 
       <div className="mt-3 flex flex-col sm:flex-row gap-4 items-center">
-        {p.upi_id && upiValue ? (
-          <div className="flex flex-col items-center gap-2 shrink-0">
-            <div className="p-2 bg-white rounded">
-              <QRCodeCanvas id={`upi-qr-${enr.id}`} value={upiValue} size={148} />
-            </div>
-            <button
-              type="button"
-              onClick={() => downloadQrCanvas(`upi-qr-${enr.id}`, `payment-qr-${enr.id.slice(0, 8)}.png`)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-xs font-medium hover:opacity-90 transition"
-            >
-              <Download size={12} /> Download QR
-            </button>
-          </div>
-        ) : (
-          <div className="p-4 rounded bg-background border border-border text-xs text-muted-foreground">
-            Payment QR unavailable — please contact admin.
-          </div>
-        )}
+   {upiUrl ? (
+                        <>
+                          <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeCanvas value={upiUrl} size={220} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" /></div>
+                          <button
+                            type="button"
+                            onClick={() => downloadQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
+                            className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
+                            <Download size={12} /> Download QR
+                          </button>
+                          <a
+                            href={upiUrl}
+                            className="mt-2 text-[11px] text-primary underline underline-offset-2">
+                            Or tap here to open in your UPI app
+                          </a>
+                        </>
+                      ) : (
+                        <p className="text-xs text-destructive text-center max-w-xs">
+                          The workshop's UPI ID is missing or invalid. Please contact the admin before paying.
+                        </p>
+                      )}
         <div className="text-sm min-w-0">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">Amount</p>
           <p className="font-display text-2xl font-bold">₹{(enr.amount_inr ?? 0).toLocaleString("en-IN")}</p>
