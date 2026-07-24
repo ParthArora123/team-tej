@@ -4,16 +4,49 @@ import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
 import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket, LogOut, Download } from "lucide-react";
 
-function downloadQrCanvas(id: string, filename: string) {
-  const canvas = document.getElementById(id) as HTMLCanvasElement | null;
-  if (!canvas) return;
-  const url = canvas.toDataURL("image/png");
+function triggerDownload(url: string, filename: string) {
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  a.rel = "noopener";
   document.body.appendChild(a);
   a.click();
   a.remove();
+}
+
+function downloadQrCanvasFallback(canvas: HTMLCanvasElement, filename: string) {
+  // Fallback for the rare browser without canvas.toBlob support.
+  const dataUrl = canvas.toDataURL("image/png");
+  triggerDownload(dataUrl, filename);
+}
+
+function downloadQrCanvas(id: string, filename: string) {
+  const canvas = document.getElementById(id) as HTMLCanvasElement | null;
+  if (!canvas) return;
+
+  // Ensure the filename always has a valid .png extension.
+  const safeFilename = filename.toLowerCase().endsWith(".png") ? filename : `${filename}.png`;
+
+  // Prefer canvas.toBlob(): it produces a real binary PNG file with the
+  // correct "image/png" MIME type. The previous implementation downloaded
+  // the raw base64 data-URL string directly via the anchor's href, which
+  // several mobile browsers/webviews (and some in-app browsers) save as a
+  // corrupted or truncated file instead of a valid PNG — hence "This
+  // format is not supported" when opening it in Gallery/Photos.
+  if (canvas.toBlob) {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        downloadQrCanvasFallback(canvas, safeFilename);
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      triggerDownload(url, safeFilename);
+      // Revoke after the browser has had a chance to start the download.
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, "image/png");
+  } else {
+    downloadQrCanvasFallback(canvas, safeFilename);
+  }
 }
 import {
   listMyEnrollments,
