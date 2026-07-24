@@ -404,9 +404,9 @@ function Index() {
       fetchPrograms({ data: { kind: "workshop" } })
         .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
         .catch(() => setWorkshops([]));
-      listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch(() => setCelebrities([]));
-      listPublicBrands().then((r: any) => setBrands(r ?? [])).catch(() => setBrands([]));
-      listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch(() => setGlobe([]));
+      listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch((e) => { console.error("Failed to load celebrities:", e); setCelebrities([]); });
+      listPublicBrands().then((r: any) => setBrands(r ?? [])).catch((e) => { console.error("Failed to load brands:", e); setBrands([]); });
+      listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch((e) => { console.error("Failed to load globe locations:", e); setGlobe([]); });
       getFeaturedExperience().then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
       listGalleryItems().then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
       listDanceStyles().then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
