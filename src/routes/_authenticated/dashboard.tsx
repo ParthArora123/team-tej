@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
-import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket } from "lucide-react";
+import { Clock, CheckCircle2, XCircle, Upload, ShieldCheck, Ticket, LogOut } from "lucide-react";
 import {
   listMyEnrollments,
   markPaymentSubmitted,
@@ -22,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function StudentDashboard() {
   const fetchMine = useServerFn(listMyEnrollments);
   const adminCheck = useServerFn(checkIsAdmin);
+  const navigate = useNavigate();
   const [rows, setRows] = useState<any[] | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -33,6 +34,11 @@ function StudentDashboard() {
 
   useEffect(() => { load(); }, []);
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  };
+
   return (
     <div className="min-h-screen pt-24 pb-16 px-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -40,13 +46,21 @@ function StudentDashboard() {
           <p className="text-xs uppercase tracking-widest text-primary">My dashboard</p>
           <h1 className="mt-1 font-display text-4xl font-bold">Your registrations</h1>
         </div>
-        {isAdmin && (
-          <Link
-            to="/admin"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-            <ShieldCheck size={16} /> Admin control room
-          </Link>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium">
+              <ShieldCheck size={16} /> Admin control room
+            </Link>
+          )}
+          <button
+            onClick={handleSignOut}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-muted/40 text-foreground text-sm font-medium hover:bg-muted transition"
+          >
+            <LogOut size={16} /> Sign out
+          </button>
+        </div>
       </div>
 
       <div className="mt-8 space-y-6">
