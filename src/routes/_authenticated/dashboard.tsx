@@ -72,47 +72,29 @@ async function shareOrDownloadBlob(blob: Blob, filename: string) {
   triggerBlobDownload(blob, filename);
 }
 
-async function downloadQrPng(containerId: string, filename: string, size = 720) {
+async function downloadQrPng(value: string, filename: string, size = 720) {
+  if (!value) return;
   const safeFilename = filename.toLowerCase().endsWith(".png") ? filename : `${filename}.png`;
 
-  const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
-  if (sourceCanvas) {
-    const padding = Math.round(size * 0.08);
-    const qrSize = size - padding * 2;
-    const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, size, size);
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(sourceCanvas, padding, padding, qrSize, qrSize);
-
-    // Use canvas.toBlob() to get a real binary PNG with the correct
-    // "image/png" MIME type, instead of handing a raw base64 data-URL
-    // string to the anchor's href (that was producing corrupted/
-    // unrecognized files on save).
-    const blob = await canvasToPngBlob(canvas);
-    if (!blob) return;
-    await shareOrDownloadBlob(blob, safeFilename);
-    return;
-  }
-
-  const svg = document.querySelector(`#${containerId} svg`) as SVGSVGElement | null;
-  if (!svg) return;
-  const xml = new XMLSerializer().serializeToString(svg);
-  const svg64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(xml)));
-  const img = new Image();
-  img.crossOrigin = "anonymous";
-  await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; img.src = svg64; });
-  const canvas = document.createElement("canvas");
-  canvas.width = size; canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, size, size);
-  ctx.drawImage(img, 0, 0, size, size);
-
-  const blob = await canvasToPngBlob(canvas);
-  if (!blob) return;
+  // Generate the PNG from scratch via the `qrcode` library rather than
+  // rasterising the on-screen <canvas>. Rendering from the DOM was producing
+  // files that some mobile galleries refused to open ("format not supported"),
+  // because the WebView's canvas.toBlob output was occasionally wrapped with
+  // the wrong extension by the in-app browser. `QRCode.toDataURL` gives us a
+  // guaranteed, standards-compliant PNG payload we can decode into a Blob
+  // with the correct `image/png` MIME type.
+  const QRCode = (await import("qrcode")).default;
+  const dataUrl = await QRCode.toDataURL(value, {
+    errorCorrectionLevel: "Q",
+    margin: 4,
+    width: size,
+    color: { dark: "#000000", light: "#ffffff" },
+  });
+  const base64 = dataUrl.split(",")[1] ?? "";
+  const byteString = atob(base64);
+  const bytes = new Uint8Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) bytes[i] = byteString.charCodeAt(i);
+  const blob = new Blob([bytes], { type: "image/png" });
   await shareOrDownloadBlob(blob, safeFilename);
 }
 import { useServerFn } from "@tanstack/react-start";
