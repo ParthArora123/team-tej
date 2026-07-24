@@ -151,6 +151,7 @@ function EnrollmentCard({ enr, onChange }: { enr: any; onChange: () => void }) {
         <div className="mt-5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col sm:flex-row items-center gap-4">
           <div className="p-2 bg-white rounded">
             <QRCodeCanvas
+              id={`ticket-qr-${enr.id}`}
               value={`${typeof window !== "undefined" ? window.location.origin : ""}/verify?code=${enr.ticket_code}`}
               size={128}
             />
@@ -161,6 +162,12 @@ function EnrollmentCard({ enr, onChange }: { enr: any; onChange: () => void }) {
             </p>
             <p className="mt-1 font-mono text-lg font-bold">{enr.ticket_code}</p>
             <p className="text-xs text-muted-foreground mt-1">Show this QR at the venue entry.</p>
+            <button
+              onClick={() => downloadQrCanvas(`ticket-qr-${enr.id}`, `ticket-${enr.ticket_code}.png`)}
+              className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500 text-white text-xs font-medium hover:bg-emerald-600 transition"
+            >
+              <Download size={12} /> Download ticket QR
+            </button>
           </div>
         </div>
       )}
