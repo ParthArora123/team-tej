@@ -1380,7 +1380,7 @@ function CelebritiesTab() {
       for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
       const dataBase64 = btoa(binary);
       const res = await upload({ data: { filename: file.name, contentType: file.type, dataBase64 } });
-      setEdit((s: any) => ({ ...s, photo_path: res.path, photo_url: "", photo_preview: res.url ?? localPreview }));
+      setEdit((s: any) => ({ ...s, photo_path: res.path, photo_url: res.url || "", photo_preview: res.url ?? localPreview }));
       toast.success("Image uploaded");
     } catch (e: any) {
       toast.error(e?.message ?? "Upload failed");
