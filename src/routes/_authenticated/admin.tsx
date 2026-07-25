@@ -1544,7 +1544,7 @@ function GlobeTab() {
   const [edit, setEdit] = useState<any | null>(null);
   const reload = async () => setRows(await list());
   useEffect(() => { reload(); }, []);
-  const empty = { city: "", country: "", status: "conducted" as const, event_date: "", sort_order: 0, published: true };
+  const empty = { city: "", country: "", status: "conducted" as const, event_date: "", sort_order: 0, published: true,to_date:"" };
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
