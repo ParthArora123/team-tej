@@ -178,7 +178,7 @@ function ZeroToHeroPage() {
 
           <div className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl">
             {[
-              ["10+", "Years teaching"], ["Millions", "Dancers reached"],
+              ["16+", "Years teaching"], ["Millions", "Dancers reached"],
               ["24", "Structured lessons"], ["100%", "Beginner-first"],
             ].map(([n, l]) => (
               <div key={l} className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur p-4">
@@ -569,7 +569,7 @@ function ZeroToHeroPage() {
 
               <div className="mt-6 grid grid-cols-3 gap-3 max-w-md">
                 {[
-                  [Trophy, "10+ yrs teaching"],
+                  [Trophy, "16+ yrs teaching"],
                   [Sparkles, "Millions reached"],
                   [Award, "Certified system"],
                 ].map(([I, l], idx) => (
