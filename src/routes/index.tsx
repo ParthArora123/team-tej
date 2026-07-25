@@ -641,7 +641,7 @@ function Index() {
                     style={{ background: "conic-gradient(from 180deg, var(--primary), var(--accent-cyan), var(--accent-pink), var(--primary))" }}
                   />
                   <img
-                    src={founder?.image_url || aboutImg}
+                    src={heroImg}
                     alt="Tejas D Dhoke"
                     className="relative h-full w-full object-cover rounded-full"
                     loading="eager"
