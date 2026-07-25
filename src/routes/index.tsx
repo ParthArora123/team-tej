@@ -1419,7 +1419,7 @@ function FounderSection({ founder }: { founder: any | null }) {
 
   return (
     <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-      <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start>
+      <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
         {/* Portrait — editorial frame */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -1462,7 +1462,6 @@ function FounderSection({ founder }: { founder: any | null }) {
               <p className="font-display text-2xl font-bold mt-1">{name}</p>
             </div>
 
-       
           </div>
         </motion.div>
 
