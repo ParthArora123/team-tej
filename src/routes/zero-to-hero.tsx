@@ -530,7 +530,7 @@ function ZeroToHeroPage() {
               <div className="h-56 w-56 rounded-3xl bg-gradient-to-br from-primary/40 via-fuchsia-500/30 to-transparent p-1">
                 <div className="h-full w-full rounded-[22px] bg-card overflow-hidden">
                   <img
-                    src={founder?.image_url || aboutImg}
+                    src={aboutImg}
                     alt={founder?.name || "Tejas D Dhoke — Founder"}
                     className="h-full w-full object-cover"
                     loading="lazy"
