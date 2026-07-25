@@ -682,7 +682,7 @@ function WorkshopDetailPage() {
       {countdown && !countdown.done && (
         <section id="countdown" className="relative py-14 border-y border-cyan-400/15 bg-black/48">
           <div className="max-w-5xl mx-auto px-6 flex flex-col items-center gap-6">
-            <p className="text-[11px] tracking-[0.4em] uppercase text-cyan-400">Divine Alignment In</p>
+            <p className="text-[11px] tracking-[0.4em] uppercase text-cyan-400">The Workshop Starts In</p>
             <div className="grid grid-cols-4 gap-3 sm:gap-8">
               {[
                 { l: "Days", v: countdown.d },
