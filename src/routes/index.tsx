@@ -1418,7 +1418,7 @@ function FounderSection({ founder }: { founder: any | null }) {
   const hasMore = Boolean(biography || achievements.length || vision || mission);
 
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
       <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
         {/* Portrait — editorial frame */}
         <motion.div
