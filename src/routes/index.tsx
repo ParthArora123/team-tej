@@ -1198,7 +1198,9 @@ function Index() {
                   <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
                   <div className="flex flex-wrap gap-2">
                     {conducted.map((g) => (
-                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{g.city}, {g.country}</span>
+                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">
+                        {g.city}, {g.country}{g.event_date ? ` · ${formatGlobeDateRange(g)}` : ""}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -1209,7 +1211,7 @@ function Index() {
                   <div className="flex flex-wrap gap-2">
                     {upcoming.map((g) => (
                       <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
-                        {g.city}, {g.country}{g.event_date ? ` · ${new Date(g.event_date).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : ""}
+                        {g.city}, {g.country}{g.event_date ? ` · ${formatGlobeDateRange(g)}` : ""}
                       </span>
                     ))}
                   </div>
@@ -1222,6 +1224,20 @@ function Index() {
 
     </>
   );
+}
+
+function formatGlobeDateRange(g: { event_date?: string | null; event_date_to?: string | null }): string {
+  if (!g.event_date) return "";
+  const from = new Date(g.event_date);
+  const fromOpts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
+  if (!g.event_date_to || g.event_date_to === g.event_date) {
+    return from.toLocaleDateString(undefined, { month: "short", year: "numeric" });
+  }
+  const to = new Date(g.event_date_to);
+  const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
+  const fromStr = from.toLocaleDateString(undefined, sameMonth ? { day: "numeric" } : fromOpts);
+  const toStr = to.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return `${fromStr} – ${toStr}`;
 }
 
 function countryToContinent(country: string): string | null {
