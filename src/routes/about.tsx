@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Sparkles, Award, Users } from "lucide-react";
-import aboutImg from "@/assets/about.jpg";
+import aboutImg from "@/assets/founder.jpg";
 import { MotionImage } from "@/components/site/MotionImage";
 import { useServerFn } from "@tanstack/react-start";
 import { getSiteContent } from "@/lib/site-content.functions";
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/about")({
         property: "og:description",
         content: "Meet the company, the craft, and the people behind Tejas D Dhoke.",
       },
-      { property: "og:image", content: "/og-about.jpg" },
+      { property: "og:image", content: "/og-founder.jpg" },
     ],
   }),
   component: About,
