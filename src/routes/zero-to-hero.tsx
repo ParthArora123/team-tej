@@ -13,7 +13,7 @@ import {
 import { listZeroToHeroMedia } from "@/lib/zero-to-hero.functions";
 import { getSiteContent } from "@/lib/site-content.functions";
 import { useServerFn } from "@tanstack/react-start";
-import aboutImg from "@/assets/about.jpg";
+import aboutImg from "@/assets/founder.jpg";
 
 export const Route = createFileRoute("/zero-to-hero")({
   component: ZeroToHeroPage,
