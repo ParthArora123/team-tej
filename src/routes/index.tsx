@@ -11,7 +11,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin } from "lucide-react";
 
-import heroImg from "@/assets/hero.jpg";
+
 import classesImg from "@/assets/classes.jpg";
 import aboutImg from "@/assets/about.jpg";
 
@@ -278,7 +278,7 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
 export const Route = createFileRoute("/")({
   loader: loadHomeData,
   head: ({ loaderData }) => {
-    const firstHero = loaderData?.heroSlides?.[0]?.image_url || heroImg;
+    const firstHero = loaderData?.heroSlides?.[0]?.image_url;
     const preload = preloadLinkForHeroMedia(firstHero);
     const preconnect = preconnectLinkForHeroMedia(firstHero);
     return {
@@ -506,7 +506,7 @@ function Index() {
                 <div
                   className="absolute inset-0 scale-110 blur-2xl opacity-50"
                   style={{
-                    backgroundImage: `url(${heroSlides[slideIdx]?.image_url ?? heroImg})`,
+                    backgroundImage: `url(${heroSlides[slideIdx]?.image_url})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                   }}
@@ -529,12 +529,12 @@ function Index() {
                     alt={heroSlides[slideIdx]?.alt ?? "Tejas D Dhoke"}
                     active
                     priority
-                    fallbackSrc={heroImg}
+                  
                     onReady={() => setHeroReady(true)}
                   />
                 ) : (
                   <img
-                    src={heroImg}
+                   
                     alt="Tejas D Dhoke"
                     className="absolute inset-0 h-full w-full object-cover"
                     fetchPriority="high"
@@ -555,7 +555,7 @@ function Index() {
                       src={s.image_url}
                       alt=""
                       active={false}
-                      fallbackSrc={heroImg}
+                     
                     />
                   ) : null,
                 )}
