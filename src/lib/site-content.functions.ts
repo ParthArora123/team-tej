@@ -31,16 +31,19 @@ async function signIfNeeded(url: string | null | undefined): Promise<string | nu
 export const getSiteContent = createServerFn({ method: "GET" })
   .inputValidator((i) => z.object({ key: z.enum(["contact", "about", "founder", "whatsapp_template"]) }).parse(i))
   .handler(async ({ data }) => {
-    const { data: row, error } = await (pub() as any)
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await (supabaseAdmin as any)
       .from("site_content").select("value").eq("key", data.key).maybeSingle();
-    if (error) throw error;
+    if (error) {
+      console.error("[getSiteContent] Supabase error:", error);
+      throw error;
+    }
     const value = row?.value ?? null;
     if (value && data.key === "founder" && value.image_url) {
       value.image_url = await signIfNeeded(value.image_url);
     }
     return value;
   });
-
 
 export const adminSaveSiteContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
