@@ -1,14 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import { createPublicClient } from "@/integrations/supabase/client.public";
 import { z } from "zod";
 
 function pub() {
-  return createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
-  );
+  return createPublicClient();
 }
 
 // Public reads go through the `programs_public` view, which excludes payment recipient details.

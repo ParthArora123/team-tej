@@ -6,7 +6,6 @@ import { z } from "zod";
 function pub() {
   return createPublicClient();
 }
-
 async function assertAdmin(context: any) {
   const { data, error } = await context.supabase
     .from("user_roles").select("id")

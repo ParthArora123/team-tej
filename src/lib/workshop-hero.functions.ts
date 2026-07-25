@@ -1,16 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { createClient } from "@supabase/supabase-js";
+import { createPublicClient } from "@/integrations/supabase/client.public";
 import { z } from "zod";
 
 const SIGN_TTL = 60 * 60 * 24 * 7; // 7 days
 
 function pub() {
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
-  );
+  return createPublicClient();
 }
 
 async function assertAdmin(context: any) {

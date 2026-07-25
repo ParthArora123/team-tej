@@ -1,17 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { createPublicClient } from "@/integrations/supabase/client.public";
 import { z } from "zod";
 
 function pub() {
-  return createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
-  );
+  return createPublicClient();
 }
-
 async function assertAdmin(context: any) {
   const { data, error } = await context.supabase
     .from("user_roles").select("id")
