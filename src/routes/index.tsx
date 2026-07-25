@@ -304,7 +304,7 @@ export const Route = createFileRoute("/")({
 const stats: { value: number; suffix: string; label: string }[] = [
   { value: 100, suffix: "k+", label: "Dancers Trained" },
   { value: 300, suffix: "+", label: "Live Performances" },
-  { value: 1, suffix: "k+", label: "Workshops" },
+  { value: 1000, suffix: "+", label: "Workshops" },
   { value: 16, suffix: "+", label: "Years of Experience" },
 ];
 
