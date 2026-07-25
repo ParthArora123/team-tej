@@ -35,24 +35,7 @@ const STORAGE_KEY = "tt_testimonials_v1";
 const MAX_SIZE = 500 * 1024 * 1024; // 500 MB
 
 const seed: Testimonial[] = [
-  {
-    id: "seed-1",
-    name: "Riya Menon",
-    role: "Fusion · 2 years",
-    quote:
-      "Tejas D Dhoke re-taught me how to listen to music with my body. The fusion batch is unlike anything else in the city.",
-    video: "",
-    createdAt: 0,
-  },
-  {
-    id: "seed-2",
-    name: "Arjun Patel",
-    role: "Workshop alum",
-    quote:
-      "The Crosswinds weekend rewired how I think about floor work. I walked in nervous, left with a piece I'm proud of.",
-    video: "",
-    createdAt: 0,
-  },
+
 ];
 
 function Testimonials() {
