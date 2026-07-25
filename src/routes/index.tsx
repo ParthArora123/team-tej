@@ -13,7 +13,7 @@ import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Fac
 
 import heroImg from "@/assets/tejasdhoke.jpg";
 import classesImg from "@/assets/classes.jpg";
-import aboutImg from "@/assets/about.jpg";
+import aboutImg from "@/assets/founder.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
