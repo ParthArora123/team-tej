@@ -30,12 +30,16 @@ async function decorateCelebrities(rows: any[]): Promise<any[]> {
 }
 
 export const listPublicCelebrities = createServerFn({ method: "GET" }).handler(async () => {
-  const { data, error } = await (pub() as any)
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await (supabaseAdmin as any)
     .from("celebrities").select("id,name,role,photo_url,photo_path,sort_order")
     .eq("published", true)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
-  if (error) throw error;
+  if (error) {
+    console.error("[listPublicCelebrities] Supabase error:", error);
+    throw error;
+  }
   return decorateCelebrities(data ?? []);
 });
 
@@ -184,15 +188,18 @@ export const adminDeleteBrand = createServerFn({ method: "POST" })
 
 // ============== GLOBE LOCATIONS ==============
 export const listPublicGlobe = createServerFn({ method: "GET" }).handler(async () => {
-  const { data, error } = await (pub() as any)
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await (supabaseAdmin as any)
     .from("globe_locations").select("id,city,country,status,event_date,sort_order")
     .eq("published", true)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
-  if (error) throw error;
+  if (error) {
+    console.error("[listPublicGlobe] Supabase error:", error);
+    throw error;
+  }
   return data ?? [];
 });
-
 export const adminListGlobe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
