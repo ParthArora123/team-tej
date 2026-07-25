@@ -1437,7 +1437,7 @@ function FounderSection({ founder }: { founder: any | null }) {
           {/* offset border shape behind image */}
           <div aria-hidden className="absolute top-4 -left-4 lg:-left-6 w-full h-full rounded-3xl border border-primary/30" />
 
-          <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/40 border border-border">
+          <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/40 ">
             {image ? (
               <img
                 src={image}
