@@ -582,7 +582,7 @@ function Index() {
             <div className="absolute bottom-8 left-8 z-10">
               <div className="h-px w-16 mb-4" style={{ background: "var(--accent-cyan)" }} />
               <p className="text-[10px] uppercase tracking-[0.4em] font-semibold" style={{ color: "var(--accent-cyan)" }}>
-                Movement Architect
+                Experience The Vibe
               </p>
             </div>
 
