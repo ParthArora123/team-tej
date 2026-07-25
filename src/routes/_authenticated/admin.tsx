@@ -11,9 +11,9 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin } from "lucide-react";
 
-import heroImg from "@/assets/hero.jpg";
+import heroImg from "@/assets/tejasdhoke.jpg";
 import classesImg from "@/assets/classes.jpg";
-import aboutImg from "@/assets/about.jpg";
+import aboutImg from "@/assets/founder.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
