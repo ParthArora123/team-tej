@@ -1419,7 +1419,7 @@ function FounderSection({ founder }: { founder: any | null }) {
 
   return (
     <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
-      <div">
+      <div>
         {/* Portrait — editorial frame */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
