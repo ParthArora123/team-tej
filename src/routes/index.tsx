@@ -678,7 +678,7 @@ function Index() {
                     href="#classes"
                     onClick={(e) => {
                       e.preventDefault();
-                      document.getElementById("classes")?.scrollIntoView({ behavior: "smooth" });
+                      document.getElementById("start-journey")?.scrollIntoView({ behavior: "smooth" });
                     }}
                     className="group inline-flex items-center gap-2 rounded-full px-9 py-4 text-[11px] font-bold uppercase tracking-[0.22em] text-foreground border border-white/15 bg-white/5 backdrop-blur-xl hover:bg-white/10 hover:border-white/30 transition-all"
                   >
@@ -1035,7 +1035,7 @@ function Index() {
       </Suspense>
 
       {/* FINAL CTA */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+      <section id="start-journey" className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
