@@ -1418,8 +1418,8 @@ function FounderSection({ founder }: { founder: any | null }) {
   const hasMore = Boolean(biography || achievements.length || vision || mission);
 
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
-      <div>
+    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+      <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start>
         {/* Portrait — editorial frame */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -1462,11 +1462,7 @@ function FounderSection({ founder }: { founder: any | null }) {
               <p className="font-display text-2xl font-bold mt-1">{name}</p>
             </div>
 
-            {/* corner tick marks — editorial detail */}
-            <span aria-hidden className="absolute top-3 left-3 h-4 w-4 border-t border-l border-white/70" />
-            <span aria-hidden className="absolute top-3 right-3 h-4 w-4 border-t border-r border-white/70" />
-            <span aria-hidden className="absolute bottom-3 left-3 h-4 w-4 border-b border-l border-white/70" />
-            <span aria-hidden className="absolute bottom-3 right-3 h-4 w-4 border-b border-r border-white/70" />
+       
           </div>
         </motion.div>
 
