@@ -12,7 +12,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-
+a
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -39,109 +39,106 @@
 }
 
 
-/* Light theme — Luxury Atelier: warm ivory, champagne, sage & muted teal with taupe accents */
+/* Light theme — Golden Ivory: warm ivory & black with rich gold accents */
 :root {
   --radius: 0.75rem;
 
-  /* Mist Blue palette — hex references:
-     #E7EEF5 background, #DDE8F2 surface, #F3F7FB card, #C8D4E3 border,
-     #2C3440 foreground, #5F6B7A muted-fg, #3F6FD9 primary, #8EA9C8 accent */
-  --background: oklch(0.945 0.012 250);        /* #E7EEF5 mist blue */
-  --foreground: oklch(0.30 0.020 255);         /* #2C3440 deep charcoal */
-  --surface: oklch(0.918 0.016 250);           /* #DDE8F2 powder blue */
+  --background: oklch(0.970 0.014 85);         /* warm ivory */
+  --foreground: oklch(0.16 0.012 60);          /* near-black warm charcoal */
+  --surface: oklch(0.940 0.018 85);            /* soft champagne */
 
-  --card: oklch(0.968 0.010 248);              /* #F3F7FB porcelain blue */
-  --card-foreground: oklch(0.30 0.020 255);
-  --popover: oklch(0.975 0.008 248);
-  --popover-foreground: oklch(0.30 0.020 255);
+  --card: oklch(0.985 0.010 85);
+  --card-foreground: oklch(0.16 0.012 60);
+  --popover: oklch(0.980 0.010 85);
+  --popover-foreground: oklch(0.16 0.012 60);
 
-  --primary: oklch(0.56 0.16 260);             /* #3F6FD9 royal blue */
-  --primary-foreground: oklch(0.985 0.005 250);
+  --primary: oklch(0.62 0.15 65);              /* deep readable amber-orange */
+  --primary-foreground: oklch(0.99 0.006 85);
 
-  --secondary: oklch(0.895 0.020 250);         /* soft powder */
-  --secondary-foreground: oklch(0.30 0.020 255);
+  --secondary: oklch(0.90 0.020 70);           /* soft champagne */
+  --secondary-foreground: oklch(0.16 0.012 60);
 
-  --muted: oklch(0.910 0.016 250);
-  --muted-foreground: oklch(0.50 0.020 255);   /* #5F6B7A slate gray */
+  --muted: oklch(0.92 0.018 70);
+  --muted-foreground: oklch(0.42 0.020 60);    /* warm charcoal-gray */
 
-  --accent: oklch(0.72 0.055 255);             /* #8EA9C8 silver blue */
-  --accent-foreground: oklch(0.22 0.020 255);
+  --accent: oklch(0.68 0.13 58);               /* bronze / apricot */
+  --accent-foreground: oklch(0.99 0.006 85);
 
   --destructive: oklch(0.55 0.18 25);
-  --destructive-foreground: oklch(0.985 0.005 250);
+  --destructive-foreground: oklch(0.99 0.005 250);
 
-  --border: oklch(0.845 0.020 250);            /* #C8D4E3 soft blue gray */
-  --input: oklch(0.88 0.016 250);
-  --ring: oklch(0.60 0.15 260);
+  --border: oklch(0.84 0.030 65);              /* soft amber-tinted border */
+  --input: oklch(0.90 0.020 70);
+  --ring: oklch(0.62 0.15 65);
 
-  --accent-cyan: oklch(0.72 0.10 235);
-  --accent-pink: oklch(0.70 0.075 280);
-  --accent-blue: oklch(0.56 0.16 260);
-  --accent-emerald: oklch(0.68 0.075 220);
-  --accent-gold: oklch(0.75 0.055 255);        /* re-mapped to silver blue for consistency */
+  --accent-cyan: oklch(0.62 0.15 65);
+  --accent-pink: oklch(0.68 0.13 58);
+  --accent-blue: oklch(0.45 0.10 55);
+  --accent-emerald: oklch(0.55 0.09 140);
+  --accent-gold: oklch(0.60 0.16 68);
 
-  --gradient-primary: linear-gradient(135deg, oklch(0.56 0.16 260), oklch(0.72 0.10 235));
-  --gradient-royal: linear-gradient(135deg, oklch(0.48 0.17 262) 0%, oklch(0.60 0.14 250) 50%, oklch(0.75 0.06 255) 100%);
-  --gradient-aurora: linear-gradient(120deg, oklch(0.94 0.018 250), oklch(0.92 0.024 235) 45%, oklch(0.93 0.020 265));
+  --gradient-primary: linear-gradient(135deg, oklch(0.62 0.15 65), oklch(0.45 0.10 55));
+  --gradient-royal: linear-gradient(135deg, oklch(0.68 0.13 58) 0%, oklch(0.60 0.16 68) 50%, oklch(0.42 0.10 55) 100%);
+  --gradient-aurora: linear-gradient(120deg, oklch(0.96 0.018 70), oklch(0.93 0.024 65) 45%, oklch(0.94 0.020 60));
   --gradient-hero:
     radial-gradient(ellipse 90% 65% at 15% 0%,  color-mix(in oklab, var(--primary) 18%, transparent), transparent 62%),
-    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, var(--accent-cyan) 16%, transparent), transparent 65%),
-    radial-gradient(ellipse 80% 60% at 50% 100%,color-mix(in oklab, var(--accent) 22%, transparent), transparent 60%);
+    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 65%),
+    radial-gradient(ellipse 80% 60% at 50% 100%,color-mix(in oklab, var(--accent-gold) 22%, transparent), transparent 60%);
   --shadow-soft:
-    0 1px 2px oklch(0.30 0.05 255 / 6%),
-    0 12px 36px -14px oklch(0.30 0.05 255 / 14%),
-    0 30px 80px -40px oklch(0.30 0.05 255 / 14%);
+    0 1px 2px oklch(0.16 0.05 60 / 6%),
+    0 12px 36px -14px oklch(0.16 0.05 60 / 14%),
+    0 30px 80px -40px oklch(0.16 0.05 60 / 14%);
   --shadow-glow: 0 20px 60px -24px color-mix(in oklab, var(--primary) 45%, transparent);
-  --shadow-gold: 0 12px 40px -14px color-mix(in oklab, var(--accent) 55%, transparent);
+  --shadow-gold: 0 12px 40px -14px color-mix(in oklab, var(--accent-gold) 55%, transparent);
 
 }
 
 
-/* Dark theme — Neon Midnight: obsidian stage with electric cyan + magenta neon */
+/* Dark theme — Golden Noir: obsidian black stage with rich amber-gold + bronze accents */
 .dark {
-  --background: oklch(0.08 0.015 275);         /* #0a0a12 obsidian */
-  --foreground: oklch(0.97 0.005 260);
-  --surface: oklch(0.15 0.035 275);            /* #141428 midnight */
+  --background: oklch(0.12 0.008 45);          /* obsidian black, warm amber undertone */
+  --foreground: oklch(0.96 0.010 85);          /* warm ivory white */
+  --surface: oklch(0.16 0.012 50);
 
-  --card: oklch(0.15 0.035 275);
-  --card-foreground: oklch(0.97 0.005 260);
-  --popover: oklch(0.12 0.03 275);
-  --popover-foreground: oklch(0.97 0.005 260);
+  --card: oklch(0.17 0.014 50);
+  --card-foreground: oklch(0.96 0.010 85);
+  --popover: oklch(0.15 0.012 50);
+  --popover-foreground: oklch(0.96 0.010 85);
 
-  --primary: oklch(0.82 0.16 210);             /* #22d3ee electric cyan */
-  --primary-foreground: oklch(0.08 0.015 275);
+  --primary: oklch(0.78 0.16 65);              /* amber-orange gold */
+  --primary-foreground: oklch(0.12 0.012 50);  /* near-black text on gold */
 
-  --secondary: oklch(0.2 0.03 275);
-  --secondary-foreground: oklch(0.97 0.005 260);
+  --secondary: oklch(0.21 0.016 50);
+  --secondary-foreground: oklch(0.96 0.010 85);
 
-  --muted: oklch(0.2 0.03 275);
-  --muted-foreground: oklch(0.72 0.025 260);
+  --muted: oklch(0.19 0.014 50);
+  --muted-foreground: oklch(0.68 0.020 65);
 
-  --accent: oklch(0.78 0.24 330);              /* #e879f9 neon magenta */
-  --accent-foreground: oklch(0.08 0.015 275);
+  --accent: oklch(0.80 0.13 60);               /* lighter apricot / champagne */
+  --accent-foreground: oklch(0.12 0.012 50);
 
-  --destructive: oklch(0.65 0.22 25);
+  --destructive: oklch(0.60 0.20 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.82 0.16 210);
+  --ring: oklch(0.78 0.16 65);
 
-  --accent-cyan: oklch(0.82 0.16 210);         /* electric cyan */
-  --accent-pink: oklch(0.78 0.24 330);         /* neon magenta */
-  --accent-blue: oklch(0.6 0.22 265);          /* neon indigo */
-  --accent-emerald: oklch(0.78 0.2 165);
-  --accent-gold: oklch(0.86 0.16 90);
+  --accent-cyan: oklch(0.78 0.16 65);          /* amber-orange gold */
+  --accent-pink: oklch(0.80 0.13 60);          /* apricot */
+  --accent-blue: oklch(0.58 0.11 55);          /* deep bronze */
+  --accent-emerald: oklch(0.70 0.09 130);
+  --accent-gold: oklch(0.80 0.17 68);
 
-  --gradient-primary: linear-gradient(135deg, oklch(0.82 0.16 210), oklch(0.78 0.24 330));
-  --gradient-royal: linear-gradient(135deg, oklch(0.82 0.16 210) 0%, oklch(0.55 0.22 265) 50%, oklch(0.78 0.24 330) 100%);
-  --gradient-aurora: linear-gradient(120deg, oklch(0.82 0.16 210), oklch(0.55 0.22 265) 45%, oklch(0.78 0.24 330));
-  --gradient-hero: radial-gradient(ellipse 70% 55% at 15% 0%, color-mix(in oklab, var(--accent-cyan) 32%, transparent), transparent 60%),
-                   radial-gradient(ellipse 55% 45% at 90% 20%, color-mix(in oklab, var(--accent-pink) 28%, transparent), transparent 65%),
-                   radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in oklab, var(--accent-blue) 24%, transparent), transparent 60%);
+  --gradient-primary: linear-gradient(135deg, oklch(0.78 0.16 65), oklch(0.58 0.11 55));
+  --gradient-royal: linear-gradient(135deg, oklch(0.85 0.13 70) 0%, oklch(0.72 0.16 65) 50%, oklch(0.55 0.11 55) 100%);
+  --gradient-aurora: linear-gradient(120deg, oklch(0.78 0.16 65), oklch(0.58 0.11 55) 45%, oklch(0.80 0.13 60));
+  --gradient-hero: radial-gradient(ellipse 70% 55% at 15% 0%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 60%),
+                   radial-gradient(ellipse 55% 45% at 90% 20%, color-mix(in oklab, var(--accent) 24%, transparent), transparent 65%),
+                   radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in oklab, var(--accent-blue) 20%, transparent), transparent 60%);
   --shadow-soft: 0 1px 2px oklch(0 0 0 / 50%), 0 12px 36px -8px oklch(0 0 0 / 60%);
-  --shadow-glow: 0 20px 70px -20px color-mix(in oklab, var(--primary) 75%, transparent);
-  --shadow-gold: 0 10px 40px -12px color-mix(in oklab, var(--accent-pink) 55%, transparent);
+  --shadow-glow: 0 20px 70px -20px color-mix(in oklab, var(--primary) 65%, transparent);
+  --shadow-gold: 0 10px 40px -12px color-mix(in oklab, var(--accent-gold) 55%, transparent);
 }
 
 @layer base {
@@ -610,3 +607,86 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
   animation: register-flash 1.4s ease-out;
   border-radius: 1.5rem;
 }
+
+/* ==========================================================
+   Golden Noir theme — hardcoded neon color overrides.
+   Several pages (workshop detail, Zero to Hero, admin) use
+   literal Tailwind color utilities (cyan/fuchsia/amber/blue/
+   violet) baked into JSX instead of the CSS variable system
+   above. Rather than hand-edit every className in those
+   files, every exact color class actually used in the
+   codebase is remapped here to the gold/bronze palette via
+   attribute selectors. Applies in both light and dark mode
+   since it references the same --primary/--accent/--accent-gold
+   variables, which are already themed above.
+   ========================================================== */
+
+[class~="bg-amber-200/80"] { background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-gold) 68%, white) 80%, transparent) !important; }
+[class~="bg-amber-500/15"] { background-color: color-mix(in oklab, color-mix(in oklab, var(--accent-gold) 88%, black) 15%, transparent) !important; }
+[class~="bg-blue-500/15"] { background-color: color-mix(in oklab, color-mix(in oklab, var(--primary) 88%, black) 15%, transparent) !important; }
+[class~="bg-cyan-200"] { background-color: color-mix(in oklab, var(--primary) 68%, white) !important; }
+[class~="bg-cyan-400/10"] { background-color: color-mix(in oklab, var(--primary) 10%, transparent) !important; }
+[class~="bg-cyan-400/20"] { background-color: color-mix(in oklab, var(--primary) 20%, transparent) !important; }
+[class~="bg-cyan-400/30"] { background-color: color-mix(in oklab, var(--primary) 30%, transparent) !important; }
+[class~="bg-cyan-500/10"] { background-color: color-mix(in oklab, color-mix(in oklab, var(--primary) 88%, black) 10%, transparent) !important; }
+[class~="bg-cyan-500/5"] { background-color: color-mix(in oklab, color-mix(in oklab, var(--primary) 88%, black) 5%, transparent) !important; }
+[class~="bg-fuchsia-500/10"] { background-color: color-mix(in oklab, color-mix(in oklab, var(--accent) 88%, black) 10%, transparent) !important; }
+[class~="bg-fuchsia-500/20"] { background-color: color-mix(in oklab, color-mix(in oklab, var(--accent) 88%, black) 20%, transparent) !important; }
+[class~="border-cyan-300/70"] { border-color: color-mix(in oklab, color-mix(in oklab, var(--primary) 85%, white) 70%, transparent) !important; }
+[class~="border-cyan-400"] { border-color: var(--primary) !important; }
+[class~="border-cyan-400/10"] { border-color: color-mix(in oklab, var(--primary) 10%, transparent) !important; }
+[class~="border-cyan-400/15"] { border-color: color-mix(in oklab, var(--primary) 15%, transparent) !important; }
+[class~="border-cyan-400/20"] { border-color: color-mix(in oklab, var(--primary) 20%, transparent) !important; }
+[class~="border-cyan-400/25"] { border-color: color-mix(in oklab, var(--primary) 25%, transparent) !important; }
+[class~="border-cyan-400/30"] { border-color: color-mix(in oklab, var(--primary) 30%, transparent) !important; }
+[class~="border-cyan-400/40"] { border-color: color-mix(in oklab, var(--primary) 40%, transparent) !important; }
+[class~="border-cyan-400/50"] { border-color: color-mix(in oklab, var(--primary) 50%, transparent) !important; }
+[class~="border-cyan-400/60"] { border-color: color-mix(in oklab, var(--primary) 60%, transparent) !important; }
+[class~="from-amber-300"] { --tw-gradient-from: color-mix(in oklab, var(--accent-gold) 85%, white) !important; }
+[class~="from-amber-400"] { --tw-gradient-from: var(--accent-gold) !important; }
+[class~="from-cyan-100"] { --tw-gradient-from: color-mix(in oklab, var(--primary) 50%, white) !important; }
+[class~="from-cyan-200"] { --tw-gradient-from: color-mix(in oklab, var(--primary) 68%, white) !important; }
+[class~="from-cyan-300"] { --tw-gradient-from: color-mix(in oklab, var(--primary) 85%, white) !important; }
+[class~="from-cyan-400/70"] { --tw-gradient-from: color-mix(in oklab, var(--primary) 70%, transparent) !important; }
+[class~="from-cyan-500/15"] { --tw-gradient-from: color-mix(in oklab, color-mix(in oklab, var(--primary) 88%, black) 15%, transparent) !important; }
+[class~="from-fuchsia-400"] { --tw-gradient-from: var(--accent) !important; }
+[class~="from-fuchsia-900/40"] { --tw-gradient-from: color-mix(in oklab, color-mix(in oklab, var(--accent) 65%, black) 40%, transparent) !important; }
+[class~="text-amber-300/80"] { color: color-mix(in oklab, color-mix(in oklab, var(--accent-gold) 85%, white) 80%, transparent) !important; }
+[class~="text-amber-400"] { color: var(--accent-gold) !important; }
+[class~="text-amber-500"] { color: color-mix(in oklab, var(--accent-gold) 88%, black) !important; }
+[class~="text-blue-400"] { color: var(--primary) !important; }
+[class~="text-cyan-100"] { color: color-mix(in oklab, var(--primary) 50%, white) !important; }
+[class~="text-cyan-100/50"] { color: color-mix(in oklab, color-mix(in oklab, var(--primary) 50%, white) 50%, transparent) !important; }
+[class~="text-cyan-100/60"] { color: color-mix(in oklab, color-mix(in oklab, var(--primary) 50%, white) 60%, transparent) !important; }
+[class~="text-cyan-100/70"] { color: color-mix(in oklab, color-mix(in oklab, var(--primary) 50%, white) 70%, transparent) !important; }
+[class~="text-cyan-100/85"] { color: color-mix(in oklab, color-mix(in oklab, var(--primary) 50%, white) 85%, transparent) !important; }
+[class~="text-cyan-200"] { color: color-mix(in oklab, var(--primary) 68%, white) !important; }
+[class~="text-cyan-200/70"] { color: color-mix(in oklab, color-mix(in oklab, var(--primary) 68%, white) 70%, transparent) !important; }
+[class~="text-cyan-200/80"] { color: color-mix(in oklab, color-mix(in oklab, var(--primary) 68%, white) 80%, transparent) !important; }
+[class~="text-cyan-300"] { color: color-mix(in oklab, var(--primary) 85%, white) !important; }
+[class~="text-cyan-300/80"] { color: color-mix(in oklab, color-mix(in oklab, var(--primary) 85%, white) 80%, transparent) !important; }
+[class~="text-cyan-300/90"] { color: color-mix(in oklab, color-mix(in oklab, var(--primary) 85%, white) 90%, transparent) !important; }
+[class~="text-cyan-400"] { color: var(--primary) !important; }
+[class~="text-cyan-400/50"] { color: color-mix(in oklab, var(--primary) 50%, transparent) !important; }
+[class~="text-cyan-400/60"] { color: color-mix(in oklab, var(--primary) 60%, transparent) !important; }
+[class~="text-cyan-400/80"] { color: color-mix(in oklab, var(--primary) 80%, transparent) !important; }
+[class~="text-cyan-400/90"] { color: color-mix(in oklab, var(--primary) 90%, transparent) !important; }
+[class~="text-cyan-50"] { color: color-mix(in oklab, var(--primary) 35%, white) !important; }
+[class~="text-cyan-50/70"] { color: color-mix(in oklab, color-mix(in oklab, var(--primary) 35%, white) 70%, transparent) !important; }
+[class~="text-cyan-50/90"] { color: color-mix(in oklab, color-mix(in oklab, var(--primary) 35%, white) 90%, transparent) !important; }
+[class~="to-amber-300"] { --tw-gradient-to: color-mix(in oklab, var(--accent-gold) 85%, white) !important; }
+[class~="to-cyan-300/8"] { --tw-gradient-to: color-mix(in oklab, color-mix(in oklab, var(--primary) 85%, white) 8%, transparent) !important; }
+[class~="to-cyan-500"] { --tw-gradient-to: color-mix(in oklab, var(--primary) 88%, black) !important; }
+[class~="to-emerald-300"] { --tw-gradient-to: color-mix(in oklab, var(--primary) 85%, white) !important; }
+[class~="to-fuchsia-400"] { --tw-gradient-to: var(--accent) !important; }
+[class~="to-fuchsia-500"] { --tw-gradient-to: color-mix(in oklab, var(--accent) 88%, black) !important; }
+[class~="to-fuchsia-500/10"] { --tw-gradient-to: color-mix(in oklab, color-mix(in oklab, var(--accent) 88%, black) 10%, transparent) !important; }
+[class~="to-fuchsia-500/15"] { --tw-gradient-to: color-mix(in oklab, color-mix(in oklab, var(--accent) 88%, black) 15%, transparent) !important; }
+[class~="to-fuchsia-600"] { --tw-gradient-to: color-mix(in oklab, var(--accent) 65%, black) !important; }
+[class~="via-amber-300"] { --tw-gradient-via: color-mix(in oklab, var(--accent-gold) 85%, white) !important; }
+[class~="via-cyan-300"] { --tw-gradient-via: color-mix(in oklab, var(--primary) 85%, white) !important; }
+[class~="via-cyan-400"] { --tw-gradient-via: var(--primary) !important; }
+[class~="via-cyan-400/40"] { --tw-gradient-via: color-mix(in oklab, var(--primary) 40%, transparent) !important; }
+[class~="via-cyan-400/70"] { --tw-gradient-via: color-mix(in oklab, var(--primary) 70%, transparent) !important; }
+[class~="via-fuchsia-500/30"] { --tw-gradient-via: color-mix(in oklab, color-mix(in oklab, var(--accent) 88%, black) 30%, transparent) !important; }
+[class~="via-violet-400"] { --tw-gradient-via: var(--accent) !important; }
