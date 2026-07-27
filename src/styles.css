@@ -39,7 +39,7 @@
 }
 
 
-/* Light theme — Golden Ivory: warm ivory & black with rich amber-gold accents */
+/* Light theme — Golden Ivory: warm ivory & black with rich gold accents */
 :root {
   --radius: 0.75rem;
 
@@ -52,7 +52,7 @@
   --popover: oklch(0.980 0.010 85);
   --popover-foreground: oklch(0.16 0.012 60);
 
-  --primary: oklch(0.62 0.15 65);              /* deep readable amber-orange */
+  --primary: oklch(0.58 0.14 63);              /* deep readable amber-orange, dialed back */
   --primary-foreground: oklch(0.99 0.006 85);
 
   --secondary: oklch(0.90 0.020 70);           /* soft champagne */
@@ -61,7 +61,7 @@
   --muted: oklch(0.92 0.018 70);
   --muted-foreground: oklch(0.42 0.020 60);    /* warm charcoal-gray */
 
-  --accent: oklch(0.68 0.13 58);               /* bronze / apricot */
+  --accent: oklch(0.64 0.12 58);               /* bronze / apricot */
   --accent-foreground: oklch(0.99 0.006 85);
 
   --destructive: oklch(0.55 0.18 25);
@@ -69,16 +69,16 @@
 
   --border: oklch(0.84 0.030 65);              /* soft amber-tinted border */
   --input: oklch(0.90 0.020 70);
-  --ring: oklch(0.62 0.15 65);
+  --ring: oklch(0.58 0.14 63);
 
-  --accent-cyan: oklch(0.62 0.15 65);
-  --accent-pink: oklch(0.68 0.13 58);
-  --accent-blue: oklch(0.45 0.10 55);
+  --accent-cyan: oklch(0.58 0.14 63);
+  --accent-pink: oklch(0.64 0.12 58);
+  --accent-blue: oklch(0.42 0.10 55);
   --accent-emerald: oklch(0.55 0.09 140);
-  --accent-gold: oklch(0.60 0.16 68);
+  --accent-gold: oklch(0.56 0.15 66);
 
-  --gradient-primary: linear-gradient(135deg, oklch(0.62 0.15 65), oklch(0.45 0.10 55));
-  --gradient-royal: linear-gradient(135deg, oklch(0.68 0.13 58) 0%, oklch(0.60 0.16 68) 50%, oklch(0.42 0.10 55) 100%);
+  --gradient-primary: linear-gradient(135deg, oklch(0.58 0.14 63), oklch(0.42 0.10 55));
+  --gradient-royal: linear-gradient(135deg, oklch(0.64 0.12 58) 0%, oklch(0.56 0.15 66) 50%, oklch(0.40 0.10 55) 100%);
   --gradient-aurora: linear-gradient(120deg, oklch(0.96 0.018 70), oklch(0.93 0.024 65) 45%, oklch(0.94 0.020 60));
   --gradient-hero:
     radial-gradient(ellipse 90% 65% at 15% 0%,  color-mix(in oklab, var(--primary) 18%, transparent), transparent 62%),
@@ -105,7 +105,7 @@
   --popover: oklch(0.15 0.012 50);
   --popover-foreground: oklch(0.96 0.010 85);
 
-  --primary: oklch(0.78 0.16 65);              /* amber-orange gold */
+  --primary: oklch(0.68 0.14 63);              /* amber-orange gold, dialed back */
   --primary-foreground: oklch(0.12 0.012 50);  /* near-black text on gold */
 
   --secondary: oklch(0.21 0.016 50);
@@ -114,7 +114,7 @@
   --muted: oklch(0.19 0.014 50);
   --muted-foreground: oklch(0.68 0.020 65);
 
-  --accent: oklch(0.80 0.13 60);               /* lighter apricot / champagne */
+  --accent: oklch(0.72 0.12 60);               /* lighter apricot / champagne */
   --accent-foreground: oklch(0.12 0.012 50);
 
   --destructive: oklch(0.60 0.20 25);
@@ -122,17 +122,17 @@
 
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.78 0.16 65);
+  --ring: oklch(0.68 0.14 63);
 
-  --accent-cyan: oklch(0.78 0.16 65);          /* amber-orange gold */
-  --accent-pink: oklch(0.80 0.13 60);          /* apricot */
-  --accent-blue: oklch(0.58 0.11 55);          /* deep bronze */
+  --accent-cyan: oklch(0.68 0.14 63);          /* amber-orange gold */
+  --accent-pink: oklch(0.72 0.12 60);          /* apricot */
+  --accent-blue: oklch(0.52 0.10 55);          /* deep bronze */
   --accent-emerald: oklch(0.70 0.09 130);
-  --accent-gold: oklch(0.80 0.17 68);
+  --accent-gold: oklch(0.72 0.15 66);
 
-  --gradient-primary: linear-gradient(135deg, oklch(0.78 0.16 65), oklch(0.58 0.11 55));
-  --gradient-royal: linear-gradient(135deg, oklch(0.85 0.13 70) 0%, oklch(0.72 0.16 65) 50%, oklch(0.55 0.11 55) 100%);
-  --gradient-aurora: linear-gradient(120deg, oklch(0.78 0.16 65), oklch(0.58 0.11 55) 45%, oklch(0.80 0.13 60));
+  --gradient-primary: linear-gradient(135deg, oklch(0.68 0.14 63), oklch(0.52 0.10 55));
+  --gradient-royal: linear-gradient(135deg, oklch(0.75 0.12 68) 0%, oklch(0.64 0.14 63) 50%, oklch(0.48 0.10 55) 100%);
+  --gradient-aurora: linear-gradient(120deg, oklch(0.68 0.14 63), oklch(0.52 0.10 55) 45%, oklch(0.72 0.12 60));
   --gradient-hero: radial-gradient(ellipse 70% 55% at 15% 0%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 60%),
                    radial-gradient(ellipse 55% 45% at 90% 20%, color-mix(in oklab, var(--accent) 24%, transparent), transparent 65%),
                    radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in oklab, var(--accent-blue) 20%, transparent), transparent 60%);
@@ -690,3 +690,51 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
 [class~="via-cyan-400/70"] { --tw-gradient-via: color-mix(in oklab, var(--primary) 70%, transparent) !important; }
 [class~="via-fuchsia-500/30"] { --tw-gradient-via: color-mix(in oklab, color-mix(in oklab, var(--accent) 88%, black) 30%, transparent) !important; }
 [class~="via-violet-400"] { --tw-gradient-via: var(--accent) !important; }
+
+/* ==========================================================
+   Workshop Detail Page — broad safety net (both light & dark).
+   The exact-match rules above cover every class actually found
+   in the codebase at time of writing, but if a shade/opacity
+   variant was missed, these substring-based rules catch it —
+   scoped tightly to .workshop-detail-page so they can't leak
+   into other pages, and split by property so a text-cyan-400
+   element never accidentally gains a background or border.
+   ========================================================== */
+
+.workshop-detail-page [class*="text-cyan-"],
+.workshop-detail-page [class*="text-fuchsia-"],
+.workshop-detail-page [class*="text-amber-"],
+.workshop-detail-page [class*="text-blue-"],
+.workshop-detail-page [class*="text-violet-"] {
+  color: var(--primary) !important;
+}
+
+.workshop-detail-page [class*="border-cyan-"],
+.workshop-detail-page [class*="border-fuchsia-"],
+.workshop-detail-page [class*="border-amber-"] {
+  border-color: color-mix(in oklab, var(--primary) 40%, var(--border)) !important;
+}
+
+.workshop-detail-page [class*="bg-cyan-"],
+.workshop-detail-page [class*="bg-fuchsia-"],
+.workshop-detail-page [class*="bg-amber-"],
+.workshop-detail-page [class*="bg-blue-"] {
+  background-color: color-mix(in oklab, var(--primary) 16%, transparent) !important;
+}
+
+.workshop-detail-page [class*="from-cyan-"],
+.workshop-detail-page [class*="from-fuchsia-"],
+.workshop-detail-page [class*="from-amber-"] {
+  --tw-gradient-from: var(--primary) !important;
+}
+.workshop-detail-page [class*="via-cyan-"],
+.workshop-detail-page [class*="via-fuchsia-"],
+.workshop-detail-page [class*="via-amber-"],
+.workshop-detail-page [class*="via-violet-"] {
+  --tw-gradient-via: var(--accent) !important;
+}
+.workshop-detail-page [class*="to-cyan-"],
+.workshop-detail-page [class*="to-fuchsia-"],
+.workshop-detail-page [class*="to-amber-"] {
+  --tw-gradient-to: color-mix(in oklab, var(--primary) 85%, black) !important;
+}
