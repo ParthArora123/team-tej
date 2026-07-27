@@ -249,7 +249,7 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
   return (
     <div
       aria-hidden
-      className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#0a0a12]"
+      className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#7A4A18]"
       style={{ contain: "paint" }}
     >
       {/* Hero media — stable, no scale/opacity animations */}
@@ -272,7 +272,7 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
         ) : (
           <div className="h-full w-full bg-[radial-gradient(ellipse_at_50%_36%,rgba(34,211,238,0.22),transparent_58%),linear-gradient(135deg,rgba(20,20,40,0.68),rgba(5,3,1,0.92)_58%,rgba(232,121,249,0.38))]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a12]/55 via-[#0a0a12]/40 to-[#0a0a12]/78" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#7A4A18]/55 via-[#7A4A18]/40 to-[#7A4A18]/78" />
       </motion.div>
 
       {/* Smooth ambient gradient wash (very slow, no pulsing opacity) */}
@@ -518,7 +518,7 @@ function WorkshopDetailPage() {
 
   if (!program) {
     return (
-      <div className="min-h-screen grid place-items-center px-6 bg-[#0a0a12] text-cyan-100">
+      <div className="min-h-screen grid place-items-center px-6 bg-[#7A4A18] text-cyan-100">
         <div className="text-center">
           <p className="text-cyan-100/60">Workshop not found or no longer available.</p>
           <Link to="/workshops" className="mt-4 inline-block text-cyan-400 underline">Back to workshops</Link>
@@ -555,7 +555,7 @@ function WorkshopDetailPage() {
             )
           ) : null}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(34,211,238,0.12),transparent_62%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a12]/34 via-[#0a0a12]/18 to-[#0a0a12]/42" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#7A4A18]/34 via-[#7A4A18]/18 to-[#7A4A18]/42" />
         </motion.div>
 
         <motion.div style={{ opacity: fadeHero }}
