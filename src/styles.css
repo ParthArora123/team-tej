@@ -179,7 +179,7 @@
     radial-gradient(ellipse 60% 50% at 8% 0%,    color-mix(in oklab, var(--primary) 14%, transparent), transparent 62%),
     radial-gradient(ellipse 55% 45% at 100% 12%, color-mix(in oklab, var(--accent-cyan) 14%, transparent), transparent 65%),
     radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in oklab, var(--accent) 20%, transparent), transparent 62%),
-    linear-gradient(180deg, oklch(0.968 0.010 248) 0%, oklch(0.945 0.014 250) 55%, oklch(0.918 0.018 250) 100%);
+    linear-gradient(180deg, oklch(0.97 0.014 85) 0%, oklch(0.94 0.018 70) 55%, oklch(0.90 0.020 65) 100%);
   background-attachment: fixed;
   position: relative;
 }
@@ -434,6 +434,36 @@
   }
 }
 
+/* ==========================================================
+   Mobile performance — backdrop-filter (blur+saturate) is one
+   of the most expensive CSS properties to composite on mobile
+   GPUs, and this site uses it in several places (glass cards,
+   pills, nav). Large animated blur() filters are similarly
+   costly, especially when they run continuously off-screen.
+   These rules cut both down sharply on small screens without
+   changing anything on desktop.
+   ========================================================== */
+@media (max-width: 768px) {
+  .glass,
+  .glass-card,
+  .eyebrow-pill {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .ambient-blobs::before,
+  .ambient-blobs::after {
+    filter: blur(36px);
+    opacity: 0.35;
+  }
+  .blur-3xl {
+    filter: blur(24px) !important;
+  }
+  .holo-gradient {
+    animation: none !important;
+    background-position: 0% 50% !important;
+  }
+}
+
 body:has(.workshop-detail-page) .backdrop-blur,
 body:has(.workshop-detail-page) .backdrop-blur-sm,
 body:has(.workshop-detail-page) .backdrop-blur-md,
@@ -473,9 +503,9 @@ html:not(.dark) .workshop-detail-page {
 /* Living backdrop: swap obsidian for layered mist blue */
 html:not(.dark) .workshop-live-backdrop {
   background: linear-gradient(180deg,
-    oklch(0.968 0.010 248) 0%,
-    oklch(0.945 0.014 250) 55%,
-    oklch(0.918 0.018 250) 100%) !important;
+    oklch(0.97 0.014 85) 0%,
+    oklch(0.94 0.018 70) 55%,
+    oklch(0.90 0.020 65) 100%) !important;
 }
 html:not(.dark) .workshop-live-backdrop > div[class*="bg-[radial-gradient"],
 html:not(.dark) .workshop-live-backdrop > div[class*="bg-gradient-to-b"] {
@@ -599,9 +629,9 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
 
 /* Registration section flash highlight when scrolled to via Register Now CTA */
 @keyframes register-flash {
-  0%   { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.55); }
-  60%  { box-shadow: 0 0 0 22px rgba(34, 211, 238, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 55%, transparent); }
+  60%  { box-shadow: 0 0 0 22px color-mix(in oklab, var(--primary) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 0%, transparent); }
 }
 #register.register-flash {
   animation: register-flash 1.4s ease-out;
