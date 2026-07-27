@@ -574,10 +574,14 @@ html:not(.dark) .workshop-detail-page .aspect-video {
   background-color: color-mix(in oklab, var(--surface) 90%, transparent) !important;
 }
 
-/* Cyan gradient headlines -> royal-blue text */
+/* Cyan gradient headlines -> plain foreground text (see the unscoped,
+   dark-mode-inclusive version further down for the full explanation) */
 html:not(.dark) .workshop-detail-page [class*="bg-clip-text"][class*="text-transparent"] {
-  background-image: linear-gradient(180deg, var(--foreground), var(--primary)) !important;
-  color: transparent !important;
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+  color: var(--foreground) !important;
   filter: none !important;
   text-shadow: none !important;
 }
@@ -805,4 +809,19 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
   --tw-gradient-via: var(--surface) !important;
   --tw-gradient-to: var(--background) !important;
   background-color: var(--background) !important;
+}
+
+/* Headlines on this page use a gradient-clipped-text "glow" effect
+   (bg-clip-text + text-transparent) that every other page doesn't have —
+   that's what was rendering as solid orange instead of the plain white
+   heading text used everywhere else (Home, Workshops listing, Contact).
+   Force it back to plain solid text, matching the rest of the site. */
+.workshop-detail-page [class*="bg-clip-text"][class*="text-transparent"] {
+  background-image: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+  color: var(--foreground) !important;
+  filter: none !important;
+  text-shadow: none !important;
 }
