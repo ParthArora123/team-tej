@@ -561,8 +561,8 @@ html:not(.dark) .workshop-detail-page [class*="border-cyan-300"] {
 }
 
 /* Dark-hex backgrounds -> card surfaces */
-html:not(.dark) .workshop-detail-page [class*="bg-[#0a0a12]"],
-html:not(.dark) .workshop-detail-page [class*="bg-[#141428]"],
+html:not(.dark) .workshop-detail-page [class*="bg-[#2A170B]"],
+html:not(.dark) .workshop-detail-page [class*="bg-[#2A170B]"],
 html:not(.dark) .workshop-detail-page [class*="bg-black"],
 html:not(.dark) .workshop-detail-page [class*="from-slate-950"],
 html:not(.dark) .workshop-detail-page [class*="to-black"],
