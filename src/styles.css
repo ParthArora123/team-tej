@@ -507,6 +507,19 @@ html:not(.dark) .workshop-live-backdrop {
     oklch(0.94 0.018 70) 55%,
     oklch(0.90 0.020 65) 100%) !important;
 }
+
+/* Dark mode: this page's backdrop rendered flat black instead of the
+   warm amber glow every other page gets, because .dark body's own
+   background-image is intentionally disabled (see ".dark body" rule
+   above) and this component never had its own dark-mode background.
+   Give it the same warm radial glow atmosphere directly. */
+.dark .workshop-live-backdrop {
+  background:
+    radial-gradient(ellipse 70% 55% at 20% 10%, color-mix(in oklab, var(--primary) 26%, transparent), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 85% 20%, color-mix(in oklab, var(--accent) 20%, transparent), transparent 65%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, color-mix(in oklab, var(--accent-blue) 18%, transparent), transparent 60%),
+    var(--background) !important;
+}
 html:not(.dark) .workshop-live-backdrop > div[class*="bg-[radial-gradient"],
 html:not(.dark) .workshop-live-backdrop > div[class*="bg-gradient-to-b"] {
   background: radial-gradient(ellipse at 50% 36%,
