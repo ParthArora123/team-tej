@@ -768,3 +768,41 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
 .workshop-detail-page [class*="to-amber-"] {
   --tw-gradient-to: color-mix(in oklab, var(--primary) 85%, black) !important;
 }
+
+/* "slate-950" is a dark NAVY BLUE (#020617), not neutral black — this
+   page uses it as gradient stops for its background wash. Previously
+   only neutralized in light mode; fixed here for dark mode (default)
+   too, using the theme's actual near-black background color instead. */
+[class~="from-slate-950/28"] { --tw-gradient-from: color-mix(in oklab, var(--background) 28%, transparent) !important; }
+[class~="from-slate-950/38"] { --tw-gradient-from: color-mix(in oklab, var(--background) 38%, transparent) !important; }
+[class~="from-slate-950/40"] { --tw-gradient-from: color-mix(in oklab, var(--background) 40%, transparent) !important; }
+[class~="from-slate-950/48"] { --tw-gradient-from: color-mix(in oklab, var(--background) 48%, transparent) !important; }
+[class*="from-slate-"],
+[class*="via-slate-"],
+[class*="to-slate-"] {
+  --tw-gradient-from: var(--background) !important;
+  --tw-gradient-via: var(--surface) !important;
+  --tw-gradient-to: var(--background) !important;
+}
+[class*="bg-slate-"] {
+  background-color: var(--background) !important;
+}
+[class*="border-slate-"] {
+  border-color: var(--border) !important;
+}
+[class*="text-slate-"] {
+  color: var(--muted-foreground) !important;
+}
+
+/* Old "Neon Midnight" theme's obsidian/midnight hex colors — #141428 in
+   particular is genuinely blue-tinted (RGB 20,20,40 — blue channel double
+   red/green). Previously only the plain bg- class was neutralized, and
+   only in light mode. This covers every gradient-stop variant, in both
+   modes, using the theme's actual background/surface colors instead. */
+[class*="[#0a0a12]"],
+[class*="[#141428]"] {
+  --tw-gradient-from: var(--background) !important;
+  --tw-gradient-via: var(--surface) !important;
+  --tw-gradient-to: var(--background) !important;
+  background-color: var(--background) !important;
+}
