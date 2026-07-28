@@ -519,9 +519,9 @@ function Index() {
           />
         </div>
 
-        <div className="relative grid grid-cols-1 lg:grid-cols-2 min-h-[calc(100vh-4rem)]">
-          {/* LEFT — Portrait carousel (cinematic) */}
-          <div className="relative min-h-[70vh] lg:min-h-[calc(100vh-4rem)] overflow-hidden order-2 lg:order-1"
+        <div className="relative min-h-[calc(100vh-4rem)]">
+          {/* Portrait carousel (cinematic) — now the entire hero */}
+          <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden"
                style={{ background: "var(--surface)" }}>
             {/* Blurred backdrop layer for full coverage */}
             {heroSlides[slideIdx] && (
@@ -613,6 +613,38 @@ function Index() {
                   Next workshop: <span className="font-medium">{nextWorkshop.dateLabel}</span>
                 </p>
               )}
+              <div className="mt-5">
+                <MagneticButton>
+                  {nextWorkshop ? (
+                    <Link
+                      to="/workshops/$id"
+                      params={{ id: nextWorkshop.id }}
+                      className="group relative inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
+                      style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        Register Workshop
+                        <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
+                      </span>
+                    </Link>
+                  ) : (
+                    <a
+                      href="#workshops"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      className="group relative inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
+                      style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        Explore Workshops
+                        <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
+                      </span>
+                    </a>
+                  )}
+                </MagneticButton>
+              </div>
             </div>
 
             {/* Dots */}
@@ -635,64 +667,6 @@ function Index() {
                 ))}
               </div>
             )}
-          </div>
-
-          {/* RIGHT — Editorial intro */}
-          <div className="relative flex flex-col justify-center px-6 py-16 md:px-12 lg:px-16 xl:px-24 order-1 lg:order-2 z-10">
-            {/* Subtle grid backdrop */}
-            <div aria-hidden className="hero-grid pointer-events-none absolute inset-0 opacity-40" />
-            {/* Floating ornament */}
-            <motion.div
-              aria-hidden
-              animate={{ y: [0, -14, 0], rotate: [0, 6, 0] }}
-              transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-              className="pointer-events-none absolute top-16 right-10 h-28 w-28 rounded-full blur-3xl opacity-70"
-              style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent-gold) 65%, transparent), transparent 70%)" }}
-            />
-            <motion.div variants={stagger} initial="hidden" animate="show" className="relative max-w-xl">
-              <motion.h1
-                variants={item}
-                className="font-display text-5xl sm:text-7xl lg:text-8xl xl:text-[8.5rem] leading-[0.92] tracking-tight text-foreground text-balance"
-              >
-                Tejas D <br />
-                <span className="italic shimmer-text">Dhoke</span>
-              </motion.h1>
-
-              <motion.div variants={item} className="flex flex-col gap-4">
-                <div className="flex flex-wrap gap-4">
-                  <MagneticButton>
-                    {nextWorkshop ? (
-                      <Link
-                        to="/workshops/$id"
-                        params={{ id: nextWorkshop.id }}
-                        className="group relative inline-flex items-center gap-2 rounded-full px-9 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
-                        style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-                      >
-                        <span className="relative z-10 flex items-center gap-2">
-                          Explore Workshops
-                          <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
-                        </span>
-                      </Link>
-                    ) : (
-                      <a
-                        href="#workshops"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
-                        }}
-                        className="group relative inline-flex items-center gap-2 rounded-full px-9 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
-                        style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-                      >
-                        <span className="relative z-10 flex items-center gap-2">
-                          Explore Workshops
-                          <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
-                        </span>
-                      </a>
-                    )}
-                  </MagneticButton>
-                </div>
-              </motion.div>
-            </motion.div>
           </div>
 
         </div>
