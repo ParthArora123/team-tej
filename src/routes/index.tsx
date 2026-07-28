@@ -11,8 +11,8 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
-import heroImg from "@/assets/hero.jpg";
-import classesImg from "@/assets/classes.jpg";
+import heroImg from "@/assets/tejasdhoke.jpg";
+import classesImg from "@/assets/founder.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
@@ -604,7 +604,7 @@ function Index() {
             <div className="absolute bottom-8 left-8 z-10">
               <div className="h-px w-16 mb-4" style={{ background: "var(--accent-cyan)" }} />
               <p className="text-[10px] uppercase tracking-[0.4em] font-semibold" style={{ color: "var(--accent-cyan)" }}>
-                Movement Architect
+                Experience The Vibe
               </p>
               {nextWorkshop && (
                 <p className="mt-3 inline-flex items-center gap-2 text-xs sm:text-sm text-white/90">
