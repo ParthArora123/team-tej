@@ -12,7 +12,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
 import heroImg from "@/assets/tejasdhoke.jpg";
-import classesImg from "@/assets/founder.jpg";
+import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
@@ -480,6 +480,7 @@ function Index() {
     const w = upcoming[0];
     if (!w) return null;
     return {
+      id: w.id,
       dateLabel: new Date(w.event_date).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
     };
   })();
@@ -604,7 +605,7 @@ function Index() {
             <div className="absolute bottom-8 left-8 z-10">
               <div className="h-px w-16 mb-4" style={{ background: "var(--accent-cyan)" }} />
               <p className="text-[10px] uppercase tracking-[0.4em] font-semibold" style={{ color: "var(--accent-cyan)" }}>
-                Experience The Vibe
+                Movement Architect
               </p>
               {nextWorkshop && (
                 <p className="mt-3 inline-flex items-center gap-2 text-xs sm:text-sm text-white/90">
@@ -649,10 +650,6 @@ function Index() {
               style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent-gold) 65%, transparent), transparent 70%)" }}
             />
             <motion.div variants={stagger} initial="hidden" animate="show" className="relative max-w-xl">
-              <motion.span variants={item} className="eyebrow-pill eyebrow-pill-pill eyebrow-pill-dot mb-8">
-                <Sparkles size={11} className="opacity-80" /> The World of Tejas
-              </motion.span>
-
               <motion.h1
                 variants={item}
                 className="font-display text-5xl sm:text-7xl lg:text-8xl xl:text-[8.5rem] leading-[0.92] tracking-tight text-foreground text-balance"
@@ -664,20 +661,34 @@ function Index() {
               <motion.div variants={item} className="flex flex-col gap-4">
                 <div className="flex flex-wrap gap-4">
                   <MagneticButton>
-                    <a
-                      href="#workshops"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
-                      }}
-                      className="group relative inline-flex items-center gap-2 rounded-full px-9 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
-                      style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-                    >
-                      <span className="relative z-10 flex items-center gap-2">
-                        Explore Workshops
-                        <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
-                      </span>
-                    </a>
+                    {nextWorkshop ? (
+                      <Link
+                        to="/workshops/$id"
+                        params={{ id: nextWorkshop.id }}
+                        className="group relative inline-flex items-center gap-2 rounded-full px-9 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
+                        style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+                      >
+                        <span className="relative z-10 flex items-center gap-2">
+                          Explore Workshops
+                          <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
+                        </span>
+                      </Link>
+                    ) : (
+                      <a
+                        href="#workshops"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className="group relative inline-flex items-center gap-2 rounded-full px-9 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
+                        style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+                      >
+                        <span className="relative z-10 flex items-center gap-2">
+                          Explore Workshops
+                          <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
+                        </span>
+                      </a>
+                    )}
                   </MagneticButton>
                 </div>
               </motion.div>
