@@ -11,9 +11,8 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
-import heroImg from "@/assets/tejasdhoke.jpg";
+import heroImg from "@/assets/hero.jpg";
 import classesImg from "@/assets/classes.jpg";
-import aboutImg from "@/assets/founder.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
@@ -607,6 +606,12 @@ function Index() {
               <p className="text-[10px] uppercase tracking-[0.4em] font-semibold" style={{ color: "var(--accent-cyan)" }}>
                 Movement Architect
               </p>
+              {nextWorkshop && (
+                <p className="mt-3 inline-flex items-center gap-2 text-xs sm:text-sm text-white/90">
+                  <Calendar size={13} className="text-primary shrink-0" />
+                  Next workshop: <span className="font-medium">{nextWorkshop.dateLabel}</span>
+                </p>
+              )}
             </div>
 
             {/* Dots */}
@@ -656,36 +661,7 @@ function Index() {
                 <span className="italic shimmer-text">Dhoke</span>
               </motion.h1>
 
-              <motion.div variants={item} className="mt-8 mb-10 flex flex-col items-center sm:items-start gap-5">
-                <div className="relative h-72 w-72 sm:h-96 sm:w-96 md:h-[28rem] md:w-[28rem] lg:h-[36rem] lg:w-[36rem] xl:h-[42rem] xl:w-[42rem] rounded-full overflow-hidden ring-[6px] ring-primary/40 shadow-[0_28px_120px_-20px_var(--primary)]">
-                  <div
-                    aria-hidden
-                    className="absolute -inset-5 rounded-full blur-3xl opacity-90"
-                    style={{ background: "conic-gradient(from 180deg, var(--primary), var(--accent-cyan), var(--accent-pink), var(--primary))" }}
-                  />
-                  <img
-                    src={founder?.image_url || aboutImg}
-                    alt="Tejas D Dhoke"
-                    className="relative h-full w-full object-cover rounded-full"
-                    loading="eager"
-                    decoding="async"
-                  />
-                </div>
-                {founder?.intro && (
-                  <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-xs sm:max-w-sm lg:max-w-md leading-relaxed text-center sm:text-left">
-                    {founder.intro}
-                  </p>
-                )}
-                <div className="h-px w-full max-w-[16rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
-              </motion.div>
-
               <motion.div variants={item} className="flex flex-col gap-4">
-                {nextWorkshop && (
-                  <p className="inline-flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                    <Calendar size={13} className="text-primary shrink-0" />
-                    Next workshop: <span className="text-foreground font-medium">{nextWorkshop.dateLabel}</span>
-                  </p>
-                )}
                 <div className="flex flex-wrap gap-4">
                   <MagneticButton>
                     <a
