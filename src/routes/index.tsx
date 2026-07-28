@@ -9,7 +9,7 @@ import { listChoreographies } from "@/lib/choreographies.functions";
 import { listPublicTestimonials } from "@/lib/testimonials.functions";
 import { useServerFn } from "@tanstack/react-start";
 
-import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin } from "lucide-react";
+import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
 import heroImg from "@/assets/tejasdhoke.jpg";
 import classesImg from "@/assets/classes.jpg";
@@ -471,8 +471,31 @@ function Index() {
     return () => clearInterval(t);
   }, [heroReady, heroSlides.length, heroVisible]);
 
+  // Soonest upcoming workshop — fully dynamic, sourced from whatever the
+  // admin has entered for event_date / capacity / seats_taken. No hardcoded
+  // dates or seat counts anywhere in the hero.
+  const nextWorkshop = (() => {
+    const upcoming = workshops
+      .filter((w) => w.event_date && new Date(w.event_date) >= new Date(new Date().toDateString()))
+      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+    const w = upcoming[0];
+    if (!w) return null;
+    return {
+      dateLabel: new Date(w.event_date).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
+    };
+  })();
+
   return (
     <>
+
+      {/* Sticky mobile CTA */}
+      <Link
+        to="/workshops"
+        className="md:hidden fixed bottom-5 inset-x-5 z-40 flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold py-3.5 shadow-[0_10px_40px_-10px_color-mix(in_oklab,var(--primary)_60%,transparent)]"
+      >
+        <Sparkles size={16} /> Register for a Workshop
+      </Link>
+
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
       <section
         id="hero"
@@ -582,7 +605,7 @@ function Index() {
             <div className="absolute bottom-8 left-8 z-10">
               <div className="h-px w-16 mb-4" style={{ background: "var(--accent-cyan)" }} />
               <p className="text-[10px] uppercase tracking-[0.4em] font-semibold" style={{ color: "var(--accent-cyan)" }}>
-                Experience The Vibe
+                Movement Architect
               </p>
             </div>
 
@@ -641,7 +664,7 @@ function Index() {
                     style={{ background: "conic-gradient(from 180deg, var(--primary), var(--accent-cyan), var(--accent-pink), var(--primary))" }}
                   />
                   <img
-                    src={aboutImg}
+                    src={founder?.image_url || aboutImg}
                     alt="Tejas D Dhoke"
                     className="relative h-full w-full object-cover rounded-full"
                     loading="eager"
@@ -656,42 +679,66 @@ function Index() {
                 <div className="h-px w-full max-w-[16rem]" style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }} />
               </motion.div>
 
-              <motion.div variants={item} className="flex flex-wrap gap-4">
-                <MagneticButton>
-                  <a
-                    href="#workshops"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className="group relative inline-flex items-center gap-2 rounded-full px-9 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
-                    style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-                  >
-                    <span className="relative z-10 flex items-center gap-2">
-                      Explore Workshops
-                      <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
-                    </span>
-                  </a>
-                </MagneticButton>
-                <MagneticButton strength={0.25}>
-                  <a
-                    href="#classes"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      document.getElementById("start-journey")?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className="group inline-flex items-center gap-2 rounded-full px-9 py-4 text-[11px] font-bold uppercase tracking-[0.22em] text-foreground border border-white/15 bg-white/5 backdrop-blur-xl hover:bg-white/10 hover:border-white/30 transition-all"
-                  >
-                    Explore Classes
-                    <ArrowUpRight size={14} className="opacity-70 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </a>
-                </MagneticButton>
+              <motion.div variants={item} className="flex flex-col gap-4">
+                {nextWorkshop && (
+                  <p className="inline-flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                    <Calendar size={13} className="text-primary shrink-0" />
+                    Next workshop: <span className="text-foreground font-medium">{nextWorkshop.dateLabel}</span>
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-4">
+                  <MagneticButton>
+                    <a
+                      href="#workshops"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      className="group relative inline-flex items-center gap-2 rounded-full px-9 py-4 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
+                      style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        Explore Workshops
+                        <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
+                      </span>
+                    </a>
+                  </MagneticButton>
+                </div>
               </motion.div>
             </motion.div>
           </div>
 
         </div>
       </section>
+
+
+      {/* STATS */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10"
+        >
+          {stats.map((s) => (
+            <motion.div key={s.label} variants={item} className="relative border-t border-border pt-6">
+              <div
+                aria-hidden
+                className="absolute -top-px left-0 h-px w-16"
+                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
+              />
+              <p className="font-display text-5xl lg:text-7xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
+                <AnimatedCounter value={s.value} suffix={s.suffix} />
+              </p>
+              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
+
+
 
 
       {/* WORKSHOPS — dynamic (primary CTA — placed directly after hero) */}
@@ -823,41 +870,90 @@ function Index() {
 
 
 
-      {/* STATS */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+      {/* FOUNDER / ABOUT */}
+      <FounderSection founder={founder} />
+
+      {/* THE TEJ METHOD — USP / philosophy */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+        <div className="max-w-2xl">
+          <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+            <Sparkles size={12} /> The Tej Method
+          </p>
+          <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+            Not just steps. <span className="italic font-light">A way of moving.</span>
+          </h2>
+          <p className="mt-4 text-muted-foreground">
+            Every session is built around four pillars — whether you're stepping onto a
+            dance floor for the first time or sharpening years of technique.
+          </p>
+        </div>
+
         <motion.div
           variants={stagger}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10"
+          viewport={{ once: true, margin: "-80px" }}
+          className="mt-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
-          {stats.map((s) => (
-            <motion.div key={s.label} variants={item} className="relative border-t border-border pt-6">
-              <div
-                aria-hidden
-                className="absolute -top-px left-0 h-px w-16"
-                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
-              />
-              <p className="font-display text-5xl lg:text-7xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
-                <AnimatedCounter value={s.value} suffix={s.suffix} />
-              </p>
-              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
+          {[
+            { icon: HeartHandshake, title: "Confidence", desc: "Every class is built to make you feel capable before it makes you feel correct." },
+            { icon: Target, title: "Technique", desc: "Real fundamentals, broken down so beginners and pros both walk away sharper." },
+            { icon: Music2, title: "Musicality", desc: "Movement that listens to the music, not just counts to it." },
+            { icon: Users2, title: "Performance", desc: "Stage-ready energy — because a workshop should prepare you to be watched, not just to watch." },
+          ].map((p) => (
+            <motion.div key={p.title} variants={item} className="rounded-2xl border border-border bg-card p-6 hover:border-primary/60 transition-colors">
+              <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                <p.icon size={20} />
+              </div>
+              <p className="mt-4 font-display text-xl font-bold">{p.title}</p>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
 
+      {/* SIGNATURE PROGRAMS */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+        <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">Signature Programs</p>
+            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+              Find your <span className="italic font-light">format.</span>
+            </h2>
+          </div>
+          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
+            Four ways to train with Tejas.
+          </p>
+        </div>
 
-
-
-
-      {/* FOUNDER / ABOUT */}
-      <FounderSection founder={founder} />
-
-      {/* LATEST CHOREOGRAPHIES */}
-      <LatestChoreographies items={choreos} />
-
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          {[
+            { icon: Rocket, title: "Zero to Hero", desc: "A full beginner-to-confident-dancer track — no prior experience needed.", href: "/zero-to-hero" },
+            { icon: Calendar, title: "Workshops", desc: "Live intensives across styles, running through the year.", href: "/workshops" },
+            { icon: Heart, title: "Wedding Choreography", desc: "Bespoke routines for the couple, the family, or the whole baraat.", href: "/contact" },
+            { icon: Video, title: "Online Training", desc: "Structured remote training for dancers anywhere in the world.", href: "/online-trainings" },
+          ].map((p) => (
+            <motion.div key={p.title} variants={item}>
+              <Link to={p.href} className="group block h-full rounded-2xl border border-border bg-card p-6 hover:border-primary transition-colors">
+                <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <p.icon size={20} />
+                </div>
+                <p className="mt-4 font-display text-xl font-bold">{p.title}</p>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  Learn more <ArrowUpRight size={14} />
+                </span>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
 
       {/* DANCE STYLES */}
       <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
@@ -955,6 +1051,118 @@ function Index() {
       </section>
 
 
+      {/* Celebrities · Brands · India to the Globe — dynamic */}
+      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-24 space-y-20">
+        {celebrities.length > 0 && (
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
+            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
+            <motion.div
+              variants={stagger}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-80px" }}
+              className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"
+            >
+              {celebrities.map((c) => (
+                <motion.div
+                  key={c.id}
+                  variants={item}
+                  whileHover={{ y: -4 }}
+                  className="group relative aspect-square rounded-2xl bg-card border border-border overflow-hidden flex flex-col items-center justify-end text-center hover:border-primary/60 transition-colors"
+                >
+                  {c.photo_url ? (
+                    <img
+                      src={c.photo_url}
+                      alt={c.name}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
+                    />
+                  ) : null}
+                  {/* shine sweep on hover */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
+                    style={{
+                      background:
+                        "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%)",
+                    }}
+                  />
+                  <div className={`relative w-full p-3 ${c.photo_url ? "bg-gradient-to-t from-background/90 via-background/60 to-transparent" : ""}`}>
+                    <p className="font-display text-sm">{c.name}</p>
+                    {c.role && <p className="text-[10px] text-muted-foreground">{c.role}</p>}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        )}
+
+        {brands.length > 0 && (
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
+            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">Trusted partners</h2>
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+              {brands.map((b) => (
+                <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
+                  {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {globe.length > 0 && (() => {
+          const conducted = globe.filter((g) => g.status === "conducted");
+          const upcoming = globe.filter((g) => g.status === "upcoming");
+          
+          return (
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
+              <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
+              <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
+              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
+              {conducted.length > 0 && (
+                <div className="mt-8">
+                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
+                  <div className="flex flex-wrap gap-2">
+                    {conducted.map((g) => (
+                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{g.city}, {g.country}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {upcoming.length > 0 && (
+                <div className="mt-6">
+                  <p className="text-[11px] uppercase tracking-widest text-primary mb-3">Upcoming</p>
+                  <div className="flex flex-wrap gap-2">
+                    {upcoming.map((g) => (
+                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
+                        {g.city}, {g.country}{g.event_date ? ` · ${new Date(g.event_date).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : ""}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+      </section>
+      {/* TESTIMONIALS */}
+      <Suspense fallback={null}>
+        <TestimonialsCarousel items={testimonials.map((t) => ({
+          id: t.id,
+          name: t.name,
+          role: t.role,
+          story: t.story,
+          rating: t.rating,
+          avatar_url: t.avatar_url,
+        }))} />
+      </Suspense>
+
+      {/* LATEST CHOREOGRAPHIES */}
+      <LatestChoreographies items={choreos} />
+
+
       {/* GALLERY — editorial bento */}
       {gallery.length > 0 && (
         <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
@@ -1022,20 +1230,29 @@ function Index() {
         </section>
       )}
 
-      {/* TESTIMONIALS */}
-      <Suspense fallback={null}>
-        <TestimonialsCarousel items={testimonials.map((t) => ({
-          id: t.id,
-          name: t.name,
-          role: t.role,
-          story: t.story,
-          rating: t.rating,
-          avatar_url: t.avatar_url,
-        }))} />
-      </Suspense>
+      {/* FAQ */}
+      <section className="max-w-4xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+        <div className="text-center">
+          <p className="text-xs uppercase tracking-widest text-primary">Questions</p>
+          <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance">
+            Before you <span className="italic font-light">register.</span>
+          </h2>
+        </div>
+        <div className="mt-12 space-y-3">
+          {[
+            { q: "I've never danced before — can I still join?", a: "Yes. Every workshop is taught with beginners in mind first — steps are broken down from the ground up, and there's no prerequisite experience needed." },
+            { q: "What should I wear?", a: "Comfortable, breathable clothing you can move freely in, and shoes with grip (sneakers or dance shoes). Avoid anything too loose or slippery-soled." },
+            { q: "Is there a refund if I can't make it?", a: "Reach out to us before the workshop date and we'll work out a fair option — reschedule to a future batch or a partial refund, depending on timing." },
+            { q: "Do I get a video of my performance?", a: "Select workshops include a Silver Seat add-on with a professionally shot and edited solo video, ready for socials and your portfolio — look for it on the workshop's registration page." },
+            { q: "How do I pay?", a: "Registration is done securely via UPI. After you register, you'll get a QR code to scan and a place to upload your payment screenshot for confirmation." },
+          ].map((f, i) => (
+            <FaqItem key={i} q={f.q} a={f.a} />
+          ))}
+        </div>
+      </section>
 
       {/* FINAL CTA */}
-      <section id="start-journey" className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -1112,6 +1329,14 @@ function Index() {
             </MagneticButton>
           </div>
 
+
+          <p className="relative mt-8 text-sm text-white/60">
+            Not ready to register today?{" "}
+            <Link to="/contact" className="text-primary underline underline-offset-4 hover:text-white transition-colors">
+              Get in touch and we'll notify you about the next batch
+            </Link>.
+          </p>
+
           <style>{`
             @keyframes ctaPulse {
               0%   { box-shadow: 0 0 0 0   color-mix(in oklab, var(--primary) 55%, transparent); }
@@ -1123,121 +1348,9 @@ function Index() {
         </motion.div>
       </section>
 
-      {/* Celebrities · Brands · India to the Globe — dynamic */}
-      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-24 space-y-20">
-        {celebrities.length > 0 && (
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-80px" }}
-              className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"
-            >
-              {celebrities.map((c) => (
-                <motion.div
-                  key={c.id}
-                  variants={item}
-                  whileHover={{ y: -4 }}
-                  className="group relative aspect-square rounded-2xl bg-card border border-border overflow-hidden flex flex-col items-center justify-end text-center hover:border-primary/60 transition-colors"
-                >
-                  {c.photo_url ? (
-                    <img
-                      src={c.photo_url}
-                      alt={c.name}
-                      loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
-                    />
-                  ) : null}
-                  {/* shine sweep on hover */}
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
-                    style={{
-                      background:
-                        "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%)",
-                    }}
-                  />
-                  <div className={`relative w-full p-3 ${c.photo_url ? "bg-gradient-to-t from-background/90 via-background/60 to-transparent" : ""}`}>
-                    <p className="font-display text-sm">{c.name}</p>
-                    {c.role && <p className="text-[10px] text-muted-foreground">{c.role}</p>}
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        )}
-
-        {brands.length > 0 && (
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">Trusted partners</h2>
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-              {brands.map((b) => (
-                <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
-                  {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {globe.length > 0 && (() => {
-          const conducted = globe.filter((g) => g.status === "conducted");
-          const upcoming = globe.filter((g) => g.status === "upcoming");
-          
-          return (
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
-              <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
-              <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
-              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
-              {conducted.length > 0 && (
-                <div className="mt-8">
-                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
-                  <div className="flex flex-wrap gap-2">
-                    {conducted.map((g) => (
-                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">
-                        {g.city}, {g.country}{g.event_date ? ` · ${formatGlobeDateRange(g)}` : ""}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {upcoming.length > 0 && (
-                <div className="mt-6">
-                  <p className="text-[11px] uppercase tracking-widest text-primary mb-3">Upcoming</p>
-                  <div className="flex flex-wrap gap-2">
-                    {upcoming.map((g) => (
-                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
-                        {g.city}, {g.country}{g.event_date ? ` · ${formatGlobeDateRange(g)}` : ""}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })()}
-      </section>
 
     </>
   );
-}
-
-function formatGlobeDateRange(g: { event_date?: string | null; event_date_to?: string | null }): string {
-  if (!g.event_date) return "";
-  const from = new Date(g.event_date);
-  const fromOpts: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" };
-  if (!g.event_date_to || g.event_date_to === g.event_date) {
-    return from.toLocaleDateString(undefined, { month: "short", year: "numeric" });
-  }
-  const to = new Date(g.event_date_to);
-  const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
-  const fromStr = from.toLocaleDateString(undefined, sameMonth ? { day: "numeric" } : fromOpts);
-  const toStr = to.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
-  return `${fromStr} – ${toStr}`;
 }
 
 function countryToContinent(country: string): string | null {
@@ -1434,7 +1547,8 @@ function FounderSection({ founder }: { founder: any | null }) {
             className="absolute -inset-3 lg:-inset-4 rounded-[2rem] opacity-70 blur-xl -z-10 transition-opacity duration-700 group-hover:opacity-100"
             style={{ background: "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 60%)" }}
           />
-          
+          {/* offset border shape behind image */}
+          <div aria-hidden className="absolute top-4 -left-4 lg:-left-6 w-full h-full rounded-3xl border border-primary/30" />
 
           <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/40 border border-border">
             {image ? (
@@ -1461,6 +1575,11 @@ function FounderSection({ founder }: { founder: any | null }) {
               <p className="font-display text-2xl font-bold mt-1">{name}</p>
             </div>
 
+            {/* corner tick marks — editorial detail */}
+            <span aria-hidden className="absolute top-3 left-3 h-4 w-4 border-t border-l border-white/70" />
+            <span aria-hidden className="absolute top-3 right-3 h-4 w-4 border-t border-r border-white/70" />
+            <span aria-hidden className="absolute bottom-3 left-3 h-4 w-4 border-b border-l border-white/70" />
+            <span aria-hidden className="absolute bottom-3 right-3 h-4 w-4 border-b border-r border-white/70" />
           </div>
         </motion.div>
 
@@ -1595,3 +1714,30 @@ function FounderSection({ founder }: { founder: any | null }) {
   );
 }
 
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between gap-4 px-6 py-4 text-left"
+      >
+        <span className="font-medium">{q}</span>
+        <ChevronDown size={18} className={`shrink-0 text-primary transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <p className="px-6 pb-5 text-sm text-muted-foreground leading-relaxed">{a}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
