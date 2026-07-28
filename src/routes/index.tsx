@@ -398,15 +398,25 @@ function Index() {
   }, [fetchHeroSlides, heroReady]);
   useEffect(() => {
     if (!heroReady) return;
-    // Non-critical: below the fold — defer until browser is idle so they don't compete with the hero paint.
+
+    // Highest priority — Upcoming Workshops is the #1 business section and
+    // Featured Experience sits right below it. Fetch these immediately,
+    // with no idle-callback wait at all, so they're never the reason a
+    // visitor sees blank sections.
+    fetchPrograms({ data: { kind: "workshop" } })
+      .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
+      .catch(() => setWorkshops([]));
+    getFeaturedExperience().then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
+
+    // Everything else — still non-blocking, but the previous 1800ms idle
+    // timeout meant browsers under any load could legitimately wait nearly
+    // 2 full seconds before even starting these fetches. Capped much lower
+    // now so it fires almost immediately in practice while still yielding
+    // to the very first paint.
     const loadDeferred = () => {
-      fetchPrograms({ data: { kind: "workshop" } })
-        .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
-        .catch(() => setWorkshops([]));
       listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch((e) => { console.error("Failed to load celebrities:", e); setCelebrities([]); });
       listPublicBrands().then((r: any) => setBrands(r ?? [])).catch((e) => { console.error("Failed to load brands:", e); setBrands([]); });
       listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch((e) => { console.error("Failed to load globe locations:", e); setGlobe([]); });
-      getFeaturedExperience().then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
       listGalleryItems().then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
       listDanceStyles().then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
       listChoreographies().then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
@@ -416,8 +426,8 @@ function Index() {
     const ric: any = (window as any).requestIdleCallback;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let idleId: number | undefined;
-    if (typeof ric === "function") idleId = ric(loadDeferred, { timeout: 1800 });
-    else timeout = setTimeout(loadDeferred, 450);
+    if (typeof ric === "function") idleId = ric(loadDeferred, { timeout: 200 });
+    else timeout = setTimeout(loadDeferred, 100);
     return () => {
       if (timeout) clearTimeout(timeout);
       if (typeof (window as any).cancelIdleCallback === "function" && idleId) {
@@ -436,8 +446,8 @@ function Index() {
     const ric: any = (window as any).requestIdleCallback;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let idleId: number | undefined;
-    if (typeof ric === "function") idleId = ric(enableWarmup, { timeout: 900 });
-    else timeout = setTimeout(enableWarmup, 300);
+    if (typeof ric === "function") idleId = ric(enableWarmup, { timeout: 300 });
+    else timeout = setTimeout(enableWarmup, 150);
     return () => {
       if (timeout) clearTimeout(timeout);
       if (typeof (window as any).cancelIdleCallback === "function" && idleId) {
@@ -623,7 +633,7 @@ function Index() {
                       style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
                     >
                       <span className="relative z-10 flex items-center gap-2">
-                        Register Workshop
+                        Explore Workshops
                         <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
                       </span>
                     </Link>
