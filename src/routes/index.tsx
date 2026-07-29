@@ -365,7 +365,7 @@ function Index() {
     let cancelled = false;
 
     const hydrateSlides = () => {
-      fetchHeroSlides()
+      cachedCall("heroSlides", () => fetchHeroSlides())
         .then((rows: any) => {
           if (cancelled || !Array.isArray(rows) || rows.length === 0) return;
           const next = rows as HeroSlide[];
