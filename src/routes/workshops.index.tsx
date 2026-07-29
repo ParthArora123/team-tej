@@ -4,6 +4,7 @@ import { motion } from "motion/react";
 import { Calendar, MapPin, User, Users, Clock, Sparkles, Ticket } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
+import { CardGridSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
@@ -63,9 +64,13 @@ function WorkshopsPage() {
   const fetchPrograms = useServerFn(listPrograms);
   const [rows, setRows] = useState<any[]>([]);
   const [sel, setSel] = useState<EnrollClass | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   const load = () => {
-    cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } })).then(setRows);
+    cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
+      .then(setRows)
+      .catch(() => setRows([]))
+      .finally(() => setLoaded(true));
   };
   useEffect(() => {
     load();
@@ -106,6 +111,12 @@ function WorkshopsPage() {
           </p>
         </Reveal>
 
+
+        {!loaded && rows.length === 0 && (
+          <div className="mt-14">
+            <CardGridSkeleton count={6} />
+          </div>
+        )}
 
         <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
           {rows.map((r, i) => {
