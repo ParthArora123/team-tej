@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { cachedCall } from "@/lib/public-data-cache";
+import { CardGridSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
@@ -348,6 +349,7 @@ function Index() {
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
   const [showStageLights, setShowStageLights] = useState(false);
+  const [workshopsLoaded, setWorkshopsLoaded] = useState(false);
 
   // Safety net: hero images cached before hydration never fire onLoad, so
   // ensure heroReady flips true shortly after mount even if the media
@@ -406,7 +408,8 @@ function Index() {
     // visitor sees blank sections.
     cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
       .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
-      .catch(() => setWorkshops([]));
+      .catch(() => setWorkshops([]))
+      .finally(() => setWorkshopsLoaded(true));
     cachedCall("featuredExperience", () => getFeaturedExperience()).then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
 
     // Everything else — still non-blocking, but the previous 1800ms idle
@@ -732,7 +735,9 @@ function Index() {
           </Link>
         </div>
 
-        {workshops.length === 0 ? (
+        {workshops.length === 0 && !workshopsLoaded ? (
+          <CardGridSkeleton count={3} />
+        ) : workshops.length === 0 ? (
           <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
             <p className="font-display text-2xl">Coming Soon</p>
             <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
