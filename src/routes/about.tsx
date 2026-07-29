@@ -5,6 +5,7 @@ import { Sparkles, Award, Users } from "lucide-react";
 import aboutImg from "@/assets/founder.jpg";
 import { MotionImage } from "@/components/site/MotionImage";
 import { useServerFn } from "@tanstack/react-start";
+import { cachedCall } from "@/lib/public-data-cache";
 import { getSiteContent } from "@/lib/site-content.functions";
 
 export const Route = createFileRoute("/about")({
@@ -49,8 +50,8 @@ function About() {
   const [founder, setFounder] = useState<any | null>(null);
 
   useEffect(() => {
-    loadContent({ data: { key: "about" } }).then((v: any) => v && setContent((c: any) => ({ ...c, ...v }))).catch(() => {});
-    loadContent({ data: { key: "founder" } }).then((v: any) => v && setFounder(v)).catch(() => {});
+    cachedCall("siteContent:about", () => loadContent({ data: { key: "about" } })).then((v: any) => v && setContent((c: any) => ({ ...c, ...v }))).catch(() => {});
+    cachedCall("siteContent:founder", () => loadContent({ data: { key: "founder" } })).then((v: any) => v && setFounder(v)).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

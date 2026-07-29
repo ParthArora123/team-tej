@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Calendar, MapPin, User, Users, Clock, Sparkles, Ticket } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
+import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
@@ -62,13 +64,21 @@ function WorkshopsPage() {
   const fetchPrograms = useServerFn(listPrograms);
   const [rows, setRows] = useState<any[]>([]);
   const [sel, setSel] = useState<EnrollClass | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   const load = () => {
-    fetchPrograms({ data: { kind: "workshop" } }).then(setRows);
+    cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
+      .then(setRows)
+      .catch(() => setRows([]))
+      .finally(() => setLoaded(true));
   };
   useEffect(() => {
     load();
-    const onFocus = () => load();
+    // Refocus should show live seat counts, so bypass the cache here.
+    const onFocus = () => {
+      invalidateCachedCall("programs:workshop");
+      load();
+    };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, []);
@@ -103,6 +113,8 @@ function WorkshopsPage() {
 
 
         <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
+          {!loaded && rows.length === 0 &&
+            Array.from({ length: 6 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
           {rows.map((r, i) => {
             const seatsLeft = r.capacity != null ? Math.max(0, r.capacity - (r.seats_taken ?? 0)) : null;
             const full = seatsLeft === 0;

@@ -13,6 +13,7 @@ import {
 import { listZeroToHeroMedia } from "@/lib/zero-to-hero.functions";
 import { getSiteContent } from "@/lib/site-content.functions";
 import { useServerFn } from "@tanstack/react-start";
+import { cachedCall } from "@/lib/public-data-cache";
 import aboutImg from "@/assets/founder.jpg";
 
 export const Route = createFileRoute("/zero-to-hero")({
@@ -136,7 +137,7 @@ function ZeroToHeroPage() {
   const loadContent = useServerFn(getSiteContent);
   const [founder, setFounder] = useState<any | null>(null);
   useEffect(() => {
-    loadContent({ data: { key: "founder" } }).then((v: any) => v && setFounder(v)).catch(() => {});
+    cachedCall("siteContent:founder", () => loadContent({ data: { key: "founder" } })).then((v: any) => v && setFounder(v)).catch(() => {});
   }, []);
   return (
     <div className="min-h-screen">

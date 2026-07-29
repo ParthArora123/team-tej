@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
+import { cachedCall } from "@/lib/public-data-cache";
+import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
@@ -347,6 +349,7 @@ function Index() {
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
   const [showStageLights, setShowStageLights] = useState(false);
+  const [workshopsLoaded, setWorkshopsLoaded] = useState(false);
 
   // Safety net: hero images cached before hydration never fire onLoad, so
   // ensure heroReady flips true shortly after mount even if the media
@@ -364,7 +367,7 @@ function Index() {
     let cancelled = false;
 
     const hydrateSlides = () => {
-      fetchHeroSlides()
+      cachedCall("heroSlides", () => fetchHeroSlides())
         .then((rows: any) => {
           if (cancelled || !Array.isArray(rows) || rows.length === 0) return;
           const next = rows as HeroSlide[];
@@ -403,10 +406,11 @@ function Index() {
     // Featured Experience sits right below it. Fetch these immediately,
     // with no idle-callback wait at all, so they're never the reason a
     // visitor sees blank sections.
-    fetchPrograms({ data: { kind: "workshop" } })
+    cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
       .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
-      .catch(() => setWorkshops([]));
-    getFeaturedExperience().then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
+      .catch(() => setWorkshops([]))
+      .finally(() => setWorkshopsLoaded(true));
+    cachedCall("featuredExperience", () => getFeaturedExperience()).then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
 
     // Everything else — still non-blocking, but the previous 1800ms idle
     // timeout meant browsers under any load could legitimately wait nearly
@@ -414,14 +418,14 @@ function Index() {
     // now so it fires almost immediately in practice while still yielding
     // to the very first paint.
     const loadDeferred = () => {
-      listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch((e) => { console.error("Failed to load celebrities:", e); setCelebrities([]); });
-      listPublicBrands().then((r: any) => setBrands(r ?? [])).catch((e) => { console.error("Failed to load brands:", e); setBrands([]); });
-      listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch((e) => { console.error("Failed to load globe locations:", e); setGlobe([]); });
-      listGalleryItems().then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
-      listDanceStyles().then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
-      listChoreographies().then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
-      getSiteContent({ data: { key: "founder" } }).then((r: any) => setFounder(r)).catch(() => setFounder(null));
-      listPublicTestimonials().then((r: any) => setTestimonials(r ?? [])).catch(() => setTestimonials([]));
+      cachedCall("celebrities", () => listPublicCelebrities()).then((r: any) => setCelebrities(r ?? [])).catch((e) => { console.error("Failed to load celebrities:", e); setCelebrities([]); });
+      cachedCall("brands", () => listPublicBrands()).then((r: any) => setBrands(r ?? [])).catch((e) => { console.error("Failed to load brands:", e); setBrands([]); });
+      cachedCall("globe", () => listPublicGlobe()).then((r: any) => setGlobe(r ?? [])).catch((e) => { console.error("Failed to load globe locations:", e); setGlobe([]); });
+      cachedCall("gallery", () => listGalleryItems()).then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
+      cachedCall("danceStyles", () => listDanceStyles()).then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
+      cachedCall("choreographies", () => listChoreographies()).then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
+      cachedCall("siteContent:founder", () => getSiteContent({ data: { key: "founder" } })).then((r: any) => setFounder(r)).catch(() => setFounder(null));
+      cachedCall("testimonials", () => listPublicTestimonials()).then((r: any) => setTestimonials(r ?? [])).catch(() => setTestimonials([]));
     };
     const ric: any = (window as any).requestIdleCallback;
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -483,7 +487,7 @@ function Index() {
   // Soonest upcoming workshop — fully dynamic, sourced from whatever the
   // admin has entered for event_date / capacity / seats_taken. No hardcoded
   // dates or seat counts anywhere in the hero.
-  const nextWorkshop = (() => {
+  const nextWorkshop = useMemo(() => {
     const upcoming = workshops
       .filter((w) => w.event_date && new Date(w.event_date) >= new Date(new Date().toDateString()))
       .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
@@ -493,7 +497,7 @@ function Index() {
       id: w.id,
       dateLabel: new Date(w.event_date).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
     };
-  })();
+  }, [workshops]);
 
   return (
     <>
@@ -731,7 +735,11 @@ function Index() {
           </Link>
         </div>
 
-        {workshops.length === 0 ? (
+        {workshops.length === 0 && !workshopsLoaded ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+          </div>
+        ) : workshops.length === 0 ? (
           <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
             <p className="font-display text-2xl">Coming Soon</p>
             <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
@@ -1526,6 +1534,8 @@ function FounderSection({ founder }: { founder: any | null }) {
               <img
                 src={image}
                 alt={name}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
               />

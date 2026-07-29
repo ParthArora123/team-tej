@@ -122,7 +122,9 @@ const themeInitScript = `(function(){try{var s=localStorage.getItem('theme');var
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    // The inline theme script sets `class="dark"` on <html> before React
+    // hydrates, so the server markup intentionally differs here.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />

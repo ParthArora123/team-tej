@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useServerFn } from "@tanstack/react-start";
+import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
+import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
@@ -10,11 +12,20 @@ export function ProgramListPage({ kind, eyebrow, title, blurb }: {
   const fetchPrograms = useServerFn(listPrograms);
   const [rows, setRows] = useState<any[]>([]);
   const [sel, setSel] = useState<EnrollClass | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const load = () => fetchPrograms({ data: { kind } }).then(setRows);
+    const load = () =>
+      cachedCall(`programs:${kind}`, () => fetchPrograms({ data: { kind } }))
+        .then(setRows)
+        .catch(() => setRows([]))
+        .finally(() => setLoaded(true));
     load();
-    const onFocus = () => load();
+    // Refocus should show live seat counts, so bypass the cache here.
+    const onFocus = () => {
+      invalidateCachedCall(`programs:${kind}`);
+      load();
+    };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [kind]);
@@ -26,6 +37,8 @@ export function ProgramListPage({ kind, eyebrow, title, blurb }: {
       <p className="text-muted-foreground mt-3 max-w-2xl">{blurb}</p>
 
       <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {!loaded && rows.length === 0 &&
+          Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
         {rows.map((r, i) => {
           const silverPrice = r.silver_seat_price ?? 1000;
           return (
