@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
+import { cachedCall } from "@/lib/public-data-cache";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
@@ -403,10 +404,10 @@ function Index() {
     // Featured Experience sits right below it. Fetch these immediately,
     // with no idle-callback wait at all, so they're never the reason a
     // visitor sees blank sections.
-    fetchPrograms({ data: { kind: "workshop" } })
+    cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
       .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
       .catch(() => setWorkshops([]));
-    getFeaturedExperience().then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
+    cachedCall("featuredExperience", () => getFeaturedExperience()).then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
 
     // Everything else — still non-blocking, but the previous 1800ms idle
     // timeout meant browsers under any load could legitimately wait nearly
@@ -414,14 +415,14 @@ function Index() {
     // now so it fires almost immediately in practice while still yielding
     // to the very first paint.
     const loadDeferred = () => {
-      listPublicCelebrities().then((r: any) => setCelebrities(r ?? [])).catch((e) => { console.error("Failed to load celebrities:", e); setCelebrities([]); });
-      listPublicBrands().then((r: any) => setBrands(r ?? [])).catch((e) => { console.error("Failed to load brands:", e); setBrands([]); });
-      listPublicGlobe().then((r: any) => setGlobe(r ?? [])).catch((e) => { console.error("Failed to load globe locations:", e); setGlobe([]); });
-      listGalleryItems().then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
-      listDanceStyles().then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
-      listChoreographies().then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
-      getSiteContent({ data: { key: "founder" } }).then((r: any) => setFounder(r)).catch(() => setFounder(null));
-      listPublicTestimonials().then((r: any) => setTestimonials(r ?? [])).catch(() => setTestimonials([]));
+      cachedCall("celebrities", () => listPublicCelebrities()).then((r: any) => setCelebrities(r ?? [])).catch((e) => { console.error("Failed to load celebrities:", e); setCelebrities([]); });
+      cachedCall("brands", () => listPublicBrands()).then((r: any) => setBrands(r ?? [])).catch((e) => { console.error("Failed to load brands:", e); setBrands([]); });
+      cachedCall("globe", () => listPublicGlobe()).then((r: any) => setGlobe(r ?? [])).catch((e) => { console.error("Failed to load globe locations:", e); setGlobe([]); });
+      cachedCall("gallery", () => listGalleryItems()).then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
+      cachedCall("danceStyles", () => listDanceStyles()).then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
+      cachedCall("choreographies", () => listChoreographies()).then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
+      cachedCall("siteContent:founder", () => getSiteContent({ data: { key: "founder" } })).then((r: any) => setFounder(r)).catch(() => setFounder(null));
+      cachedCall("testimonials", () => listPublicTestimonials()).then((r: any) => setTestimonials(r ?? [])).catch(() => setTestimonials([]));
     };
     const ric: any = (window as any).requestIdleCallback;
     let timeout: ReturnType<typeof setTimeout> | undefined;
