@@ -1534,6 +1534,8 @@ function FounderSection({ founder }: { founder: any | null }) {
               <img
                 src={image}
                 alt={name}
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
               />
