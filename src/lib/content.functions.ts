@@ -190,7 +190,7 @@ export const adminDeleteBrand = createServerFn({ method: "POST" })
 export const listPublicGlobe = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await (supabaseAdmin as any)
-    .from("globe_locations").select("id,city,country,status,event_date,sort_order,event_date_to")
+    .from("globe_locations").select("id,city,country,status,event_date,sort_order")
     .eq("published", true)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
