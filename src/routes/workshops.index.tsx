@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { Calendar, MapPin, User, Users, Clock, Sparkles, Ticket } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
-import { CardGridSkeleton } from "@/components/site/Skeletons";
+import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
@@ -112,13 +112,9 @@ function WorkshopsPage() {
         </Reveal>
 
 
-        {!loaded && rows.length === 0 && (
-          <div className="mt-14">
-            <CardGridSkeleton count={6} />
-          </div>
-        )}
-
         <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
+          {!loaded && rows.length === 0 &&
+            Array.from({ length: 6 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
           {rows.map((r, i) => {
             const seatsLeft = r.capacity != null ? Math.max(0, r.capacity - (r.seats_taken ?? 0)) : null;
             const full = seatsLeft === 0;

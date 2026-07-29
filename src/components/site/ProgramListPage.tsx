@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useServerFn } from "@tanstack/react-start";
 import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
-import { CardGridSkeleton } from "@/components/site/Skeletons";
+import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
@@ -36,13 +36,9 @@ export function ProgramListPage({ kind, eyebrow, title, blurb }: {
       <h1 className="font-display text-5xl font-bold mt-2">{title}</h1>
       <p className="text-muted-foreground mt-3 max-w-2xl">{blurb}</p>
 
-      {!loaded && rows.length === 0 && (
-        <div className="mt-10">
-          <CardGridSkeleton count={3} />
-        </div>
-      )}
-
       <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {!loaded && rows.length === 0 &&
+          Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
         {rows.map((r, i) => {
           const silverPrice = r.silver_seat_price ?? 1000;
           return (

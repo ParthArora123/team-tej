@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { cachedCall } from "@/lib/public-data-cache";
-import { CardGridSkeleton } from "@/components/site/Skeletons";
+import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
@@ -736,7 +736,9 @@ function Index() {
         </div>
 
         {workshops.length === 0 && !workshopsLoaded ? (
-          <CardGridSkeleton count={3} />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+          </div>
         ) : workshops.length === 0 ? (
           <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
             <p className="font-display text-2xl">Coming Soon</p>
