@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useServerFn } from "@tanstack/react-start";
-import { cachedCall } from "@/lib/public-data-cache";
+import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
@@ -15,7 +15,11 @@ export function ProgramListPage({ kind, eyebrow, title, blurb }: {
   useEffect(() => {
     const load = () => cachedCall(`programs:${kind}`, () => fetchPrograms({ data: { kind } })).then(setRows);
     load();
-    const onFocus = () => load();
+    // Refocus should show live seat counts, so bypass the cache here.
+    const onFocus = () => {
+      invalidateCachedCall(`programs:${kind}`);
+      load();
+    };
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [kind]);
