@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useServerFn } from "@tanstack/react-start";
+import { cachedCall } from "@/lib/public-data-cache";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
@@ -12,7 +13,7 @@ export function ProgramListPage({ kind, eyebrow, title, blurb }: {
   const [sel, setSel] = useState<EnrollClass | null>(null);
 
   useEffect(() => {
-    const load = () => fetchPrograms({ data: { kind } }).then(setRows);
+    const load = () => cachedCall(`programs:${kind}`, () => fetchPrograms({ data: { kind } })).then(setRows);
     load();
     const onFocus = () => load();
     window.addEventListener("focus", onFocus);

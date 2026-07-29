@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Calendar, MapPin, User, Users, Clock, Sparkles, Ticket } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { cachedCall } from "@/lib/public-data-cache";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
@@ -64,7 +65,7 @@ function WorkshopsPage() {
   const [sel, setSel] = useState<EnrollClass | null>(null);
 
   const load = () => {
-    fetchPrograms({ data: { kind: "workshop" } }).then(setRows);
+    cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } })).then(setRows);
   };
   useEffect(() => {
     load();

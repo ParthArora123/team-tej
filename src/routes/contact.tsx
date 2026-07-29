@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Mail, Phone, MapPin, MessageCircle, Send, Check } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
+import { cachedCall } from "@/lib/public-data-cache";
 import { toast } from "sonner";
 import { submitContactMessage } from "@/lib/contact.functions";
 import { getSiteContent } from "@/lib/site-content.functions";
@@ -39,7 +40,7 @@ function Contact() {
     hours_line2: "Sunday · By appointment",
   });
   useEffect(() => {
-    loadContent({ data: { key: "contact" } }).then((v: any) => v && setInfo({ ...info, ...v })).catch(() => {});
+    cachedCall("siteContent:contact", () => loadContent({ data: { key: "contact" } })).then((v: any) => v && setInfo({ ...info, ...v })).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
