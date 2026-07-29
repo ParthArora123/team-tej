@@ -484,7 +484,7 @@ function Index() {
   // Soonest upcoming workshop — fully dynamic, sourced from whatever the
   // admin has entered for event_date / capacity / seats_taken. No hardcoded
   // dates or seat counts anywhere in the hero.
-  const nextWorkshop = (() => {
+  const nextWorkshop = useMemo(() => {
     const upcoming = workshops
       .filter((w) => w.event_date && new Date(w.event_date) >= new Date(new Date().toDateString()))
       .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
@@ -494,7 +494,7 @@ function Index() {
       id: w.id,
       dateLabel: new Date(w.event_date).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
     };
-  })();
+  }, [workshops]);
 
   return (
     <>
