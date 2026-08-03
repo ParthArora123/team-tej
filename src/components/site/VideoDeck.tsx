@@ -60,7 +60,7 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
         onLoadedData={() => setReady(true)}
         onCanPlay={() => setReady(true)}
         className="absolute inset-0 h-full w-full object-cover"
-        style={{ visibility: ready || !item.poster ? "visible" : "hidden" }}
+        style={{ visibility: ready ? "visible" : "hidden" }}
       />
       )}
       {!item.poster && !item.video && (
