@@ -1138,8 +1138,8 @@ function Index() {
         }))} />
       </Suspense>
 
-      {/* LATEST CHOREOGRAPHIES */}
-      <LatestChoreographies items={choreos} />
+      {/* CINEMATIC SHOWREEL */}
+      <CinematicShowreel choreos={choreos} workshops={workshops} />
 
 
       {/* GALLERY — editorial bento */}
@@ -1372,12 +1372,159 @@ function youtubeEmbed(url?: string | null): string | null {
   return null;
 }
 
-function ChoreoCard({ c }: { c: Choreo }) {
-  const [playing, setPlaying] = useState(false);
+type ReelItem = {
+  id: string;
+  title: string;
+  subtitle: string;
+  badge: string;
+  videoSrc?: string | null;
+  embedSrc?: string | null;
+  poster?: string | null;
+  ctaLabel?: string;
+  ctaLink?: string;
+  ctaExternal?: boolean;
+};
+
+function buildReelItems(choreos: Choreo[], workshops: any[]): ReelItem[] {
+  // `choreos` already comes sorted newest-first (sort_order, then uploaded_at
+  // desc), so keeping every published clip here means the deck is always
+  // showing the full, current set of latest choreographies — nothing is
+  // artificially trimmed out of rotation.
+  const fromChoreos: ReelItem[] = (choreos || [])
+    .filter((c) => !!(c.video_url || youtubeEmbed(c.youtube_url)))
+    .map((c) => ({
+      id: `choreo-${c.id}`,
+      title: c.title,
+      subtitle: "Choreography",
+      badge: "Choreo",
+      videoSrc: c.video_url ?? null,
+      embedSrc: youtubeEmbed(c.youtube_url),
+      poster: c.thumbnail_url ?? null,
+      ctaLabel: c.instagram_url ? "Watch on Instagram" : undefined,
+      ctaLink: c.instagram_url ?? undefined,
+      ctaExternal: true,
+    }));
+
+  const fromWorkshops: ReelItem[] = (workshops || [])
+    .filter((w: any) => !!w.banner_video_url)
+    .map((w: any) => ({
+      id: `workshop-${w.id}`,
+      title: w.name,
+      subtitle: [w.city, w.instructor].filter(Boolean).join(" · ") || "Workshop highlight",
+      badge: "Workshop",
+      videoSrc: w.banner_video_url as string,
+      embedSrc: null,
+      poster: w.banner_url ?? null,
+      ctaLabel: "View workshop",
+      ctaLink: `/workshops/${w.id}`,
+      ctaExternal: false,
+    }));
+
+  // Weave the two sources together so the reel doesn't read as two blocks stitched end to end.
+  const woven: ReelItem[] = [];
+  const max = Math.max(fromChoreos.length, fromWorkshops.length);
+  for (let i = 0; i < max; i++) {
+    if (fromChoreos[i]) woven.push(fromChoreos[i]);
+    if (fromWorkshops[i]) woven.push(fromWorkshops[i]);
+  }
+  return woven;
+}
+
+
+function MuteToggleIcon({ muted }: { muted: boolean }) {
+  return muted ? (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" /><line x1="22" y1="9" x2="16" y2="15" /><line x1="16" y1="9" x2="22" y2="15" /></svg>
+  ) : (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></svg>
+  );
+}
+
+/**
+ * Sprocket strip — a thin row of perforation dots that frames the filmstrip,
+ * evoking a literal reel of film. Pure CSS, no image asset.
+ */
+function SprocketStrip() {
+  return (
+    <div
+      aria-hidden
+      className="h-3 w-full rounded-full opacity-70"
+      style={{
+        backgroundImage: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, var(--border)) 1.6px, transparent 1.8px)",
+        backgroundSize: "14px 100%",
+        backgroundPosition: "center",
+      }}
+    />
+  );
+}
+
+function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshops: any[] }) {
+  const items = useMemo(() => buildReelItems(choreos, workshops), [choreos, workshops]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [muted, setMuted] = useState(true);
+  const [inView, setInView] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const embed = youtubeEmbed(c.youtube_url);
-  const hasVideo = !!(c.video_url || embed);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.35 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const hasItems = items && items.length > 0;
+  const active = hasItems ? items[activeIndex % items.length] : null;
+
+  // The deck auto-shuffles on a timer — the front card cycles to the back
+  // of the stack, like flipping through a physical deck of video cards.
+  useEffect(() => {
+    if (!inView || paused || !hasItems || items.length <= 1) return;
+    const id = setInterval(() => {
+      setActiveIndex((i) => (i + 1) % items.length);
+    }, 10000);
+    return () => clearInterval(id);
+  }, [inView, paused, hasItems, items.length]);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (inView) {
+      v.muted = muted;
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  }, [inView, activeIndex, muted]);
+
+  if (!hasItems || !active) return null;
+
+  const goTo = (i: number) => setActiveIndex(((i % items.length) + items.length) % items.length);
+
+  // Swiping the front card off the deck — left advances, right goes back —
+  // is the literal "flip through a pack of cards" gesture on touch/mouse.
+  const handleDragEnd = (_: unknown, info: { offset: { x: number }; velocity: { x: number } }) => {
+    const threshold = 90;
+    if (info.offset.x < -threshold || info.velocity.x < -500) {
+      setActiveIndex((idx) => (idx + 1) % items.length);
+    } else if (info.offset.x > threshold || info.velocity.x > 500) {
+      setActiveIndex((idx) => (idx - 1 + items.length) % items.length);
+    }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = !v.muted;
+    setMuted(v.muted);
+    if (!v.muted) v.play().catch(() => {});
+  };
 
   const goFullscreen = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -1386,109 +1533,194 @@ function ChoreoCard({ c }: { c: Choreo }) {
     try {
       if (el.requestFullscreen) await el.requestFullscreen();
       else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-      else if (el.webkitEnterFullscreen) el.webkitEnterFullscreen(); // iOS <video>
+      else if (el.webkitEnterFullscreen) el.webkitEnterFullscreen();
     } catch {}
   };
 
-  return (
-    <motion.article variants={item}
-      className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/70 transition-colors flex flex-col hover:shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--primary)_40%,transparent)] transition-shadow duration-500">
-      <div className="relative aspect-video bg-black overflow-hidden">
-        {playing && embed ? (
-          <iframe ref={iframeRef} src={`${embed}?autoplay=1`} title={c.title}
-            allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen
-            className="absolute inset-0 w-full h-full" />
-        ) : playing && c.video_url ? (
-          <video ref={videoRef} src={c.video_url} controls autoPlay playsInline preload="metadata"
-            className="absolute inset-0 w-full h-full object-contain" />
-        ) : (
-          <>
-            {c.thumbnail_url ? (
-              <img src={c.thumbnail_url} alt={c.title} loading="lazy"
-                className="absolute inset-0 w-full h-full object-contain group-hover:scale-[1.06] transition-transform duration-[900ms] ease-out" />
-            ) : c.video_url ? (
-              <video src={c.video_url} muted loop playsInline preload="metadata"
-                className="absolute inset-0 w-full h-full object-contain" />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
-            )}
-            {/* hover gradient veil */}
-            <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-            {/* shine sweep */}
-            <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
-              style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%)" }} />
-            {/* title reveal on hover (image-first storytelling) */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 z-10">
-              <p className="font-display text-white text-lg font-bold leading-snug drop-shadow-md line-clamp-2">{c.title}</p>
-            </div>
-            {hasVideo && (
-              <button
-                type="button"
-                onClick={() => setPlaying(true)}
-                aria-label={`Play ${c.title}`}
-                className="absolute inset-0 grid place-items-center bg-black/10 hover:bg-black/30 transition-colors z-20">
-                <span className="h-16 w-16 rounded-full bg-primary text-primary-foreground grid place-items-center shadow-[0_10px_40px_-5px_color-mix(in_oklab,var(--primary)_70%,transparent)] group-hover:scale-110 transition-transform duration-500">
-                  <Play size={24} className="translate-x-0.5" />
-                </span>
-              </button>
-            )}
-          </>
-        )}
-        {playing && (
-          <button type="button" onClick={goFullscreen} aria-label="Expand to fullscreen"
-            className="absolute top-2 right-2 z-20 h-9 w-9 grid place-items-center rounded-full bg-background/70 backdrop-blur border border-border text-foreground hover:bg-background transition">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
-          </button>
-        )}
-      </div>
+  // Depth 0 = front of the deck (playing). Cards fan out behind it, capped
+  // so the stack doesn't get visually noisy with a long reel.
+  const maxDepth = Math.min(items.length - 1, 4);
+  const deck: { it: ReelItem; i: number; depth: number }[] = items
+    .map((it, i) => ({ it, i, depth: (i - activeIndex + items.length) % items.length }))
+    .filter((c) => c.depth <= maxDepth)
+    .sort((a, b) => b.depth - a.depth); // back cards render first
 
-      <div className="p-5 flex-1 flex flex-col">
-        <p className="font-display text-lg font-bold leading-snug">{c.title}</p>
-        {c.instagram_url && (
-          <a
-            href={c.instagram_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-gradient-to-r from-[#f09433] via-[#e6683c] via-40% via-[#dc2743] via-60% via-[#cc2366] to-[#bc1888] text-white hover:opacity-90 transition-opacity self-start"
-          >
-            <Instagram size={16} /> Watch on Instagram
-          </a>
-        )}
-      </div>
-    </motion.article>
-  );
-}
-
-function LatestChoreographies({ items }: { items: Choreo[] }) {
-  if (!items || items.length === 0) return null;
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+    <section
+      ref={sectionRef}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      className="max-w-5xl mx-auto px-6 lg:px-10 py-24 border-t border-border"
+    >
       <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
         <div>
           <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-            <Sparkles size={12} /> Fresh from the floor
+            <Play size={12} /> On screen
           </p>
-          <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance">
-            Latest Choreographies by <span className="italic font-light">Tejas D Dhoke</span>
+          <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
+            The <span className="italic font-light">showreel.</span>
           </h2>
         </div>
+        <p className="hidden sm:block max-w-sm text-sm text-muted-foreground">
+          Choreography drops and workshop highlights — the deck shuffles on its own, or drag the top card to flip through it yourself.
+        </p>
       </div>
 
-      {/* Mobile: snap carousel */}
-      <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
-        className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {items.map((c) => (
-          <div key={c.id} className="snap-start shrink-0 w-[86%]">
-            <ChoreoCard c={c} />
-          </div>
-        ))}
-      </motion.div>
+      {/* THE DECK */}
+      <div className="relative aspect-video" style={{ perspective: "1400px" }}>
+        {deck.map(({ it, i, depth }) => {
+          const isFront = depth === 0;
+          const offsetX = depth * 18;
+          const offsetY = depth * 12;
+          const rotate = depth === 0 ? 0 : (i % 2 === 0 ? 1 : -1) * (4 + depth * 2);
+          const scale = 1 - depth * 0.055;
+          return (
+            <motion.div
+              key={it.id}
+              onClick={() => !isFront && goTo(i)}
+              drag={isFront && items.length > 1 ? "x" : false}
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.85}
+              onDragEnd={isFront ? handleDragEnd : undefined}
+              whileDrag={{ scale: 1.02 }}
+              animate={{
+                x: offsetX,
+                y: offsetY,
+                rotate,
+                scale,
+                opacity: 1,
+              }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              style={{ zIndex: 50 - depth, touchAction: isFront ? "pan-y" : undefined }}
+              className={`absolute inset-0 rounded-3xl overflow-hidden bg-black border ${
+                isFront
+                  ? `border-border shadow-[0_40px_100px_-30px_rgba(0,0,0,0.6)] ${items.length > 1 ? "cursor-grab active:cursor-grabbing" : ""}`
+                  : "border-white/10 cursor-pointer"
+              }`}
+            >
+              {isFront ? (
+                <>
+                  {active.embedSrc ? (
+                    <iframe
+                      ref={iframeRef}
+                      src={`${active.embedSrc}?autoplay=1&mute=1&playsinline=1&rel=0`}
+                      title={active.title}
+                      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+                      allowFullScreen
+                      className="absolute inset-0 w-full h-full"
+                    />
+                  ) : active.videoSrc ? (
+                    <video
+                      ref={(node) => {
+                        videoRef.current = node;
+                        if (node) {
+                          // Server-rendered markup can omit the `muted` DOM
+                          // attribute (React treats it as a property, not an
+                          // HTML attribute), which makes browsers block
+                          // autoplay until state syncs post-hydration. Setting
+                          // it imperatively here guarantees playback starts
+                          // immediately, with no click needed.
+                          node.muted = muted;
+                          node.play().catch(() => {});
+                        }
+                      }}
+                      src={active.videoSrc}
+                      poster={active.poster ?? undefined}
+                      autoPlay
+                      muted={muted}
+                      loop
+                      playsInline
+                      preload="metadata"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : active.poster ? (
+                    <img src={active.poster} alt={active.title} className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
+                  )}
 
-      {/* Desktop: grid */}
-      <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
-        className="hidden md:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items.map((c) => <ChoreoCard key={c.id} c={c} />)}
-      </motion.div>
+                  <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-14 sm:h-20 bg-gradient-to-b from-black/70 to-transparent" />
+                  <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-32 sm:h-40 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+
+                  <span className="absolute top-4 left-4 sm:top-6 sm:left-6 text-[11px] uppercase tracking-widest text-white/90 bg-white/10 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
+                    {active.badge}
+                  </span>
+
+                  <div className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2">
+                    {active.videoSrc && !active.embedSrc && (
+                      <button type="button" onClick={toggleMute} aria-label={muted ? "Unmute" : "Mute"}
+                        className="h-9 w-9 grid place-items-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition">
+                        <MuteToggleIcon muted={muted} />
+                      </button>
+                    )}
+                    <button type="button" onClick={goFullscreen} aria-label="Expand to fullscreen"
+                      className="h-9 w-9 grid place-items-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6" /><path d="M9 21H3v-6" /><path d="M21 3l-7 7" /><path d="M3 21l7-7" /></svg>
+                    </button>
+                  </div>
+
+                  <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8 flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-white/70">{active.subtitle}</p>
+                      <h3 className="mt-1 font-display text-2xl sm:text-4xl font-bold text-white drop-shadow-md leading-snug max-w-xl">
+                        {active.title}
+                      </h3>
+                    </div>
+                    {active.ctaLabel && active.ctaLink && (
+                      active.ctaExternal ? (
+                        <a href={active.ctaLink} target="_blank" rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black text-sm font-medium hover:opacity-90 transition shrink-0">
+                          {active.ctaLabel} <ArrowUpRight size={16} />
+                        </a>
+                      ) : (
+                        <Link to={active.ctaLink} onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-black text-sm font-medium hover:opacity-90 transition shrink-0">
+                          {active.ctaLabel} <ArrowUpRight size={16} />
+                        </Link>
+                      )
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  {it.poster ? (
+                    <img src={it.poster} alt={it.title} loading="lazy" decoding="async"
+                      className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
+                  )}
+                  <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                  <span className="absolute top-3 left-3 text-[10px] uppercase tracking-widest text-white/85 bg-white/10 backdrop-blur-sm px-2.5 py-0.5 rounded-full border border-white/15">
+                    {it.badge}
+                  </span>
+                  <span className="absolute bottom-3 left-3 right-3 text-xs font-medium text-white/95 line-clamp-1">
+                    {it.title}
+                  </span>
+                </>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* deck position dots */}
+      {items.length > 1 && (
+        <div className="mt-6 flex items-center justify-center gap-2">
+          {items.map((it, i) => (
+            <button
+              key={it.id}
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={`Bring ${it.title} to front`}
+              aria-current={i === activeIndex}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === activeIndex ? "w-6 bg-primary" : "w-1.5 bg-border hover:bg-primary/50"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
