@@ -1053,56 +1053,8 @@ function Index() {
               {gallery.length} frames
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 auto-rows-[110px] sm:auto-rows-[140px] lg:auto-rows-[170px] gap-3">
-            {gallery.map((g, i) => {
-              // Bento sizing pattern — repeats every 7 tiles for rhythm
-              const pattern = [
-                "col-span-2 row-span-2",           // 0 hero
-                "col-span-1 row-span-1",
-                "col-span-1 row-span-2",           // 2 tall
-                "col-span-2 row-span-1",           // 3 wide
-                "col-span-1 row-span-1",
-                "col-span-1 row-span-1",
-                "col-span-2 row-span-2",           // 6 hero echo
-              ];
-              const cls = pattern[i % pattern.length];
-              return (
-                <motion.figure
-                  key={g.id}
-                  initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
-                  whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.7, delay: (i % 6) * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                  className={`group relative overflow-hidden rounded-2xl border border-border bg-muted ${cls}`}
-                >
-                  {g.image_url && (
-                    <img
-                      src={g.image_url}
-                      alt={g.caption ?? ""}
-                      loading="lazy"
-                      decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.08]"
-                    />
-                  )}
-                  {/* base gradient for depth */}
-                  <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
-                  {/* accent tint on hover */}
-                  <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay"
-                    style={{ background: "linear-gradient(135deg, color-mix(in oklab, var(--primary) 35%, transparent) 0%, transparent 60%)" }} />
-                  {/* shine sweep */}
-                  <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
-                    style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)" }} />
-                  {g.caption && (
-                    <figcaption className="absolute inset-x-0 bottom-0 p-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                      <span className="inline-block text-[11px] uppercase tracking-widest text-white/95 bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10">
-                        {g.caption}
-                      </span>
-                    </figcaption>
-                  )}
-                </motion.figure>
-              );
-            })}
-          </div>
+          <GalleryDeck items={gallery} />
+
         </section>
       )}
 
