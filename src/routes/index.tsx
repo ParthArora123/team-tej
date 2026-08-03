@@ -1059,27 +1059,6 @@ function Index() {
         </section>
       )}
 
-      {/* FAQ */}
-      <section className="max-w-4xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-        <div className="text-center">
-          <p className="text-xs uppercase tracking-widest text-primary">Questions</p>
-          <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance">
-            Before you <span className="italic font-light">register.</span>
-          </h2>
-        </div>
-        <div className="mt-12 space-y-3">
-          {[
-            { q: "I've never danced before — can I still join?", a: "Yes. Every workshop is taught with beginners in mind first — steps are broken down from the ground up, and there's no prerequisite experience needed." },
-            { q: "What should I wear?", a: "Comfortable, breathable clothing you can move freely in, and shoes with grip (sneakers or dance shoes). Avoid anything too loose or slippery-soled." },
-            { q: "Is there a refund if I can't make it?", a: "Reach out to us before the workshop date and we'll work out a fair option — reschedule to a future batch or a partial refund, depending on timing." },
-            { q: "Do I get a video of my performance?", a: "Select workshops include a Silver Seat add-on with a professionally shot and edited solo video, ready for socials and your portfolio — look for it on the workshop's registration page." },
-            { q: "How do I pay?", a: "Registration is done securely via UPI. After you register, you'll get a QR code to scan and a place to upload your payment screenshot for confirmation." },
-          ].map((f, i) => (
-            <FaqItem key={i} q={f.q} a={f.a} />
-          ))}
-        </div>
-      </section>
-
       {/* FINAL CTA */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
         <motion.div
