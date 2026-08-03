@@ -1031,10 +1031,11 @@ function Index() {
               </h2>
             </div>
             <p className="text-sm text-muted-foreground max-w-sm">
-              Hover any reel to play it. The wall keeps moving — just like the floor does.
+              Drag the top reel away or tap a card behind it — the deck deals the next one.
             </p>
           </div>
-          <ReelWall reels={reels} />
+          <ReelDeck reels={reels} />
+
         </section>
       )}
 
