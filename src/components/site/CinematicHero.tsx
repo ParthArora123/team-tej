@@ -1,11 +1,8 @@
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Play, ChevronDown } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
 import { MouseParallax } from "@/components/site/MouseParallax";
-
-const isVideoUrl = (u?: string | null) =>
-  !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
 
 export type HeroMedia = {
   id?: string | null;
@@ -13,112 +10,21 @@ export type HeroMedia = {
   alt?: string | null;
 };
 
-const ROTATE_MS = 10000;
-
-/** Preloads the next media item so transitions never show a black flash. */
-function warm(src?: string | null) {
-  if (!src || typeof window === "undefined") return;
-  if (isVideoUrl(src)) {
-    const v = document.createElement("video");
-    v.preload = "auto";
-    v.muted = true;
-    v.playsInline = true;
-    v.src = src;
-    v.load();
-  } else {
-    const i = new Image();
-    i.decoding = "async";
-    i.src = src;
-  }
-}
-
-function Layer({
-  media,
-  active,
-  fallback,
-  priority,
-  onReady,
-}: {
-  media: HeroMedia;
-  active: boolean;
-  fallback: string;
-  priority?: boolean;
-  onReady?: () => void;
-}) {
-  const ref = useRef<HTMLVideoElement>(null);
-  const src = media.image_url ?? fallback;
-
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    if (active) {
-      const id = requestAnimationFrame(() => v.play().catch(() => {}));
-      return () => cancelAnimationFrame(id);
-    }
-    try {
-      v.pause();
-    } catch {
-      /* noop */
-    }
-  }, [active]);
-
-  const common =
-    "absolute inset-0 h-full w-full object-cover transform-gpu will-change-transform";
-
-  if (isVideoUrl(src)) {
-    if (!active) return null;
-    return (
-      <video
-        ref={ref}
-        src={src}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload={priority ? "auto" : "metadata"}
-        poster={fallback}
-        disableRemotePlayback
-        disablePictureInPicture
-        controls={false}
-        onLoadedData={onReady}
-        className={`${common} animate-[heroZoom_18s_ease-out_forwards]`}
-      />
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt={media.alt ?? ""}
-      className={`${common} animate-[heroZoom_18s_ease-out_forwards]`}
-      fetchPriority={priority ? "high" : "low"}
-      decoding="async"
-      draggable={false}
-      onLoad={onReady}
-    />
-  );
-}
-
 export function CinematicHero({
-  slides,
+  backgroundImage,
   portrait,
   badges,
   onReady,
 }: {
-  slides: HeroMedia[];
+  backgroundImage: string;
   portrait: string;
   badges: { value: string; label: string }[];
   onReady?: () => void;
 }) {
   const reduce = useReducedMotion();
-  const [i, setI] = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [loaded, setLoaded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-
-  const list = useMemo<HeroMedia[]>(
-    () => (slides.length ? slides : [{ id: "fallback", image_url: null }]),
-    [slides],
-  );
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -131,26 +37,28 @@ export function CinematicHero({
     return () => io.disconnect();
   }, []);
 
-  // Preload only the next item, right before the switch.
   useEffect(() => {
-    if (list.length < 2) return;
-    const t = setTimeout(
-      () => warm(list[(i + 1) % list.length]?.image_url),
-      Math.max(ROTATE_MS - 4000, 1000),
-    );
-    return () => clearTimeout(t);
-  }, [i, list]);
-
-  useEffect(() => {
-    if (list.length < 2 || !visible || reduce) return;
-    const t = setInterval(
-      () => requestAnimationFrame(() => setI((v) => (v + 1) % list.length)),
-      ROTATE_MS,
-    );
-    return () => clearInterval(t);
-  }, [list.length, visible, reduce]);
-
-  const current = list[i] ?? list[0];
+    if (!backgroundImage) {
+      setLoaded(true);
+      onReady?.();
+      return;
+    }
+    const img = new Image();
+    img.decoding = "async";
+    img.src = backgroundImage;
+    img.onload = () => {
+      setLoaded(true);
+      onReady?.();
+    };
+    img.onerror = () => {
+      setLoaded(true);
+      onReady?.();
+    };
+    if (img.complete && img.naturalWidth > 0) {
+      setLoaded(true);
+      onReady?.();
+    }
+  }, [backgroundImage, onReady]);
 
   return (
     <section
@@ -164,25 +72,32 @@ export function CinematicHero({
         @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
       `}</style>
 
-      {/* Rotating cinematic background */}
-      <AnimatePresence mode="sync" initial={false}>
-        <motion.div
-          key={current?.id ?? `slide-${i}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1.4, ease: [0.22, 0.9, 0.28, 1] }}
-          className="absolute inset-0"
-        >
-          <Layer
-            media={current}
-            active
-            priority={i === 0}
-            fallback={portrait}
-            onReady={onReady}
-          />
-        </motion.div>
-      </AnimatePresence>
+      {/* Static background — Tejas D Dhoke photo, full-bleed, no cropping */}
+      <div
+        className="absolute inset-0 w-full h-full transform-gpu will-change-transform"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundPosition: "center top",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          animation: reduce ? "none" : "heroZoom 24s ease-out forwards",
+          opacity: loaded ? 1 : 0,
+          transition: "opacity 700ms ease-out",
+        }}
+      >
+        <img
+          src={backgroundImage}
+          alt="Tejas D Dhoke"
+          className="absolute inset-0 h-full w-full object-cover object-top"
+          fetchPriority="high"
+          decoding="async"
+          draggable={false}
+          onLoad={() => {
+            setLoaded(true);
+            onReady?.();
+          }}
+        />
+      </div>
 
       {/* Cinematic grading */}
       <div
@@ -202,36 +117,32 @@ export function CinematicHero({
         }}
       />
 
-      {/* Founder cut-out — stays put while backgrounds change.
-          Skipped when the portrait is also the background (no CMS media yet),
-          so the same photo is never stacked on itself. */}
-      {slides.length > 0 && (
-        <MouseParallax
-          strength={10}
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center"
-        >
-          <motion.img
-            src={portrait}
-            alt="Tejas D Dhoke"
-            initial={{ opacity: 0, y: 40, scale: 1.04 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            className="h-[52svh] sm:h-[58svh] lg:h-[66svh] w-auto object-contain object-bottom drop-shadow-[0_30px_80px_rgba(0,0,0,0.75)]"
-            style={{
-              maskImage: "linear-gradient(180deg, black 68%, transparent 99%)",
-              WebkitMaskImage:
-                "linear-gradient(180deg, black 68%, transparent 99%)",
-            }}
-            draggable={false}
-            fetchPriority="high"
-            decoding="async"
-          />
-        </MouseParallax>
-      )}
+      {/* Founder cut-out — kept in foreground for depth, uses the same source
+          so it visually ties into the background image. */}
+      <MouseParallax
+        strength={10}
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center"
+      >
+        <motion.img
+          src={portrait}
+          alt="Tejas D Dhoke"
+          initial={{ opacity: 0, y: 40, scale: 1.04 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          className="h-[52svh] sm:h-[58svh] lg:h-[66svh] w-auto object-contain object-bottom drop-shadow-[0_30px_80px_rgba(0,0,0,0.75)]"
+          style={{
+            maskImage: "linear-gradient(180deg, black 68%, transparent 99%)",
+            WebkitMaskImage:
+              "linear-gradient(180deg, black 68%, transparent 99%)",
+          }}
+          draggable={false}
+          fetchPriority="high"
+          decoding="async"
+        />
+      </MouseParallax>
 
       {/* Copy */}
       <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center pointer-events-none justify-start pt-[22svh] sm:pt-[20svh]">
-
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -337,27 +248,6 @@ export function CinematicHero({
           );
         })}
       </div>
-
-      {/* Slide indicators */}
-      {list.length > 1 && (
-        <div className="absolute bottom-6 right-6 z-30 flex gap-2">
-          {list.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setI(idx)}
-              aria-label={`Go to slide ${idx + 1}`}
-              className="h-1.5 rounded-full transition-all"
-              style={{
-                width: idx === i ? 28 : 8,
-                background:
-                  idx === i
-                    ? "var(--gradient-primary)"
-                    : "color-mix(in oklab, white 40%, transparent)",
-              }}
-            />
-          ))}
-        </div>
-      )}
 
       {/* Scroll indicator */}
       <motion.div
