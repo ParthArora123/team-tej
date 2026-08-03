@@ -25,7 +25,9 @@ import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { VideoDeck, type DeckItem } from "@/components/site/VideoDeck";
-import { ReelWall, type Reel } from "@/components/site/ReelWall";
+import { type Reel } from "@/components/site/ReelWall";
+import { WorkshopDeck, ReelDeck, GalleryDeck } from "@/components/site/HomeDecks";
+
 import { FeaturedPerformances, SignatureProgramsGrid, type HomeCard } from "@/components/site/HomeSectionCards";
 import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.functions";
 
@@ -664,57 +666,10 @@ function Index() {
             <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
           </div>
         ) : (
-          <>
-            {/* Mobile: horizontal snap carousel */}
-            <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
-              className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {workshops.map((w) => (
-                <motion.article key={w.id} variants={item}
-                  className="snap-start shrink-0 w-[82%] rounded-2xl border border-border bg-card overflow-hidden flex flex-col">
-                  <WorkshopCardMedia w={w} />
-
-                  <div className="p-5 flex-1 flex flex-col">
-                    {w.category && <p className="text-[10px] uppercase tracking-widest text-primary">{w.category}</p>}
-                    <p className="mt-1 font-display text-xl font-bold">{w.name}</p>
-                    <div className="mt-3 space-y-1 text-xs text-muted-foreground">
-                      {w.event_date && <p className="flex items-center gap-2"><Calendar size={12} />{new Date(w.event_date).toDateString()}{w.event_time ? ` · ${w.event_time}` : ""}</p>}
-                      {w.venue && <p className="flex items-center gap-2"><MapPin size={12} />{w.venue}</p>}
-                    </div>
-                    <div className="mt-4 flex items-end justify-between">
-                      <p className="font-display text-xl">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
-                      <Link to="/workshops/$id" params={{ id: w.id }} className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-muted/60 transition-colors">Details</Link>
-                    </div>
-                  </div>
-                </motion.article>
-              ))}
-            </motion.div>
-
-            {/* Desktop: grid */}
-            <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
-              className="hidden md:grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {workshops.map((w) => (
-                <motion.article key={w.id} variants={item}
-                  className="group rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors flex flex-col">
-                  <WorkshopCardMedia w={w} desktop />
-
-                  <div className="p-5 flex-1 flex flex-col">
-                    {w.category && <p className="text-[10px] uppercase tracking-widest text-primary">{w.category}</p>}
-                    <p className="mt-1 font-display text-xl font-bold">{w.name}</p>
-                    <div className="mt-3 space-y-1 text-xs text-muted-foreground">
-                      {w.event_date && <p className="flex items-center gap-2"><Calendar size={12} />{new Date(w.event_date).toDateString()}{w.event_time ? ` · ${w.event_time}` : ""}</p>}
-                      {w.venue && <p className="flex items-center gap-2"><MapPin size={12} />{w.venue}</p>}
-                    </div>
-                    <div className="mt-4 flex items-end justify-between">
-                      <p className="font-display text-xl">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
-                      <Link to="/workshops/$id" params={{ id: w.id }} className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-muted/60 transition-colors">Details</Link>
-                    </div>
-                  </div>
-                </motion.article>
-              ))}
-            </motion.div>
-          </>
+          <WorkshopDeck workshops={workshops} />
         )}
       </section>
+
 
       {featured && (
         <section className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
@@ -1078,10 +1033,11 @@ function Index() {
               </h2>
             </div>
             <p className="text-sm text-muted-foreground max-w-sm">
-              Hover any reel to play it. The wall keeps moving — just like the floor does.
+              Drag the top reel away or tap a card behind it — the deck deals the next one.
             </p>
           </div>
-          <ReelWall reels={reels} />
+          <ReelDeck reels={reels} />
+
         </section>
       )}
 
@@ -1100,56 +1056,8 @@ function Index() {
               {gallery.length} frames
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 auto-rows-[110px] sm:auto-rows-[140px] lg:auto-rows-[170px] gap-3">
-            {gallery.map((g, i) => {
-              // Bento sizing pattern — repeats every 7 tiles for rhythm
-              const pattern = [
-                "col-span-2 row-span-2",           // 0 hero
-                "col-span-1 row-span-1",
-                "col-span-1 row-span-2",           // 2 tall
-                "col-span-2 row-span-1",           // 3 wide
-                "col-span-1 row-span-1",
-                "col-span-1 row-span-1",
-                "col-span-2 row-span-2",           // 6 hero echo
-              ];
-              const cls = pattern[i % pattern.length];
-              return (
-                <motion.figure
-                  key={g.id}
-                  initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
-                  whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.7, delay: (i % 6) * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                  className={`group relative overflow-hidden rounded-2xl border border-border bg-muted ${cls}`}
-                >
-                  {g.image_url && (
-                    <img
-                      src={g.image_url}
-                      alt={g.caption ?? ""}
-                      loading="lazy"
-                      decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.08]"
-                    />
-                  )}
-                  {/* base gradient for depth */}
-                  <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
-                  {/* accent tint on hover */}
-                  <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-overlay"
-                    style={{ background: "linear-gradient(135deg, color-mix(in oklab, var(--primary) 35%, transparent) 0%, transparent 60%)" }} />
-                  {/* shine sweep */}
-                  <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
-                    style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%)" }} />
-                  {g.caption && (
-                    <figcaption className="absolute inset-x-0 bottom-0 p-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                      <span className="inline-block text-[11px] uppercase tracking-widest text-white/95 bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10">
-                        {g.caption}
-                      </span>
-                    </figcaption>
-                  )}
-                </motion.figure>
-              );
-            })}
-          </div>
+          <GalleryDeck items={gallery} />
+
         </section>
       )}
 
