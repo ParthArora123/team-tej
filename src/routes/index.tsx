@@ -1007,7 +1007,7 @@ function Index() {
       <FounderSection founder={founder} />
 
 
-      {/* REEL WALL — infinite vertical reels */}
+      {/* CINEMATIC VIDEO COLLAGE — one frame refreshes every 5s */}
       {reels.length > 0 && (
         <section className="py-20 lg:py-28 border-t border-border overflow-hidden">
           <div className="max-w-7xl mx-auto px-6 lg:px-10 mb-10 flex flex-wrap items-end justify-between gap-6">
@@ -1018,13 +1018,21 @@ function Index() {
               </h2>
             </div>
             <p className="text-sm text-muted-foreground max-w-sm">
-              Drag the top reel away or tap a card behind it — the deck deals the next one.
+              A living wall of performance moments — one frame refreshes every few seconds.
             </p>
           </div>
-          <ReelDeck reels={reels} />
-
+          <VideoCollage
+            items={reels.map((r) => ({
+              id: r.id,
+              title: r.title,
+              subtitle: r.video ? "Reel" : "Moment",
+              video: r.video ?? null,
+              poster: r.poster ?? null,
+            }))}
+          />
         </section>
       )}
+
 
       {/* GALLERY — editorial bento */}
 
