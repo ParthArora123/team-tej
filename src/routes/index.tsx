@@ -1122,7 +1122,7 @@ function Index() {
                 {/* pulsing halo */}
                 <span
                   aria-hidden
-                  className="absolute inset-0 rounded-full animate-[ctaPulse_2.4s_ease-in-out_infinite]"
+                  className="absolute inset-0 rounded-full animate-[ctaPulse_5s_ease-in-out_infinite]"
                   style={{
                     boxShadow: "0 0 0 0 color-mix(in oklab, var(--primary) 60%, transparent)",
                   }}
