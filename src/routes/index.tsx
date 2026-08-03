@@ -1009,31 +1009,7 @@ function Index() {
       <FounderSection founder={founder} />
 
 
-      {/* CINEMATIC VIDEO COLLAGE — one frame refreshes every 5s */}
-      {reels.length > 0 && (
-        <section className="py-20 lg:py-28 border-t border-border overflow-hidden">
-          <div className="max-w-7xl mx-auto px-6 lg:px-10 mb-10 flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-primary">Latest Reels</p>
-              <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
-                Straight from the <span className="italic font-light">feed.</span>
-              </h2>
-            </div>
-            <p className="text-sm text-muted-foreground max-w-sm">
-              A living wall of performance moments — one frame refreshes every few seconds.
-            </p>
-          </div>
-          <VideoCollage
-            items={reels.map((r) => ({
-              id: r.id,
-              title: r.title,
-              subtitle: r.video ? "Reel" : "Moment",
-              video: r.video ?? null,
-              poster: r.poster ?? null,
-            }))}
-          />
-        </section>
-      )}
+
 
 
       {/* GALLERY — editorial bento */}
