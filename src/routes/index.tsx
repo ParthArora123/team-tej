@@ -1460,7 +1460,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                         // front card for the whole 10s interval — skip ahead.
                         if (items.length > 1) setActiveIndex((i) => (i + 1) % items.length);
                       }}
-                      className="absolute inset-0 w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover [object-position:50%_28%]"
                     />
                   ) : active.poster ? (
                     <img src={active.poster} alt={active.title} className="absolute inset-0 w-full h-full object-cover [object-position:50%_28%]" />
