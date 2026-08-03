@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 
+import { DECK_SCRIM } from "@/components/site/StackedDeck";
 export type Reel = {
   id: string;
   title?: string | null;
