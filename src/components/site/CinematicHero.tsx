@@ -150,21 +150,21 @@ export function CinematicHero({
         />
       )}
 
-      {/* Cinematic grading */}
+      {/* Cinematic grading — stronger at bottom so text stays legible, clear at top for the portrait */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, oklch(0 0 0 / 55%) 0%, oklch(0 0 0 / 25%) 35%, oklch(0 0 0 / 80%) 100%)",
+            "linear-gradient(180deg, oklch(0 0 0 / 25%) 0%, oklch(0 0 0 / 10%) 40%, oklch(0 0 0 / 55%) 100%)",
         }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-60"
+        className="pointer-events-none absolute inset-0 opacity-70"
         style={{
           background:
-            "radial-gradient(70% 55% at 50% 45%, transparent 0%, oklch(0 0 0 / 65%) 100%)",
+            "radial-gradient(80% 60% at 50% 80%, oklch(0 0 0 / 60%) 0%, transparent 60%)",
         }}
       />
 
