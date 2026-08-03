@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 
+import { DECK_SCRIM } from "@/components/site/StackedDeck";
 export type Reel = {
   id: string;
   title?: string | null;
@@ -60,7 +61,7 @@ function ReelCard({ reel }: { reel: Reel }) {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, transparent 45%, oklch(0 0 0 / 75%) 100%)",
+            DECK_SCRIM,
         }}
       />
       <div className="absolute inset-x-0 bottom-0 p-3">

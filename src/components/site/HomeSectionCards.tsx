@@ -82,7 +82,7 @@ export function FeaturedPerformances({ rows }: { rows: HomeCard[] }) {
         <div
           aria-hidden
           className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, transparent 30%, oklch(0 0 0 / 82%) 100%)" }}
+          style={{ background: "linear-gradient(180deg, transparent 30%, color-mix(in oklab, var(--foreground) 82%, var(--primary) 18%) 100%)" }}
         />
         <div className="absolute inset-x-0 bottom-0 p-7">
           {c.event_name && (
@@ -125,7 +125,7 @@ export function FeaturedPerformances({ rows }: { rows: HomeCard[] }) {
         <StackedDeck
           items={cards}
           variant="shuffle"
-          autoAdvanceMs={9000}
+          autoAdvanceMs={10000}
           className="mx-auto h-[420px] w-full max-w-[460px] sm:h-[480px]"
         />
       </div>
@@ -160,7 +160,7 @@ export function SignatureProgramsGrid({ rows }: { rows: HomeCard[] }) {
     <StackedDeck
       items={cards}
       variant="rise"
-      autoAdvanceMs={8000}
+      autoAdvanceMs={10000}
       className="mx-auto h-[480px] w-full max-w-[440px]"
     />
   );

@@ -521,22 +521,20 @@ function Index() {
     [],
   );
 
-  // Viral showcase deck — sourced from admin choreographies (video first).
-  const deckItems = useMemo<DeckItem[]>(
-    () =>
-      choreos
-        .filter((c) => c.video_url || c.thumbnail_url)
-        .slice(0, 7)
-        .map((c) => ({
-          id: c.id,
-          title: c.title,
-          subtitle: "Viral Choreography",
-          video: c.video_url ?? null,
-          poster: c.thumbnail_url ?? null,
-          href: c.instagram_url ?? c.youtube_url ?? null,
-        })),
-    [choreos],
-  );
+  // Viral showcase deck — videos first (falls back to stills only if no videos exist).
+  const deckItems = useMemo<DeckItem[]>(() => {
+    const withVideo = choreos.filter((c) => c.video_url);
+    const source = withVideo.length ? withVideo : choreos.filter((c) => c.thumbnail_url);
+    return source.slice(0, 7).map((c) => ({
+      id: c.id,
+      title: c.title,
+      subtitle: "Viral Choreography",
+      video: c.video_url ?? null,
+      poster: c.thumbnail_url ?? null,
+      href: c.instagram_url ?? c.youtube_url ?? null,
+    }));
+  }, [choreos]);
+
 
   // Reel wall — vertical reels from choreographies + gallery frames.
   const reels = useMemo<Reel[]>(() => {
