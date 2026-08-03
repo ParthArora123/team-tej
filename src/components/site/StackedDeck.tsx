@@ -10,7 +10,15 @@ export type StackedDeckItem = {
 };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-const VISIBLE = 4;
+const VISIBLE = 5;
+
+/** Uniform rotation cadence across every deck on the site. */
+export const DECK_ROTATE_MS = 10000;
+
+/** One shared scrim tone for every media card — brand ink, never pure black. */
+export const DECK_SCRIM =
+  "linear-gradient(180deg, transparent 28%, color-mix(in oklab, var(--foreground) 78%, var(--primary) 22%) 100%)";
+
 
 /**
  * Shared 3D stacked-card deck — the signature interaction of the site.
