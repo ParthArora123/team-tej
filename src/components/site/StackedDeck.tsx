@@ -6,7 +6,7 @@ export type DeckVariant = "stack" | "fan" | "rise" | "shuffle";
 
 export type StackedDeckItem = {
   id: string;
-  render: (state: { front: boolean; depth: number }) => ReactNode;
+  render: (state: { front: boolean; active: boolean; depth: number }) => ReactNode;
 };
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -118,7 +118,7 @@ export function StackedDeck({
               } ${cardClassName}`}
               style={{ pointerEvents: visible ? "auto" : "none", transformStyle: "preserve-3d" }}
             >
-              {it.render({ front, depth })}
+              {it.render({ front, active: front && inView, depth })}
             </motion.div>
           );
         })}

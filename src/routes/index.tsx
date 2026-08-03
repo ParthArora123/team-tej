@@ -841,25 +841,25 @@ function Index() {
           // If admin has added any dance styles, show ONLY those. Otherwise fall back to defaults.
           const stylesToRender: RenderStyle[] = backend.length > 0 ? backend : defaultStyles;
 
-          const renderMedia = (s: RenderStyle, front: boolean) => {
-            if (s.video_url) {
+          const renderMedia = (s: RenderStyle, active: boolean) => {
+            if (s.video_url && active) {
               return (
                 <video src={s.video_url} poster={s.image_url ?? undefined}
-                  autoPlay={front} loop muted playsInline preload={front ? "auto" : "metadata"}
+                  autoPlay loop muted playsInline preload="metadata"
                   className="absolute inset-0 h-full w-full object-cover" />
               );
             }
             if (s.image_url) {
               return <img src={s.image_url} alt={s.name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />;
             }
-            return <StyleAnimation name={s.name} />;
+            return <StyleAnimation name={s.name} active={active} />;
           };
 
           const deckCards: StackedDeckItem[] = stylesToRender.map((s) => ({
             id: s.name,
-            render: ({ front }) => (
+            render: ({ active }) => (
               <DeckShell dark className="text-white">
-                {renderMedia(s, front)}
+                {renderMedia(s, active)}
                 <div aria-hidden className="absolute inset-0"
                   style={{ background: "linear-gradient(180deg, transparent 30%, color-mix(in oklab, var(--foreground) 82%, var(--primary) 18%) 100%)" }} />
                 <div className="absolute inset-x-0 bottom-0 p-7">
@@ -1395,17 +1395,6 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
       </div>
 
       {/* THE DECK */}
-      {items.length > 1 && items[(activeIndex + 1) % items.length].videoSrc && (
-        <video
-          key={`preload-${items[(activeIndex + 1) % items.length].id}`}
-          src={items[(activeIndex + 1) % items.length].videoSrc as string}
-          preload="auto"
-          muted
-          playsInline
-          aria-hidden
-          style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
-        />
-      )}
       <div className="relative aspect-video" style={{ perspective: "1400px" }}>
         {deck.map(({ it, i, depth }) => {
           const isFront = depth === 0;
@@ -1479,7 +1468,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                       muted={muted}
                       loop
                       playsInline
-                      preload="auto"
+                      preload="metadata"
                       onError={() => {
                         // A clip that fails to load shouldn't sit stuck as the
                         // front card for the whole 10s interval — skip ahead.

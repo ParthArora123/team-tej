@@ -76,9 +76,9 @@ export function FeaturedPerformances({ rows }: { rows: HomeCard[] }) {
 
   const cards: StackedDeckItem[] = rows.map((c) => ({
     id: c.id,
-    render: ({ front }) => (
+    render: ({ front, active }) => (
       <DeckShell dark className="text-white">
-        <Media c={c} front={front} />
+        <Media c={c} front={active} />
         <div
           aria-hidden
           className="absolute inset-0"
@@ -138,10 +138,10 @@ export function SignatureProgramsGrid({ rows }: { rows: HomeCard[] }) {
 
   const cards: StackedDeckItem[] = rows.map((c) => ({
     id: c.id,
-    render: ({ front }) => (
+    render: ({ front, active }) => (
       <DeckShell className="flex flex-col">
         <div className="relative h-[58%] overflow-hidden bg-muted">
-          <Media c={c} front={front} />
+          <Media c={c} front={active} />
         </div>
         <div className="flex flex-1 flex-col p-6">
           <h3 className="font-display text-2xl font-bold leading-tight">{c.title}</h3>

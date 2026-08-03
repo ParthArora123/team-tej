@@ -9,7 +9,7 @@ export function WorkshopDeck({ workshops }: { workshops: any[] }) {
 
   const cards: StackedDeckItem[] = workshops.map((w) => ({
     id: w.id,
-    render: ({ front }) => (
+    render: ({ front, active }) => (
       <DeckShell dark className="flex flex-col text-white">
         <div className="absolute inset-0 bg-muted">
           {w.banner_url ? (
@@ -100,7 +100,7 @@ export function ReelDeck({ reels }: { reels: ReelCard[] }) {
     id: r.id,
     render: ({ front }) => (
       <DeckShell dark className="text-white">
-        {r.video && front ? (
+        {r.video && active ? (
           <video
             src={r.video}
             poster={r.poster ?? undefined}
