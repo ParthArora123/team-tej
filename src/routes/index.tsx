@@ -28,6 +28,7 @@ import { VideoDeck, type DeckItem } from "@/components/site/VideoDeck";
 import { type Reel } from "@/components/site/ReelWall";
 import { WorkshopDeck, ReelDeck, GalleryDeck } from "@/components/site/HomeDecks";
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
+import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
 
 import { FeaturedPerformances, SignatureProgramsGrid, type HomeCard } from "@/components/site/HomeSectionCards";
@@ -69,7 +70,7 @@ const heroVideoType = (src: string) => {
 const preloadLinkForHeroMedia = (src?: string | null) => {
   if (!src) return null;
   if (isVideoUrl(src)) {
-    return { rel: "preload", as: "video", href: src, type: heroVideoType(src), crossOrigin: "anonymous" };
+    return { rel: "preload", as: "video", href: src, type: heroVideoType(src) };
   }
   return { rel: "preload", as: "image", href: src };
 };
@@ -166,11 +167,12 @@ function HeroSlideMedia({
     const v = videoRef.current;
     if (!v) return;
     if (active) {
-      const raf = requestAnimationFrame(() => v.play().catch(() => {}));
+      const raf = requestAnimationFrame(() => void playHomepageVideo(v));
       return () => cancelAnimationFrame(raf);
     } else {
-      try { v.pause(); } catch {}
+      pauseHomepageVideo(v);
     }
+    return () => pauseHomepageVideo(v);
   }, [active]);
 
   if (!src) return null;
@@ -1308,10 +1310,11 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
     if (!v) return;
     if (inView) {
       v.muted = muted;
-      v.play().catch(() => {});
+      void playHomepageVideo(v);
     } else {
-      v.pause();
+      pauseHomepageVideo(v);
     }
+    return () => pauseHomepageVideo(v);
   }, [inView, activeIndex, muted]);
 
   if (!hasItems || !active) return null;
@@ -1335,7 +1338,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
     if (!v) return;
     v.muted = !v.muted;
     setMuted(v.muted);
-    if (!v.muted) v.play().catch(() => {});
+    if (!v.muted) void playHomepageVideo(v);
   };
 
   const goFullscreen = async (e: React.MouseEvent) => {
@@ -1351,7 +1354,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
 
   // Depth 0 = front of the deck (playing). Cards fan out behind it, capped
   // so the stack doesn't get visually noisy with a long reel.
-  const maxDepth = Math.min(items.length - 1, 4);
+  const maxDepth = Math.min(items.length - 1, 2);
   const deck: { it: ReelItem; i: number; depth: number }[] = items
     .map((it, i) => ({ it, i, depth: (i - activeIndex + items.length) % items.length }))
     .filter((c) => c.depth <= maxDepth)
@@ -1415,13 +1418,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                   {/* blurred fill so mismatched-aspect clips never show plain
                       black bars on the sides — same artwork, softly stretched
                       behind the sharp, uncropped video/poster on top */}
-                  {active.poster && (
-                    <div
-                      aria-hidden
-                      className="absolute inset-0 bg-cover bg-center scale-125"
-                      style={{ backgroundImage: `url(${active.poster})`, filter: "blur(38px) brightness(0.55)" }}
-                    />
-                  )}
+                   {active.poster && <img aria-hidden src={active.poster} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />}
                   {active.embedSrc ? (
                     <iframe
                       ref={iframeRef}
@@ -1443,7 +1440,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                           // it imperatively here guarantees playback starts
                           // immediately, with no click needed.
                           node.muted = muted;
-                          node.play().catch(() => {});
+                           void playHomepageVideo(node);
                         }
                       }}
                       src={active.videoSrc}
@@ -1513,8 +1510,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                 <>
                   {it.poster ? (
                     <>
-                      <div aria-hidden className="absolute inset-0 bg-cover bg-center scale-125"
-                        style={{ backgroundImage: `url(${it.poster})`, filter: "blur(24px) brightness(0.5)" }} />
+                       <img aria-hidden src={it.poster} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover opacity-40" />
                       <img src={it.poster} alt={it.title} loading="lazy" decoding="async"
                         className="absolute inset-0 w-full h-full object-contain" />
                     </>

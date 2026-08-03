@@ -1,6 +1,39 @@
 import { Link } from "@tanstack/react-router";
 import { Calendar, MapPin, ArrowUpRight, Play } from "lucide-react";
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
+import { useEffect, useRef, useState } from "react";
+import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
+
+function ReelVideo({ src, poster, active, title }: { src: string; poster?: string | null; active: boolean; title: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return;
+    if (active) void playHomepageVideo(video);
+    else pauseHomepageVideo(video);
+    return () => pauseHomepageVideo(video);
+  }, [active]);
+
+  return (
+    <>
+      {poster && <img src={poster} alt={title} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />}
+      <video
+        ref={ref}
+        src={src}
+        poster={poster ?? undefined}
+        muted
+        loop
+        playsInline
+        preload={active ? "metadata" : "none"}
+        onCanPlay={() => setReady(true)}
+        className="absolute inset-0 h-full w-full object-cover"
+        style={{ visibility: active && ready ? "visible" : "hidden" }}
+      />
+    </>
+  );
+}
 
 /* ------------------------------ WORKSHOPS ------------------------------ */
 
@@ -100,17 +133,8 @@ export function ReelDeck({ reels }: { reels: ReelCard[] }) {
     id: r.id,
     render: ({ front, active }) => (
       <DeckShell dark className="text-white">
-        {r.video && active ? (
-          <video
-            src={r.video}
-            poster={r.poster ?? undefined}
-            muted
-            loop
-            playsInline
-            autoPlay
-            preload="metadata"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+        {r.video ? (
+          <ReelVideo src={r.video} poster={r.poster} active={active} title={r.title ?? "Reel"} />
         ) : r.poster ? (
           <img src={r.poster} alt={r.title ?? "Reel"} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
         ) : (
