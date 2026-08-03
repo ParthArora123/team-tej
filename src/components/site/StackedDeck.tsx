@@ -157,24 +157,26 @@ export function StackedDeck({
 }
 
 function makeLayout(variant: DeckVariant) {
+  // A real pack of cards: tight, even offsets so the cards behind peek out
+  // like the edges of a deck instead of drifting far apart.
   return (d: number) => {
-    const opacity = Math.max(0, 1 - d * 0.18);
+    const opacity = d === 0 ? 1 : Math.max(0.55, 1 - d * 0.1);
     switch (variant) {
       case "fan":
-        return { x: d * 26, y: d * 10, scale: 1 - d * 0.05, rotate: d * 3.2, rotateY: d * -4, opacity };
+        return { x: d * 10, y: d * 6, scale: 1 - d * 0.035, rotate: d * 2.2, rotateY: 0, opacity };
       case "rise":
-        return { x: 0, y: d * -20, scale: 1 - d * 0.06, rotate: 0, rotateY: 0, opacity };
+        return { x: 0, y: d * -9, scale: 1 - d * 0.035, rotate: d * -1.2, rotateY: 0, opacity };
       case "shuffle":
         return {
-          x: d % 2 === 0 ? d * -18 : d * 18,
-          y: d * 14,
-          scale: 1 - d * 0.055,
-          rotate: d % 2 === 0 ? -d * 2.4 : d * 2.4,
+          x: d % 2 === 0 ? d * -8 : d * 8,
+          y: d * 8,
+          scale: 1 - d * 0.035,
+          rotate: d % 2 === 0 ? -d * 1.6 : d * 1.6,
           rotateY: 0,
           opacity,
         };
       default:
-        return { x: 0, y: d * 18, scale: 1 - d * 0.055, rotate: 0, rotateY: 0, opacity };
+        return { x: d * 6, y: d * 9, scale: 1 - d * 0.035, rotate: d * 1.4, rotateY: 0, opacity };
     }
   };
 }
@@ -187,13 +189,13 @@ export function DeckShell({
 }: {
   children: ReactNode;
   className?: string;
+  /** Kept for API compatibility — every card now uses the same uniform surface. */
   dark?: boolean;
 }) {
+  void dark;
   return (
     <div
-      className={`relative h-full w-full overflow-hidden rounded-[1.75rem] border ${
-        dark ? "border-white/12 bg-black/40" : "border-border bg-card"
-      } ${className}`}
+      className={`relative h-full w-full overflow-hidden rounded-[1.75rem] border border-border bg-card ${className}`}
       style={{
         boxShadow:
           "0 30px 80px -24px color-mix(in oklab, var(--foreground) 30%, transparent), 0 0 0 1px color-mix(in oklab, var(--foreground) 5%, transparent) inset",
@@ -203,3 +205,4 @@ export function DeckShell({
     </div>
   );
 }
+
