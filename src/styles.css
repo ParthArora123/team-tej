@@ -39,106 +39,109 @@
 }
 
 
-/* Light theme — Golden Ivory: warm ivory & black with rich gold accents */
+/* Light theme — Monochrome Premium: true white & obsidian black, a
+   whisper of warmth in the grays (graphite, not flat digital gray) so it
+   reads as premium/onyx rather than plain "grayscale placeholder". */
 :root {
   --radius: 0.75rem;
 
-  --background: oklch(0.970 0.014 85);         /* warm ivory */
-  --foreground: oklch(0.16 0.012 60);          /* near-black warm charcoal */
-  --surface: oklch(0.940 0.018 85);            /* soft champagne */
+  --background: oklch(1 0 0);                   /* pure white */
+  --foreground: oklch(0.12 0.004 60);            /* obsidian black */
+  --surface: oklch(0.97 0.003 60);               /* soft graphite-white */
 
-  --card: oklch(0.985 0.010 85);
-  --card-foreground: oklch(0.16 0.012 60);
-  --popover: oklch(0.980 0.010 85);
-  --popover-foreground: oklch(0.16 0.012 60);
+  --card: oklch(0.995 0.002 60);
+  --card-foreground: oklch(0.12 0.004 60);
+  --popover: oklch(0.995 0.002 60);
+  --popover-foreground: oklch(0.12 0.004 60);
 
-  --primary: oklch(0.58 0.14 63);              /* deep readable amber-orange, dialed back */
-  --primary-foreground: oklch(0.99 0.006 85);
+  --primary: oklch(0.10 0.004 60);               /* deep true black */
+  --primary-foreground: oklch(1 0 0);            /* pure white */
 
-  --secondary: oklch(0.90 0.020 70);           /* soft champagne */
-  --secondary-foreground: oklch(0.16 0.012 60);
+  --secondary: oklch(0.95 0.004 60);             /* refined light graphite */
+  --secondary-foreground: oklch(0.12 0.004 60);
 
-  --muted: oklch(0.92 0.018 70);
-  --muted-foreground: oklch(0.42 0.020 60);    /* warm charcoal-gray */
+  --muted: oklch(0.94 0.004 60);
+  --muted-foreground: oklch(0.40 0.006 60);      /* graphite gray */
 
-  --accent: oklch(0.64 0.12 58);               /* bronze / apricot */
-  --accent-foreground: oklch(0.99 0.006 85);
+  --accent: oklch(0.20 0.006 60);                /* charcoal */
+  --accent-foreground: oklch(1 0 0);
 
   --destructive: oklch(0.55 0.18 25);
   --destructive-foreground: oklch(0.99 0.005 250);
 
-  --border: oklch(0.84 0.030 65);              /* soft amber-tinted border */
-  --input: oklch(0.90 0.020 70);
-  --ring: oklch(0.58 0.14 63);
+  --border: oklch(0.88 0.005 60);                /* crisp, thin graphite border */
+  --input: oklch(0.95 0.004 60);
+  --ring: oklch(0.10 0.004 60);
 
-  --accent-cyan: oklch(0.58 0.14 63);
-  --accent-pink: oklch(0.64 0.12 58);
-  --accent-blue: oklch(0.42 0.10 55);
-  --accent-emerald: oklch(0.55 0.09 140);
-  --accent-gold: oklch(0.56 0.15 66);
+  --accent-cyan: oklch(0.18 0.005 60);
+  --accent-pink: oklch(0.45 0.007 60);
+  --accent-blue: oklch(0.12 0.004 60);
+  --accent-emerald: oklch(0.30 0.006 60);
+  --accent-gold: oklch(0.35 0.007 60);            /* soft platinum-graphite */
 
-  --gradient-primary: linear-gradient(135deg, oklch(0.58 0.14 63), oklch(0.42 0.10 55));
-  --gradient-royal: linear-gradient(135deg, oklch(0.64 0.12 58) 0%, oklch(0.56 0.15 66) 50%, oklch(0.40 0.10 55) 100%);
-  --gradient-aurora: linear-gradient(120deg, oklch(0.96 0.018 70), oklch(0.93 0.024 65) 45%, oklch(0.94 0.020 60));
+  --gradient-primary: linear-gradient(135deg, oklch(0.20 0.006 60), oklch(0.04 0.002 60));
+  --gradient-royal: linear-gradient(135deg, oklch(0.55 0.006 60) 0%, oklch(0.25 0.006 60) 50%, oklch(0.05 0.002 60) 100%);
+  --gradient-aurora: linear-gradient(120deg, oklch(0.99 0.002 60), oklch(0.96 0.004 60) 45%, oklch(0.97 0.003 60));
   --gradient-hero:
-    radial-gradient(ellipse 90% 65% at 15% 0%,  color-mix(in oklab, var(--primary) 18%, transparent), transparent 62%),
-    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, var(--accent) 16%, transparent), transparent 65%),
-    radial-gradient(ellipse 80% 60% at 50% 100%,color-mix(in oklab, var(--accent-gold) 22%, transparent), transparent 60%);
+    radial-gradient(ellipse 90% 65% at 15% 0%,  color-mix(in oklab, var(--primary) 10%, transparent), transparent 62%),
+    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, var(--accent) 9%, transparent), transparent 65%),
+    radial-gradient(ellipse 80% 60% at 50% 100%,color-mix(in oklab, var(--accent-gold) 12%, transparent), transparent 60%);
   --shadow-soft:
-    0 1px 2px oklch(0.16 0.05 60 / 6%),
-    0 12px 36px -14px oklch(0.16 0.05 60 / 14%),
-    0 30px 80px -40px oklch(0.16 0.05 60 / 14%);
-  --shadow-glow: 0 20px 60px -24px color-mix(in oklab, var(--primary) 45%, transparent);
-  --shadow-gold: 0 12px 40px -14px color-mix(in oklab, var(--accent-gold) 55%, transparent);
+    0 1px 2px oklch(0.12 0.004 60 / 8%),
+    0 16px 40px -14px oklch(0.12 0.004 60 / 20%),
+    0 40px 100px -48px oklch(0.12 0.004 60 / 24%);
+  --shadow-glow: 0 24px 70px -22px color-mix(in oklab, var(--primary) 40%, transparent);
+  --shadow-gold: 0 14px 44px -16px color-mix(in oklab, var(--accent-gold) 45%, transparent);
 
 }
 
 
-/* Dark theme — Golden Noir: obsidian black stage with rich amber-gold + bronze accents */
+/* Dark theme — Monochrome Noir Premium: true obsidian stage, crisp platinum
+   whites, graphite surfaces with the same warm undertone for depth. */
 .dark {
-  --background: oklch(0.12 0.008 45);          /* obsidian black, warm amber undertone */
-  --foreground: oklch(0.96 0.010 85);          /* warm ivory white */
-  --surface: oklch(0.16 0.012 50);
+  --background: oklch(0.07 0.003 60);            /* true obsidian black */
+  --foreground: oklch(0.98 0.002 60);            /* platinum white */
+  --surface: oklch(0.13 0.005 60);
 
-  --card: oklch(0.17 0.014 50);
-  --card-foreground: oklch(0.96 0.010 85);
-  --popover: oklch(0.15 0.012 50);
-  --popover-foreground: oklch(0.96 0.010 85);
+  --card: oklch(0.14 0.006 60);
+  --card-foreground: oklch(0.98 0.002 60);
+  --popover: oklch(0.12 0.005 60);
+  --popover-foreground: oklch(0.98 0.002 60);
 
-  --primary: oklch(0.68 0.14 63);              /* amber-orange gold, dialed back */
-  --primary-foreground: oklch(0.12 0.012 50);  /* near-black text on gold */
+  --primary: oklch(0.97 0.002 60);               /* crisp white */
+  --primary-foreground: oklch(0.09 0.004 60);    /* obsidian text on white */
 
-  --secondary: oklch(0.21 0.016 50);
-  --secondary-foreground: oklch(0.96 0.010 85);
+  --secondary: oklch(0.20 0.006 60);             /* graphite */
+  --secondary-foreground: oklch(0.98 0.002 60);
 
-  --muted: oklch(0.19 0.014 50);
-  --muted-foreground: oklch(0.68 0.020 65);
+  --muted: oklch(0.18 0.005 60);
+  --muted-foreground: oklch(0.66 0.006 60);
 
-  --accent: oklch(0.72 0.12 60);               /* lighter apricot / champagne */
-  --accent-foreground: oklch(0.12 0.012 50);
+  --accent: oklch(0.82 0.005 60);                /* soft platinum */
+  --accent-foreground: oklch(0.09 0.004 60);
 
   --destructive: oklch(0.60 0.20 25);
   --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(1 0 0 / 12%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.68 0.14 63);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.97 0.002 60);
 
-  --accent-cyan: oklch(0.68 0.14 63);          /* amber-orange gold */
-  --accent-pink: oklch(0.72 0.12 60);          /* apricot */
-  --accent-blue: oklch(0.52 0.10 55);          /* deep bronze */
-  --accent-emerald: oklch(0.70 0.09 130);
-  --accent-gold: oklch(0.72 0.15 66);
+  --accent-cyan: oklch(0.92 0.003 60);
+  --accent-pink: oklch(0.72 0.006 60);
+  --accent-blue: oklch(0.55 0.006 60);
+  --accent-emerald: oklch(0.68 0.006 60);
+  --accent-gold: oklch(0.78 0.007 60);            /* soft platinum-champagne gray */
 
-  --gradient-primary: linear-gradient(135deg, oklch(0.68 0.14 63), oklch(0.52 0.10 55));
-  --gradient-royal: linear-gradient(135deg, oklch(0.75 0.12 68) 0%, oklch(0.64 0.14 63) 50%, oklch(0.48 0.10 55) 100%);
-  --gradient-aurora: linear-gradient(120deg, oklch(0.68 0.14 63), oklch(0.52 0.10 55) 45%, oklch(0.72 0.12 60));
-  --gradient-hero: radial-gradient(ellipse 70% 55% at 15% 0%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 60%),
-                   radial-gradient(ellipse 55% 45% at 90% 20%, color-mix(in oklab, var(--accent) 24%, transparent), transparent 65%),
-                   radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in oklab, var(--accent-blue) 20%, transparent), transparent 60%);
-  --shadow-soft: 0 1px 2px oklch(0 0 0 / 50%), 0 12px 36px -8px oklch(0 0 0 / 60%);
-  --shadow-glow: 0 20px 70px -20px color-mix(in oklab, var(--primary) 65%, transparent);
-  --shadow-gold: 0 10px 40px -12px color-mix(in oklab, var(--accent-gold) 55%, transparent);
+  --gradient-primary: linear-gradient(135deg, oklch(0.97 0.002 60), oklch(0.60 0.006 60));
+  --gradient-royal: linear-gradient(135deg, oklch(0.92 0.003 60) 0%, oklch(0.70 0.006 60) 50%, oklch(0.45 0.006 60) 100%);
+  --gradient-aurora: linear-gradient(120deg, oklch(0.97 0.002 60), oklch(0.60 0.006 60) 45%, oklch(0.82 0.005 60));
+  --gradient-hero: radial-gradient(ellipse 70% 55% at 15% 0%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 60%),
+                   radial-gradient(ellipse 55% 45% at 90% 20%, color-mix(in oklab, var(--accent) 14%, transparent), transparent 65%),
+                   radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in oklab, var(--accent-blue) 12%, transparent), transparent 60%);
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 55%), 0 16px 44px -10px oklch(0 0 0 / 65%);
+  --shadow-glow: 0 24px 80px -22px color-mix(in oklab, var(--primary) 35%, transparent);
+  --shadow-gold: 0 12px 44px -14px color-mix(in oklab, var(--accent-gold) 35%, transparent);
 }
 
 @layer base {
