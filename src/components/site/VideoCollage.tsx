@@ -11,7 +11,7 @@ export type CollageItem = {
   poster?: string | null;
 };
 
-const CYCLE_MS = 5000;
+const CYCLE_MS = 10000;
 
 const DESKTOP_SLOTS = [
   "col-span-3 row-span-4",
@@ -280,6 +280,8 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
   const onOpen = useCallback((item: CollageItem) => setOpen(item), []);
 
+  const activeItem = items.length ? items[assign[active] % items.length] : undefined;
+
   const preload = useMemo(() => items[nextIndex], [items, nextIndex]);
 
   if (!items.length) return null;
@@ -291,7 +293,7 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
       onMouseLeave={() => setPaused(false)}
       onTouchStart={() => setPaused(true)}
       onTouchEnd={() => setPaused(false)}
-      className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10"
+      className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10"
     >
       <div
         className={
@@ -316,6 +318,59 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
         })}
       </div>
+
+      {/* auto popup: the clip currently in rotation pops forward and plays */}
+      {inView && (
+        <AnimatePresence mode="wait">
+          {activeItem && (
+            <motion.button
+              type="button"
+              key={`${active}-${activeItem.id}`}
+              initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.9, y: 18 }}
+              animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
+              exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.94, y: -12 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              onClick={() => onOpen(activeItem)}
+              aria-label={activeItem.title ?? "Open clip"}
+              className="pointer-events-auto absolute bottom-6 right-6 z-20 hidden w-[300px] overflow-hidden rounded-2xl border border-white/15 bg-black shadow-2xl transform-gpu lg:block"
+            >
+              <div className="relative aspect-video">
+                <Layer item={activeItem} play />
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, transparent 50%, color-mix(in oklab, var(--foreground) 78%, var(--primary) 22%) 100%)",
+                  }}
+                />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3 text-left">
+                  {activeItem.subtitle && (
+                    <p className="text-[9px] uppercase tracking-[0.3em] text-white/65">
+                      {activeItem.subtitle}
+                    </p>
+                  )}
+                  {activeItem.title && (
+                    <p className="mt-0.5 line-clamp-1 text-xs font-medium text-white">
+                      {activeItem.title}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="h-[3px] w-full bg-white/15">
+                <motion.div
+                  key={`bar-${active}-${activeItem.id}`}
+                  initial={{ width: "0%" }}
+                  animate={{ width: paused ? "0%" : "100%" }}
+                  transition={{ duration: CYCLE_MS / 1000, ease: "linear" }}
+                  className="h-full bg-primary"
+                />
+              </div>
+            </motion.button>
+          )}
+        </AnimatePresence>
+      )}
+
 
       {/* invisible preloader for the upcoming clip */}
       {preload?.video && (
