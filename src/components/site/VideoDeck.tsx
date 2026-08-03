@@ -123,6 +123,7 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
       {order.map((it, depth) => {
         const front = depth === 0;
         const visible = depth < 5;
+        const justLeft = order.length > 1 && depth === order.length - 1;
         return (
           <motion.button
             key={it.id}
@@ -139,14 +140,15 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
             onClick={() => (front && it.href ? window.open(it.href, "_blank") : bringToFront(it.id))}
             aria-label={it.title}
             animate={{
-              y: depth * -9,
-              x: depth * 6,
-              scale: 1 - depth * 0.035,
-              opacity: visible ? (depth === 0 ? 1 : Math.max(0.55, 1 - depth * 0.1)) : 0,
-              rotate: depth * 1.4,
-              zIndex: 20 - depth,
+              y: justLeft ? -28 : depth * -9,
+              x: justLeft ? 200 : depth * 6,
+              scale: justLeft ? 1.04 : 1 - depth * 0.035,
+              opacity: visible && !justLeft ? (depth === 0 ? 1 : Math.max(0.55, 1 - depth * 0.1)) : 0,
+              rotate: justLeft ? 14 : depth * 1.4,
+              zIndex: justLeft ? 30 : 20 - depth,
             }}
-            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: justLeft ? 0.42 : 0.5, ease: [0.16, 1, 0.3, 1] }}
+
 
             className="absolute inset-0 origin-bottom overflow-hidden rounded-[1.75rem] border border-border bg-card text-left transform-gpu will-change-transform"
             style={{

@@ -125,7 +125,7 @@ export function FeaturedPerformances({ rows }: { rows: HomeCard[] }) {
         <StackedDeck
           items={cards}
           variant="shuffle"
-          autoAdvanceMs={10000}
+          
           className="mx-auto h-[420px] w-full max-w-[460px] sm:h-[480px]"
         />
       </div>
@@ -160,7 +160,7 @@ export function SignatureProgramsGrid({ rows }: { rows: HomeCard[] }) {
     <StackedDeck
       items={cards}
       variant="rise"
-      autoAdvanceMs={10000}
+      
       className="mx-auto h-[480px] w-full max-w-[440px]"
     />
   );

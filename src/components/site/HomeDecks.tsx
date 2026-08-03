@@ -76,7 +76,7 @@ export function WorkshopDeck({ workshops }: { workshops: any[] }) {
     <StackedDeck
       items={cards}
       variant="stack"
-      autoAdvanceMs={10000}
+      
       className="mx-auto h-[460px] w-full max-w-[440px] sm:h-[520px]"
     />
   );
@@ -144,7 +144,7 @@ export function ReelDeck({ reels }: { reels: ReelCard[] }) {
     <StackedDeck
       items={cards}
       variant="fan"
-      autoAdvanceMs={10000}
+      
       className="mx-auto h-[460px] w-full max-w-[320px] sm:h-[560px] sm:max-w-[360px]"
     />
   );
@@ -188,7 +188,7 @@ export function GalleryDeck({ items }: { items: any[] }) {
     <StackedDeck
       items={cards}
       variant="shuffle"
-      autoAdvanceMs={10000}
+      
       className="mx-auto h-[400px] w-full max-w-[540px] sm:h-[480px]"
     />
   );
