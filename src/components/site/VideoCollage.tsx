@@ -11,7 +11,7 @@ export type CollageItem = {
   poster?: string | null;
 };
 
-const CYCLE_MS = 5000;
+const CYCLE_MS = 10000;
 
 const DESKTOP_SLOTS = [
   "col-span-3 row-span-4",
