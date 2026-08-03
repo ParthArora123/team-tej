@@ -352,7 +352,19 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
         <Play size={10} /> Tap any frame for the full clip
       </p>
 
-      <AnimatePresence>{open && <Lightbox item={open} onClose={() => setOpen(null)} />}</AnimatePresence>
+      <AnimatePresence>
+        {open && (
+          <Lightbox
+            item={open}
+            muted={autoOpenRef.current}
+            onClose={() => {
+              autoOpenRef.current = false;
+              setAutoModal(false);
+              setOpen(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
