@@ -51,14 +51,10 @@ export function CinematicHero({
         @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
       `}</style>
 
-      {/* Static background — Tejas D Dhoke photo, full-bleed, no cropping */}
+      {/* Static background — Tejas D Dhoke photo, full-bleed, single image */}
       <div
         className="absolute inset-0 w-full h-full transform-gpu will-change-transform"
         style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundPosition: "center top",
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
           animation: reduce ? "none" : "heroZoom 24s ease-out forwards",
           opacity: loaded ? 1 : 0,
           transition: "opacity 700ms ease-out",
