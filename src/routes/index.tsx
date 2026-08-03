@@ -23,6 +23,10 @@ import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { MouseParallax } from "@/components/site/MouseParallax";
+import { CinematicHero } from "@/components/site/CinematicHero";
+import { VideoDeck, type DeckItem } from "@/components/site/VideoDeck";
+import { ReelWall, type Reel } from "@/components/site/ReelWall";
+
 const TestimonialsCarousel = lazy(() =>
   import("@/components/site/TestimonialsCarousel").then((m) => ({ default: m.TestimonialsCarousel }))
 );
@@ -499,6 +503,52 @@ function Index() {
     };
   }, [workshops]);
 
+  const heroBadges = useMemo(
+    () => [
+      { value: "1000+", label: "Workshops" },
+      { value: "100k+", label: "Dancers Trained" },
+      { value: "300+", label: "Live Performances" },
+      { value: "16+", label: "Years on Stage" },
+    ],
+    [],
+  );
+
+  // Viral showcase deck — sourced from admin choreographies (video first).
+  const deckItems = useMemo<DeckItem[]>(
+    () =>
+      choreos
+        .filter((c) => c.video_url || c.thumbnail_url)
+        .slice(0, 7)
+        .map((c) => ({
+          id: c.id,
+          title: c.title,
+          subtitle: "Viral Choreography",
+          video: c.video_url ?? null,
+          poster: c.thumbnail_url ?? null,
+          href: c.instagram_url ?? c.youtube_url ?? null,
+        })),
+    [choreos],
+  );
+
+  // Reel wall — vertical reels from choreographies + gallery frames.
+  const reels = useMemo<Reel[]>(() => {
+    const fromChoreos: Reel[] = choreos
+      .filter((c) => c.video_url || c.thumbnail_url)
+      .map((c) => ({
+        id: `c-${c.id}`,
+        title: c.title,
+        video: c.video_url ?? null,
+        poster: c.thumbnail_url ?? null,
+        href: c.instagram_url ?? c.youtube_url ?? null,
+      }));
+    const fromGallery: Reel[] = gallery
+      .filter((g: any) => g.image_url)
+      .slice(0, 10)
+      .map((g: any) => ({ id: `g-${g.id}`, title: g.caption ?? null, poster: g.image_url }));
+    return [...fromChoreos, ...fromGallery].slice(0, 16);
+  }, [choreos, gallery]);
+
+
   return (
     <>
 
@@ -511,180 +561,13 @@ function Index() {
       </Link>
 
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
-      <section
-        id="hero"
-        ref={heroSectionRef}
-        className="relative overflow-hidden border-b border-border"
-        style={{ background: "var(--background)" }}
-      >
-        {/* Stage-lighting radial glows */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-0">
-          <div
-            className="absolute -top-40 -left-40 h-[38rem] w-[38rem] rounded-full blur-[120px] opacity-60"
-            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, transparent), transparent 65%)" }}
-          />
-          <div
-            className="absolute top-1/3 -right-40 h-[42rem] w-[42rem] rounded-full blur-[130px] opacity-50"
-            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent-cyan) 45%, transparent), transparent 65%)" }}
-          />
-          <div
-            className="absolute -bottom-40 left-1/3 h-[32rem] w-[32rem] rounded-full blur-[120px] opacity-40"
-            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--accent-pink) 40%, transparent), transparent 65%)" }}
-          />
-        </div>
+      <CinematicHero
+        slides={heroSlides}
+        portrait={heroImg}
+        badges={heroBadges}
+        onReady={() => setHeroReady(true)}
+      />
 
-        <div className="relative min-h-[calc(100vh-4rem)]">
-          {/* Portrait carousel (cinematic) — now the entire hero */}
-          <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden"
-               style={{ background: "var(--surface)" }}>
-            {/* Blurred backdrop layer for full coverage */}
-            {heroSlides[slideIdx] && (
-              <div aria-hidden className="absolute inset-0 overflow-hidden">
-                <div
-                  className="absolute inset-0 scale-110 blur-2xl opacity-50"
-                  style={{
-                    backgroundImage: `url(${heroSlides[slideIdx]?.image_url ?? heroImg})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                />
-              </div>
-            )}
-
-            <AnimatePresence mode="sync" initial={false}>
-              <motion.div
-                key={heroSlides[slideIdx]?.id ?? `fallback-${slideIdx}`}
-                initial={{ opacity: 0, scale: 1.04 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 1.02 }}
-                transition={{ duration: 1.1, ease: [0.22, 0.9, 0.28, 1] }}
-                className="absolute inset-0"
-              >
-                {heroSlides.length > 0 ? (
-                  <HeroSlideMedia
-                    src={heroSlides[slideIdx]?.image_url}
-                    alt={heroSlides[slideIdx]?.alt ?? "Tejas D Dhoke"}
-                    active
-                    priority
-                    fallbackSrc={heroImg}
-                    onReady={() => setHeroReady(true)}
-                  />
-                ) : (
-                  <img
-                    src={heroImg}
-                    alt="Tejas D Dhoke"
-                    className="absolute inset-0 h-full w-full object-cover"
-                    fetchPriority="high"
-                    decoding="async"
-                    onLoad={() => setHeroReady(true)}
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Warm neighbours off-screen */}
-            {warmSlides && heroSlides.length > 1 && (
-              <div aria-hidden className="hidden">
-                {heroSlides.map((s, i) =>
-                  i !== slideIdx ? (
-                    <HeroSlideMedia
-                      key={`warm-${s.id ?? i}`}
-                      src={s.image_url}
-                      alt=""
-                      active={false}
-                      fallbackSrc={heroImg}
-                    />
-                  ) : null,
-                )}
-              </div>
-            )}
-
-            {/* Luminosity tint + edge gradient bleeding into right side */}
-            <div
-              aria-hidden
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background:
-                  "linear-gradient(180deg, oklch(0 0 0 / 15%) 0%, transparent 40%, oklch(0 0 0 / 55%) 100%)",
-              }}
-            />
-            <div
-              aria-hidden
-              className="hidden lg:block absolute inset-y-0 right-0 w-40 pointer-events-none"
-              style={{ background: "linear-gradient(90deg, transparent, var(--background))" }}
-            />
-            {showStageLights && <StageLights />}
-
-            {/* Corner artist label */}
-            <div className="absolute bottom-8 left-8 z-10">
-              <div className="h-px w-16 mb-4" style={{ background: "var(--accent-cyan)" }} />
-              <p className="text-[10px] uppercase tracking-[0.4em] font-semibold" style={{ color: "var(--accent-cyan)" }}>
-                Movement Architect
-              </p>
-              {nextWorkshop && (
-                <p className="mt-3 inline-flex items-center gap-2 text-xs sm:text-sm text-white/90">
-                  <Calendar size={13} className="text-primary shrink-0" />
-                  Next workshop: <span className="font-medium">{nextWorkshop.dateLabel}</span>
-                </p>
-              )}
-              <div className="mt-5">
-                <MagneticButton>
-                  {nextWorkshop ? (
-                    <Link
-                      to="/workshops/$id"
-                      params={{ id: nextWorkshop.id }}
-                      className="group relative inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
-                      style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-                    >
-                      <span className="relative z-10 flex items-center gap-2">
-                        Explore Workshops
-                        <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
-                      </span>
-                    </Link>
-                  ) : (
-                    <a
-                      href="#workshops"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
-                      }}
-                      className="group relative inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em] overflow-hidden shine-sweep"
-                      style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-                    >
-                      <span className="relative z-10 flex items-center gap-2">
-                        Explore Workshops
-                        <ArrowUpRight size={14} className="group-hover:rotate-45 transition-transform" />
-                      </span>
-                    </a>
-                  )}
-                </MagneticButton>
-              </div>
-            </div>
-
-            {/* Dots */}
-            {heroSlides.length > 1 && (
-              <div className="absolute bottom-8 right-8 z-20 flex gap-2">
-                {heroSlides.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSlideIdx(i)}
-                    aria-label={`Go to slide ${i + 1}`}
-                    className="h-1.5 rounded-full transition-all"
-                    style={{
-                      width: i === slideIdx ? 28 : 8,
-                      background:
-                        i === slideIdx
-                          ? "var(--gradient-primary)"
-                          : "color-mix(in oklab, white 40%, transparent)",
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-        </div>
-      </section>
 
 
       {/* STATS */}
@@ -711,6 +594,37 @@ function Index() {
           ))}
         </motion.div>
       </section>
+
+      {/* VIRAL SHOWCASE — 3D stacked video deck */}
+      {deckItems.length > 0 && (
+        <section id="showcase" className="relative max-w-7xl mx-auto px-6 lg:px-10 py-20 lg:py-28 border-t border-border">
+          <div className="grid lg:grid-cols-2 gap-14 items-center">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary">Viral Showcase</p>
+              <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+                The work that <span className="italic font-light">travels.</span>
+              </h2>
+              <p className="mt-5 text-muted-foreground max-w-lg">
+                A living deck of Tejas's most-watched choreographies. It reshuffles on its own —
+                hover to hold a card, tap any card to bring it forward.
+              </p>
+              <div className="mt-8">
+                <MagneticButton>
+                  <Link
+                    to="/workshops"
+                    className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em]"
+                    style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+                  >
+                    Learn these routines <ArrowUpRight size={14} />
+                  </Link>
+                </MagneticButton>
+              </div>
+            </div>
+            <VideoDeck items={deckItems} />
+          </div>
+        </section>
+      )}
+
 
 
 
@@ -1141,7 +1055,26 @@ function Index() {
       <FounderSection founder={founder} />
 
 
+      {/* REEL WALL — infinite vertical reels */}
+      {reels.length > 0 && (
+        <section className="py-20 lg:py-28 border-t border-border overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 lg:px-10 mb-10 flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary">Latest Reels</p>
+              <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+                Straight from the <span className="italic font-light">feed.</span>
+              </h2>
+            </div>
+            <p className="text-sm text-muted-foreground max-w-sm">
+              Hover any reel to play it. The wall keeps moving — just like the floor does.
+            </p>
+          </div>
+          <ReelWall reels={reels} />
+        </section>
+      )}
+
       {/* GALLERY — editorial bento */}
+
       {gallery.length > 0 && (
         <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
           <div className="mb-10 flex items-end justify-between gap-6">
