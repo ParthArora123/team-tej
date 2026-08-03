@@ -84,11 +84,9 @@ export function StackedDeck({
           const visible = depth < VISIBLE;
           const front = depth === 0;
           const justLeft = n > 1 && depth === n - 1;
-          // The card that just left glides gently under the pack instead of
-          // snapping away — no hard flick, no flashing.
-          const t = justLeft
-            ? { ...layout(VISIBLE - 1), scale: 0.9, rotate: 0, opacity: 0 }
-            : layout(depth);
+          // Keep the departing card visible while it settles behind the pack.
+          // Fading it to zero made media-heavy decks visibly flash on rotation.
+          const t = justLeft ? layout(VISIBLE - 1) : layout(depth);
           return (
             <motion.div
               key={it.id}
@@ -109,10 +107,10 @@ export function StackedDeck({
                 scale: t.scale,
                 rotate: t.rotate,
                 rotateY: t.rotateY,
-                opacity: visible && !justLeft ? t.opacity : 0,
+                opacity: visible || justLeft ? t.opacity : 0,
                 zIndex: 40 - depth,
               }}
-              transition={{ duration: reduce ? 0 : 0.85, ease: EASE }}
+              transition={{ duration: reduce ? 0 : 1.05, ease: EASE }}
 
 
               className={`absolute inset-0 transform-gpu will-change-transform ${
