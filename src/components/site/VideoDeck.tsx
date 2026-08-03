@@ -140,14 +140,14 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
             onClick={() => (front && it.href ? window.open(it.href, "_blank") : bringToFront(it.id))}
             aria-label={it.title}
             animate={{
-              y: justLeft ? -28 : depth * -9,
-              x: justLeft ? 200 : depth * 6,
-              scale: justLeft ? 1.04 : 1 - depth * 0.035,
+              y: justLeft ? 4 * -9 : depth * -9,
+              x: justLeft ? 4 * 6 : depth * 6,
+              scale: justLeft ? 0.9 : 1 - depth * 0.035,
               opacity: visible && !justLeft ? (depth === 0 ? 1 : Math.max(0.55, 1 - depth * 0.1)) : 0,
-              rotate: justLeft ? 14 : depth * 1.4,
-              zIndex: justLeft ? 30 : 20 - depth,
+              rotate: justLeft ? 0 : depth * 1.4,
+              zIndex: 20 - depth,
             }}
-            transition={{ duration: justLeft ? 0.42 : 0.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
 
 
             className="absolute inset-0 origin-bottom overflow-hidden rounded-[1.75rem] border border-border bg-card text-left transform-gpu will-change-transform"
