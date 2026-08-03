@@ -25,7 +25,9 @@ import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { VideoDeck, type DeckItem } from "@/components/site/VideoDeck";
-import { ReelWall, type Reel } from "@/components/site/ReelWall";
+import { type Reel } from "@/components/site/ReelWall";
+import { WorkshopDeck, ReelDeck, GalleryDeck } from "@/components/site/HomeDecks";
+
 import { FeaturedPerformances, SignatureProgramsGrid, type HomeCard } from "@/components/site/HomeSectionCards";
 import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.functions";
 
