@@ -118,16 +118,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-const themeInitScript = `(function(){try{var s=localStorage.getItem('theme');var d=s==='dark';var r=document.documentElement;if(d)r.classList.add('dark');else r.classList.remove('dark');}catch(e){document.documentElement.classList.remove('dark');}})();`;
-
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    // The inline theme script sets `class="dark"` on <html> before React
-    // hydrates, so the server markup intentionally differs here.
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
         <HeadContent />
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body>
         {children}

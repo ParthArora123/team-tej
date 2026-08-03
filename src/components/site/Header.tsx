@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { ThemeToggle } from "./ThemeToggle";
 
 const links = [
   { to: "/", label: "Home" },
@@ -98,7 +97,6 @@ export function Header() {
 
         {/* Actions pill */}
         <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-background/60 backdrop-blur-xl px-1.5 h-11 shadow-[0_8px_30px_-12px_rgb(0_0_0_/_0.35)]">
-          <ThemeToggle />
           {signedIn ? (
             <Link
               to="/dashboard"
