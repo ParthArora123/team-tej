@@ -25,7 +25,8 @@ import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { VideoDeck, type DeckItem } from "@/components/site/VideoDeck";
 import { type Reel } from "@/components/site/ReelWall";
-import { WorkshopDeck, ReelDeck, GalleryDeck } from "@/components/site/HomeDecks";
+import { WorkshopDeck, ReelDeck } from "@/components/site/HomeDecks";
+import { MasonryGallery } from "@/components/site/MasonryGallery";
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
@@ -477,6 +478,12 @@ function Index() {
 
 
 
+  // Admin-uploaded hero media that are videos become the cinematic montage.
+  const heroClips = useMemo(
+    () => heroSlides.map((s) => s.image_url).filter((u): u is string => isVideoUrl(u)),
+    [heroSlides]
+  );
+
   const heroSectionRef = useRef<HTMLElement>(null);
   const [heroVisible, setHeroVisible] = useState(true);
 
@@ -572,6 +579,7 @@ function Index() {
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
       <CinematicHero
         backgroundImage={heroImg}
+        clips={heroClips}
         badges={heroBadges}
         onReady={() => setHeroReady(true)}
       />
@@ -1033,7 +1041,7 @@ function Index() {
               {gallery.length} frames
             </div>
           </div>
-          <GalleryDeck items={gallery} />
+          <MasonryGallery items={gallery} />
 
         </section>
       )}
