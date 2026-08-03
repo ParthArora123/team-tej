@@ -280,6 +280,8 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
   const onOpen = useCallback((item: CollageItem) => setOpen(item), []);
 
+  const activeItem = items.length ? items[assign[active] % items.length] : undefined;
+
   const preload = useMemo(() => items[nextIndex], [items, nextIndex]);
 
   if (!items.length) return null;
