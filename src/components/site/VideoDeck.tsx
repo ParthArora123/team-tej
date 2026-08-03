@@ -126,6 +126,15 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
           <motion.button
             key={it.id}
             type="button"
+            drag={front && order.length > 1 ? "x" : false}
+            dragElastic={0.16}
+            dragMomentum={false}
+            dragConstraints={{ left: 0, right: 0 }}
+            onDragEnd={(_, info) => {
+              if (Math.abs(info.offset.x) > 70 || Math.abs(info.velocity.x) > 450) {
+                setOrder((o) => (info.offset.x < 0 ? [...o.slice(1), o[0]] : [o[o.length - 1], ...o.slice(0, -1)]));
+              }
+            }}
             onClick={() => (front && it.href ? window.open(it.href, "_blank") : bringToFront(it.id))}
             aria-label={it.title}
             animate={{
@@ -135,7 +144,8 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
               rotateX: depth * 2,
               zIndex: 20 - depth,
             }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+
             className="absolute inset-0 origin-bottom overflow-hidden rounded-[1.75rem] border border-white/12 bg-black/40 backdrop-blur-sm text-left transform-gpu will-change-transform"
             style={{
               boxShadow:
