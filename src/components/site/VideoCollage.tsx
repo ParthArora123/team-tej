@@ -211,14 +211,17 @@ function Lightbox({
       >
         {item.video ? (
           <video
+            key={item.id}
             src={item.video}
             poster={item.poster ?? undefined}
             controls
             autoPlay
             loop
+            muted={muted}
             playsInline
             className="h-full max-h-[80vh] w-full bg-black object-contain"
           />
+
         ) : item.poster ? (
           <img src={item.poster} alt={item.title ?? ""} className="max-h-[80vh] w-full object-contain" />
         ) : null}
