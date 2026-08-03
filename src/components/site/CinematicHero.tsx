@@ -3,38 +3,18 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Play, ChevronDown } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
 
-export type HeroMedia = {
-  id?: string | null;
-  image_url?: string | null;
-  alt?: string | null;
-};
-
 export function CinematicHero({
   backgroundImage,
-  portrait,
   badges,
   onReady,
 }: {
   backgroundImage: string;
-  portrait: string;
   badges: { value: string; label: string }[];
   onReady?: () => void;
 }) {
   const reduce = useReducedMotion();
   const [loaded, setLoaded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(
-      ([e]) => setVisible(e.isIntersecting),
-      { threshold: 0.05 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
 
   useEffect(() => {
     if (!backgroundImage) {
