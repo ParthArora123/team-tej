@@ -107,7 +107,6 @@ export function StackedDeck({
                 scale: t.scale,
                 rotate: t.rotate,
                 rotateY: t.rotateY,
-                opacity: visible || justLeft ? t.opacity : 0,
                 zIndex: 40 - depth,
               }}
               transition={{ duration: reduce ? 0 : 1.05, ease: EASE }}
@@ -116,7 +115,12 @@ export function StackedDeck({
               className={`absolute inset-0 transform-gpu will-change-transform ${
                 front ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
               } ${cardClassName}`}
-              style={{ pointerEvents: visible ? "auto" : "none", transformStyle: "preserve-3d" }}
+              style={{
+                pointerEvents: visible ? "auto" : "none",
+                transformStyle: "preserve-3d",
+                visibility: visible || justLeft ? "visible" : "hidden",
+                opacity: 1,
+              }}
             >
               {it.render({ front, active: front && inView, depth })}
             </motion.div>
@@ -165,7 +169,7 @@ function makeLayout(variant: DeckVariant) {
   // A real pack of cards: tight, even offsets so the cards behind peek out
   // like the edges of a deck instead of drifting far apart.
   return (d: number) => {
-    const opacity = d === 0 ? 1 : Math.max(0.55, 1 - d * 0.1);
+    const opacity = 1;
     switch (variant) {
       case "fan":
         return { x: d * 10, y: d * 6, scale: 1 - d * 0.035, rotate: d * 2.2, rotateY: 0, opacity };

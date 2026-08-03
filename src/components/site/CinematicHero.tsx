@@ -56,8 +56,7 @@ export function CinematicHero({
         className="absolute inset-0 w-full h-full transform-gpu will-change-transform"
         style={{
           animation: reduce ? "none" : "heroZoom 24s ease-out forwards",
-          opacity: loaded ? 1 : 0,
-          transition: "opacity 700ms ease-out",
+          visibility: loaded ? "visible" : "hidden",
         }}
       >
         <img
@@ -202,7 +201,7 @@ export function CinematicHero({
       {/* Scroll indicator */}
       <motion.div
         aria-hidden
-        animate={{ y: [0, 8, 0], opacity: [0.5, 1, 0.5] }}
+        animate={{ y: [0, 8, 0] }}
         transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
         className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 text-white/70"
       >

@@ -16,6 +16,9 @@ const ROTATE_MS = DECK_ROTATE_MS;
 
 function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => setReady(false), [item.video]);
 
   useEffect(() => {
     const v = ref.current;
@@ -31,8 +34,18 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
     }
   }, [front]);
 
-  if (item.video && front) {
-    return (
+  return (
+    <div className="absolute inset-0 bg-muted">
+      {item.poster && (
+        <img
+          src={item.poster}
+          alt={item.title}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
+      {item.video && front && (
       <video
         ref={ref}
         src={item.video}
@@ -44,31 +57,22 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
         preload="metadata"
         disableRemotePlayback
         disablePictureInPicture
+        onLoadedData={() => setReady(true)}
+        onCanPlay={() => setReady(true)}
         className="absolute inset-0 h-full w-full object-cover"
+        style={{ visibility: ready ? "visible" : "hidden" }}
       />
-    );
-  }
-
-  if (item.poster) {
-    return (
-      <img
-        src={item.poster}
-        alt={item.title}
-        loading="lazy"
-        decoding="async"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-    );
-  }
-
-  return (
-    <div
-      className="absolute inset-0"
-      style={{
-        background:
-          "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 70%)",
-      }}
-    />
+      )}
+      {!item.poster && !item.video && (
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 70%)",
+          }}
+        />
+      )}
+    </div>
   );
 }
 
@@ -143,7 +147,6 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
               y: justLeft ? 4 * -9 : depth * -9,
               x: justLeft ? 4 * 6 : depth * 6,
               scale: justLeft ? 0.9 : 1 - depth * 0.035,
-              opacity: visible || justLeft ? (justLeft ? 0.6 : depth === 0 ? 1 : Math.max(0.55, 1 - depth * 0.1)) : 0,
               rotate: justLeft ? 0 : depth * 1.4,
               zIndex: 20 - depth,
             }}
@@ -155,6 +158,8 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
               boxShadow:
                 "0 30px 80px -24px color-mix(in oklab, var(--foreground) 30%, transparent), 0 0 0 1px color-mix(in oklab, var(--foreground) 5%, transparent) inset",
               pointerEvents: visible ? "auto" : "none",
+              visibility: visible || justLeft ? "visible" : "hidden",
+              opacity: 1,
             }}
           >
             <DeckMedia item={it} front={front && inView} />

@@ -209,7 +209,7 @@ function HeroSlideMedia({
         onLoadedData={markReady}
         onCanPlay={markReady}
         className={common}
-        style={{ opacity: ready ? 1 : 0, transition: "opacity 200ms ease-out" }}
+        style={{ visibility: ready || !!fallbackSrc ? "visible" : "hidden" }}
       />
     );
   }
@@ -1119,14 +1119,6 @@ function Index() {
                     "0 0 60px color-mix(in oklab, var(--primary) 70%, transparent), 0 0 120px color-mix(in oklab, #7A3BFF 40%, transparent)",
                 }}
               >
-                {/* pulsing halo */}
-                <span
-                  aria-hidden
-                  className="absolute inset-0 rounded-full animate-[ctaPulse_5s_ease-in-out_infinite]"
-                  style={{
-                    boxShadow: "0 0 0 0 color-mix(in oklab, var(--primary) 60%, transparent)",
-                  }}
-                />
                 <span className="relative z-10 flex items-center gap-2">
                   Start Your Dance Journey
                   <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
@@ -1143,14 +1135,6 @@ function Index() {
               Get in touch and we'll notify you about the next batch
             </Link>.
           </p>
-
-          <style>{`
-            @keyframes ctaPulse {
-              0%   { box-shadow: 0 0 0 0   color-mix(in oklab, var(--primary) 55%, transparent); }
-              70%  { box-shadow: 0 0 0 22px color-mix(in oklab, var(--primary) 0%,  transparent); }
-              100% { box-shadow: 0 0 0 0   color-mix(in oklab, var(--primary) 0%,  transparent); }
-            }
-          `}</style>
 
         </motion.div>
       </section>
