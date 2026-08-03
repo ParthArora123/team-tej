@@ -11,6 +11,10 @@ export function SmoothScroll() {
     if (typeof window === "undefined") return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
+    // Touch devices already have native momentum scrolling; hijacking it with
+    // a rAF loop makes scrolling feel stuck/laggy while videos decode.
+    const isTouch = window.matchMedia("(hover: none), (max-width: 768px)").matches;
+    if (isTouch) return;
 
     const lenis = new Lenis({
       duration: 1.15,
