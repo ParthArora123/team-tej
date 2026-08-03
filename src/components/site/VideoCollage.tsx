@@ -355,15 +355,8 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
       <AnimatePresence>
         {open && (
-          <Lightbox
-            item={open}
-            muted={autoOpenRef.current}
-            onClose={() => {
-              autoOpenRef.current = false;
-              setAutoModal(false);
-              setOpen(null);
-            }}
-          />
+          <Lightbox item={open} onClose={() => setOpen(null)} />
+
         )}
       </AnimatePresence>
     </div>
