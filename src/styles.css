@@ -308,6 +308,14 @@
   50%      { background-position: 100% 50%; }
 }
 
+/* Auto-rotating showcase progress indicator (compositor-only). */
+@keyframes deck-progress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+
+
 @utility glass-card {
   background-color: color-mix(in oklab, var(--card) 70%, transparent);
   backdrop-filter: blur(22px) saturate(160%);
