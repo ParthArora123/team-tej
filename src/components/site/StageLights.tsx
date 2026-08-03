@@ -15,7 +15,7 @@ export function StageLights() {
       <div className="absolute inset-0 mix-blend-screen">
         {/* Left spotlight beam — wide sweep */}
         <div
-          className="absolute -top-40 left-[18%] h-[150%] w-[36%] origin-top blur-2xl opacity-90 animate-[beam-sweep-l_6s_ease-in-out_infinite] motion-reduce:animate-none"
+          className="absolute -top-40 left-[18%] h-[150%] w-[36%] origin-top blur-2xl opacity-70 animate-[beam-sweep-l_18s_ease-in-out_infinite] motion-reduce:animate-none"
           style={{
             background:
               "linear-gradient(to bottom, hsl(var(--primary) / 0.95), hsl(var(--primary) / 0.5) 35%, hsl(var(--primary) / 0.15) 65%, transparent 85%)",
@@ -23,7 +23,7 @@ export function StageLights() {
         />
         {/* Right spotlight beam — opposing sweep */}
         <div
-          className="absolute -top-40 right-[18%] h-[150%] w-[36%] origin-top blur-2xl opacity-90 animate-[beam-sweep-r_7.5s_ease-in-out_infinite] motion-reduce:animate-none"
+          className="absolute -top-40 right-[18%] h-[150%] w-[36%] origin-top blur-2xl opacity-70 animate-[beam-sweep-r_22s_ease-in-out_infinite] motion-reduce:animate-none"
           style={{
             background:
               "linear-gradient(to bottom, hsl(var(--accent) / 0.95), hsl(var(--accent) / 0.5) 35%, hsl(var(--accent) / 0.15) 65%, transparent 85%)",
@@ -31,7 +31,7 @@ export function StageLights() {
         />
         {/* Center accent beam — slow drift */}
         <div
-          className="absolute -top-32 left-1/2 h-[140%] w-[26%] -translate-x-1/2 origin-top blur-3xl opacity-70 animate-[beam-sweep-c_11s_ease-in-out_infinite] motion-reduce:animate-none"
+          className="absolute -top-32 left-1/2 h-[140%] w-[26%] -translate-x-1/2 origin-top blur-3xl opacity-70 animate-[beam-sweep-c_26s_ease-in-out_infinite] motion-reduce:animate-none"
           style={{
             background:
               "linear-gradient(to bottom, hsl(var(--primary) / 0.75), hsl(var(--accent) / 0.35) 45%, transparent 80%)",
@@ -40,7 +40,7 @@ export function StageLights() {
 
         {/* Center hotspot / lens flare */}
         <div
-          className="absolute top-[28%] left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl opacity-70 animate-[stage-pulse_5s_ease-in-out_infinite] motion-reduce:animate-none"
+          className="absolute top-[28%] left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl opacity-50 animate-[stage-pulse_14s_ease-in-out_infinite] motion-reduce:animate-none"
           style={{
             background:
               "radial-gradient(circle, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.3) 45%, transparent 75%)",
@@ -49,7 +49,7 @@ export function StageLights() {
 
         {/* Drifting side flare */}
         <div
-          className="absolute top-[45%] left-[10%] h-64 w-64 rounded-full blur-3xl opacity-60 animate-[flare-drift_9s_ease-in-out_infinite] motion-reduce:animate-none"
+          className="absolute top-[45%] left-[10%] h-64 w-64 rounded-full blur-3xl opacity-60 animate-[flare-drift_20s_ease-in-out_infinite] motion-reduce:animate-none"
           style={{
             background:
               "radial-gradient(circle, hsl(var(--accent) / 0.8), transparent 70%)",
@@ -62,28 +62,28 @@ export function StageLights() {
 
       <style>{`
         @keyframes beam-sweep-l {
-          0%   { transform: rotate(6deg)  translateX(-40px); opacity: 0.6; }
-          50%  { transform: rotate(24deg) translateX(60px);  opacity: 1; }
-          100% { transform: rotate(6deg)  translateX(-40px); opacity: 0.6; }
+          0%   { transform: rotate(8deg)  translateX(-30px); }
+          50%  { transform: rotate(20deg) translateX(40px); }
+          100% { transform: rotate(8deg)  translateX(-30px); }
         }
         @keyframes beam-sweep-r {
-          0%   { transform: rotate(-6deg)  translateX(40px);  opacity: 0.6; }
-          50%  { transform: rotate(-24deg) translateX(-60px); opacity: 1; }
-          100% { transform: rotate(-6deg)  translateX(40px);  opacity: 0.6; }
+          0%   { transform: rotate(-8deg)  translateX(30px); }
+          50%  { transform: rotate(-20deg) translateX(-40px); }
+          100% { transform: rotate(-8deg)  translateX(30px); }
         }
         @keyframes beam-sweep-c {
-          0%   { transform: translateX(-50%) rotate(-8deg); opacity: 0.45; }
-          50%  { transform: translateX(-50%) rotate(8deg);  opacity: 0.85; }
-          100% { transform: translateX(-50%) rotate(-8deg); opacity: 0.45; }
+          0%   { transform: translateX(-50%) rotate(-6deg); }
+          50%  { transform: translateX(-50%) rotate(6deg); }
+          100% { transform: translateX(-50%) rotate(-6deg); }
         }
         @keyframes stage-pulse {
-          0%, 100% { opacity: 0.45; transform: translate(-50%, 0) scale(1); }
-          50%      { opacity: 0.9;  transform: translate(-50%, 0) scale(1.25); }
+          0%, 100% { transform: translate(-50%, 0) scale(1); }
+          50%      { transform: translate(-50%, 0) scale(1.12); }
         }
         @keyframes flare-drift {
-          0%   { transform: translate(0, 0) scale(1);      opacity: 0.4; }
-          50%  { transform: translate(80px, -40px) scale(1.2); opacity: 0.8; }
-          100% { transform: translate(0, 0) scale(1);      opacity: 0.4; }
+          0%   { transform: translate(0, 0) scale(1); }
+          50%  { transform: translate(60px, -30px) scale(1.08); }
+          100% { transform: translate(0, 0) scale(1); }
         }
       `}</style>
     </div>
