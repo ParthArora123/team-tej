@@ -98,7 +98,10 @@ export function FloatingWorldScene() {
     [isMobile]
   );
 
-  if (!enabled) return null;
+  // This scene is a large, permanently-animating fixed backdrop. On phones and
+  // small tablets it competes with video decoding for the compositor and makes
+  // the page feel frozen, so we skip it entirely there (and on reduced motion).
+  if (!enabled || isMobile || reduce) return null;
 
   return (
     <div
