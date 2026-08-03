@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
+import { DECK_SCRIM, DECK_ROTATE_MS } from "@/components/site/StackedDeck";
 
 export type DeckItem = {
   id: string;
@@ -11,7 +12,7 @@ export type DeckItem = {
   href?: string | null;
 };
 
-const ROTATE_MS = 10000;
+const ROTATE_MS = DECK_ROTATE_MS;
 
 function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
