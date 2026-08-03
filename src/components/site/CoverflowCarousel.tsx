@@ -98,17 +98,18 @@ export function CoverflowCarousel({
         const dx = e.clientX - s;
         if (Math.abs(dx) > 45) go(dx < 0 ? 1 : -1);
       }}
-      className="relative select-none overflow-hidden rounded-[28px] bg-[#0a0810]"
+      className="relative select-none overflow-hidden rounded-[28px] bg-muted/40 border border-border/60"
     >
-      {/* ambient stage room glow */}
+      {/* soft ambient stage glow (light theme) */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(120% 70% at 50% 118%, rgba(124,92,255,0.55), rgba(70,50,150,0.22) 45%, rgba(6,5,12,0) 72%), radial-gradient(80% 55% at 50% 0%, rgba(50,40,110,0.35), rgba(6,5,12,0) 70%)",
+            "radial-gradient(120% 70% at 50% 118%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 68%), radial-gradient(80% 55% at 50% 0%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 70%)",
         }}
       />
+
       <div
         className="relative mx-auto h-[62vw] max-h-[520px] min-h-[280px] w-full"
         style={{ perspective: "1100px", perspectiveOrigin: "50% 55%", touchAction: "pan-y" }}
