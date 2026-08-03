@@ -21,7 +21,6 @@ import { StyleAnimation } from "@/components/site/StyleAnimation";
 import { MagneticButton } from "@/components/site/MagneticButton";
 import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
-import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { VideoDeck, type DeckItem } from "@/components/site/VideoDeck";
@@ -596,7 +595,7 @@ function Index() {
                 style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
               />
               <p className="font-display text-5xl lg:text-7xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
-                <AnimatedCounter value={s.value} suffix={s.suffix} />
+                {s.value}{s.suffix ?? ""}
               </p>
               <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
             </motion.div>
@@ -1415,10 +1414,8 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
             >
               {isFront ? (
                 <>
-                  {/* blurred fill so mismatched-aspect clips never show plain
-                      black bars on the sides — same artwork, softly stretched
-                      behind the sharp, uncropped video/poster on top */}
-                   {active.poster && <img aria-hidden src={active.poster} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />}
+                  {/* media fills the card edge-to-edge — no letterboxing */}
+
                   {active.embedSrc ? (
                     <iframe
                       ref={iframeRef}
@@ -1455,10 +1452,10 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                         // front card for the whole 10s interval — skip ahead.
                         if (items.length > 1) setActiveIndex((i) => (i + 1) % items.length);
                       }}
-                      className="absolute inset-0 w-full h-full object-contain"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                   ) : active.poster ? (
-                    <img src={active.poster} alt={active.title} className="absolute inset-0 w-full h-full object-contain" />
+                    <img src={active.poster} alt={active.title} className="absolute inset-0 w-full h-full object-cover" />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
                   )}
@@ -1509,11 +1506,8 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
               ) : (
                 <>
                   {it.poster ? (
-                    <>
-                       <img aria-hidden src={it.poster} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover opacity-40" />
-                      <img src={it.poster} alt={it.title} loading="lazy" decoding="async"
-                        className="absolute inset-0 w-full h-full object-contain" />
-                    </>
+                    <img src={it.poster} alt={it.title} loading="lazy" decoding="async"
+                      className="absolute inset-0 w-full h-full object-cover" />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
                   )}
