@@ -14,6 +14,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
 import heroImg from "@/assets/tejasdhoke.jpg";
+import uploadedHeroImg from "@/assets/tejasdhoke-hero.jpg.asset.json";
 import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
@@ -293,7 +294,7 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
 export const Route = createFileRoute("/")({
   loader: loadHomeData,
   head: ({ loaderData }) => {
-    const firstHero = loaderData?.heroSlides?.[0]?.image_url || heroImg;
+    const firstHero = loaderData?.heroSlides?.[0]?.image_url || uploadedHeroImg.url;
     const preload = preloadLinkForHeroMedia(firstHero);
     const preconnect = preconnectLinkForHeroMedia(firstHero);
     return {
@@ -580,7 +581,7 @@ function Index() {
 
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
       <CinematicHero
-        backgroundImage={heroImg}
+        backgroundImage={uploadedHeroImg.url}
         clips={heroClips}
         badges={heroBadges}
         onReady={() => setHeroReady(true)}
