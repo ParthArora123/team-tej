@@ -1566,6 +1566,17 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
       </div>
 
       {/* THE DECK */}
+      {items.length > 1 && items[(activeIndex + 1) % items.length].videoSrc && (
+        <video
+          key={`preload-${items[(activeIndex + 1) % items.length].id}`}
+          src={items[(activeIndex + 1) % items.length].videoSrc as string}
+          preload="auto"
+          muted
+          playsInline
+          aria-hidden
+          style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
+        />
+      )}
       <div className="relative aspect-video" style={{ perspective: "1400px" }}>
         {deck.map(({ it, i, depth }) => {
           const isFront = depth === 0;
@@ -1599,6 +1610,16 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
             >
               {isFront ? (
                 <>
+                  {/* blurred fill so mismatched-aspect clips never show plain
+                      black bars on the sides — same artwork, softly stretched
+                      behind the sharp, uncropped video/poster on top */}
+                  {active.poster && (
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 bg-cover bg-center scale-125"
+                      style={{ backgroundImage: `url(${active.poster})`, filter: "blur(38px) brightness(0.55)" }}
+                    />
+                  )}
                   {active.embedSrc ? (
                     <iframe
                       ref={iframeRef}
@@ -1635,10 +1656,10 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                         // front card for the whole 10s interval — skip ahead.
                         if (items.length > 1) setActiveIndex((i) => (i + 1) % items.length);
                       }}
-                      className="absolute inset-0 w-full h-full object-contain bg-black"
+                      className="absolute inset-0 w-full h-full object-contain"
                     />
                   ) : active.poster ? (
-                    <img src={active.poster} alt={active.title} className="absolute inset-0 w-full h-full object-contain bg-black" />
+                    <img src={active.poster} alt={active.title} className="absolute inset-0 w-full h-full object-contain" />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
                   )}
@@ -1689,8 +1710,12 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
               ) : (
                 <>
                   {it.poster ? (
-                    <img src={it.poster} alt={it.title} loading="lazy" decoding="async"
-                      className="absolute inset-0 w-full h-full object-contain bg-black" />
+                    <>
+                      <div aria-hidden className="absolute inset-0 bg-cover bg-center scale-125"
+                        style={{ backgroundImage: `url(${it.poster})`, filter: "blur(24px) brightness(0.5)" }} />
+                      <img src={it.poster} alt={it.title} loading="lazy" decoding="async"
+                        className="absolute inset-0 w-full h-full object-contain" />
+                    </>
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
                   )}
