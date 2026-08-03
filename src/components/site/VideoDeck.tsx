@@ -15,7 +15,7 @@ export type DeckItem = {
 
 const ROTATE_MS = DECK_ROTATE_MS;
 
-function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
+function DeckMedia({ item, front, near = false }: { item: DeckItem; front: boolean; near?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
 
@@ -51,7 +51,7 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
         muted
         loop
         playsInline
-        preload={front ? "metadata" : "none"}
+        preload={front || near ? "metadata" : "none"}
         disableRemotePlayback
         disablePictureInPicture
         onLoadedData={() => setReady(true)}
@@ -114,11 +114,17 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
     });
 
   return (
+    <div className="mx-auto w-full max-w-[420px] sm:max-w-[520px]">
     <div
       ref={ref}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      className="relative mx-auto h-[440px] sm:h-[520px] w-full max-w-[420px] sm:max-w-[520px]"
+      onPointerDown={() => setPaused(true)}
+      onPointerUp={() => setPaused(false)}
+      onPointerCancel={() => setPaused(false)}
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => setPaused(false)}
+      className="relative h-[440px] sm:h-[520px] w-full"
       style={{ perspective: 1400 }}
     >
       {order.map((it, depth) => {
@@ -159,7 +165,7 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
               opacity: 1,
             }}
           >
-            <DeckMedia item={it} front={front && inView} />
+            <DeckMedia item={it} front={front && inView} near={depth === 1} />
             <div
               aria-hidden
               className="absolute inset-0"
@@ -185,5 +191,20 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
         );
       })}
     </div>
+
+    {order.length > 1 && (
+      <div aria-hidden className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-border/70">
+        <div
+          key={`${order[0]?.id}-${inView}`}
+          className="h-full w-full origin-left rounded-full bg-primary"
+          style={{
+            animation: `deck-progress ${ROTATE_MS}ms linear forwards`,
+            animationPlayState: paused || !inView ? "paused" : "running",
+          }}
+        />
+      </div>
+    )}
+    </div>
   );
 }
+

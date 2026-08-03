@@ -12,8 +12,8 @@ export type StackedDeckItem = {
 const EASE = [0.16, 1, 0.3, 1] as const;
 const VISIBLE = 3;
 
-/** Uniform rotation cadence across every deck on the site (calm, non-flickery). */
-export const DECK_ROTATE_MS = 11000;
+/** Uniform rotation cadence across every deck on the site (cinematic billboard pace). */
+export const DECK_ROTATE_MS = 5000;
 
 /** One shared scrim tone for every media card — brand ink, never pure black. */
 export const DECK_SCRIM =
@@ -70,12 +70,19 @@ export function StackedDeck({
 
   if (n === 0) return null;
 
+  const rotating = !!autoAdvanceMs && !reduce && n > 1;
+
   return (
     <div className={`relative ${className}`}>
       <div
         ref={ref}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
+        onPointerDown={() => setPaused(true)}
+        onPointerUp={() => setPaused(false)}
+        onPointerCancel={() => setPaused(false)}
+        onTouchStart={() => setPaused(true)}
+        onTouchEnd={() => setPaused(false)}
         className="relative h-full w-full select-none"
         style={{ perspective: 1600 }}
       >
@@ -127,6 +134,23 @@ export function StackedDeck({
           );
         })}
       </div>
+
+      {rotating && (
+        <div
+          aria-hidden
+          className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-border/70"
+        >
+          <div
+            key={`${index}-${inView}`}
+            className="h-full w-full origin-left rounded-full bg-primary"
+            style={{
+              animation: `deck-progress ${autoAdvanceMs}ms linear forwards`,
+              animationPlayState: paused || !inView ? "paused" : "running",
+            }}
+          />
+        </div>
+      )}
+
 
       {showControls && n > 1 && (
         <div className="mt-6 flex items-center justify-center gap-4">
