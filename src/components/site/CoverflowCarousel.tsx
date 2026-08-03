@@ -119,30 +119,30 @@ export function CoverflowCarousel({
           const isActive = d === 0;
           const dir = Math.sign(d);
           const abs = Math.abs(d);
-          const x = dir * (28 + (abs - 1) * 16) * (abs === 0 ? 0 : 1);
-          const translate = abs === 0 ? 0 : x;
-          const rotate = isActive ? 0 : -dir * 40;
-          const scale = isActive ? 1 : 0.66 - (abs - 1) * 0.07;
-          const z = isActive ? 0 : -140 - (abs - 1) * 90;
+          const translate = abs === 0 ? 0 : dir * (46 + (abs - 1) * 30);
+          const rotate = isActive ? 0 : -dir * 62;
+          const scale = isActive ? 1 : 0.9 - (abs - 1) * 0.07;
+          const z = isActive ? 60 : -80 - (abs - 1) * 70;
           return (
             <div
               key={it.id}
               onClick={() => !isActive && setActive(i)}
-              className={`absolute top-1/2 left-1/2 w-[64%] sm:w-[56%] lg:w-[46%] aspect-video rounded-[18px] overflow-hidden bg-black will-change-transform ${
+              className={`absolute top-1/2 left-1/2 w-[58%] sm:w-[46%] lg:w-[34%] aspect-[4/5] rounded-[22px] overflow-hidden bg-foreground/90 will-change-transform ${
                 isActive ? "" : "cursor-pointer"
               }`}
               style={{
                 transform: `translate3d(calc(-50% + ${translate}%), -50%, ${z}px) rotateY(${rotate}deg) scale(${scale})`,
                 transition: "transform 700ms cubic-bezier(0.22,1,0.36,1), opacity 700ms cubic-bezier(0.22,1,0.36,1), filter 700ms ease",
                 zIndex: 50 - abs,
-                opacity: isActive ? 1 : Math.max(0.35, 0.7 - (abs - 1) * 0.15),
-                filter: isActive ? "none" : `blur(${1.5 + (abs - 1) * 1}px) saturate(0.85)`,
+                opacity: isActive ? 1 : Math.max(0.5, 0.85 - (abs - 1) * 0.18),
+                filter: isActive ? "none" : `brightness(0.82) saturate(0.9)`,
                 boxShadow: isActive
-                  ? "0 40px 90px -30px rgba(0,0,0,0.65), 0 8px 24px -12px rgba(0,0,0,0.5)"
-                  : "0 26px 60px -30px rgba(0,0,0,0.6)",
+                  ? "0 50px 100px -30px color-mix(in oklab, var(--foreground) 35%, transparent), 0 10px 30px -14px color-mix(in oklab, var(--foreground) 25%, transparent)"
+                  : "0 30px 70px -34px color-mix(in oklab, var(--foreground) 30%, transparent)",
                 backfaceVisibility: "hidden",
               }}
             >
+
               <Media item={it} isActive={isActive} onEnded={() => count > 1 && go(1)} />
 
               {/* glassmorphism sheen */}
