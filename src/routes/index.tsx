@@ -294,7 +294,7 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
 export const Route = createFileRoute("/")({
   loader: loadHomeData,
   head: ({ loaderData }) => {
-    const firstHero = loaderData?.heroSlides?.[0]?.image_url || heroImg;
+    const firstHero = loaderData?.heroSlides?.[0]?.image_url || uploadedHeroImg.url;
     const preload = preloadLinkForHeroMedia(firstHero);
     const preconnect = preconnectLinkForHeroMedia(firstHero);
     return {
