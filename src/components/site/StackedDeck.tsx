@@ -135,6 +135,23 @@ export function StackedDeck({
         })}
       </div>
 
+      {rotating && (
+        <div
+          aria-hidden
+          className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-border/70"
+        >
+          <div
+            key={`${index}-${inView}`}
+            className="h-full w-full origin-left rounded-full bg-primary"
+            style={{
+              animation: `deck-progress ${autoAdvanceMs}ms linear forwards`,
+              animationPlayState: paused || !inView ? "paused" : "running",
+            }}
+          />
+        </div>
+      )}
+
+
       {showControls && n > 1 && (
         <div className="mt-6 flex items-center justify-center gap-4">
           <button
