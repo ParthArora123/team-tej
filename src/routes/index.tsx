@@ -1055,7 +1055,26 @@ function Index() {
       <FounderSection founder={founder} />
 
 
+      {/* REEL WALL — infinite vertical reels */}
+      {reels.length > 0 && (
+        <section className="py-20 lg:py-28 border-t border-border overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 lg:px-10 mb-10 flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary">Latest Reels</p>
+              <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+                Straight from the <span className="italic font-light">feed.</span>
+              </h2>
+            </div>
+            <p className="text-sm text-muted-foreground max-w-sm">
+              Hover any reel to play it. The wall keeps moving — just like the floor does.
+            </p>
+          </div>
+          <ReelWall reels={reels} />
+        </section>
+      )}
+
       {/* GALLERY — editorial bento */}
+
       {gallery.length > 0 && (
         <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
           <div className="mb-10 flex items-end justify-between gap-6">
