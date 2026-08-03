@@ -27,6 +27,8 @@ import { CinematicHero } from "@/components/site/CinematicHero";
 import { VideoDeck, type DeckItem } from "@/components/site/VideoDeck";
 import { type Reel } from "@/components/site/ReelWall";
 import { WorkshopDeck, ReelDeck, GalleryDeck } from "@/components/site/HomeDecks";
+import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
+
 
 import { FeaturedPerformances, SignatureProgramsGrid, type HomeCard } from "@/components/site/HomeSectionCards";
 import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.functions";
@@ -853,53 +855,29 @@ function Index() {
             return <StyleAnimation name={s.name} />;
           };
 
-          return (
-            <>
-              {/* Mobile: snap carousel */}
-              <div className="md:hidden -mx-6 px-6 flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {stylesToRender.map((s) => (
-                  <article key={s.name}
-                    className="snap-start shrink-0 w-[78%] relative aspect-[4/5] rounded-2xl overflow-hidden border border-border group">
-                    {renderMedia(s)}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
-                    <div className="absolute bottom-5 left-5 right-5 z-10">
-                      <p className="font-display text-2xl font-bold">{s.name}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{s.tagline}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
+          const deckCards: StackedDeckItem[] = stylesToRender.map((s) => ({
+            id: s.name,
+            render: () => (
+              <DeckShell dark className="text-white">
+                {renderMedia(s)}
+                <div aria-hidden className="absolute inset-0"
+                  style={{ background: "linear-gradient(180deg, transparent 30%, color-mix(in oklab, var(--foreground) 82%, var(--primary) 18%) 100%)" }} />
+                <div className="absolute inset-x-0 bottom-0 p-7">
+                  <p className="font-display text-3xl font-bold text-white">{s.name}</p>
+                  {s.tagline && <p className="mt-2 text-sm text-white/75">{s.tagline}</p>}
+                </div>
+              </DeckShell>
+            ),
+          }));
 
-              {/* Desktop: grid */}
-              <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-80px" }}
-                className="hidden md:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 [perspective:1200px]">
-                {stylesToRender.map((s) => (
-                  <motion.div key={s.name} variants={item} className="[transform-style:preserve-3d]">
-                    <TiltCard className="aspect-[4/5] rounded-2xl">
-                      <article className="relative h-full w-full rounded-2xl overflow-hidden border border-border group-hover:border-primary/60 transition-colors bg-card">
-                        {renderMedia(s)}
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-                        {/* animated gradient border */}
-                        <div aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"
-                          style={{ boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent)" }} />
-                        {/* shine sweep */}
-                        <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1100ms] ease-out"
-                          style={{ background: "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--primary) 30%, transparent) 50%, transparent 70%)" }} />
-                        <div className="absolute bottom-5 left-5 right-5 z-10 [transform:translateZ(30px)]">
-                          <div className="overflow-hidden">
-                            <p className="font-display text-2xl font-bold translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
-                              {s.name}
-                            </p>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1 opacity-80 group-hover:opacity-100 transition-opacity">{s.tagline}</p>
-                        </div>
-                      </article>
-                    </TiltCard>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </>
+          return (
+            <StackedDeck
+              items={deckCards}
+              variant="stack"
+              className="mx-auto h-[440px] w-full max-w-[380px] sm:h-[520px] sm:max-w-[440px]"
+            />
           );
+
         })()}
 
       </section>
