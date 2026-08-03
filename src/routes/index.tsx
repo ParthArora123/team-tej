@@ -1463,7 +1463,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                       className="absolute inset-0 w-full h-full object-cover"
                     />
                   ) : active.poster ? (
-                    <img src={active.poster} alt={active.title} className="absolute inset-0 w-full h-full object-cover" />
+                    <img src={active.poster} alt={active.title} className="absolute inset-0 w-full h-full object-cover [object-position:50%_28%]" />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
                   )}
@@ -1515,7 +1515,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                 <>
                   {it.poster ? (
                     <img src={it.poster} alt={it.title} loading="lazy" decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover" />
+                      className="absolute inset-0 w-full h-full object-cover [object-position:50%_28%]" />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
                   )}
