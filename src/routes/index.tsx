@@ -841,11 +841,11 @@ function Index() {
           // If admin has added any dance styles, show ONLY those. Otherwise fall back to defaults.
           const stylesToRender: RenderStyle[] = backend.length > 0 ? backend : defaultStyles;
 
-          const renderMedia = (s: RenderStyle) => {
+          const renderMedia = (s: RenderStyle, front: boolean) => {
             if (s.video_url) {
               return (
                 <video src={s.video_url} poster={s.image_url ?? undefined}
-                  autoPlay loop muted playsInline preload="metadata"
+                  autoPlay={front} loop muted playsInline preload={front ? "auto" : "metadata"}
                   className="absolute inset-0 h-full w-full object-cover" />
               );
             }
@@ -857,9 +857,9 @@ function Index() {
 
           const deckCards: StackedDeckItem[] = stylesToRender.map((s) => ({
             id: s.name,
-            render: () => (
+            render: ({ front }) => (
               <DeckShell dark className="text-white">
-                {renderMedia(s)}
+                {renderMedia(s, front)}
                 <div aria-hidden className="absolute inset-0"
                   style={{ background: "linear-gradient(180deg, transparent 30%, color-mix(in oklab, var(--foreground) 82%, var(--primary) 18%) 100%)" }} />
                 <div className="absolute inset-x-0 bottom-0 p-7">

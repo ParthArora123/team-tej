@@ -31,7 +31,7 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
     }
   }, [front]);
 
-  if (item.video && front) {
+  if (item.video) {
     return (
       <video
         ref={ref}
@@ -41,7 +41,7 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
         loop
         playsInline
         autoPlay
-        preload="metadata"
+        preload={front ? "auto" : "metadata"}
         disableRemotePlayback
         disablePictureInPicture
         className="absolute inset-0 h-full w-full object-cover"
@@ -143,11 +143,11 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
               y: justLeft ? 4 * -9 : depth * -9,
               x: justLeft ? 4 * 6 : depth * 6,
               scale: justLeft ? 0.9 : 1 - depth * 0.035,
-              opacity: visible && !justLeft ? (depth === 0 ? 1 : Math.max(0.55, 1 - depth * 0.1)) : 0,
+              opacity: visible || justLeft ? (justLeft ? 0.6 : depth === 0 ? 1 : Math.max(0.55, 1 - depth * 0.1)) : 0,
               rotate: justLeft ? 0 : depth * 1.4,
               zIndex: 20 - depth,
             }}
-            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1] }}
 
 
             className="absolute inset-0 origin-bottom overflow-hidden rounded-[1.75rem] border border-border bg-card text-left transform-gpu will-change-transform"
