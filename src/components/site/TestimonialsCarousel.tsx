@@ -92,7 +92,7 @@ export function TestimonialsCarousel({ items }: { items?: Testimonial[] }) {
       <StackedDeck
         items={cards}
         variant="fan"
-        autoAdvanceMs={10000}
+        
         className="mx-auto h-[360px] w-full max-w-2xl sm:h-[340px]"
       />
     </section>

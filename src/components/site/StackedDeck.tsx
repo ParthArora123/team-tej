@@ -9,11 +9,11 @@ export type StackedDeckItem = {
   render: (state: { front: boolean; depth: number }) => ReactNode;
 };
 
-const EASE = [0.22, 1, 0.36, 1] as const;
+const EASE = [0.16, 1, 0.3, 1] as const;
 const VISIBLE = 5;
 
 /** Uniform rotation cadence across every deck on the site. */
-export const DECK_ROTATE_MS = 10000;
+export const DECK_ROTATE_MS = 6000;
 
 /** One shared scrim tone for every media card — brand ink, never pure black. */
 export const DECK_SCRIM =
