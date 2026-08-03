@@ -25,7 +25,9 @@ import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { VideoDeck, type DeckItem } from "@/components/site/VideoDeck";
 import { type Reel } from "@/components/site/ReelWall";
-import { WorkshopDeck, ReelDeck } from "@/components/site/HomeDecks";
+import { WorkshopDeck } from "@/components/site/HomeDecks";
+import { VideoCollage } from "@/components/site/VideoCollage";
+
 import { MasonryGallery } from "@/components/site/MasonryGallery";
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
