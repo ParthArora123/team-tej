@@ -503,6 +503,52 @@ function Index() {
     };
   }, [workshops]);
 
+  const heroBadges = useMemo(
+    () => [
+      { value: "1000+", label: "Workshops" },
+      { value: "100k+", label: "Dancers Trained" },
+      { value: "300+", label: "Live Performances" },
+      { value: "16+", label: "Years on Stage" },
+    ],
+    [],
+  );
+
+  // Viral showcase deck — sourced from admin choreographies (video first).
+  const deckItems = useMemo<DeckItem[]>(
+    () =>
+      choreos
+        .filter((c) => c.video_url || c.thumbnail_url)
+        .slice(0, 7)
+        .map((c) => ({
+          id: c.id,
+          title: c.title,
+          subtitle: "Viral Choreography",
+          video: c.video_url ?? null,
+          poster: c.thumbnail_url ?? null,
+          href: c.instagram_url ?? c.youtube_url ?? null,
+        })),
+    [choreos],
+  );
+
+  // Reel wall — vertical reels from choreographies + gallery frames.
+  const reels = useMemo<Reel[]>(() => {
+    const fromChoreos: Reel[] = choreos
+      .filter((c) => c.video_url || c.thumbnail_url)
+      .map((c) => ({
+        id: `c-${c.id}`,
+        title: c.title,
+        video: c.video_url ?? null,
+        poster: c.thumbnail_url ?? null,
+        href: c.instagram_url ?? c.youtube_url ?? null,
+      }));
+    const fromGallery: Reel[] = gallery
+      .filter((g: any) => g.image_url)
+      .slice(0, 10)
+      .map((g: any) => ({ id: `g-${g.id}`, title: g.caption ?? null, poster: g.image_url }));
+    return [...fromChoreos, ...fromGallery].slice(0, 16);
+  }, [choreos, gallery]);
+
+
   return (
     <>
 
