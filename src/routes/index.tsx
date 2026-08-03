@@ -26,6 +26,8 @@ import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { VideoDeck, type DeckItem } from "@/components/site/VideoDeck";
 import { ReelWall, type Reel } from "@/components/site/ReelWall";
+import { FeaturedPerformances, SignatureProgramsGrid, type HomeCard } from "@/components/site/HomeSectionCards";
+import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.functions";
 
 const TestimonialsCarousel = lazy(() =>
   import("@/components/site/TestimonialsCarousel").then((m) => ({ default: m.TestimonialsCarousel }))
@@ -349,6 +351,8 @@ function Index() {
   const [choreos, setChoreos] = useState<Choreo[]>([]);
   const [founder, setFounder] = useState<any | null>(null);
   const [testimonials, setTestimonials] = useState<any[]>([]);
+  const [performances, setPerformances] = useState<HomeCard[]>([]);
+  const [sigPrograms, setSigPrograms] = useState<HomeCard[]>([]);
   const [slideIdx, setSlideIdx] = useState(0);
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
@@ -430,6 +434,8 @@ function Index() {
       cachedCall("choreographies", () => listChoreographies()).then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
       cachedCall("siteContent:founder", () => getSiteContent({ data: { key: "founder" } })).then((r: any) => setFounder(r)).catch(() => setFounder(null));
       cachedCall("testimonials", () => listPublicTestimonials()).then((r: any) => setTestimonials(r ?? [])).catch(() => setTestimonials([]));
+      cachedCall("homePerformances", () => listPerformances()).then((r: any) => setPerformances(r ?? [])).catch(() => setPerformances([]));
+      cachedCall("signaturePrograms", () => listSignaturePrograms()).then((r: any) => setSigPrograms(r ?? [])).catch(() => setSigPrograms([]));
     };
     const ric: any = (window as any).requestIdleCallback;
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -800,6 +806,9 @@ function Index() {
         </motion.div>
       </section>
 
+      {/* FEATURED PERFORMANCES — admin managed */}
+      <FeaturedPerformances rows={performances} />
+
       {/* SIGNATURE PROGRAMS */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
@@ -810,10 +819,13 @@ function Index() {
             </h2>
           </div>
           <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
-            Four ways to train with Tejas.
+            Every way to train with Tejas.
           </p>
         </div>
 
+        {sigPrograms.length > 0 ? (
+          <SignatureProgramsGrid rows={sigPrograms} />
+        ) : (
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -841,6 +853,7 @@ function Index() {
             </motion.div>
           ))}
         </motion.div>
+        )}
       </section>
 
       {/* DANCE STYLES */}

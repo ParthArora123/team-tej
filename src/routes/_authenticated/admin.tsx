@@ -35,13 +35,14 @@ import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
 import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
 import { MediaUploader } from "@/components/admin/MediaUploader";
 import { ZeroToHeroMediaTab } from "@/components/admin/ZeroToHeroMediaTab";
+import { HomeSectionsTab } from "@/components/admin/HomeSectionsTab";
 import { compressImageFile } from "@/lib/compress-image";
 
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "approvals" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero" | "whatsapp_template";
+type Tab = "overview" | "approvals" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero" | "home_sections" | "whatsapp_template";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
@@ -56,6 +57,7 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "choreographies", label: "Choreographies", emphasis: true },
   { id: "founder", label: "Founder section" },
   { id: "zero_to_hero", label: "Zero to Hero media", emphasis: true },
+  { id: "home_sections", label: "Home sections", emphasis: true },
   { id: "contact_info", label: "Contact info" },
   { id: "about_page", label: "About page" },
   { id: "whatsapp_template", label: "WhatsApp message", emphasis: true },
@@ -201,6 +203,8 @@ function AdminPage() {
       {tab === "workshop_hero" && <WorkshopHeroTab />}
 
       {tab === "zero_to_hero" && <ZeroToHeroMediaTab />}
+
+      {tab === "home_sections" && <HomeSectionsTab />}
 
       {tab === "featured" && <FeaturedExperienceTab />}
 
