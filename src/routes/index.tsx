@@ -759,7 +759,7 @@ function Index() {
             { icon: Music2, title: "Musicality", desc: "Movement that listens to the music, not just counts to it." },
             { icon: Users2, title: "Performance", desc: "Stage-ready energy — because a workshop should prepare you to be watched, not just to watch." },
           ].map((p) => (
-            <motion.div key={p.title} variants={item} className="rounded-2xl border border-border bg-card p-6 hover:border-primary/60 transition-colors">
+            <motion.div key={p.title} variants={item} className="premium-card bg-card p-6">
               <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                 <p.icon size={20} />
               </div>
@@ -804,7 +804,7 @@ function Index() {
             { icon: Video, title: "Online Training", desc: "Structured remote training for dancers anywhere in the world.", href: "/online-trainings" },
           ].map((p) => (
             <motion.div key={p.title} variants={item}>
-              <Link to={p.href} className="group block h-full rounded-2xl border border-border bg-card p-6 hover:border-primary transition-colors">
+              <Link to={p.href} className="group block h-full premium-card bg-card p-6">
                 <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                   <p.icon size={20} />
                 </div>
@@ -910,7 +910,7 @@ function Index() {
                   key={c.id}
                   variants={item}
                   whileHover={{ y: -4 }}
-                  className="group relative aspect-square rounded-2xl bg-card border border-border overflow-hidden flex flex-col items-center justify-end text-center hover:border-primary/60 transition-colors"
+                  className="group relative aspect-square premium-card bg-card overflow-hidden flex flex-col items-center justify-end text-center"
                 >
                   {c.photo_url ? (
                     <img
