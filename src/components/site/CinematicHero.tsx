@@ -202,32 +202,36 @@ export function CinematicHero({
         }}
       />
 
-      {/* Founder cut-out — stays put while backgrounds change */}
-      <MouseParallax
-        strength={10}
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center"
-      >
-        <motion.img
-          src={portrait}
-          alt="Tejas D Dhoke"
-          initial={{ opacity: 0, y: 40, scale: 1.04 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-          className="h-[58svh] sm:h-[64svh] lg:h-[72svh] w-auto object-contain object-bottom drop-shadow-[0_30px_80px_rgba(0,0,0,0.75)]"
-          style={{
-            maskImage:
-              "linear-gradient(180deg, black 68%, transparent 99%)",
-            WebkitMaskImage:
-              "linear-gradient(180deg, black 68%, transparent 99%)",
-          }}
-          draggable={false}
-          fetchPriority="high"
-          decoding="async"
-        />
-      </MouseParallax>
+      {/* Founder cut-out — stays put while backgrounds change.
+          Skipped when the portrait is also the background (no CMS media yet),
+          so the same photo is never stacked on itself. */}
+      {slides.length > 0 && (
+        <MouseParallax
+          strength={10}
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center"
+        >
+          <motion.img
+            src={portrait}
+            alt="Tejas D Dhoke"
+            initial={{ opacity: 0, y: 40, scale: 1.04 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            className="h-[52svh] sm:h-[58svh] lg:h-[66svh] w-auto object-contain object-bottom drop-shadow-[0_30px_80px_rgba(0,0,0,0.75)]"
+            style={{
+              maskImage: "linear-gradient(180deg, black 68%, transparent 99%)",
+              WebkitMaskImage:
+                "linear-gradient(180deg, black 68%, transparent 99%)",
+            }}
+            draggable={false}
+            fetchPriority="high"
+            decoding="async"
+          />
+        </MouseParallax>
+      )}
 
       {/* Copy */}
-      <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col justify-center items-center text-center pointer-events-none">
+      <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center pointer-events-none justify-start pt-[22svh] sm:pt-[20svh]">
+
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
