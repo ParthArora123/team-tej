@@ -2,7 +2,6 @@ import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Play, ChevronDown } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
-import { MouseParallax } from "@/components/site/MouseParallax";
 
 export type HeroMedia = {
   id?: string | null;
