@@ -232,16 +232,16 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
   const [assign, setAssign] = useState<number[]>(() =>
     Array.from({ length: layout.length }, (_, i) => i),
   );
+  const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [inView, setInView] = useState(false);
   const [open, setOpen] = useState<CollageItem | null>(null);
   const cursor = useRef(0);
-  const turn = useRef(0);
   const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     cursor.current = slotCount;
-    turn.current = 0;
+    setActive(0);
     setAssign(Array.from({ length: layout.length }, (_, i) => i % Math.max(items.length, 1)));
   }, [items, slotCount, layout.length]);
 
@@ -256,20 +256,27 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
   // Next item that will be swapped in — preloaded ahead of the transition.
   const nextIndex = items.length ? cursor.current % items.length : 0;
 
+  // One frame at a time: it pops forward, plays its clip, then after 5s the
+  // spotlight moves to the next frame (which gets a fresh clip when available).
   useEffect(() => {
-    if (paused || !inView || items.length <= slotCount || slotCount === 0) return;
+    if (paused || !inView || slotCount === 0) return;
     const t = setInterval(() => {
-      setAssign((prev) => {
-        const next = [...prev];
-        const slot = turn.current % slotCount;
-        turn.current += 1;
-        next[slot] = cursor.current % items.length;
-        cursor.current += 1;
+      setActive((prev) => {
+        const next = (prev + 1) % slotCount;
+        if (items.length > slotCount) {
+          setAssign((a) => {
+            const copy = [...a];
+            copy[next] = cursor.current % items.length;
+            cursor.current += 1;
+            return copy;
+          });
+        }
         return next;
       });
     }, CYCLE_MS);
     return () => clearInterval(t);
   }, [paused, inView, items.length, slotCount]);
+
 
   const onOpen = useCallback((item: CollageItem) => setOpen(item), []);
 
