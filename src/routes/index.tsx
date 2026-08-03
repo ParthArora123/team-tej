@@ -640,35 +640,34 @@ function Index() {
         </motion.div>
       </section>
 
-      {/* VIRAL SHOWCASE — 3D stacked video deck */}
+      {/* VIRAL SHOWCASE — floating glass panels */}
       {deckItems.length > 0 && (
-        <section id="showcase" className="relative max-w-7xl mx-auto px-6 lg:px-10 py-20 lg:py-28 border-t border-border">
-          <div className="grid lg:grid-cols-2 gap-14 items-center">
+        <section id="showcase" className="relative max-w-7xl mx-auto px-6 lg:px-10 py-20 lg:py-28 border-t border-border overflow-hidden">
+          <div className="flex flex-wrap items-end justify-between gap-8 mb-12">
             <div>
               <p className="text-xs uppercase tracking-widest text-primary">Viral Showcase</p>
               <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
                 The work that <span className="italic font-light">travels.</span>
               </h2>
               <p className="mt-5 text-muted-foreground max-w-lg">
-                A living deck of Tejas's most-watched choreographies. It reshuffles on its own —
-                hover to hold a card, tap any card to bring it forward.
+                A floating wall of Tejas's most-watched choreographies. The spotlight moves on its own —
+                hover to hold it, tap any panel to bring it forward.
               </p>
-              <div className="mt-8">
-                <MagneticButton>
-                  <Link
-                    to="/workshops"
-                    className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em]"
-                    style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-                  >
-                    Learn these routines <ArrowUpRight size={14} />
-                  </Link>
-                </MagneticButton>
-              </div>
             </div>
-            <VideoDeck items={deckItems} />
+            <MagneticButton>
+              <Link
+                to="/workshops"
+                className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em]"
+                style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+              >
+                Learn these routines <ArrowUpRight size={14} />
+              </Link>
+            </MagneticButton>
           </div>
+          <FloatingGlassPanels items={deckItems} />
         </section>
       )}
+
 
 
 
