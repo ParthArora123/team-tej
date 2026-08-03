@@ -96,53 +96,6 @@
 }
 
 
-/* Dark theme — Monochrome Noir Premium: true obsidian stage, crisp platinum
-   whites, graphite surfaces with the same warm undertone for depth. */
-.dark {
-  --background: oklch(0.07 0.003 60);            /* true obsidian black */
-  --foreground: oklch(0.98 0.002 60);            /* platinum white */
-  --surface: oklch(0.13 0.005 60);
-
-  --card: oklch(0.14 0.006 60);
-  --card-foreground: oklch(0.98 0.002 60);
-  --popover: oklch(0.12 0.005 60);
-  --popover-foreground: oklch(0.98 0.002 60);
-
-  --primary: oklch(0.97 0.002 60);               /* crisp white */
-  --primary-foreground: oklch(0.09 0.004 60);    /* obsidian text on white */
-
-  --secondary: oklch(0.20 0.006 60);             /* graphite */
-  --secondary-foreground: oklch(0.98 0.002 60);
-
-  --muted: oklch(0.18 0.005 60);
-  --muted-foreground: oklch(0.66 0.006 60);
-
-  --accent: oklch(0.82 0.005 60);                /* soft platinum */
-  --accent-foreground: oklch(0.09 0.004 60);
-
-  --destructive: oklch(0.60 0.20 25);
-  --destructive-foreground: oklch(0.99 0 0);
-
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.97 0.002 60);
-
-  --accent-cyan: oklch(0.92 0.003 60);
-  --accent-pink: oklch(0.72 0.006 60);
-  --accent-blue: oklch(0.55 0.006 60);
-  --accent-emerald: oklch(0.68 0.006 60);
-  --accent-gold: oklch(0.78 0.007 60);            /* soft platinum-champagne gray */
-
-  --gradient-primary: linear-gradient(135deg, oklch(0.97 0.002 60), oklch(0.60 0.006 60));
-  --gradient-royal: linear-gradient(135deg, oklch(0.92 0.003 60) 0%, oklch(0.70 0.006 60) 50%, oklch(0.45 0.006 60) 100%);
-  --gradient-aurora: linear-gradient(120deg, oklch(0.97 0.002 60), oklch(0.60 0.006 60) 45%, oklch(0.82 0.005 60));
-  --gradient-hero: radial-gradient(ellipse 70% 55% at 15% 0%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 60%),
-                   radial-gradient(ellipse 55% 45% at 90% 20%, color-mix(in oklab, var(--accent) 14%, transparent), transparent 65%),
-                   radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in oklab, var(--accent-blue) 12%, transparent), transparent 60%);
-  --shadow-soft: 0 1px 2px oklch(0 0 0 / 55%), 0 16px 44px -10px oklch(0 0 0 / 65%);
-  --shadow-glow: 0 24px 80px -22px color-mix(in oklab, var(--primary) 35%, transparent);
-  --shadow-gold: 0 12px 44px -14px color-mix(in oklab, var(--accent-gold) 35%, transparent);
-}
 
 @layer base {
   * {
@@ -197,8 +150,6 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16  0 0 0 0 0.20  0 0 0 0 0.28  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
-.dark body { background-image: none; }
-.dark body::before { display: none; }
 
 
 @utility text-balance {
@@ -516,13 +467,6 @@ html:not(.dark) .workshop-live-backdrop {
    background-image is intentionally disabled (see ".dark body" rule
    above) and this component never had its own dark-mode background.
    Give it the same warm radial glow atmosphere directly. */
-.dark .workshop-live-backdrop {
-  background:
-    radial-gradient(ellipse 70% 55% at 20% 10%, color-mix(in oklab, var(--primary) 26%, transparent), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 85% 20%, color-mix(in oklab, var(--accent) 20%, transparent), transparent 65%),
-    radial-gradient(ellipse 80% 60% at 50% 100%, color-mix(in oklab, var(--accent-blue) 18%, transparent), transparent 60%),
-    var(--background) !important;
-}
 html:not(.dark) .workshop-live-backdrop > div[class*="bg-[radial-gradient"],
 html:not(.dark) .workshop-live-backdrop > div[class*="bg-gradient-to-b"] {
   background: radial-gradient(ellipse at 50% 36%,
