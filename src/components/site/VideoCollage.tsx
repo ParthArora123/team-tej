@@ -167,7 +167,15 @@ function Slot({
 }
 
 
-function Lightbox({ item, onClose }: { item: CollageItem; onClose: () => void }) {
+function Lightbox({
+  item,
+  onClose,
+  muted = false,
+}: {
+  item: CollageItem;
+  onClose: () => void;
+  muted?: boolean;
+}) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
