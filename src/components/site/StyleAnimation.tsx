@@ -195,7 +195,7 @@ function DanceMotionLines({ variant, primary, accent }: { variant: DanceVariant;
   );
 }
 
-export function StyleAnimation({ name }: { name: string }) {
+export function StyleAnimation({ name, active = true }: { name: string; active?: boolean }) {
   const { variant, hue, accent } = getConfig(name);
   const [videoFailed, setVideoFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -206,11 +206,15 @@ export function StyleAnimation({ name }: { name: string }) {
   useEffect(() => {
     const v = videoRef.current;
     if (!v || !videoSrc) return;
+    if (!active) {
+      v.pause();
+      return;
+    }
     const tryPlay = () => v.play().catch(() => {});
     tryPlay();
     v.addEventListener("canplay", tryPlay);
     return () => v.removeEventListener("canplay", tryPlay);
-  }, [videoSrc]);
+  }, [active, videoSrc]);
 
   return (
     <div
@@ -223,7 +227,7 @@ export function StyleAnimation({ name }: { name: string }) {
     >
       <DanceMotionLines variant={variant} primary={primary} accent={secondary} />
       <DancerFigure variant={variant} primary={primary} accent={secondary} />
-      {videoSrc && !videoFailed && (
+      {active && videoSrc && !videoFailed && (
         <video
           ref={videoRef}
           className="absolute inset-0 h-full w-full object-cover saturate-110 contrast-110"
@@ -232,7 +236,7 @@ export function StyleAnimation({ name }: { name: string }) {
           loop
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-label={`${name} dancer video`}
           onError={() => setVideoFailed(true)}
         />

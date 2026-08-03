@@ -31,7 +31,7 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
     }
   }, [front]);
 
-  if (item.video) {
+  if (item.video && front) {
     return (
       <video
         ref={ref}
@@ -41,7 +41,7 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
         loop
         playsInline
         autoPlay
-        preload={front ? "auto" : "metadata"}
+        preload="metadata"
         disableRemotePlayback
         disablePictureInPicture
         className="absolute inset-0 h-full w-full object-cover"
@@ -157,7 +157,7 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
               pointerEvents: visible ? "auto" : "none",
             }}
           >
-            <DeckMedia item={it} front={front} />
+            <DeckMedia item={it} front={front && inView} />
             <div
               aria-hidden
               className="absolute inset-0"

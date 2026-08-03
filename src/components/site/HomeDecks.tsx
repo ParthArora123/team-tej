@@ -98,9 +98,9 @@ export function ReelDeck({ reels }: { reels: ReelCard[] }) {
 
   const cards: StackedDeckItem[] = reels.slice(0, 10).map((r) => ({
     id: r.id,
-    render: ({ front }) => (
+    render: ({ front, active }) => (
       <DeckShell dark className="text-white">
-        {r.video && front ? (
+        {r.video && active ? (
           <video
             src={r.video}
             poster={r.poster ?? undefined}
