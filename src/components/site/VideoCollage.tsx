@@ -289,24 +289,12 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
   }, [paused, inView, items.length, slotCount]);
 
 
-  const autoOpenRef = useRef(true);
-  const [autoModal, setAutoModal] = useState(true);
-
   const onOpen = useCallback((item: CollageItem) => {
-    autoOpenRef.current = false;
     setOpen(item);
   }, []);
 
-  const activeItem = items.length ? items[assign[active] % items.length] : undefined;
-
-  // Auto-open the modal for whichever clip is currently playing in the rotation.
-  useEffect(() => {
-    if (!autoModal || !inView || !activeItem) return;
-    autoOpenRef.current = true;
-    setOpen(activeItem);
-  }, [autoModal, inView, activeItem?.id, active]);
-
   const preload = useMemo(() => items[nextIndex], [items, nextIndex]);
+
 
   if (!items.length) return null;
 
@@ -367,15 +355,8 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
       <AnimatePresence>
         {open && (
-          <Lightbox
-            item={open}
-            muted={autoOpenRef.current}
-            onClose={() => {
-              autoOpenRef.current = false;
-              setAutoModal(false);
-              setOpen(null);
-            }}
-          />
+          <Lightbox item={open} onClose={() => setOpen(null)} />
+
         )}
       </AnimatePresence>
     </div>
