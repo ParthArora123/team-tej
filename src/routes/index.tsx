@@ -806,6 +806,9 @@ function Index() {
         </motion.div>
       </section>
 
+      {/* FEATURED PERFORMANCES — admin managed */}
+      <FeaturedPerformances rows={performances} />
+
       {/* SIGNATURE PROGRAMS */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
@@ -816,10 +819,13 @@ function Index() {
             </h2>
           </div>
           <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
-            Four ways to train with Tejas.
+            Every way to train with Tejas.
           </p>
         </div>
 
+        {sigPrograms.length > 0 ? (
+          <SignatureProgramsGrid rows={sigPrograms} />
+        ) : (
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -847,6 +853,7 @@ function Index() {
             </motion.div>
           ))}
         </motion.div>
+        )}
       </section>
 
       {/* DANCE STYLES */}
