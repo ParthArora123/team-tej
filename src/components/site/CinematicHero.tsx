@@ -2,19 +2,57 @@ import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Play, ChevronDown } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
+import { playHomepageVideo, pauseHomepageVideo } from "@/lib/home-video-playback";
 
 export function CinematicHero({
   backgroundImage,
   badges,
+  clips = [],
   onReady,
 }: {
   backgroundImage: string;
   badges: { value: string; label: string }[];
+  /** Optional cinematic clips montaged behind the hero (desktop only). */
+  clips?: string[];
   onReady?: () => void;
 }) {
   const reduce = useReducedMotion();
   const [loaded, setLoaded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [clipIdx, setClipIdx] = useState(0);
+  const [clipReady, setClipReady] = useState(false);
+  // Heavy background video is desktop-only: phones keep the still portrait so
+  // scrolling and touch stay at 60fps.
+  const [cinemaOn, setCinemaOn] = useState(false);
+  const activeClip = clips.length ? clips[clipIdx % clips.length] : null;
+
+  useEffect(() => {
+    if (reduce || clips.length === 0 || typeof window === "undefined") return;
+    const wide = window.matchMedia("(min-width: 1024px)");
+    const coarse = window.matchMedia("(pointer: coarse)");
+    if (!wide.matches || coarse.matches) return;
+    // Wait for the poster image so the LCP frame is never delayed by video.
+    const t = setTimeout(() => setCinemaOn(true), 900);
+    return () => clearTimeout(t);
+  }, [reduce, clips.length]);
+
+  // Montage: advance to the next clip on a slow cinematic cadence, and also
+  // when the current clip ends (short clips shouldn't loop visibly).
+  useEffect(() => {
+    if (!cinemaOn || clips.length < 2) return;
+    const t = setInterval(() => {
+      setClipReady(false);
+      setClipIdx((i) => (i + 1) % clips.length);
+    }, 9000);
+    return () => clearInterval(t);
+  }, [cinemaOn, clips.length]);
+
+  useEffect(() => {
+    return () => {
+      if (videoRef.current) pauseHomepageVideo(videoRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!backgroundImage) {
@@ -48,6 +86,7 @@ export function CinematicHero({
     >
       <style>{`
         @keyframes heroZoom { from { transform: scale(1.0); } to { transform: scale(1.12); } }
+        @keyframes heroClipDrift { from { transform: scale(1.04); } to { transform: scale(1.14); } }
         @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
       `}</style>
 
@@ -72,6 +111,44 @@ export function CinematicHero({
           }}
         />
       </div>
+
+      {/* Cinematic clip montage — crossfades over the portrait on desktop */}
+      {cinemaOn && activeClip && (
+        <video
+          key={activeClip}
+          ref={(node) => {
+            videoRef.current = node;
+            if (node) {
+              node.muted = true;
+              void playHomepageVideo(node);
+            }
+          }}
+          src={activeClip}
+          poster={backgroundImage}
+          autoPlay
+          muted
+          loop={clips.length === 1}
+          playsInline
+          preload="auto"
+          aria-hidden
+          onCanPlay={() => setClipReady(true)}
+          onEnded={() => {
+            if (clips.length > 1) {
+              setClipReady(false);
+              setClipIdx((i) => (i + 1) % clips.length);
+            }
+          }}
+          onError={() => {
+            if (clips.length > 1) setClipIdx((i) => (i + 1) % clips.length);
+          }}
+          className="absolute inset-0 h-full w-full object-cover transform-gpu"
+          style={{
+            opacity: clipReady ? 1 : 0,
+            transition: "opacity 1.4s ease",
+            animation: reduce ? "none" : "heroClipDrift 14s ease-out forwards",
+          }}
+        />
+      )}
 
       {/* Cinematic grading */}
       <div

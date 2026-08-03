@@ -381,6 +381,29 @@
   box-shadow: 0 20px 50px -20px color-mix(in oklab, var(--primary) 40%, transparent);
 }
 
+/* Premium card — soft glass surface, rounded, lift + dynamic rim light on
+   hover. Transform/box-shadow only, so it stays compositor-friendly. */
+@utility premium-card {
+  position: relative;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
+  background-color: color-mix(in oklab, var(--card) 72%, transparent);
+  box-shadow: 0 24px 60px -34px oklch(0 0 0 / 45%);
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.5s ease;
+  &:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in oklab, var(--primary) 45%, transparent);
+    box-shadow:
+      0 32px 80px -32px color-mix(in oklab, var(--primary) 45%, transparent),
+      0 0 0 1px color-mix(in oklab, var(--primary) 18%, transparent);
+  }
+}
+
+
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
