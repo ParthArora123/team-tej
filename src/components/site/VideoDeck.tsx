@@ -15,7 +15,7 @@ export type DeckItem = {
 
 const ROTATE_MS = DECK_ROTATE_MS;
 
-function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
+function DeckMedia({ item, front, near = false }: { item: DeckItem; front: boolean; near?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
 
@@ -51,7 +51,7 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
         muted
         loop
         playsInline
-        preload={front ? "metadata" : "none"}
+        preload={front || near ? "metadata" : "none"}
         disableRemotePlayback
         disablePictureInPicture
         onLoadedData={() => setReady(true)}
