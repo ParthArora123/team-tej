@@ -70,12 +70,19 @@ export function StackedDeck({
 
   if (n === 0) return null;
 
+  const rotating = !!autoAdvanceMs && !reduce && n > 1;
+
   return (
     <div className={`relative ${className}`}>
       <div
         ref={ref}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
+        onPointerDown={() => setPaused(true)}
+        onPointerUp={() => setPaused(false)}
+        onPointerCancel={() => setPaused(false)}
+        onTouchStart={() => setPaused(true)}
+        onTouchEnd={() => setPaused(false)}
         className="relative h-full w-full select-none"
         style={{ perspective: 1600 }}
       >
