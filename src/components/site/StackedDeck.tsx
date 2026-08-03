@@ -83,7 +83,12 @@ export function StackedDeck({
           const depth = (i - index + n) % n;
           const visible = depth < VISIBLE;
           const front = depth === 0;
-          const t = layout(depth);
+          const justLeft = n > 1 && depth === n - 1;
+          // The card that just left flicks off to the side before slipping
+          // back under the pack — the signature "deal" of the deck.
+          const t = justLeft
+            ? { x: 190, y: -28, scale: 1.04, rotate: 14, rotateY: 0, opacity: 0 }
+            : layout(depth);
           return (
             <motion.div
               key={it.id}
@@ -104,10 +109,11 @@ export function StackedDeck({
                 scale: t.scale,
                 rotate: t.rotate,
                 rotateY: t.rotateY,
-                opacity: visible ? t.opacity : 0,
-                zIndex: 40 - depth,
+                opacity: visible && !justLeft ? t.opacity : 0,
+                zIndex: justLeft ? 50 : 40 - depth,
               }}
-              transition={{ duration: reduce ? 0 : 0.85, ease: EASE }}
+              transition={{ duration: reduce ? 0 : justLeft ? 0.42 : 0.5, ease: EASE }}
+
               className={`absolute inset-0 transform-gpu will-change-transform ${
                 front ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
               } ${cardClassName}`}
