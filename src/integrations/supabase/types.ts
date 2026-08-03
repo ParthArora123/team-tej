@@ -527,6 +527,57 @@ export type Database = {
         }
         Relationships: []
       }
+      home_performances: {
+        Row: {
+          achievement: string | null
+          active: boolean
+          created_at: string
+          cta_link: string | null
+          cta_text: string
+          event_name: string | null
+          id: string
+          location: string | null
+          media_kind: string
+          media_path: string | null
+          poster_path: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          achievement?: string | null
+          active?: boolean
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string
+          event_name?: string | null
+          id?: string
+          location?: string | null
+          media_kind?: string
+          media_path?: string | null
+          poster_path?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          achievement?: string | null
+          active?: boolean
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string
+          event_name?: string | null
+          id?: string
+          location?: string | null
+          media_kind?: string
+          media_path?: string | null
+          poster_path?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null
@@ -674,6 +725,51 @@ export type Database = {
           venue?: string | null
           workshop1_name?: string | null
           workshop2_name?: string | null
+        }
+        Relationships: []
+      }
+      signature_programs: {
+        Row: {
+          active: boolean
+          created_at: string
+          cta_link: string | null
+          cta_text: string
+          description: string | null
+          id: string
+          media_kind: string
+          media_path: string | null
+          poster_path: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string
+          description?: string | null
+          id?: string
+          media_kind?: string
+          media_path?: string | null
+          poster_path?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string
+          description?: string | null
+          id?: string
+          media_kind?: string
+          media_path?: string | null
+          poster_path?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
