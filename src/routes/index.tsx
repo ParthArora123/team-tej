@@ -1415,10 +1415,8 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
             >
               {isFront ? (
                 <>
-                  {/* blurred fill so mismatched-aspect clips never show plain
-                      black bars on the sides — same artwork, softly stretched
-                      behind the sharp, uncropped video/poster on top */}
-                   {active.poster && <img aria-hidden src={active.poster} alt="" className="absolute inset-0 h-full w-full object-cover opacity-40" />}
+                  {/* media fills the card edge-to-edge — no letterboxing */}
+
                   {active.embedSrc ? (
                     <iframe
                       ref={iframeRef}
