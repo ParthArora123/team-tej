@@ -311,10 +311,10 @@ export function CinematicHero({
       >
         {badges.slice(0, 4).map((b, idx) => {
           const spots = [
-            "left-[6%] top-[26%]",
-            "right-[7%] top-[32%]",
-            "left-[9%] bottom-[22%]",
-            "right-[10%] bottom-[26%]",
+            "left-[4%] top-[48%]",
+            "right-[4%] top-[56%]",
+            "left-[7%] bottom-[14%]",
+            "right-[7%] bottom-[18%]",
           ];
           return (
             <motion.div
