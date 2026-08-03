@@ -165,7 +165,7 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
               opacity: 1,
             }}
           >
-            <DeckMedia item={it} front={front && inView} />
+            <DeckMedia item={it} front={front && inView} near={depth === 1} />
             <div
               aria-hidden
               className="absolute inset-0"
@@ -191,5 +191,20 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
         );
       })}
     </div>
+
+    {order.length > 1 && (
+      <div aria-hidden className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-border/70">
+        <div
+          key={`${order[0]?.id}-${inView}`}
+          className="h-full w-full origin-left rounded-full bg-primary"
+          style={{
+            animation: `deck-progress ${ROTATE_MS}ms linear forwards`,
+            animationPlayState: paused || !inView ? "paused" : "running",
+          }}
+        />
+      </div>
+    )}
+    </div>
   );
 }
+
