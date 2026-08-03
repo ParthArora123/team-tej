@@ -303,7 +303,17 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
         {layout.slice(0, slotCount).map((cls, i) => {
           const item = items[assign[i] % items.length];
           if (!item) return null;
-          return <Slot key={i} item={item} className={cls} reduced={reduced} onOpen={onOpen} />;
+          return (
+            <Slot
+              key={i}
+              item={item}
+              className={cls}
+              reduced={reduced}
+              active={i === active}
+              onOpen={onOpen}
+            />
+          );
+
         })}
       </div>
 
