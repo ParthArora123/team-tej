@@ -12,8 +12,8 @@ export type StackedDeckItem = {
 const EASE = [0.16, 1, 0.3, 1] as const;
 const VISIBLE = 3;
 
-/** Uniform rotation cadence across every deck on the site (calm, non-flickery). */
-export const DECK_ROTATE_MS = 11000;
+/** Uniform rotation cadence across every deck on the site (cinematic billboard pace). */
+export const DECK_ROTATE_MS = 5000;
 
 /** One shared scrim tone for every media card — brand ink, never pure black. */
 export const DECK_SCRIM =
