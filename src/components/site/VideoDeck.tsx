@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 import { DECK_SCRIM, DECK_ROTATE_MS } from "@/components/site/StackedDeck";
+import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
 export type DeckItem = {
   id: string;
@@ -24,14 +25,11 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
     const v = ref.current;
     if (!v) return;
     if (front) {
-      const id = requestAnimationFrame(() => v.play().catch(() => {}));
+      const id = requestAnimationFrame(() => void playHomepageVideo(v));
       return () => cancelAnimationFrame(id);
     }
-    try {
-      v.pause();
-    } catch {
-      /* noop */
-    }
+    pauseHomepageVideo(v);
+    return () => pauseHomepageVideo(v);
   }, [front]);
 
   return (
@@ -45,7 +43,7 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
           className="absolute inset-0 h-full w-full object-cover"
         />
       )}
-      {item.video && front && (
+      {item.video && (
       <video
         ref={ref}
         src={item.video}
@@ -53,14 +51,13 @@ function DeckMedia({ item, front }: { item: DeckItem; front: boolean }) {
         muted
         loop
         playsInline
-        autoPlay
-        preload="metadata"
+        preload={front ? "metadata" : "none"}
         disableRemotePlayback
         disablePictureInPicture
         onLoadedData={() => setReady(true)}
         onCanPlay={() => setReady(true)}
         className="absolute inset-0 h-full w-full object-cover"
-        style={{ visibility: ready ? "visible" : "hidden" }}
+        style={{ visibility: front && ready ? "visible" : "hidden" }}
       />
       )}
       {!item.poster && !item.video && (
@@ -126,7 +123,7 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
     >
       {order.map((it, depth) => {
         const front = depth === 0;
-        const visible = depth < 5;
+        const visible = depth < 3;
         const justLeft = order.length > 1 && depth === order.length - 1;
         return (
           <motion.button
