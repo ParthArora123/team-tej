@@ -848,10 +848,6 @@ function Index() {
       )}
 
 
-
-      {/* FOUNDER / ABOUT */}
-      <FounderSection founder={founder} />
-
       {/* THE TEJ METHOD — USP / philosophy */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
         <div className="max-w-2xl">
@@ -1140,6 +1136,9 @@ function Index() {
 
       {/* CINEMATIC SHOWREEL */}
       <CinematicShowreel choreos={choreos} workshops={workshops} />
+
+      {/* FOUNDER / ABOUT */}
+      <FounderSection founder={founder} />
 
 
       {/* GALLERY — editorial bento */}
@@ -1630,11 +1629,16 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                       muted={muted}
                       loop
                       playsInline
-                      preload="metadata"
-                      className="absolute inset-0 w-full h-full object-cover"
+                      preload="auto"
+                      onError={() => {
+                        // A clip that fails to load shouldn't sit stuck as the
+                        // front card for the whole 10s interval — skip ahead.
+                        if (items.length > 1) setActiveIndex((i) => (i + 1) % items.length);
+                      }}
+                      className="absolute inset-0 w-full h-full object-contain bg-black"
                     />
                   ) : active.poster ? (
-                    <img src={active.poster} alt={active.title} className="absolute inset-0 w-full h-full object-cover" />
+                    <img src={active.poster} alt={active.title} className="absolute inset-0 w-full h-full object-contain bg-black" />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
                   )}
@@ -1686,7 +1690,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
                 <>
                   {it.poster ? (
                     <img src={it.poster} alt={it.title} loading="lazy" decoding="async"
-                      className="absolute inset-0 w-full h-full object-cover" />
+                      className="absolute inset-0 w-full h-full object-contain bg-black" />
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
                   )}
