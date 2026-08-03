@@ -30,7 +30,7 @@ export function StackedDeck({
   variant = "stack",
   className = "",
   cardClassName = "",
-  autoAdvanceMs,
+  autoAdvanceMs = DECK_ROTATE_MS,
   showControls = true,
 }: {
   items: StackedDeckItem[];

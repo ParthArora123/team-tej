@@ -33,7 +33,7 @@ export function WorkshopDeck({ workshops }: { workshops: any[] }) {
         <div
           aria-hidden
           className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, transparent 25%, oklch(0 0 0 / 85%) 100%)" }}
+          style={{ background: "linear-gradient(180deg, transparent 25%, color-mix(in oklab, var(--foreground) 82%, var(--primary) 18%) 100%)" }}
         />
         <div className="absolute inset-x-0 bottom-0 p-7">
           {w.category && (
@@ -76,7 +76,7 @@ export function WorkshopDeck({ workshops }: { workshops: any[] }) {
     <StackedDeck
       items={cards}
       variant="stack"
-      autoAdvanceMs={9000}
+      autoAdvanceMs={10000}
       className="mx-auto h-[460px] w-full max-w-[440px] sm:h-[520px]"
     />
   );
@@ -125,7 +125,7 @@ export function ReelDeck({ reels }: { reels: ReelCard[] }) {
         <div
           aria-hidden
           className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, transparent 40%, oklch(0 0 0 / 80%) 100%)" }}
+          style={{ background: "linear-gradient(180deg, transparent 40%, color-mix(in oklab, var(--foreground) 80%, var(--primary) 20%) 100%)" }}
         />
         <div className="absolute inset-x-0 bottom-0 p-6">
           {r.subtitle && <p className="text-[10px] uppercase tracking-[0.3em] text-white/65">{r.subtitle}</p>}
@@ -144,7 +144,7 @@ export function ReelDeck({ reels }: { reels: ReelCard[] }) {
     <StackedDeck
       items={cards}
       variant="fan"
-      autoAdvanceMs={8000}
+      autoAdvanceMs={10000}
       className="mx-auto h-[460px] w-full max-w-[320px] sm:h-[560px] sm:max-w-[360px]"
     />
   );
@@ -171,11 +171,11 @@ export function GalleryDeck({ items }: { items: any[] }) {
         <div
           aria-hidden
           className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, transparent 45%, oklch(0 0 0 / 75%) 100%)" }}
+          style={{ background: "linear-gradient(180deg, transparent 45%, color-mix(in oklab, var(--foreground) 78%, var(--primary) 22%) 100%)" }}
         />
         {g.caption && (
           <figcaption className="absolute inset-x-0 bottom-0 p-6">
-            <span className="inline-block rounded-full border border-white/15 bg-black/35 px-3 py-1.5 text-[11px] uppercase tracking-widest backdrop-blur">
+            <span className="inline-block rounded-full border border-white/15 bg-[color-mix(in_oklab,var(--foreground)_45%,transparent)] px-3 py-1.5 text-[11px] uppercase tracking-widest backdrop-blur">
               {g.caption}
             </span>
           </figcaption>
@@ -188,7 +188,7 @@ export function GalleryDeck({ items }: { items: any[] }) {
     <StackedDeck
       items={cards}
       variant="shuffle"
-      autoAdvanceMs={7000}
+      autoAdvanceMs={10000}
       className="mx-auto h-[400px] w-full max-w-[540px] sm:h-[480px]"
     />
   );
