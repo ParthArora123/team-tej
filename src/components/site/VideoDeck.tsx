@@ -138,18 +138,19 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
             onClick={() => (front && it.href ? window.open(it.href, "_blank") : bringToFront(it.id))}
             aria-label={it.title}
             animate={{
-              y: depth * -18,
-              scale: 1 - depth * 0.06,
-              opacity: visible ? 1 - depth * 0.14 : 0,
-              rotateX: depth * 2,
+              y: depth * -9,
+              x: depth * 6,
+              scale: 1 - depth * 0.035,
+              opacity: visible ? (depth === 0 ? 1 : Math.max(0.55, 1 - depth * 0.1)) : 0,
+              rotate: depth * 1.4,
               zIndex: 20 - depth,
             }}
             transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
 
-            className="absolute inset-0 origin-bottom overflow-hidden rounded-[1.75rem] border border-white/12 bg-black/40 backdrop-blur-sm text-left transform-gpu will-change-transform"
+            className="absolute inset-0 origin-bottom overflow-hidden rounded-[1.75rem] border border-border bg-card text-left transform-gpu will-change-transform"
             style={{
               boxShadow:
-                "0 30px 80px -20px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.04) inset",
+                "0 30px 80px -24px color-mix(in oklab, var(--foreground) 30%, transparent), 0 0 0 1px color-mix(in oklab, var(--foreground) 5%, transparent) inset",
               pointerEvents: visible ? "auto" : "none",
             }}
           >
@@ -157,11 +158,9 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
             <div
               aria-hidden
               className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, transparent 35%, oklch(0 0 0 / 78%) 100%)",
-              }}
+              style={{ background: DECK_SCRIM }}
             />
+
             <div className="absolute inset-x-0 bottom-0 p-6">
               {it.subtitle && (
                 <p className="text-[10px] uppercase tracking-[0.3em] text-white/65">
