@@ -27,6 +27,8 @@ import { CinematicHero } from "@/components/site/CinematicHero";
 import { VideoDeck, type DeckItem } from "@/components/site/VideoDeck";
 import { type Reel } from "@/components/site/ReelWall";
 import { WorkshopDeck, ReelDeck, GalleryDeck } from "@/components/site/HomeDecks";
+import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
+
 
 import { FeaturedPerformances, SignatureProgramsGrid, type HomeCard } from "@/components/site/HomeSectionCards";
 import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.functions";
