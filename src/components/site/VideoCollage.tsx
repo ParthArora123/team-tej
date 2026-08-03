@@ -41,8 +41,16 @@ function Layer({ item, play }: { item: CollageItem; play: boolean }) {
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    if (play) void v.play().catch(() => undefined);
-    else v.pause();
+    if (play) {
+      try {
+        v.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
+      void v.play().catch(() => undefined);
+    } else {
+      v.pause();
+    }
   }, [play, item.video]);
 
   return (
@@ -64,8 +72,7 @@ function Layer({ item, play }: { item: CollageItem; play: boolean }) {
           muted
           loop
           playsInline
-          autoPlay
-          preload="metadata"
+          preload={play ? "auto" : "metadata"}
           disableRemotePlayback
           disablePictureInPicture
           className="absolute inset-0 h-full w-full object-cover object-[50%_28%]"
@@ -88,39 +95,58 @@ function Slot({
   item,
   className,
   reduced,
+  active,
   onOpen,
 }: {
   item: CollageItem;
   className: string;
   reduced: boolean;
+  active: boolean;
   onOpen: (item: CollageItem) => void;
 }) {
   return (
-    <button
+    <motion.button
       type="button"
       onClick={() => onOpen(item)}
       aria-label={item.title ?? "Play video"}
+      animate={
+        reduced
+          ? { opacity: active ? 1 : 0.75 }
+          : { scale: active ? 1.03 : 0.985, opacity: active ? 1 : 0.55 }
+      }
+      transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+      style={{ zIndex: active ? 2 : 1 }}
       className={`group relative overflow-hidden rounded-[1.25rem] bg-muted text-left transform-gpu ${className}`}
     >
-      <AnimatePresence initial={false}>
+      <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={item.id}
           initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 1.08 }}
           animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: reduced ? 0.2 : 1.1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: reduced ? 0.2 : 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="absolute inset-0 will-change-[opacity,transform]"
         >
-          <Layer item={item} play />
+          <Layer item={item} play={active} />
         </motion.div>
       </AnimatePresence>
 
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 transition-opacity duration-700"
         style={{
+          opacity: active ? 0.85 : 1,
           background:
             "linear-gradient(180deg, transparent 45%, color-mix(in oklab, var(--foreground) 72%, var(--primary) 28%) 100%)",
+        }}
+      />
+
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-[1.25rem] transition-opacity duration-500"
+        style={{
+          opacity: active ? 1 : 0,
+          boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent)",
         }}
       />
 
@@ -136,9 +162,10 @@ function Slot({
       <span className="pointer-events-none absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border border-white/25 bg-white/10 text-white opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
         <Maximize2 size={13} />
       </span>
-    </button>
+    </motion.button>
   );
 }
+
 
 function Lightbox({ item, onClose }: { item: CollageItem; onClose: () => void }) {
   useEffect(() => {
