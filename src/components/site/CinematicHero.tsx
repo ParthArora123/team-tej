@@ -168,12 +168,12 @@ export function CinematicHero({
         }}
       />
 
-      <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center pointer-events-none justify-start pt-[22svh] sm:pt-[20svh]">
+      <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center pointer-events-none justify-end pb-[12vh] sm:pb-[14vh]">
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.7 }}
-          className="text-[10px] sm:text-xs uppercase tracking-[0.45em] text-white/70"
+          className="text-[10px] sm:text-xs uppercase tracking-[0.45em] text-white/80"
         >
           Dance Educator • Performer • Choreographer
         </motion.p>
@@ -182,7 +182,7 @@ export function CinematicHero({
           initial={{ opacity: 0, y: 26 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-4 font-display font-bold uppercase leading-[0.9] text-white text-[clamp(2.4rem,9vw,7.5rem)] tracking-tight drop-shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
+          className="mt-3 font-display font-bold uppercase leading-[0.92] text-white text-[clamp(2.2rem,8vw,6.5rem)] tracking-tight drop-shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
         >
           Tejas D Dhoke
         </motion.h1>
@@ -191,7 +191,7 @@ export function CinematicHero({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="mt-4 text-sm sm:text-lg text-white/80 max-w-xl"
+          className="mt-3 text-sm sm:text-lg text-white/85 max-w-xl"
         >
           Transforming passion into performance.
         </motion.p>
@@ -200,7 +200,7 @@ export function CinematicHero({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.8 }}
-          className="mt-8 flex flex-wrap items-center justify-center gap-3 pointer-events-auto"
+          className="mt-7 flex flex-wrap items-center justify-center gap-3 pointer-events-auto"
         >
           <MagneticButton>
             <a
@@ -217,7 +217,7 @@ export function CinematicHero({
                 boxShadow: "var(--shadow-glow)",
               }}
             >
-              Join Workshops
+              Explore Workshops
               <ArrowUpRight
                 size={14}
                 className="group-hover:rotate-45 transition-transform"
