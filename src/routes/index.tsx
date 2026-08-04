@@ -1006,11 +1006,7 @@ function Index() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-[2.5rem] border border-border p-12 lg:p-24 text-center"
-          style={{
-            background:
-              "radial-gradient(80% 120% at 50% 0%, color-mix(in oklab, var(--background) 22%, transparent) 0%, transparent 62%), var(--gradient-primary)",
-          }}
+          className="df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-12 lg:p-24 text-center"
         >
           {/* Floating orbs */}
           <motion.div
@@ -1018,28 +1014,27 @@ function Index() {
             animate={{ y: [0, -20, 0], x: [0, 12, 0] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
             className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-40"
-            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--background) 55%, transparent) 0%, transparent 70%)" }}
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%)" }}
           />
           <motion.div
             aria-hidden
             animate={{ y: [0, 24, 0], x: [0, -18, 0] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
             className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-30"
-            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--background) 45%, transparent) 0%, transparent 70%)" }}
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.28) 0%, transparent 70%)" }}
           />
           <motion.div
             aria-hidden
             animate={{ rotate: 360 }}
             transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/10"
+            className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/20"
           />
 
-
-          <p className="relative text-xs uppercase tracking-[0.4em] text-white/70">The stage is set</p>
+          <p className="relative text-xs uppercase tracking-[0.4em] text-white/80">The stage is set</p>
           <h2 className="relative mt-4 font-display text-4xl lg:text-7xl font-bold text-white text-balance leading-[1.02]">
-            Your journey <span className="italic font-light text-white/70">begins now.</span>
+            Your journey <span className="italic font-light text-white/80">begins now.</span>
           </h2>
-          <p className="relative mt-5 text-white/70 max-w-xl mx-auto text-base lg:text-lg">
+          <p className="relative mt-5 text-white/80 max-w-xl mx-auto text-base lg:text-lg">
             Step in. Move freely. Leave transformed.
           </p>
 
@@ -1055,12 +1050,11 @@ function Index() {
                     setTimeout(go, 350);
                   } catch { go(); }
                 }}
-                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-foreground bg-background overflow-hidden hover:opacity-90 transition-opacity"
+                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-white bg-white/10 backdrop-blur-sm border border-white/30 overflow-hidden hover:bg-white/20 transition-colors"
                 style={{
-                  boxShadow: "0 24px 70px -22px color-mix(in oklab, var(--background) 60%, transparent)",
+                  boxShadow: "0 24px 70px -22px rgba(0,0,0,0.35)",
                 }}
               >
-
                 <span className="relative z-10 flex items-center gap-2">
                   Start Your Dance Journey
                   <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
@@ -1070,10 +1064,9 @@ function Index() {
             </MagneticButton>
           </div>
 
-
-          <p className="relative mt-8 text-sm text-white/60">
+          <p className="relative mt-8 text-sm text-white/70">
             Not ready to register today?{" "}
-            <Link to="/contact" className="text-primary underline underline-offset-4 hover:text-white transition-colors">
+            <Link to="/contact" className="text-white font-medium underline underline-offset-4 hover:text-white/90 transition-colors">
               Get in touch and we'll notify you about the next batch
             </Link>.
           </p>
