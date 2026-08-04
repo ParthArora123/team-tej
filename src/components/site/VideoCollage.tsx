@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Play, X, Maximize2, Volume2, VolumeX } from "lucide-react";
+import { X, Maximize2, Volume2, VolumeX } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export type CollageItem = {
@@ -11,20 +11,9 @@ export type CollageItem = {
   poster?: string | null;
 };
 
-/** Fallback duration for slides that have no playable video. */
-const STILL_MS = 6000;
-const VIDEO_ROTATE_MS = 5000;
+const ROTATE_MS = 5000;
+const RESUME_MS = 4000;
 const SOUND_KEY = "feed-sound-on";
-
-const DESKTOP_SLOTS = [
-  "col-span-3 row-span-4",
-  "col-span-3 row-span-2",
-  "col-span-2 row-span-4",
-  "col-span-1 row-span-2",
-  "col-span-3 row-span-2",
-];
-
-const MOBILE_SLOTS = ["col-span-4 row-span-3", "col-span-2 row-span-2", "col-span-2 row-span-2"];
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -38,53 +27,33 @@ function useReducedMotion() {
   return reduced;
 }
 
-function Layer({
+/** Media fill: blurred backdrop + contained frame so nothing is cropped. */
+function Media({
   item,
-  play,
+  active,
   soundOn,
-  onEnded,
-  onPlaybackError,
   onSoundBlocked,
 }: {
   item: CollageItem;
-  play: boolean;
+  active: boolean;
   soundOn: boolean;
-  onEnded: () => void;
-  onPlaybackError: () => void;
   onSoundBlocked: () => void;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
-  const bgRef = useRef<HTMLVideoElement>(null);
-
-  // Keep the blurred fill frame in step with the main clip so letterbox bars
-  // never show through as black boundaries.
-  useEffect(() => {
-    const b = bgRef.current;
-    if (!b) return;
-    b.muted = true;
-    if (play) void b.play().catch(() => undefined);
-    else b.pause();
-  }, [play, item.video]);
-
-  // Apply mute state without remounting the element (no flicker / reload).
-  useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    v.muted = !play || !soundOn;
-  }, [play, soundOn]);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    if (play) {
-      try {
-        v.currentTime = 0;
-      } catch {
-        /* ignore */
-      }
+    v.muted = !active || !soundOn;
+  }, [active, soundOn]);
+
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    if (active) {
       v.muted = !soundOn;
       v.play().catch(() => {
-        // Autoplay with sound blocked → fall back to muted playback.
         v.muted = true;
         onSoundBlocked();
         void v.play().catch(() => undefined);
@@ -93,18 +62,22 @@ function Layer({
       v.pause();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [play, item.video]);
+  }, [active, item.video]);
 
   return (
     <>
-      {item.poster && (
-        <img
-          src={item.poster}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 h-full w-full scale-125 object-cover blur-xl opacity-100"
-        />
-      )}
+      <div
+        aria-hidden
+        className="absolute inset-0 scale-150 blur-2xl"
+        style={
+          item.poster
+            ? { backgroundImage: `url(${item.poster})`, backgroundSize: "cover", backgroundPosition: "center" }
+            : {
+                background:
+                  "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 70%)",
+              }
+        }
+      />
       {item.poster && (
         <img
           src={item.poster}
@@ -112,21 +85,7 @@ function Layer({
           loading="lazy"
           decoding="async"
           className="absolute inset-0 h-full w-full object-contain"
-        />
-      )}
-      {item.video && !item.poster && (
-        <video
-          ref={bgRef}
-          src={item.video}
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden
-          tabIndex={-1}
-          disableRemotePlayback
-          disablePictureInPicture
-          className="pointer-events-none absolute inset-0 h-full w-full scale-150 object-cover blur-2xl"
+          style={{ opacity: active && ready ? 0 : 1, transition: "opacity 400ms ease" }}
         />
       )}
       {item.video && (
@@ -136,136 +95,15 @@ function Layer({
           poster={item.poster ?? undefined}
           playsInline
           loop
-          preload={play ? "auto" : "metadata"}
-          onEnded={onEnded}
-          onError={onPlaybackError}
+          preload={active ? "auto" : "metadata"}
           disableRemotePlayback
           disablePictureInPicture
-          className="absolute inset-0 h-full w-full object-contain"
-        />
-      )}
-      {!item.video && !item.poster && (
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 70%)",
-          }}
+          onLoadedData={() => setReady(true)}
+          onCanPlay={() => setReady(true)}
+          className="absolute inset-0 h-full w-full object-contain transform-gpu"
         />
       )}
     </>
-  );
-}
-
-function Slot({
-  item,
-  className,
-  reduced,
-  active,
-  soundOn,
-  onToggleSound,
-  onEnded,
-  onPlaybackError,
-  onSoundBlocked,
-  onOpen,
-}: {
-  item: CollageItem;
-  className: string;
-  reduced: boolean;
-  active: boolean;
-  soundOn: boolean;
-  onToggleSound: () => void;
-  onEnded: () => void;
-  onPlaybackError: () => void;
-  onSoundBlocked: () => void;
-  onOpen: (item: CollageItem) => void;
-}) {
-  return (
-    <motion.div
-      animate={
-        reduced
-          ? { opacity: active ? 1 : 0.75 }
-          : { scale: active ? 1.03 : 0.985, opacity: active ? 1 : 0.55 }
-      }
-      transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-      style={{ zIndex: active ? 2 : 1 }}
-      className={`group relative overflow-hidden rounded-[1.25rem] bg-muted/40 text-left transform-gpu ${className}`}
-    >
-      <button
-        type="button"
-        onClick={() => onOpen(item)}
-        aria-label={item.title ?? "Play video"}
-        className="absolute inset-0 z-[1]"
-      >
-        <span className="sr-only">{item.title ?? "Play video"}</span>
-      </button>
-
-      <AnimatePresence initial={false} mode="popLayout">
-        <motion.div
-          key={item.id}
-          initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 1.08 }}
-          animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: reduced ? 0.2 : 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-0 will-change-[opacity,transform]"
-        >
-          <Layer
-            item={item}
-            play={active}
-            soundOn={soundOn}
-            onEnded={onEnded}
-            onPlaybackError={onPlaybackError}
-            onSoundBlocked={onSoundBlocked}
-          />
-        </motion.div>
-      </AnimatePresence>
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 transition-opacity duration-700"
-        style={{
-          opacity: active ? 0.85 : 1,
-          background:
-            "linear-gradient(180deg, transparent 45%, color-mix(in oklab, var(--foreground) 72%, var(--primary) 28%) 100%)",
-        }}
-      />
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-[1.25rem] transition-opacity duration-500"
-        style={{
-          opacity: active ? 1 : 0,
-          boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent)",
-        }}
-      />
-
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] p-4">
-        {item.subtitle && (
-          <p className="text-[9px] uppercase tracking-[0.3em] text-white/65">{item.subtitle}</p>
-        )}
-        {item.title && (
-          <p className="mt-1 text-sm font-medium text-white line-clamp-2">{item.title}</p>
-        )}
-      </div>
-
-      {item.video && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleSound();
-          }}
-          aria-label={soundOn ? "Mute videos" : "Unmute videos"}
-          className="absolute left-3 top-3 z-[3] grid h-9 w-9 place-items-center rounded-full border border-white/25 bg-black/35 text-white backdrop-blur transition-colors hover:bg-black/55"
-        >
-          {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
-        </button>
-      )}
-
-      <span className="pointer-events-none absolute right-3 top-3 z-[2] grid h-8 w-8 place-items-center rounded-full border border-white/25 bg-white/10 text-white opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
-        <Maximize2 size={13} />
-      </span>
-    </motion.div>
   );
 }
 
@@ -332,32 +170,25 @@ function Lightbox({
 }
 
 /**
- * Editorial video collage. Videos play in a fixed sequence (1 → 2 → 3 … → 1),
- * each one plays to the end before the spotlight moves on. Sound starts muted
- * and the user's unmute choice is remembered for the session.
+ * Premium 3D circular orbit gallery. The active clip sits centre stage and
+ * plays; the rest orbit around it on an elliptical path with depth blur.
+ * Auto-rotates every 5s, pauses on hover, supports drag/swipe.
  */
 export function VideoCollage({ items }: { items: CollageItem[] }) {
-  // When videos exist, keep still images out of the playback queue so every
-  // uploaded clip is reached in an uninterrupted 1 → 2 → 3 sequence.
   const playlist = useMemo(() => {
-    const videos = items.filter((item) => Boolean(item.video));
+    const videos = items.filter((i) => Boolean(i.video));
     return videos.length ? videos : items;
   }, [items]);
+
   const isMobile = useIsMobile();
   const reduced = useReducedMotion();
-  const layout = isMobile ? MOBILE_SLOTS : DESKTOP_SLOTS;
-  const slotCount = Math.min(layout.length, playlist.length);
-
-  // assign[slot] = index into `items` currently rendered in that slot.
-  const [assign, setAssign] = useState<number[]>(() =>
-    Array.from({ length: layout.length }, (_, i) => i),
-  );
-  const [step, setStep] = useState(0); // sequential position in the playlist
+  const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [inView, setInView] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
   const [open, setOpen] = useState<CollageItem | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const resumeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (typeof sessionStorage === "undefined") return;
@@ -385,123 +216,201 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
     }
   }, []);
 
-  useEffect(() => {
-    setStep(0);
-    setAssign(
-      Array.from({ length: layout.length }, (_, i) => (playlist.length ? i % playlist.length : 0)),
-    );
-  }, [playlist, layout.length]);
+  useEffect(() => setIndex(0), [playlist]);
 
   useEffect(() => {
     const el = wrapRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.15 });
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.2 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
-  const activeSlot = slotCount ? step % slotCount : 0;
-  const nextItemIndex = playlist.length ? (step + 1) % playlist.length : 0;
-
-  // Advance strictly in order; the next slot receives the next clip up front so
-  // it is already mounted (and preloading) before it becomes active.
-  const advance = useCallback(() => {
-    if (!slotCount || !playlist.length) return;
-    setStep((prev) => {
-      const next = prev + 1;
-      if (playlist.length > slotCount) {
-        const slot = next % slotCount;
-        const idx = next % playlist.length;
-        setAssign((a) => {
-          if (a[slot] === idx) return a;
-          const copy = [...a];
-          copy[slot] = idx;
-          return copy;
-        });
-      }
-      return next;
-    });
-  }, [playlist.length, slotCount]);
-
-  // Keep the upcoming slot's clip assigned ahead of time for a seamless swap.
   useEffect(() => {
-    if (!slotCount || playlist.length <= slotCount) return;
-    const slot = (step + 1) % slotCount;
-    const idx = (step + 1) % playlist.length;
-    setAssign((a) => {
-      if (a[slot] === idx) return a;
-      const copy = [...a];
-      copy[slot] = idx;
-      return copy;
-    });
-  }, [step, slotCount, playlist.length]);
-
-  const activeItem = playlist[assign[activeSlot] % Math.max(playlist.length, 1)];
-
-  // Advance on a fixed clock so a long, malformed, or non-ending clip cannot
-  // stop the 1 → 2 → 3 sequence. Active clips loop until their turn finishes.
-  useEffect(() => {
-    if (paused || !inView || !slotCount) return;
-    const t = setTimeout(advance, activeItem?.video ? VIDEO_ROTATE_MS : STILL_MS);
+    if (paused || !inView || playlist.length < 2) return;
+    const t = setTimeout(() => setIndex((i) => (i + 1) % playlist.length), ROTATE_MS);
     return () => clearTimeout(t);
-  }, [paused, inView, slotCount, activeItem, advance]);
+  }, [paused, inView, index, playlist.length]);
 
-  const onOpen = useCallback((item: CollageItem) => setOpen(item), []);
+  // Manual interaction pauses auto-rotation, then resumes.
+  const nudge = useCallback((dir: number) => {
+    setPaused(true);
+    setIndex((i) => (i + dir + 1000 * playlist.length) % playlist.length);
+    if (resumeRef.current) clearTimeout(resumeRef.current);
+    resumeRef.current = setTimeout(() => setPaused(false), RESUME_MS);
+  }, [playlist.length]);
 
-  const preload = useMemo(() => playlist[nextItemIndex], [playlist, nextItemIndex]);
+  const focus = useCallback((target: number) => {
+    setPaused(true);
+    setIndex(target);
+    if (resumeRef.current) clearTimeout(resumeRef.current);
+    resumeRef.current = setTimeout(() => setPaused(false), RESUME_MS);
+  }, []);
+
+  useEffect(() => () => {
+    if (resumeRef.current) clearTimeout(resumeRef.current);
+  }, []);
 
   if (!playlist.length) return null;
 
+  const n = playlist.length;
+  const active = playlist[index];
+  const radiusX = isMobile ? 118 : 300;
+  const radiusY = isMobile ? 44 : 92;
+  const centerW = isMobile ? 190 : 300;
+  const centerH = isMobile ? 320 : 470;
+  const orbitW = isMobile ? 92 : 150;
+  const orbitH = isMobile ? 150 : 235;
+  const maxVisible = isMobile ? 3 : 5;
+
   return (
-    <div
-      ref={wrapRef}
-      className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10"
-    >
+    <div ref={wrapRef} className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10">
       <div
-        className={
-          isMobile
-            ? "grid grid-cols-4 auto-rows-[86px] gap-2.5"
-            : "grid grid-cols-6 grid-rows-6 gap-3 h-[660px] lg:h-[720px] [grid-auto-flow:dense]"
-        }
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        className="relative mx-auto flex items-center justify-center"
+        style={{ height: isMobile ? 430 : 620, perspective: 1400 }}
       >
-        {layout.slice(0, slotCount).map((cls, i) => {
-          const item = playlist[assign[i] % playlist.length];
-          if (!item) return null;
-          return (
-            <Slot
-              key={i}
-              item={item}
-              className={cls}
-              reduced={reduced}
-              active={i === activeSlot && inView && !paused}
-              soundOn={soundOn}
-              onToggleSound={toggleSound}
-              onEnded={() => undefined}
-              onPlaybackError={() => undefined}
-              onSoundBlocked={handleSoundBlocked}
-              onOpen={onOpen}
-            />
-          );
-        })}
+        {/* ambient stage lighting */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60% 45% at 50% 55%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%)",
+          }}
+        />
+
+        {/* drag / swipe surface */}
+        <motion.div
+          drag={n > 1 ? "x" : false}
+          dragElastic={0.12}
+          dragMomentum={false}
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragEnd={(_, info) => {
+            if (Math.abs(info.offset.x) > 60 || Math.abs(info.velocity.x) > 400) {
+              nudge(info.offset.x < 0 ? 1 : -1);
+            }
+          }}
+          className="absolute inset-0"
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          {playlist.map((item, i) => {
+            const offset = ((i - index + n) % n);
+            const rel = offset > n / 2 ? offset - n : offset; // -k … +k
+            const isActive = rel === 0;
+            const hidden = Math.abs(rel) > Math.floor(maxVisible / 2);
+            const angle = (rel / Math.max(n, 3)) * Math.PI * 2;
+            const x = Math.sin(angle) * radiusX;
+            const y = -Math.cos(angle) * radiusY + (isActive ? 0 : radiusY);
+            const depth = Math.cos(angle);
+            const scale = isActive ? 1 : 0.82 - Math.abs(rel) * 0.05;
+            const w = isActive ? centerW : orbitW;
+            const h = isActive ? centerH : orbitH;
+
+            return (
+              <motion.button
+                key={item.id}
+                type="button"
+                onClick={() => (isActive ? setOpen(item) : focus(i))}
+                aria-label={item.title ?? "Play video"}
+                initial={false}
+                animate={{
+                  x,
+                  y,
+                  scale,
+                  rotateY: reduced ? 0 : -rel * 16,
+                  opacity: hidden ? 0 : isActive ? 1 : 0.82 - Math.abs(rel) * 0.12,
+                  filter: isActive ? "blur(0px) brightness(1)" : `blur(${Math.abs(rel) * 1.2}px) brightness(0.85)`,
+                  zIndex: 30 + Math.round(depth * 10) + (isActive ? 20 : 0),
+                }}
+                transition={{ duration: reduced ? 0.2 : 0.95, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={isActive || hidden ? undefined : { scale: scale * 1.07, filter: "blur(0px) brightness(1.05)" }}
+                className="group absolute left-1/2 top-1/2 overflow-hidden rounded-[20px] border border-white/20 bg-card/40 backdrop-blur-sm transform-gpu will-change-transform"
+                style={{
+                  width: w,
+                  height: h,
+                  marginLeft: -w / 2,
+                  marginTop: -h / 2,
+                  pointerEvents: hidden ? "none" : "auto",
+                  boxShadow: isActive
+                    ? "0 40px 90px -30px color-mix(in oklab, var(--primary) 55%, transparent), 0 0 0 1px color-mix(in oklab, var(--primary) 35%, transparent)"
+                    : "0 22px 50px -26px color-mix(in oklab, var(--foreground) 45%, transparent)",
+                }}
+              >
+                <Media
+                  item={item}
+                  active={isActive && inView}
+                  soundOn={soundOn}
+                  onSoundBlocked={handleSoundBlocked}
+                />
+
+                {/* glass reflection */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(160deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 45%), linear-gradient(180deg, transparent 55%, color-mix(in oklab, var(--foreground) 70%, transparent) 100%)",
+                  }}
+                />
+
+                {isActive && (
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4 text-left">
+                    {item.subtitle && (
+                      <p className="text-[9px] uppercase tracking-[0.3em] text-white/70">{item.subtitle}</p>
+                    )}
+                    {item.title && (
+                      <p className="mt-1 text-sm font-medium text-white line-clamp-2">{item.title}</p>
+                    )}
+                  </div>
+                )}
+
+                {isActive && (
+                  <span className="pointer-events-none absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border border-white/25 bg-white/10 text-white opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
+                    <Maximize2 size={13} />
+                  </span>
+                )}
+              </motion.button>
+            );
+          })}
+        </motion.div>
+
+        {/* sound toggle */}
+        {active?.video && (
+          <button
+            type="button"
+            onClick={toggleSound}
+            aria-label={soundOn ? "Mute videos" : "Unmute videos"}
+            className="absolute bottom-2 left-1/2 z-[80] -translate-x-1/2 inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-white backdrop-blur transition-colors hover:bg-black/60"
+          >
+            {soundOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
+            {soundOn ? "Sound on" : "Unmute"}
+          </button>
+        )}
       </div>
 
-      {/* invisible preloader for the upcoming clip */}
-      {preload?.video && (
-        <video
-          key={preload.id}
-          src={preload.video}
-          muted
-          playsInline
-          preload="auto"
-          aria-hidden
-          tabIndex={-1}
-          className="pointer-events-none absolute h-px w-px opacity-0"
-        />
+      {/* orbit position dots */}
+      {n > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {playlist.map((item, i) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => focus(i)}
+              aria-label={`Show clip ${i + 1}`}
+              className="h-1.5 rounded-full transition-all duration-500"
+              style={{
+                width: i === index ? 26 : 8,
+                background:
+                  i === index
+                    ? "var(--primary)"
+                    : "color-mix(in oklab, var(--foreground) 22%, transparent)",
+              }}
+            />
+          ))}
+        </div>
       )}
-
-      <p className="mt-4 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-        <Play size={10} /> Tap any frame for the full clip
-      </p>
 
       <AnimatePresence>
         {open && <Lightbox item={open} onClose={() => setOpen(null)} muted={!soundOn} />}
