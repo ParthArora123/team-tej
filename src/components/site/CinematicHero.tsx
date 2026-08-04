@@ -88,7 +88,13 @@ export function CinematicHero({
           alt=""
           aria-hidden
           className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-80 transform-gpu"
-          style={{ visibility: loaded ? "visible" : "hidden" }}
+          style={{
+            visibility: loaded ? "visible" : "hidden",
+            // Promote to its own compositor layer so the expensive blur is
+            // rasterised once instead of on every frame of the hero zoom.
+            willChange: "transform",
+            contain: "paint",
+          }}
           loading="eager"
           decoding="async"
           draggable={false}
@@ -141,6 +147,7 @@ export function CinematicHero({
             alt=""
             aria-hidden
             className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-70 transform-gpu"
+            style={{ willChange: "transform", contain: "paint" }}
             draggable={false}
           />
           <video
