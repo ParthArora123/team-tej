@@ -306,7 +306,7 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         className="relative mx-auto flex items-center justify-center"
-        style={{ height: isMobile ? 600 : 820, perspective: 1400 }}
+        style={{ height: stageH, perspective: 1400 }}
       >
         {/* ambient stage lighting */}
         <div
