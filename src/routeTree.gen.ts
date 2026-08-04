@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZeroToHeroRouteImport } from './routes/zero-to-hero'
 import { Route as VerifyRouteImport } from './routes/verify'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OnlineTrainingsRouteImport } from './routes/online-trainings'
 import { Route as NrityaSadhanaRouteImport } from './routes/nritya-sadhana'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -38,6 +39,11 @@ const VerifyRoute = VerifyRouteImport.update({
 const TestimonialsRoute = TestimonialsRouteImport.update({
   id: '/testimonials',
   path: '/testimonials',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnlineTrainingsRoute = OnlineTrainingsRouteImport.update({
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/nritya-sadhana': typeof NrityaSadhanaRoute
   '/online-trainings': typeof OnlineTrainingsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/testimonials': typeof TestimonialsRoute
   '/verify': typeof VerifyRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/nritya-sadhana': typeof NrityaSadhanaRoute
   '/online-trainings': typeof OnlineTrainingsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/testimonials': typeof TestimonialsRoute
   '/verify': typeof VerifyRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/nritya-sadhana': typeof NrityaSadhanaRoute
   '/online-trainings': typeof OnlineTrainingsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/testimonials': typeof TestimonialsRoute
   '/verify': typeof VerifyRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/nritya-sadhana'
     | '/online-trainings'
+    | '/reset-password'
     | '/testimonials'
     | '/verify'
     | '/zero-to-hero'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/nritya-sadhana'
     | '/online-trainings'
+    | '/reset-password'
     | '/testimonials'
     | '/verify'
     | '/zero-to-hero'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/nritya-sadhana'
     | '/online-trainings'
+    | '/reset-password'
     | '/testimonials'
     | '/verify'
     | '/zero-to-hero'
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   NrityaSadhanaRoute: typeof NrityaSadhanaRoute
   OnlineTrainingsRoute: typeof OnlineTrainingsRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   TestimonialsRoute: typeof TestimonialsRoute
   VerifyRoute: typeof VerifyRoute
   ZeroToHeroRoute: typeof ZeroToHeroRoute
@@ -239,6 +252,13 @@ declare module '@tanstack/react-router' {
       path: '/testimonials'
       fullPath: '/testimonials'
       preLoaderRoute: typeof TestimonialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/online-trainings': {
@@ -351,6 +371,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   NrityaSadhanaRoute: NrityaSadhanaRoute,
   OnlineTrainingsRoute: OnlineTrainingsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   TestimonialsRoute: TestimonialsRoute,
   VerifyRoute: VerifyRoute,
   ZeroToHeroRoute: ZeroToHeroRoute,
