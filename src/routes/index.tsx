@@ -201,25 +201,37 @@ function HeroSlideMedia({
       ) : null;
     }
     return (
-      <video
-        ref={videoRef}
-        src={src}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        poster={fallbackSrc}
-        disableRemotePlayback
-        disablePictureInPicture
-        controls={false}
-        onLoadedData={markReady}
-        onCanPlay={markReady}
-        className={common}
-        style={{ visibility: ready || !!fallbackSrc ? "visible" : "hidden" }}
-      />
+      <>
+        {fallbackSrc && (
+          <img
+            src={fallbackSrc}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80"
+            draggable={false}
+          />
+        )}
+        <video
+          ref={videoRef}
+          src={src}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={fallbackSrc}
+          disableRemotePlayback
+          disablePictureInPicture
+          controls={false}
+          onLoadedData={markReady}
+          onCanPlay={markReady}
+          className="absolute inset-0 h-full w-full object-contain transform-gpu backface-hidden"
+          style={{ visibility: ready || !!fallbackSrc ? "visible" : "hidden" }}
+        />
+      </>
     );
   }
+
   return (
     <img
       src={src}
