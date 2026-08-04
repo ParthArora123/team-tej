@@ -265,7 +265,7 @@ function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem;
           muted
           loop
           playsInline
-          preload={isActive ? "auto" : "metadata"}
+          preload={isActive ? "auto" : near ? "metadata" : "none"}
           onEnded={onEnded}
           className="absolute inset-0 w-full h-full object-contain bg-transparent"
         />
