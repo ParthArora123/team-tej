@@ -19,8 +19,14 @@ export function FloatingWorldScene() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(max-width: 768px)");
-    const update = () => setIsMobile(mq.matches);
+    // Treat small screens AND low-powered machines (few cores / little RAM,
+    // e.g. older laptops and tablets) as "mobile" so they never pay for this
+    // permanently-animating backdrop.
+    const cores = navigator.hardwareConcurrency ?? 8;
+    const mem = (navigator as any).deviceMemory ?? 8;
+    const weak = cores <= 4 || mem <= 4;
+    const mq = window.matchMedia("(max-width: 1024px), (hover: none)");
+    const update = () => setIsMobile(weak || mq.matches);
     update();
     mq.addEventListener("change", update);
     // slight delay so it never fights hero LCP
@@ -42,41 +48,24 @@ export function FloatingWorldScene() {
   const horizonY = useTransform(smooth, [0, 1], ["8%", "-8%"]);
   const architectureY = useTransform(smooth, [0, 1], ["0%", "-12%"]);
 
-  // Cursor spotlight for desktop
-  const mx = useMotionValue(0.5);
-  const my = useMotionValue(0.3);
-  const smx = useSpring(mx, { stiffness: 60, damping: 20 });
-  const smy = useSpring(my, { stiffness: 60, damping: 20 });
+  // (Cursor-driven spotlight removed for performance — see render below.)
 
-  useEffect(() => {
-    if (isMobile || reduce) return;
-    const onMove = (e: MouseEvent) => {
-      mx.set(e.clientX / window.innerWidth);
-      my.set(e.clientY / window.innerHeight);
-    };
-    window.addEventListener("mousemove", onMove, { passive: true });
-    return () => window.removeEventListener("mousemove", onMove);
-  }, [isMobile, reduce, mx, my]);
 
-  const spotlightBg = useTransform(
-    [smx, smy] as any,
-    ([x, y]: number[]) =>
-      `radial-gradient(500px circle at ${x * 100}% ${y * 100}%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%)`
-  );
-
+  // Element counts kept deliberately low: every one of these is an infinitely
+  // animating, blurred, composited layer.
   const birds = useMemo(
-    () => Array.from({ length: isMobile ? 3 : 6 }, (_, i) => ({
+    () => Array.from({ length: 3 }, (_, i) => ({
       id: i,
       top: 12 + (i * 9) % 40,
       duration: 40 + (i % 4) * 8,
       delay: -i * 6,
       scale: 0.6 + (i % 3) * 0.25,
     })),
-    [isMobile]
+    []
   );
 
   const feathers = useMemo(
-    () => Array.from({ length: isMobile ? 6 : 14 }, (_, i) => ({
+    () => Array.from({ length: 6 }, (_, i) => ({
       id: i,
       left: (i * 37) % 100,
       size: 4 + (i % 4) * 2,
@@ -84,18 +73,18 @@ export function FloatingWorldScene() {
       delay: -i * 3,
       drift: (i % 2 ? 1 : -1) * (20 + (i % 5) * 8),
     })),
-    [isMobile]
+    []
   );
 
   const fish = useMemo(
-    () => Array.from({ length: isMobile ? 3 : 6 }, (_, i) => ({
+    () => Array.from({ length: 3 }, (_, i) => ({
       id: i,
       top: 60 + (i * 7) % 30,
       duration: 24 + (i % 4) * 6,
       delay: -i * 4,
       dir: i % 2 ? 1 : -1,
     })),
-    [isMobile]
+    []
   );
 
   // This scene is a large, permanently-animating fixed backdrop. On phones and
@@ -306,13 +295,8 @@ export function FloatingWorldScene() {
         />
       </motion.div>
 
-      {/* Cursor spotlight (desktop only) */}
-      {!isMobile && !reduce && (
-        <motion.div
-          className="absolute inset-0 mix-blend-screen"
-          style={{ background: spotlightBg as any }}
-        />
-      )}
+      {/* Cursor spotlight removed: repainting a full-viewport radial gradient
+          on every mouse frame was the single biggest desktop jank source. */}
 
       {/* Cinematic vignette + grain */}
       <div

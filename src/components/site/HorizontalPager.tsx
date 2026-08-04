@@ -59,23 +59,37 @@ export default function HorizontalPager({ children }: { children: React.ReactNod
     >
       <motion.div
         ref={trackRef}
-        className="flex h-full w-full"
+        className="flex h-full w-full will-change-transform"
         animate={{ x: `-${index * 100}%` }}
         transition={{ type: "spring", stiffness: 120, damping: 22, mass: 0.9 }}
-        style={{ willChange: "transform" }}
       >
-        {slides.map((child, i) => (
-          <motion.div
-            key={i}
-            className="h-full w-full shrink-0 grow-0 basis-full overflow-y-auto overflow-x-hidden overscroll-contain"
-            animate={{ opacity: i === index ? 1 : 0.25 }}
-            transition={{ duration: 0.45 }}
-            aria-hidden={i !== index}
-            style={{ pointerEvents: i === index ? "auto" : "none" }}
-          >
-            <div className="min-h-full flex flex-col justify-center py-6">{child}</div>
-          </motion.div>
-        ))}
+        {slides.map((child, i) => {
+          // Virtualise: only the current slide and its immediate neighbours are
+          // mounted. Off-screen sections would otherwise keep their videos,
+          // carousels, timers and animations alive all at once — the main
+          // cause of the freezing/stutter across devices.
+          const active = i === index;
+          const near = Math.abs(i - index) <= 1;
+          return (
+            <div
+              key={i}
+              className="h-full w-full shrink-0 grow-0 basis-full overflow-y-auto overflow-x-hidden overscroll-contain"
+              aria-hidden={!active}
+              inert={!active}
+              style={{
+                pointerEvents: active ? "auto" : "none",
+                opacity: active ? 1 : 0.25,
+                transition: "opacity .35s ease",
+                contentVisibility: active ? "visible" : "auto",
+                containIntrinsicSize: "100svh",
+              } as React.CSSProperties}
+            >
+              {near ? (
+                <div className="min-h-full flex flex-col justify-center py-6">{child}</div>
+              ) : null}
+            </div>
+          );
+        })}
       </motion.div>
 
       {/* Arrows */}

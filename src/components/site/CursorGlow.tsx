@@ -15,6 +15,7 @@ export function CursorGlow() {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(hover: none)").matches) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if ((navigator.hardwareConcurrency ?? 8) <= 4) return;
     setEnabled(true);
     const move = (e: MouseEvent) => {
       x.set(e.clientX);
@@ -28,24 +29,23 @@ export function CursorGlow() {
 
   return (
     <>
-      {/* Ambient spotlight */}
+      {/* Ambient spotlight — pre-rendered soft gradient (no runtime blur
+          filter) so moving it is a pure compositor transform. */}
       <motion.div
         aria-hidden
-        style={{ x: sx, y: sy }}
-        className="pointer-events-none fixed top-0 left-0 z-[55] h-[520px] w-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full mix-blend-screen"
-      >
-        <div
-          className="h-full w-full rounded-full opacity-45 blur-3xl"
-          style={{
-            background:
-              "radial-gradient(circle, color-mix(in oklab, var(--primary) 70%, transparent) 0%, color-mix(in oklab, var(--accent-cyan) 30%, transparent) 40%, transparent 70%)",
-          }}
-        />
-      </motion.div>
+        style={{
+          x: sx,
+          y: sy,
+          willChange: "transform",
+          background:
+            "radial-gradient(circle, color-mix(in oklab, var(--primary) 34%, transparent) 0%, color-mix(in oklab, var(--accent-cyan) 14%, transparent) 45%, transparent 70%)",
+        }}
+        className="pointer-events-none fixed top-0 left-0 z-[55] h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-45 mix-blend-screen"
+      />
       {/* Sharp inner glow dot */}
       <motion.div
         aria-hidden
-        style={{ x: dx, y: dy }}
+        style={{ x: dx, y: dy, willChange: "transform" }}
         className="pointer-events-none fixed top-0 left-0 z-[56] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full"
       >
         <div
@@ -53,7 +53,7 @@ export function CursorGlow() {
           style={{
             background: "var(--primary)",
             boxShadow:
-              "0 0 20px color-mix(in oklab, var(--primary) 80%, transparent), 0 0 40px color-mix(in oklab, var(--accent-cyan) 60%, transparent)",
+              "0 0 20px color-mix(in oklab, var(--primary) 80%, transparent)",
             opacity: 0.75,
           }}
         />
