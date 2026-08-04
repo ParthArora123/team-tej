@@ -31,11 +31,13 @@ function useReducedMotion() {
 function Media({
   item,
   active,
+  preloadNext,
   soundOn,
   onSoundBlocked,
 }: {
   item: CollageItem;
   active: boolean;
+  preloadNext: boolean;
   soundOn: boolean;
   onSoundBlocked: () => void;
 }) {
@@ -52,6 +54,7 @@ function Media({
     const v = ref.current;
     if (!v) return;
     if (active) {
+      v.currentTime = 0;
       v.muted = !soundOn;
       v.play().catch(() => {
         v.muted = true;
@@ -60,6 +63,7 @@ function Media({
       });
     } else {
       v.pause();
+      v.currentTime = 0;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, item.video]);
@@ -95,7 +99,7 @@ function Media({
           poster={item.poster ?? undefined}
           playsInline
           loop
-          preload={active ? "auto" : "metadata"}
+          preload={active || preloadNext ? "auto" : "metadata"}
           disableRemotePlayback
           disablePictureInPicture
           onLoadedData={() => setReady(true)}
@@ -175,10 +179,13 @@ function Lightbox({
  * Auto-rotates every 5s, pauses on hover, supports drag/swipe.
  */
 export function VideoCollage({ items }: { items: CollageItem[] }) {
+  const playlistKey = items.map((item) => `${item.id}:${item.video ?? ""}`).join("|");
   const playlist = useMemo(() => {
     const videos = items.filter((i) => Boolean(i.video));
     return videos.length ? videos : items;
-  }, [items]);
+    // The key keeps the playlist stable when a parent recreates an equivalent items array.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playlistKey]);
 
   const isMobile = useIsMobile();
   const reduced = useReducedMotion();
@@ -216,7 +223,9 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
     }
   }, []);
 
-  useEffect(() => setIndex(0), [playlist]);
+  useEffect(() => {
+    setIndex((current) => (current < playlist.length ? current : 0));
+  }, [playlistKey, playlist.length]);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -228,9 +237,11 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
   useEffect(() => {
     if (paused || !inView || playlist.length < 2) return;
-    const t = setTimeout(() => setIndex((i) => (i + 1) % playlist.length), ROTATE_MS);
-    return () => clearTimeout(t);
-  }, [paused, inView, index, playlist.length]);
+    const interval = window.setInterval(() => {
+      setIndex((current) => (current + 1) % playlist.length);
+    }, ROTATE_MS);
+    return () => window.clearInterval(interval);
+  }, [paused, inView, playlist.length, playlistKey]);
 
   // Manual interaction pauses auto-rotation, then resumes.
   const nudge = useCallback((dir: number) => {
@@ -341,6 +352,7 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
                 <Media
                   item={item}
                   active={isActive && inView}
+                  preloadNext={i === (index + 1) % n}
                   soundOn={soundOn}
                   onSoundBlocked={handleSoundBlocked}
                 />
