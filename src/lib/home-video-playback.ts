@@ -18,7 +18,6 @@ export function playHomepageVideo(video: HTMLVideoElement) {
   if (activeVideo && activeVideo !== video) stop(activeVideo);
 
   activeVideo = video;
-  video.muted = video.muted; // keep caller-controlled mute state
   if (!video.paused) return Promise.resolve();
   return video.play().catch(() => undefined);
 }
