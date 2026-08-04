@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
@@ -34,19 +34,30 @@ export function CoverflowCarousel({
   const [side, setSide] = useState(1); // visible cards per side
   const rootRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef<number | null>(null);
+  // Set while the centre clip is buffering — the auto-advance timer waits so we
+  // never cut away mid-stall (which is what looked like "freezing").
+  const bufferingRef = useRef(false);
 
   const count = items.length;
 
   // Responsive fan width: desktop 3, tablet 2, mobile 1 card per side.
   useEffect(() => {
     if (typeof window === "undefined") return;
+    let frame = 0;
     const compute = () => {
       const w = window.innerWidth;
       setSide(w >= 1280 ? 3 : w >= 1024 ? 2 : 1);
     };
+    const onResize = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(compute);
+    };
     compute();
-    window.addEventListener("resize", compute);
-    return () => window.removeEventListener("resize", compute);
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -59,13 +70,38 @@ export function CoverflowCarousel({
 
   useEffect(() => {
     if (!inView || paused || count <= 1) return;
-    const id = setInterval(() => setActive((i) => (i + 1) % count), interval);
-    return () => clearInterval(id);
+    let cancelled = false;
+    let timer: number;
+    const tick = () => {
+      if (cancelled) return;
+      if (bufferingRef.current) {
+        // still loading — check again shortly instead of forcing a switch
+        timer = window.setTimeout(tick, 600);
+        return;
+      }
+      setActive((i) => (i + 1) % count);
+      timer = window.setTimeout(tick, interval);
+    };
+    timer = window.setTimeout(tick, interval);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [inView, paused, count, interval]);
+
+  const onBuffering = useCallback((b: boolean) => {
+    bufferingRef.current = b;
+  }, []);
 
   const go = useCallback((dir: number) => {
     setActive((i) => (i + dir + count) % count);
   }, [count]);
+
+  const handleEnded = useCallback(() => {
+    if (count > 1) go(1);
+  }, [count, go]);
+
+
 
   // Shortest wrapped distance so the flow loops seamlessly in both directions.
   const rel = useCallback(
@@ -143,7 +179,13 @@ export function CoverflowCarousel({
               }}
             >
 
-              <Media item={it} isActive={isActive && inView} near={abs === 1} onEnded={() => count > 1 && go(1)} />
+              <Media
+                item={it}
+                isActive={isActive && inView}
+                near={d === 1}
+                onEnded={handleEnded}
+                onBuffering={isActive ? onBuffering : undefined}
+              />
 
               {/* glassmorphism sheen */}
               <div
@@ -152,9 +194,9 @@ export function CoverflowCarousel({
                 style={{
                   background:
                     "linear-gradient(160deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 38%, rgba(0,0,0,0.06))",
-                  backdropFilter: isActive ? undefined : "blur(1px)",
                 }}
               />
+
 
               <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
 
@@ -220,7 +262,19 @@ export function CoverflowCarousel({
   );
 }
 
-function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem; isActive: boolean; near?: boolean; onEnded: () => void }) {
+const Media = memo(function Media({
+  item,
+  isActive,
+  near = false,
+  onEnded,
+  onBuffering,
+}: {
+  item: CoverflowItem;
+  isActive: boolean;
+  near?: boolean;
+  onEnded: () => void;
+  onBuffering?: (buffering: boolean) => void;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   // Only the active card (and the one queued next) keeps a <video> element in
   // the DOM — everything else falls back to the poster, so no off-screen clip
@@ -238,6 +292,27 @@ function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem;
     }
     return () => { if (v) pauseHomepageVideo(v); };
   }, [isActive]);
+
+  // Report buffering so the carousel's auto-advance waits instead of cutting
+  // away from a stalled clip.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !onBuffering) return;
+    const busy = () => onBuffering(true);
+    const ready = () => onBuffering(false);
+    v.addEventListener("waiting", busy);
+    v.addEventListener("stalled", busy);
+    v.addEventListener("playing", ready);
+    v.addEventListener("canplay", ready);
+    return () => {
+      v.removeEventListener("waiting", busy);
+      v.removeEventListener("stalled", busy);
+      v.removeEventListener("playing", ready);
+      v.removeEventListener("canplay", ready);
+      onBuffering(false);
+    };
+  }, [onBuffering, mounted]);
+
 
   if (item.embedSrc && isActive) {
     return (
@@ -259,6 +334,8 @@ function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem;
             src={item.poster}
             alt=""
             aria-hidden
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover scale-125 blur-xl opacity-100"
           />
         )}
@@ -311,4 +388,5 @@ function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem;
   }
 
   return <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />;
-}
+});
+
