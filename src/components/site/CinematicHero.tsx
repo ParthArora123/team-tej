@@ -89,32 +89,45 @@ export function CinematicHero({
         }}
       >
         {backgroundImage && !failed ? (
-          <img
-            src={backgroundImage}
-            alt="Tejas D Dhoke"
-            className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top"
-            fetchPriority="high"
-            decoding="async"
-            loading="eager"
-            sizes="100vw"
-            draggable={false}
-            ref={(el) => {
-              if (el && el.complete && el.naturalWidth > 0 && !loaded) {
+          <>
+            {/* Blurred backdrop fills the full screen so the hero never looks
+                letterboxed on wide desktop viewports. The main portrait below
+                stays uncropped with object-contain. */}
+            <img
+              src={backgroundImage}
+              alt=""
+              aria-hidden
+              className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80"
+              loading="eager"
+              decoding="async"
+              draggable={false}
+            />
+            <img
+              src={backgroundImage}
+              alt="Tejas D Dhoke"
+              className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top lg:object-center"
+              fetchPriority="high"
+              decoding="async"
+              loading="eager"
+              sizes="100vw"
+              draggable={false}
+              ref={(el) => {
+                if (el && el.complete && el.naturalWidth > 0 && !loaded) {
+                  setLoaded(true);
+                  onReady?.();
+                }
+              }}
+              onLoad={() => {
                 setLoaded(true);
                 onReady?.();
-              }
-            }}
-            onLoad={() => {
-              setLoaded(true);
-              onReady?.();
-            }}
-            onError={() => {
-              setFailed(true);
-              setLoaded(true);
-              onReady?.();
-            }}
-          />
-
+              }}
+              onError={() => {
+                setFailed(true);
+                setLoaded(true);
+                onReady?.();
+              }}
+            />
+          </>
         ) : null}
       </div>
 
