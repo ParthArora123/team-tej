@@ -93,7 +93,52 @@
   --shadow-glow: 0 24px 70px -22px color-mix(in oklab, var(--primary) 40%, transparent);
   --shadow-gold: 0 14px 44px -16px color-mix(in oklab, var(--accent-gold) 45%, transparent);
 
+  /* Dancefit official brand ramp — gold → orange → pink → purple */
+  --df-1: #F9B233;
+  --df-2: #F4713F;
+  --df-3: #EE3D8B;
+  --df-4: #B4288F;
+  --df-5: #8E2DA8;
+  --gradient-dancefit: linear-gradient(135deg, var(--df-1) 0%, var(--df-2) 32%, var(--df-3) 66%, var(--df-5) 100%);
+
 }
+
+@utility df-gradient-text {
+  background-image: var(--gradient-dancefit);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility df-gradient-bg {
+  background-image: var(--gradient-dancefit);
+}
+
+/* Gradient border shell (card) */
+@utility df-border-card {
+  position: relative;
+  border-radius: 1rem;
+  background: var(--card);
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: var(--gradient-dancefit);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    opacity: 0.55;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
 
 
 
