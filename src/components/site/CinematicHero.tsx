@@ -18,6 +18,7 @@ export function CinematicHero({
 }) {
   const reduce = useReducedMotion();
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [clipIdx, setClipIdx] = useState(0);
@@ -60,6 +61,7 @@ export function CinematicHero({
       onReady?.();
       return;
     }
+    setFailed(false);
     const img = new Image();
     img.decoding = "async";
     img.src = backgroundImage;
@@ -68,6 +70,7 @@ export function CinematicHero({
       onReady?.();
     };
     img.onerror = () => {
+      setFailed(true);
       setLoaded(true);
       onReady?.();
     };
@@ -95,21 +98,28 @@ export function CinematicHero({
         className="absolute inset-0 w-full h-full transform-gpu will-change-transform"
         style={{
           animation: reduce ? "none" : "heroZoom 24s ease-out forwards",
-          visibility: loaded ? "visible" : "hidden",
+          visibility: loaded && !failed && backgroundImage ? "visible" : "hidden",
         }}
       >
-        <img
-          src={backgroundImage}
-          alt="Tejas D Dhoke"
-          className="absolute inset-0 h-full w-full object-cover object-top"
-          fetchPriority="high"
-          decoding="async"
-          draggable={false}
-          onLoad={() => {
-            setLoaded(true);
-            onReady?.();
-          }}
-        />
+        {backgroundImage && !failed ? (
+          <img
+            src={backgroundImage}
+            alt="Tejas D Dhoke"
+            className="absolute inset-0 h-full w-full object-cover object-top"
+            fetchPriority="high"
+            decoding="async"
+            draggable={false}
+            onLoad={() => {
+              setLoaded(true);
+              onReady?.();
+            }}
+            onError={() => {
+              setFailed(true);
+              setLoaded(true);
+              onReady?.();
+            }}
+          />
+        ) : null}
       </div>
 
       {/* Cinematic clip montage — crossfades over the portrait on desktop */}
