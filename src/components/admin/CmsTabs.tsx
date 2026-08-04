@@ -220,7 +220,7 @@ function SortableHeroCard({ row, onEdit, onDelete }: { row: any; onEdit: () => v
           <GripVertical size={14} />
         </button>
         {row.image_url && (rowIsVideo
-          ? <video src={row.image_url} muted playsInline preload="metadata" className="w-full h-full object-cover" />
+          ? <video src={row.image_url} muted playsInline preload="metadata" className="w-full h-full object-contain" />
           : <img src={row.image_url} alt={row.alt ?? ""} className="w-full h-full object-cover" />)}
       </div>
       <div className="p-3 flex items-center justify-between gap-2">

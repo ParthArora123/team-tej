@@ -222,7 +222,7 @@ function MediaPicker({ kind, value, preview, onChange }: {
         <div className="w-full max-w-xs aspect-[4/5] rounded-lg overflow-hidden bg-muted border border-border">
           {kind === "image"
             ? <img src={preview || value} alt="" className="w-full h-full object-cover" />
-            : <video src={preview || value} muted loop playsInline autoPlay className="w-full h-full object-cover" />}
+            : <video src={preview || value} muted loop playsInline autoPlay className="w-full h-full object-contain" />}
         </div>
       )}
     </div>
@@ -295,7 +295,7 @@ export function DanceStylesTab() {
           <div key={r.id} className="rounded-2xl border border-border bg-card overflow-hidden">
             <div className="aspect-[4/5] bg-muted relative">
               {r.video_url
-                ? <video src={r.video_url} poster={r.image_url ?? undefined} muted loop playsInline autoPlay className="w-full h-full object-cover" />
+                ? <video src={r.video_url} poster={r.image_url ?? undefined} muted loop playsInline autoPlay className="w-full h-full object-contain" />
                 : r.image_url && <img src={r.image_url} alt={r.name} className="w-full h-full object-cover" />}
             </div>
             <div className="p-3 flex items-center justify-between gap-2">
@@ -361,7 +361,7 @@ function ChoreoMediaPicker({ kind, value, preview, onChange }: {
         <div className="w-full max-w-xs aspect-video rounded-lg overflow-hidden bg-muted border border-border">
           {kind === "image"
             ? <img src={preview || value} alt="" className="w-full h-full object-cover" />
-            : <video src={preview || value} muted loop playsInline autoPlay className="w-full h-full object-cover" />}
+            : <video src={preview || value} muted loop playsInline autoPlay className="w-full h-full object-contain" />}
         </div>
       )}
     </div>
@@ -453,7 +453,7 @@ export function ChoreographiesTab() {
               {r.thumbnail_url
                 ? <img src={r.thumbnail_url} alt={r.title} className="w-full h-full object-cover" />
                 : r.video_url
-                  ? <video src={r.video_url} muted loop playsInline className="w-full h-full object-cover" />
+                  ? <video src={r.video_url} muted loop playsInline className="w-full h-full object-contain" />
                   : <div className="w-full h-full grid place-items-center text-xs text-muted-foreground">No thumbnail</div>}
             </div>
             <div className="p-3 flex items-center justify-between gap-2">

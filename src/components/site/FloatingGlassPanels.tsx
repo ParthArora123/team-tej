@@ -223,7 +223,7 @@ export function FloatingGlassPanels({ items }: { items: DeckItem[] }) {
 
       {/* Desktop / tablet: organic floating composition */}
       <div
-        className="relative hidden h-[560px] w-full sm:block lg:h-[640px]"
+        className="relative hidden h-[700px] w-full sm:block lg:h-[820px]"
         onMouseLeave={() => setPaused(false)}
       >
         {panels.map((it, i) => (
@@ -244,7 +244,7 @@ export function FloatingGlassPanels({ items }: { items: DeckItem[] }) {
         {panels.map((it, i) => (
           <div
             key={it.id}
-            className="relative h-[300px]"
+            className="relative h-[460px]"
             style={{ zIndex: i === active ? 20 : 10, paddingInline: i % 2 ? "0 12px" : "12px 0" }}
           >
             <Panel

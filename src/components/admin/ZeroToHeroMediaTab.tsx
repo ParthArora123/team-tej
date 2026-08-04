@@ -110,7 +110,7 @@ export function ZeroToHeroMediaTab() {
           <div key={r.id} className="rounded-2xl border border-border bg-card overflow-hidden">
             <div className="aspect-[4/5] bg-muted relative">
               {r.media_kind === "video"
-                ? <video src={r.media_url} poster={r.poster_url ?? undefined} muted playsInline preload="metadata" className="w-full h-full object-cover" />
+                ? <video src={r.media_url} poster={r.poster_url ?? undefined} muted playsInline preload="metadata" className="w-full h-full object-contain" />
                 : r.media_url && <img src={r.media_url} alt={r.caption ?? ""} className="w-full h-full object-cover" />}
               <span className="absolute top-1.5 left-1.5 px-2 py-0.5 text-[10px] rounded-full bg-background/80 border border-border">{r.media_kind}</span>
             </div>

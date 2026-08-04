@@ -114,7 +114,7 @@ export function WorkshopDeck({ workshops }: { workshops: any[] }) {
       items={cards}
       variant="stack"
       
-      className="mx-auto h-[460px] w-full max-w-[440px] sm:h-[520px]"
+      className="mx-auto h-[560px] w-full max-w-[560px] sm:h-[680px] sm:max-w-[680px]"
     />
   );
 }
@@ -140,7 +140,10 @@ export function ReelDeck({ reels }: { reels: ReelCard[] }) {
         {r.video ? (
           <ReelVideo src={r.video} poster={r.poster} active={active} title={r.title ?? "Reel"} />
         ) : r.poster ? (
-          <img src={r.poster} alt={r.title ?? "Reel"} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+          <>
+            <div aria-hidden className="absolute inset-0 scale-150 blur-2xl" style={{ backgroundImage: `url(${r.poster})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+            <img src={r.poster} alt={r.title ?? "Reel"} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain" />
+          </>
         ) : (
           <div
             className="absolute inset-0"
@@ -173,7 +176,7 @@ export function ReelDeck({ reels }: { reels: ReelCard[] }) {
       items={cards}
       variant="fan"
       
-      className="mx-auto h-[460px] w-full max-w-[320px] sm:h-[560px] sm:max-w-[360px]"
+      className="mx-auto h-[600px] w-full max-w-[400px] sm:h-[720px] sm:max-w-[460px]"
     />
   );
 }
@@ -217,7 +220,7 @@ export function GalleryDeck({ items }: { items: any[] }) {
       items={cards}
       variant="shuffle"
       
-      className="mx-auto h-[400px] w-full max-w-[540px] sm:h-[480px]"
+      className="mx-auto h-[500px] w-full max-w-[680px] sm:h-[620px]"
     />
   );
 }

@@ -74,7 +74,7 @@ export function WorkshopMediaPanel({ programId }: { programId: string }) {
           <div key={r.id} className="rounded-lg border border-border bg-card overflow-hidden">
             <div className="aspect-square bg-muted relative">
               {r.media_kind === "video"
-                ? <video src={r.media_url} muted playsInline preload="metadata" className="w-full h-full object-cover" />
+                ? <video src={r.media_url} muted playsInline preload="metadata" className="w-full h-full object-contain" />
                 : r.media_url && <img src={r.media_url} alt="" className="w-full h-full object-cover" />}
               <span className="absolute top-1 left-1 px-1.5 py-0.5 text-[10px] rounded bg-background/80 border border-border">{r.media_kind}</span>
             </div>

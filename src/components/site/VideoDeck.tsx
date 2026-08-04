@@ -123,7 +123,7 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
     });
 
   return (
-    <div className="mx-auto w-full max-w-[420px] sm:max-w-[520px]">
+    <div className="mx-auto w-full max-w-[520px] sm:max-w-[680px]">
     <div
       ref={ref}
       onMouseEnter={() => setPaused(true)}
@@ -133,7 +133,7 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
       onPointerCancel={() => setPaused(false)}
       onTouchStart={() => setPaused(true)}
       onTouchEnd={() => setPaused(false)}
-      className="relative h-[440px] sm:h-[520px] w-full"
+      className="relative h-[560px] sm:h-[720px] w-full"
       style={{ perspective: 1400 }}
     >
       {order.map((it, depth) => {

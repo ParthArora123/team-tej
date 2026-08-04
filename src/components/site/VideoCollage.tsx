@@ -266,21 +266,21 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
   const n = playlist.length;
   const active = playlist[index];
-  const radiusX = isMobile ? 118 : 300;
-  const radiusY = isMobile ? 44 : 92;
-  const centerW = isMobile ? 190 : 300;
-  const centerH = isMobile ? 320 : 470;
-  const orbitW = isMobile ? 92 : 150;
-  const orbitH = isMobile ? 150 : 235;
+  const radiusX = isMobile ? 132 : 420;
+  const radiusY = isMobile ? 40 : 96;
+  const centerW = isMobile ? 300 : 500;
+  const centerH = isMobile ? 500 : 700;
+  const orbitW = isMobile ? 108 : 200;
+  const orbitH = isMobile ? 180 : 300;
   const maxVisible = isMobile ? 3 : 5;
 
   return (
-    <div ref={wrapRef} className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10">
+    <div ref={wrapRef} className="relative mx-auto w-full max-w-7xl px-2 sm:px-6 lg:px-10">
       <div
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         className="relative mx-auto flex items-center justify-center"
-        style={{ height: isMobile ? 430 : 620, perspective: 1400 }}
+        style={{ height: isMobile ? 600 : 820, perspective: 1400 }}
       >
         {/* ambient stage lighting */}
         <div

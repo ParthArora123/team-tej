@@ -79,7 +79,7 @@ export function MediaUploader({
         <div className={`${compact ? "h-14 w-20" : "h-20 w-28"} rounded bg-muted overflow-hidden flex items-center justify-center shrink-0`}>
           {previewUrl ? (
             kind === "video"
-              ? <video src={previewUrl} muted playsInline className="h-full w-full object-cover" preload="metadata" />
+              ? <video src={previewUrl} muted playsInline className="h-full w-full object-contain" preload="metadata" />
               : <img src={previewUrl} alt="" className="h-full w-full object-cover" />
           ) : (
             <Icon size={18} className="text-muted-foreground" />
