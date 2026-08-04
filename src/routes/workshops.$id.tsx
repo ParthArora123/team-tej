@@ -606,7 +606,7 @@ function WorkshopDetailPage() {
               <button
                 onClick={scrollToRegister}
                 disabled={full}
-                className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-primary via-primary to-accent text-black text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(212,130,41,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
+                className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-primary via-primary to-accent text-primary-foreground text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(212,130,41,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
               >
                 <Sparkles size={16} />
                 {full ? "Sold Out" : "Register Now"}
@@ -816,7 +816,7 @@ function WorkshopDetailPage() {
                 <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(212,130,41,0.35),transparent_70%)] blur-2xl" />
                 <div className="relative">
                   {allowSingle && (
-                    <div className="absolute -top-2 -right-2 rotate-12 px-3 py-1 rounded-md bg-gradient-to-b from-primary to-primary text-black text-[10px] font-black tracking-widest shadow-lg">
+                    <div className="absolute -top-2 -right-2 rotate-12 px-3 py-1 rounded-md bg-gradient-to-b from-primary to-primary text-primary-foreground text-[10px] font-black tracking-widest shadow-lg">
                       BEST
                     </div>
                   )}
