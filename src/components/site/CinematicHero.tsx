@@ -75,6 +75,10 @@ export function CinematicHero({
       style={{ background: "var(--surface)" }}
     >
       <style>{`
+        /* Ken-burns zoom is a full-screen repaint every frame — desktop only. */
+        @media (max-width: 1024px), (hover: none), (pointer: coarse) {
+          .hero-zoom-layer { animation: none !important; }
+        }
         @keyframes heroZoom { from { transform: scale(1.0); } to { transform: scale(1.12); } }
         @keyframes heroClipDrift { from { transform: scale(1.04); } to { transform: scale(1.14); } }
         @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -103,7 +107,7 @@ export function CinematicHero({
 
       {/* Static background — Tejas D Dhoke photo, full-bleed, single image */}
       <div
-        className="absolute inset-0 w-full h-full transform-gpu"
+        className="hero-zoom-layer absolute inset-0 w-full h-full transform-gpu"
         style={{
           animation: reduce ? "none" : "heroZoom 24s ease-out forwards",
           visibility: loaded && !failed && backgroundImage ? "visible" : "hidden",
