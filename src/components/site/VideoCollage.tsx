@@ -12,7 +12,7 @@ export type CollageItem = {
 
 /** Fallback duration for slides that have no playable video. */
 const STILL_MS = 6000;
-const VIDEO_ROTATE_MS = 10000;
+const VIDEO_ROTATE_MS = 5000;
 const SOUND_KEY = "feed-sound-on";
 
 function useReducedMotion() {
