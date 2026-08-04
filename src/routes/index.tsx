@@ -361,6 +361,14 @@ function Index() {
   const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
   const [choreos, setChoreos] = useState<Choreo[]>([]);
   const [founder, setFounder] = useState<any | null>(null);
+  const [heroPhoto, setHeroPhoto] = useState<string | null>(null);
+
+  // Admin-managed homepage hero photo (falls back to the bundled portrait).
+  useEffect(() => {
+    cachedCall("siteContent:hero_portrait", () => getSiteContent({ data: { key: "hero_portrait" } }))
+      .then((r: any) => { if (r?.image_url) setHeroPhoto(r.image_url); })
+      .catch(() => {});
+  }, []);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [performances, setPerformances] = useState<HomeCard[]>([]);
   const [sigPrograms, setSigPrograms] = useState<HomeCard[]>([]);
@@ -583,7 +591,7 @@ function Index() {
 
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
       <CinematicHero
-        backgroundImage={uploadedHeroImg.url}
+        backgroundImage={heroPhoto ?? uploadedHeroImg.url}
         clips={heroClips}
         badges={heroBadges}
         onReady={() => setHeroReady(true)}
