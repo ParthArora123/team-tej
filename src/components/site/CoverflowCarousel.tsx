@@ -127,7 +127,7 @@ export function CoverflowCarousel({
             <div
               key={it.id}
               onClick={() => !isActive && setActive(i)}
-              className={`absolute top-1/2 left-1/2 w-[58%] sm:w-[46%] lg:w-[34%] aspect-[4/5] rounded-[22px] overflow-hidden bg-foreground/90 will-change-transform ${
+              className={`absolute top-1/2 left-1/2 w-[78%] sm:w-[58%] lg:w-[44%] aspect-[3/4] rounded-[22px] overflow-hidden bg-foreground/90 will-change-transform ${
                 isActive ? "" : "cursor-pointer"
               }`}
               style={{
