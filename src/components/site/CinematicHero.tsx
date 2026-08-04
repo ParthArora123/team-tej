@@ -18,6 +18,7 @@ export function CinematicHero({
 }) {
   const reduce = useReducedMotion();
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [clipIdx, setClipIdx] = useState(0);
