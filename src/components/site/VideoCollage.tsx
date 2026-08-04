@@ -189,7 +189,7 @@ function Slot({
       }
       transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
       style={{ zIndex: active ? 2 : 1 }}
-      className={`group relative overflow-hidden rounded-[1.25rem] bg-muted text-left transform-gpu ${className}`}
+      className={`group relative overflow-hidden rounded-[1.25rem] bg-muted/40 text-left transform-gpu ${className}`}
     >
       <button
         type="button"
