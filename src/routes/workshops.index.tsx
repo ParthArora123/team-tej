@@ -20,13 +20,17 @@ function WorkshopBanner({ r }: { r: any }) {
   if (r.banner_video_url) {
     return (
       <div className="relative w-full aspect-[4/5] overflow-hidden bg-black">
+        {r.banner_url && (
+          <img src={r.banner_url} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-70" />
+        )}
         <video
           src={r.banner_video_url}
           poster={r.banner_url ?? undefined}
           autoPlay muted loop playsInline
           preload="metadata"
-          className="w-full h-full object-cover object-top transition-transform duration-[1200ms] group-hover:scale-[1.03]"
+          className="absolute inset-0 w-full h-full object-contain"
         />
+
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       </div>
     );

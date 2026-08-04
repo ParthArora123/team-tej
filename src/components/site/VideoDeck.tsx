@@ -37,10 +37,18 @@ function DeckMedia({ item, front, near = false }: { item: DeckItem; front: boole
       {item.poster && (
         <img
           src={item.poster}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl"
+        />
+      )}
+      {item.poster && (
+        <img
+          src={item.poster}
           alt={item.title}
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain"
         />
       )}
       {item.video && (
@@ -56,10 +64,11 @@ function DeckMedia({ item, front, near = false }: { item: DeckItem; front: boole
         disablePictureInPicture
         onLoadedData={() => setReady(true)}
         onCanPlay={() => setReady(true)}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
         style={{ visibility: front && ready ? "visible" : "hidden" }}
       />
       )}
+
       {!item.poster && !item.video && (
         <div
           className="absolute inset-0"

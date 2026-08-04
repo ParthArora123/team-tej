@@ -201,25 +201,37 @@ function HeroSlideMedia({
       ) : null;
     }
     return (
-      <video
-        ref={videoRef}
-        src={src}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        poster={fallbackSrc}
-        disableRemotePlayback
-        disablePictureInPicture
-        controls={false}
-        onLoadedData={markReady}
-        onCanPlay={markReady}
-        className={common}
-        style={{ visibility: ready || !!fallbackSrc ? "visible" : "hidden" }}
-      />
+      <>
+        {fallbackSrc && (
+          <img
+            src={fallbackSrc}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80"
+            draggable={false}
+          />
+        )}
+        <video
+          ref={videoRef}
+          src={src}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={fallbackSrc}
+          disableRemotePlayback
+          disablePictureInPicture
+          controls={false}
+          onLoadedData={markReady}
+          onCanPlay={markReady}
+          className="absolute inset-0 h-full w-full object-contain transform-gpu backface-hidden"
+          style={{ visibility: ready || !!fallbackSrc ? "visible" : "hidden" }}
+        />
+      </>
     );
   }
+
   return (
     <img
       src={src}
@@ -276,7 +288,7 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
     return (
       <div className="w-full aspect-video overflow-hidden bg-muted">
         <img src={w.banner_gif_url} alt={w.name} loading="lazy"
-          className={`w-full h-full object-cover ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+          className="w-full h-full object-contain" />
       </div>
     );
   }
@@ -892,9 +904,14 @@ function Index() {
           const renderMedia = (s: RenderStyle, active: boolean) => {
             if (s.video_url && active) {
               return (
-                <video src={s.video_url} poster={s.image_url ?? undefined}
-                  autoPlay loop muted playsInline preload="metadata"
-                  className="absolute inset-0 h-full w-full object-cover" />
+                <>
+                  {s.image_url && (
+                    <img src={s.image_url} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80" />
+                  )}
+                  <video src={s.video_url} poster={s.image_url ?? undefined}
+                    autoPlay loop muted playsInline preload="metadata"
+                    className="absolute inset-0 h-full w-full object-contain" />
+                </>
               );
             }
             if (s.image_url) {

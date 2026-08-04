@@ -53,7 +53,7 @@ function ReelCard({ reel }: { reel: Reel }) {
           preload="none"
           disableRemotePlayback
           disablePictureInPicture
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${hover ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-500 ${hover ? "opacity-100" : "opacity-0"}`}
         />
       )}
       <div

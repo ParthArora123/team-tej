@@ -151,11 +151,10 @@ export function CinematicHero({
           onError={() => {
             if (clips.length > 1) setClipIdx((i) => (i + 1) % clips.length);
           }}
-          className="absolute inset-0 h-full w-full object-cover transform-gpu"
+          className="absolute inset-0 h-full w-full object-contain transform-gpu"
           style={{
             opacity: clipReady ? 1 : 0,
             transition: "opacity 1.4s ease",
-            animation: reduce ? "none" : "heroClipDrift 14s ease-out forwards",
           }}
         />
       )}

@@ -633,7 +633,7 @@ function WorkshopDetailPage() {
               {heroMedia?.media_kind === "video" && heroMedia.media_url ? (
                 <video src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
                   autoPlay muted loop playsInline preload="auto"
-                  className="w-full h-full object-cover" />
+                  className="w-full h-full object-contain" />
               ) : heroMedia?.media_url ? (
                 <img src={heroMedia.media_url} alt={program.name} className="w-full h-full object-cover" />
               ) : (
@@ -750,7 +750,7 @@ function WorkshopDetailPage() {
                     className={`relative shrink-0 h-20 w-32 rounded-lg overflow-hidden bg-black snap-start border-2 transition ${i === heroIdx ? "border-primary shadow-[0_0_20px_rgba(212,130,41,0.5)]" : "border-primary/10 hover:border-primary/40"}`}>
                     {m.media_kind === "video" ? (
                       <>
-                        <video src={m.media_url ?? undefined} poster={m.poster_url ?? undefined} muted playsInline preload="metadata" className="w-full h-full object-cover" />
+                        <video src={m.media_url ?? undefined} poster={m.poster_url ?? undefined} muted playsInline preload="metadata" className="w-full h-full object-contain" />
                         <PlayCircle className="absolute inset-0 m-auto text-primary/90" size={22} />
                       </>
                     ) : (
