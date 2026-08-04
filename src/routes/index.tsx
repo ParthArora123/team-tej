@@ -871,7 +871,10 @@ function Index() {
         </div>
 
         {sigPrograms.length > 0 ? (
-          <SignatureProgramsGrid rows={sigPrograms} />
+          <LazySection minHeight={400}>
+            <SignatureProgramsGrid rows={sigPrograms} />
+          </LazySection>
+
         ) : (
         <motion.div
           variants={stagger}
