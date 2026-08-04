@@ -80,56 +80,58 @@ export function CinematicHero({
         @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
       `}</style>
 
+      {/* Blurred backdrop — static (never animated) so the expensive blur is
+          rasterised once instead of every frame of the ken-burns zoom. */}
+      {backgroundImage && !failed ? (
+        <img
+          src={backgroundImage}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-80 transform-gpu"
+          style={{ visibility: loaded ? "visible" : "hidden" }}
+          loading="eager"
+          decoding="async"
+          draggable={false}
+        />
+      ) : null}
+
       {/* Static background — Tejas D Dhoke photo, full-bleed, single image */}
       <div
-        className="absolute inset-0 w-full h-full transform-gpu will-change-transform"
+        className="absolute inset-0 w-full h-full transform-gpu"
         style={{
           animation: reduce ? "none" : "heroZoom 24s ease-out forwards",
           visibility: loaded && !failed && backgroundImage ? "visible" : "hidden",
         }}
       >
         {backgroundImage && !failed ? (
-          <>
-            {/* Blurred backdrop fills the full screen so the hero never looks
-                letterboxed on wide desktop viewports. The main portrait below
-                stays uncropped with object-contain. */}
-            <img
-              src={backgroundImage}
-              alt=""
-              aria-hidden
-              className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80"
-              loading="eager"
-              decoding="async"
-              draggable={false}
-            />
-            <img
-              src={backgroundImage}
-              alt="Tejas D Dhoke"
-              className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top lg:object-center"
-              fetchPriority="high"
-              decoding="async"
-              loading="eager"
-              sizes="100vw"
-              draggable={false}
-              ref={(el) => {
-                if (el && el.complete && el.naturalWidth > 0 && !loaded) {
-                  setLoaded(true);
-                  onReady?.();
-                }
-              }}
-              onLoad={() => {
+          <img
+            src={backgroundImage}
+            alt="Tejas D Dhoke"
+            className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top lg:object-center"
+            fetchPriority="high"
+            decoding="async"
+            loading="eager"
+            sizes="100vw"
+            draggable={false}
+            ref={(el) => {
+              if (el && el.complete && el.naturalWidth > 0 && !loaded) {
                 setLoaded(true);
                 onReady?.();
-              }}
-              onError={() => {
-                setFailed(true);
-                setLoaded(true);
-                onReady?.();
-              }}
-            />
-          </>
+              }
+            }}
+            onLoad={() => {
+              setLoaded(true);
+              onReady?.();
+            }}
+            onError={() => {
+              setFailed(true);
+              setLoaded(true);
+              onReady?.();
+            }}
+          />
         ) : null}
       </div>
+
 
       {/* Cinematic clip montage — crossfades over the portrait on desktop */}
       {cinemaOn && activeClip && (
