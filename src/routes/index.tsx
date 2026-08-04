@@ -813,11 +813,11 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
       )}
 
 
-      {/* THE TEJ METHOD — USP / philosophy */}
+      {/* HOW WE BUILD DANCERS — USP / philosophy */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
         <div className="max-w-2xl">
           <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-            <Sparkles size={12} /> The Tej Method
+            <Sparkles size={12} /> How We Build Dancers
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
             Not just steps. <span className="italic font-light">A way of moving.</span>
@@ -836,21 +836,21 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
           className="mt-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {[
-            { icon: HeartHandshake, title: "Confidence", desc: "Every class is built to make you feel capable before it makes you feel correct." },
-            { icon: Target, title: "Technique", desc: "Real fundamentals, broken down so beginners and pros both walk away sharper." },
-            { icon: Music2, title: "Musicality", desc: "Movement that listens to the music, not just counts to it." },
-            { icon: Users2, title: "Performance", desc: "Stage-ready energy — because a workshop should prepare you to be watched, not just to watch." },
+            { icon: HeartHandshake, title: "Confidence" },
+            { icon: Target, title: "Technique" },
+            { icon: Music2, title: "Musicality" },
+            { icon: Users2, title: "Performance" },
           ].map((p) => (
             <motion.div key={p.title} variants={item} className="premium-card bg-card p-6">
               <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                 <p.icon size={20} />
               </div>
               <p className="mt-4 font-display text-xl font-bold">{p.title}</p>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
+
 
       {/* FEATURED PERFORMANCES — admin managed */}
       <LazySection minHeight={400}>
