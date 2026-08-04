@@ -710,7 +710,10 @@ function Index() {
               </Link>
             </MagneticButton>
           </div>
-          <FloatingGlassPanels items={deckItems} />
+          <LazySection minHeight={480}>
+            <FloatingGlassPanels items={deckItems} />
+          </LazySection>
+
         </section>
       )}
 
