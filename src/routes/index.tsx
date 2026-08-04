@@ -362,12 +362,14 @@ function Index() {
   const [choreos, setChoreos] = useState<Choreo[]>([]);
   const [founder, setFounder] = useState<any | null>(null);
   const [heroPhoto, setHeroPhoto] = useState<string | null>(null);
+  const [heroPhotoResolved, setHeroPhotoResolved] = useState(false);
 
   // Admin-managed homepage hero photo (falls back to the bundled portrait).
   useEffect(() => {
     cachedCall("siteContent:hero_portrait", () => getSiteContent({ data: { key: "hero_portrait" } }))
       .then((r: any) => { if (r?.image_url) setHeroPhoto(r.image_url); })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setHeroPhotoResolved(true));
   }, []);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [performances, setPerformances] = useState<HomeCard[]>([]);
