@@ -816,7 +816,7 @@ function WorkshopDetailPage() {
                 <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(212,130,41,0.35),transparent_70%)] blur-2xl" />
                 <div className="relative">
                   {allowSingle && (
-                    <div className="absolute -top-2 -right-2 rotate-12 px-3 py-1 rounded-md bg-gradient-to-b from-primary to-primary text-black text-[10px] font-black tracking-widest shadow-lg">
+                    <div className="absolute -top-2 -right-2 rotate-12 px-3 py-1 rounded-md bg-gradient-to-b from-primary to-primary text-primary-foreground text-[10px] font-black tracking-widest shadow-lg">
                       BEST
                     </div>
                   )}
