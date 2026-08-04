@@ -37,7 +37,7 @@ function Media({ c, front }: { c: HomeCard; front: boolean }) {
         playsInline
         autoPlay
         preload="metadata"
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
       />
     );
   }

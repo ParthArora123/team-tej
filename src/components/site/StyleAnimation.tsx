@@ -230,7 +230,7 @@ export function StyleAnimation({ name, active = true }: { name: string; active?:
       {active && videoSrc && !videoFailed && (
         <video
           ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover saturate-110 contrast-110"
+          className="absolute inset-0 h-full w-full object-contain saturate-110 contrast-110"
           src={videoSrc}
           autoPlay
           loop

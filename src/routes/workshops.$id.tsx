@@ -633,7 +633,7 @@ function WorkshopDetailPage() {
               {heroMedia?.media_kind === "video" && heroMedia.media_url ? (
                 <video src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
                   autoPlay muted loop playsInline preload="auto"
-                  className="w-full h-full object-cover" />
+                  className="w-full h-full object-contain" />
               ) : heroMedia?.media_url ? (
                 <img src={heroMedia.media_url} alt={program.name} className="w-full h-full object-cover" />
               ) : (
