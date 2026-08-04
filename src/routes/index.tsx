@@ -1260,8 +1260,6 @@ function FounderSection({ founder }: { founder: any | null }) {
   const vision = founder?.vision || "";
   const mission = founder?.mission || "";
   const socials = founder?.socials || {};
-  const ctaText = founder?.cta_text || "Register for Workshops";
-  const ctaLink = founder?.cta_link || "/workshops";
 
   const hasMore = Boolean(biography || achievements.length || vision || mission);
 
