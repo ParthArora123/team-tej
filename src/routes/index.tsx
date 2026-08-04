@@ -924,68 +924,38 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
 
 
         {(() => {
-          // Always show the restored live dance animations first. Backend style
-          // names are merged only when they are truly custom, so variants like
-          // "Hip hop" do not hide the canonical Hip-Hop dancer video.
-          type RenderStyle = { name: string; tagline: string; image_url?: string | null; video_url?: string | null };
-          const normalizeStyleName = (value: string) => value.trim().toLowerCase().replace(/[–—_-]+/g, " ").replace(/\s+/g, " ");
-          const backend: RenderStyle[] = (danceStyles ?? []).map((s: any) => ({
-            name: String(s.name ?? "Dance Style").trim() || "Dance Style",
-            tagline: s.tagline ?? "",
-            image_url: s.image_url ?? null,
-            video_url: s.video_url ?? null,
-          }));
-          // If admin has added any dance styles, show ONLY those. Otherwise fall back to defaults.
-          const stylesToRender: RenderStyle[] = backend.length > 0 ? backend : defaultStyles;
-
-          const renderMedia = (s: RenderStyle, active: boolean) => {
-            if (s.video_url && active) {
-              return (
-                <>
-                  {s.image_url && (
-                    <img src={s.image_url} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80" />
-                  )}
-                  <video src={s.video_url} poster={s.image_url ?? undefined}
-                    autoPlay loop muted playsInline preload="metadata"
-                    className="absolute inset-0 h-full w-full object-contain" />
-                </>
-              );
-            }
-            if (s.image_url) {
-              return <img src={s.image_url} alt={s.name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover lg:object-contain" />;
-            }
-            return (
-              <Suspense fallback={null}>
-                <StyleAnimation name={s.name} active={active} />
-              </Suspense>
-            );
-
-          };
-
-          const deckCards: StackedDeckItem[] = stylesToRender.map((s) => ({
-            id: s.name,
-            render: ({ active }) => (
-              <DeckShell dark className="text-white">
-                {renderMedia(s, active)}
-                <div aria-hidden className="absolute inset-0"
-                  style={{ background: "linear-gradient(180deg, transparent 30%, color-mix(in oklab, var(--foreground) 82%, var(--primary) 18%) 100%)" }} />
-                <div className="absolute inset-x-0 bottom-0 p-7">
-                  <p className="font-display text-3xl font-bold text-white">{s.name}</p>
-                  {s.tagline && <p className="mt-2 text-sm text-white/75">{s.tagline}</p>}
-                </div>
-              </DeckShell>
-            ),
-          }));
+          const backendNames: string[] = (danceStyles ?? [])
+            .map((s: any) => String(s.name ?? "").trim())
+            .filter(Boolean);
+          const names = backendNames.length > 0 ? backendNames : defaultStyles.map((s) => s.name);
 
           return (
-            <StackedDeck
-              items={deckCards}
-              variant="stack"
-              className="mx-auto h-[440px] w-full max-w-[380px] sm:h-[520px] sm:max-w-[440px]"
-            />
+            <motion.div
+              variants={stagger}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-80px" }}
+              className="flex flex-wrap gap-3 sm:gap-4"
+            >
+              {names.map((name) => (
+                <motion.span
+                  key={name}
+                  variants={item}
+                  whileHover={{ y: -3 }}
+                  className="group relative inline-flex items-center overflow-hidden rounded-full border border-border bg-card px-6 py-3.5 sm:px-8 sm:py-4 font-display text-base sm:text-lg font-semibold tracking-tight shadow-[0_10px_30px_-18px_color-mix(in_oklab,var(--foreground)_50%,transparent)] transition-colors duration-300 hover:border-primary hover:text-primary cursor-default"
+                >
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
+                    style={{ background: "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--primary) 12%, transparent) 50%, transparent 70%)" }}
+                  />
+                  <span className="relative">{name}</span>
+                </motion.span>
+              ))}
+            </motion.div>
           );
-
         })()}
+
 
       </section>
 
