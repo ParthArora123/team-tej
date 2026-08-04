@@ -153,12 +153,16 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <DeferMount delay={200}>
-        <SmoothScroll />
+        <Suspense fallback={null}>
+          <SmoothScroll />
+        </Suspense>
       </DeferMount>
       <div className="min-h-screen relative grain-bg">
         <DeferMount>
-          <FloatingWorldScene />
-          <CursorGlow />
+          <Suspense fallback={null}>
+            <FloatingWorldScene />
+            <CursorGlow />
+          </Suspense>
         </DeferMount>
         <ScrollProgress />
         <Header />
@@ -167,9 +171,12 @@ function RootComponent() {
         </main>
         <Footer />
         <DeferMount>
-          <ScrollToTop />
+          <Suspense fallback={null}>
+            <ScrollToTop />
+          </Suspense>
         </DeferMount>
       </div>
     </QueryClientProvider>
   );
+
 }
