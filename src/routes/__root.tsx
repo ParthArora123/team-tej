@@ -7,18 +7,30 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { lazy, useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "../components/site/Header";
 import { Footer } from "../components/site/Footer";
 import { ScrollProgress } from "../components/site/ScrollProgress";
-import { CursorGlow } from "../components/site/CursorGlow";
-import { SmoothScroll } from "../components/site/SmoothScroll";
-import { ScrollToTop } from "../components/site/ScrollToTop";
 import { DeferMount } from "../components/site/DeferMount";
-import { FloatingWorldScene } from "../components/site/FloatingWorldScene";
+
+// Non-critical ambient/interaction layers — split out of the entry bundle and
+// only fetched once the browser is idle after first paint.
+const CursorGlow = lazy(() =>
+  import("../components/site/CursorGlow").then((m) => ({ default: m.CursorGlow }))
+);
+const SmoothScroll = lazy(() =>
+  import("../components/site/SmoothScroll").then((m) => ({ default: m.SmoothScroll }))
+);
+const ScrollToTop = lazy(() =>
+  import("../components/site/ScrollToTop").then((m) => ({ default: m.ScrollToTop }))
+);
+const FloatingWorldScene = lazy(() =>
+  import("../components/site/FloatingWorldScene").then((m) => ({ default: m.FloatingWorldScene }))
+);
+
 
 
 function NotFoundComponent() {
