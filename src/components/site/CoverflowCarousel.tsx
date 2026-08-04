@@ -143,7 +143,7 @@ export function CoverflowCarousel({
               }}
             >
 
-              <Media item={it} isActive={isActive} near={abs === 1} onEnded={() => count > 1 && go(1)} />
+              <Media item={it} isActive={isActive && inView} near={abs === 1} onEnded={() => count > 1 && go(1)} />
 
               {/* glassmorphism sheen */}
               <div
@@ -222,6 +222,10 @@ export function CoverflowCarousel({
 
 function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem; isActive: boolean; near?: boolean; onEnded: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  // Only the active card (and the one queued next) keeps a <video> element in
+  // the DOM — everything else falls back to the poster, so no off-screen clip
+  // buffers or decodes in the background.
+  const mounted = isActive || near;
 
   useEffect(() => {
     const v = videoRef.current;
@@ -258,17 +262,30 @@ function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem;
             className="absolute inset-0 w-full h-full object-cover scale-125 blur-xl opacity-100"
           />
         )}
-        <video
-          ref={videoRef}
-          src={item.videoSrc}
-          poster={item.poster ?? undefined}
-          muted
-          loop
-          playsInline
-          preload={isActive ? "auto" : near ? "metadata" : "none"}
-          onEnded={onEnded}
-          className="absolute inset-0 w-full h-full object-contain bg-transparent"
-        />
+        {item.poster && !isActive && (
+          <img
+            src={item.poster}
+            alt={item.title}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-contain"
+          />
+        )}
+        {mounted && (
+          <video
+            ref={videoRef}
+            src={item.videoSrc}
+            poster={item.poster ?? undefined}
+            muted
+            loop
+            playsInline
+            preload={isActive ? "auto" : "metadata"}
+            disableRemotePlayback
+            disablePictureInPicture
+            onEnded={onEnded}
+            className="absolute inset-0 w-full h-full object-contain bg-transparent"
+          />
+        )}
       </>
     );
   }
