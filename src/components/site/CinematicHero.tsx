@@ -135,7 +135,7 @@ export function CinematicHero({
           muted
           loop={clips.length === 1}
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-hidden
           onCanPlay={() => setClipReady(true)}
           onEnded={() => {
