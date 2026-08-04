@@ -87,18 +87,13 @@ type HomeLoaderData = {
   heroSlides: HeroSlide[];
 };
 
-const heroVideoType = (src: string) => {
-  if (/\.webm(\?|#|$)/i.test(src)) return "video/webm";
-  return "video/mp4";
-};
-
 const preloadLinkForHeroMedia = (src?: string | null) => {
   if (!src) return null;
-  if (isVideoUrl(src)) {
-    return { rel: "preload", as: "video", href: src, type: heroVideoType(src) };
-  }
+  // Never preload video — hero clips load only once they become active.
+  if (isVideoUrl(src)) return null;
   return { rel: "preload", as: "image", href: src };
 };
+
 
 const preconnectLinkForHeroMedia = (src?: string | null) => {
   if (!src || src.startsWith("/")) return null;
@@ -139,15 +134,8 @@ function warmHeroMedia(slides: HeroSlide[], activeIndex: number, ahead = 2) {
     const src = slide?.image_url;
     if (!src || warmedHeroMedia.has(src)) continue;
     warmedHeroMedia.add(src);
-    if (isVideoUrl(src)) {
-      const video = document.createElement("video");
-      video.preload = "metadata";
-      video.muted = true;
-      video.playsInline = true;
-      video.src = src;
-      video.load();
-      continue;
-    }
+    // Videos are never pre-warmed; they load only when they become active.
+    if (isVideoUrl(src)) continue;
     const img = new Image();
     img.decoding = "async";
     (img as any).fetchPriority = "low";
@@ -394,15 +382,28 @@ function Index() {
   const [choreos, setChoreos] = useState<Choreo[]>([]);
   const [founder, setFounder] = useState<any | null>(null);
   const [heroPhoto, setHeroPhoto] = useState<string | null>(null);
-  const [heroPhotoResolved, setHeroPhotoResolved] = useState(false);
 
-  // Admin-managed homepage hero photo (falls back to the bundled portrait).
+  // Admin-managed homepage hero photo. The bundled portrait paints immediately
+  // (it is preloaded in <head>); the CMS photo swaps in only once it has fully
+  // decoded, so the hero is never blocked on a network round-trip.
   useEffect(() => {
+    let cancelled = false;
     cachedCall("siteContent:hero_portrait", () => getSiteContent({ data: { key: "hero_portrait" } }))
-      .then((r: any) => { if (r?.image_url) setHeroPhoto(r.image_url); })
-      .catch(() => {})
-      .finally(() => setHeroPhotoResolved(true));
+      .then((r: any) => {
+        const url = r?.image_url;
+        if (!url || cancelled || url === uploadedHeroImg.url) return;
+        const img = new Image();
+        img.decoding = "async";
+        const swap = () => { if (!cancelled) setHeroPhoto(url); };
+        img.onload = swap;
+        img.onerror = () => {};
+        img.src = url;
+        img.decode?.().then(swap).catch(() => {});
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, []);
+
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [performances, setPerformances] = useState<HomeCard[]>([]);
   const [sigPrograms, setSigPrograms] = useState<HomeCard[]>([]);
@@ -626,7 +627,7 @@ function Index() {
 
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
       <CinematicHero
-        backgroundImage={heroPhoto ?? (heroPhotoResolved ? uploadedHeroImg.url : "")}
+        backgroundImage={heroPhoto ?? uploadedHeroImg.url}
         clips={heroClips}
         badges={heroBadges}
         onReady={() => setHeroReady(true)}

@@ -55,6 +55,8 @@ export function CinematicHero({
     };
   }, []);
 
+  // The <img> below fetches the portrait itself (and it is preloaded in <head>),
+  // so no duplicate JS-driven fetch here — just handle the "no image" case.
   useEffect(() => {
     if (!backgroundImage) {
       setLoaded(true);
@@ -62,23 +64,8 @@ export function CinematicHero({
       return;
     }
     setFailed(false);
-    const img = new Image();
-    img.decoding = "async";
-    img.src = backgroundImage;
-    img.onload = () => {
-      setLoaded(true);
-      onReady?.();
-    };
-    img.onerror = () => {
-      setFailed(true);
-      setLoaded(true);
-      onReady?.();
-    };
-    if (img.complete && img.naturalWidth > 0) {
-      setLoaded(true);
-      onReady?.();
-    }
   }, [backgroundImage, onReady]);
+
 
   return (
     <section
@@ -108,7 +95,15 @@ export function CinematicHero({
             className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top"
             fetchPriority="high"
             decoding="async"
+            loading="eager"
+            sizes="100vw"
             draggable={false}
+            ref={(el) => {
+              if (el && el.complete && el.naturalWidth > 0 && !loaded) {
+                setLoaded(true);
+                onReady?.();
+              }
+            }}
             onLoad={() => {
               setLoaded(true);
               onReady?.();
@@ -119,6 +114,7 @@ export function CinematicHero({
               onReady?.();
             }}
           />
+
         ) : null}
       </div>
 
@@ -139,7 +135,7 @@ export function CinematicHero({
           muted
           loop={clips.length === 1}
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-hidden
           onCanPlay={() => setClipReady(true)}
           onEnded={() => {
