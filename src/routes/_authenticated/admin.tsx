@@ -27,7 +27,7 @@ import {
 } from "@/lib/content.functions";
 import { HeroSlidesTab, FeaturedExperienceTab, GalleryTab } from "@/components/admin/CmsTabs";
 import { MessagesTab } from "@/components/admin/MessagesTab";
-import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab, WhatsappTemplateTab } from "@/components/admin/SiteContentTabs";
+import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab, WhatsappTemplateTab, HeroPortraitTab } from "@/components/admin/SiteContentTabs";
 import { getSiteContent } from "@/lib/site-content.functions";
 import { buildWaUrl, DEFAULT_WHATSAPP_TEMPLATE } from "@/lib/whatsapp-template";
 
@@ -42,7 +42,7 @@ import { compressImageFile } from "@/lib/compress-image";
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "approvals" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero" | "home_sections" | "whatsapp_template";
+type Tab = "overview" | "approvals" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero" | "home_sections" | "whatsapp_template" | "hero_portrait";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
@@ -50,6 +50,7 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "messages", label: "Messages" },
   { id: "team", label: "Team roles" },
   { id: "profiles", label: "Home profiles" },
+  { id: "hero_portrait", label: "Hero photo", emphasis: true },
   { id: "hero", label: "Hero carousel" },
   { id: "featured", label: "Featured experience" },
   { id: "gallery", label: "Gallery" },
@@ -219,6 +220,8 @@ function AdminPage() {
       {tab === "styles" && <DanceStylesTab />}
 
       {tab === "choreographies" && <ChoreographiesTab />}
+
+      {tab === "hero_portrait" && <HeroPortraitTab />}
 
       {tab === "founder" && <FounderTab />}
 

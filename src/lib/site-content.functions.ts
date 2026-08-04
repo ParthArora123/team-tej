@@ -29,7 +29,7 @@ async function signIfNeeded(url: string | null | undefined): Promise<string | nu
 
 // ============= SITE CONTENT (key/value) =============
 export const getSiteContent = createServerFn({ method: "GET" })
-  .inputValidator((i) => z.object({ key: z.enum(["contact", "about", "founder", "whatsapp_template"]) }).parse(i))
+  .inputValidator((i) => z.object({ key: z.enum(["contact", "about", "founder", "whatsapp_template", "hero_portrait"]) }).parse(i))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: row, error } = await (supabaseAdmin as any)
@@ -39,7 +39,7 @@ export const getSiteContent = createServerFn({ method: "GET" })
       throw error;
     }
     const value = row?.value ?? null;
-    if (value && data.key === "founder" && value.image_url) {
+    if (value && (data.key === "founder" || data.key === "hero_portrait") && value.image_url) {
       value.image_url = await signIfNeeded(value.image_url);
     }
     return value;
@@ -48,7 +48,7 @@ export const getSiteContent = createServerFn({ method: "GET" })
 export const adminSaveSiteContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({
-    key: z.enum(["contact", "about", "founder", "whatsapp_template"]),
+    key: z.enum(["contact", "about", "founder", "whatsapp_template", "hero_portrait"]),
     value: z.any(),
   }).parse(i))
   .handler(async ({ data, context }) => {
