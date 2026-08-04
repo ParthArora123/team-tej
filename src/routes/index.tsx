@@ -1085,7 +1085,7 @@ function Index() {
         })()}
       </section>
       {/* TESTIMONIALS */}
-      <Suspense fallback={null}>
+      <LazySection minHeight={420}>
         <TestimonialsCarousel items={testimonials.map((t) => ({
           id: t.id,
           name: t.name,
@@ -1094,7 +1094,8 @@ function Index() {
           rating: t.rating,
           avatar_url: t.avatar_url,
         }))} />
-      </Suspense>
+      </LazySection>
+
 
       {/* CINEMATIC SHOWREEL */}
       <CinematicShowreel choreos={choreos} workshops={workshops} />
