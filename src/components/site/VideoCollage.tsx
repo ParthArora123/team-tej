@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { X, Maximize2, Volume2, VolumeX } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
 export type CollageItem = {
   id: string;
@@ -58,15 +59,19 @@ function Media({
     if (active) {
       v.currentTime = 0;
       v.muted = !soundOn;
-      v.play().catch(() => {
+      // Global registry guarantees any other clip on the page is stopped first.
+      void playHomepageVideo(v).then(() => {
+        if (!v.paused) return;
         v.muted = true;
         onSoundBlocked();
-        void v.play().catch(() => undefined);
+        void playHomepageVideo(v);
       });
     } else {
-      v.pause();
-      v.currentTime = 0;
+      pauseHomepageVideo(v);
     }
+    return () => {
+      if (v) pauseHomepageVideo(v);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, item.video]);
 
@@ -381,7 +386,7 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
                   item={item}
                   active={isActive && inView}
                   preloadNext={i === (index + 1) % n}
-                  mount={!hidden || i === (index + 1) % n}
+                  mount={isActive || i === (index + 1) % n}
                   soundOn={soundOn}
                   onSoundBlocked={handleSoundBlocked}
                 />
