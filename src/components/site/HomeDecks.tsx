@@ -18,7 +18,10 @@ function ReelVideo({ src, poster, active, title }: { src: string; poster?: strin
 
   return (
     <>
-      {poster && <img src={poster} alt={title} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />}
+      {poster && (
+        <img src={poster} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl" />
+      )}
+      {poster && <img src={poster} alt={title} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain" />}
       <video
         ref={ref}
         src={src}
@@ -28,12 +31,13 @@ function ReelVideo({ src, poster, active, title }: { src: string; poster?: strin
         playsInline
         preload={active ? "metadata" : "none"}
         onCanPlay={() => setReady(true)}
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-contain"
         style={{ visibility: active && ready ? "visible" : "hidden" }}
       />
     </>
   );
 }
+
 
 /* ------------------------------ WORKSHOPS ------------------------------ */
 
