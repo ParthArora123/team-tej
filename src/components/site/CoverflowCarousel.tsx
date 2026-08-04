@@ -111,8 +111,8 @@ export function CoverflowCarousel({
       />
 
       <div
-        className="relative mx-auto h-[62vw] max-h-[520px] min-h-[280px] w-full"
-        style={{ perspective: "1100px", perspectiveOrigin: "50% 55%", touchAction: "pan-y" }}
+        className="relative mx-auto h-[104vw] max-h-[760px] min-h-[420px] w-full"
+        style={{ perspective: "1400px", perspectiveOrigin: "50% 55%", touchAction: "pan-y" }}
       >
 
         {visible.map(({ it, i, d }) => {
