@@ -334,6 +334,8 @@ const Media = memo(function Media({
             src={item.poster}
             alt=""
             aria-hidden
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover scale-125 blur-xl opacity-100"
           />
         )}
