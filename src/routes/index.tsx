@@ -25,7 +25,6 @@ import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { type DeckItem } from "@/components/site/VideoDeck";
 import { type Reel } from "@/components/site/ReelWall";
-import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 import { LazySection } from "@/components/site/LazySection";
 
@@ -34,9 +33,6 @@ import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.fun
 
 // Below-the-fold, media-heavy sections are code-split and only fetched
 // when the visitor scrolls near them.
-const StyleAnimation = lazy(() =>
-  import("@/components/site/StyleAnimation").then((m) => ({ default: m.StyleAnimation }))
-);
 const CurvedRibbonGallery = lazy(() =>
   import("@/components/site/CurvedRibbonGallery").then((m) => ({ default: m.CurvedRibbonGallery }))
 );
@@ -57,9 +53,6 @@ const FeaturedPerformances = lazy(() =>
 );
 const SignatureProgramsGrid = lazy(() =>
   import("@/components/site/HomeSectionCards").then((m) => ({ default: m.SignatureProgramsGrid }))
-);
-const TestimonialsCarousel = lazy(() =>
-  import("@/components/site/TestimonialsCarousel").then((m) => ({ default: m.TestimonialsCarousel }))
 );
 
 
