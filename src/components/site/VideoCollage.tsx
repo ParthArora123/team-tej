@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Play, X, Maximize2, Volume2, VolumeX } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export type CollageItem = {
   id: string;
@@ -14,6 +15,16 @@ export type CollageItem = {
 const STILL_MS = 6000;
 const VIDEO_ROTATE_MS = 5000;
 const SOUND_KEY = "feed-sound-on";
+
+const DESKTOP_SLOTS = [
+  "col-span-3 row-span-4",
+  "col-span-3 row-span-2",
+  "col-span-2 row-span-4",
+  "col-span-1 row-span-2",
+  "col-span-3 row-span-2",
+];
+
+const MOBILE_SLOTS = ["col-span-4 row-span-3", "col-span-2 row-span-2", "col-span-2 row-span-2"];
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -43,6 +54,17 @@ function Layer({
   onSoundBlocked: () => void;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
+  const bgRef = useRef<HTMLVideoElement>(null);
+
+  // Keep the blurred fill frame in step with the main clip so letterbox bars
+  // never show through as black boundaries.
+  useEffect(() => {
+    const b = bgRef.current;
+    if (!b) return;
+    b.muted = true;
+    if (play) void b.play().catch(() => undefined);
+    else b.pause();
+  }, [play, item.video]);
 
   // Apply mute state without remounting the element (no flicker / reload).
   useEffect(() => {
@@ -92,6 +114,21 @@ function Layer({
           className="absolute inset-0 h-full w-full object-contain"
         />
       )}
+      {item.video && !item.poster && (
+        <video
+          ref={bgRef}
+          src={item.video}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden
+          tabIndex={-1}
+          disableRemotePlayback
+          disablePictureInPicture
+          className="pointer-events-none absolute inset-0 h-full w-full scale-150 object-cover blur-2xl"
+        />
+      )}
       {item.video && (
         <video
           ref={ref}
@@ -117,6 +154,118 @@ function Layer({
         />
       )}
     </>
+  );
+}
+
+function Slot({
+  item,
+  className,
+  reduced,
+  active,
+  soundOn,
+  onToggleSound,
+  onEnded,
+  onPlaybackError,
+  onSoundBlocked,
+  onOpen,
+}: {
+  item: CollageItem;
+  className: string;
+  reduced: boolean;
+  active: boolean;
+  soundOn: boolean;
+  onToggleSound: () => void;
+  onEnded: () => void;
+  onPlaybackError: () => void;
+  onSoundBlocked: () => void;
+  onOpen: (item: CollageItem) => void;
+}) {
+  return (
+    <motion.div
+      animate={
+        reduced
+          ? { opacity: active ? 1 : 0.75 }
+          : { scale: active ? 1.03 : 0.985, opacity: active ? 1 : 0.55 }
+      }
+      transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+      style={{ zIndex: active ? 2 : 1 }}
+      className={`group relative overflow-hidden rounded-[1.25rem] bg-muted/40 text-left transform-gpu ${className}`}
+    >
+      <button
+        type="button"
+        onClick={() => onOpen(item)}
+        aria-label={item.title ?? "Play video"}
+        className="absolute inset-0 z-[1]"
+      >
+        <span className="sr-only">{item.title ?? "Play video"}</span>
+      </button>
+
+      <AnimatePresence initial={false} mode="popLayout">
+        <motion.div
+          key={item.id}
+          initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 1.08 }}
+          animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reduced ? 0.2 : 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute inset-0 will-change-[opacity,transform]"
+        >
+          <Layer
+            item={item}
+            play={active}
+            soundOn={soundOn}
+            onEnded={onEnded}
+            onPlaybackError={onPlaybackError}
+            onSoundBlocked={onSoundBlocked}
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 transition-opacity duration-700"
+        style={{
+          opacity: active ? 0.85 : 1,
+          background:
+            "linear-gradient(180deg, transparent 45%, color-mix(in oklab, var(--foreground) 72%, var(--primary) 28%) 100%)",
+        }}
+      />
+
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-[1.25rem] transition-opacity duration-500"
+        style={{
+          opacity: active ? 1 : 0,
+          boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent)",
+        }}
+      />
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] p-4">
+        {item.subtitle && (
+          <p className="text-[9px] uppercase tracking-[0.3em] text-white/65">{item.subtitle}</p>
+        )}
+        {item.title && (
+          <p className="mt-1 text-sm font-medium text-white line-clamp-2">{item.title}</p>
+        )}
+      </div>
+
+      {item.video && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleSound();
+          }}
+          aria-label={soundOn ? "Mute videos" : "Unmute videos"}
+          className="absolute left-3 top-3 z-[3] grid h-9 w-9 place-items-center rounded-full border border-white/25 bg-black/35 text-white backdrop-blur transition-colors hover:bg-black/55"
+        >
+          {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
+        </button>
+      )}
+
+      <span className="pointer-events-none absolute right-3 top-3 z-[2] grid h-8 w-8 place-items-center rounded-full border border-white/25 bg-white/10 text-white opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
+        <Maximize2 size={13} />
+      </span>
+    </motion.div>
   );
 }
 
@@ -190,17 +339,20 @@ function Lightbox({
 export function VideoCollage({ items }: { items: CollageItem[] }) {
   // When videos exist, keep still images out of the playback queue so every
   // uploaded clip is reached in an uninterrupted 1 → 2 → 3 sequence.
-  // NOTE: key off item ids so a re-created `items` array from the parent does
-  // not reset the sequence back to the first clip on every render.
-  const itemsKey = items.map((i) => i.id).join("|");
   const playlist = useMemo(() => {
     const videos = items.filter((item) => Boolean(item.video));
     return videos.length ? videos : items;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemsKey]);
+  }, [items]);
+  const isMobile = useIsMobile();
   const reduced = useReducedMotion();
+  const layout = isMobile ? MOBILE_SLOTS : DESKTOP_SLOTS;
+  const slotCount = Math.min(layout.length, playlist.length);
 
-  const [step, setStep] = useState(0);
+  // assign[slot] = index into `items` currently rendered in that slot.
+  const [assign, setAssign] = useState<number[]>(() =>
+    Array.from({ length: layout.length }, (_, i) => i),
+  );
+  const [step, setStep] = useState(0); // sequential position in the playlist
   const [paused, setPaused] = useState(false);
   const [inView, setInView] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
@@ -235,7 +387,10 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
   useEffect(() => {
     setStep(0);
-  }, [itemsKey]);
+    setAssign(
+      Array.from({ length: layout.length }, (_, i) => (playlist.length ? i % playlist.length : 0)),
+    );
+  }, [playlist, layout.length]);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -245,122 +400,93 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
     return () => io.disconnect();
   }, []);
 
-  const total = playlist.length;
-  const activeIndex = total ? step % total : 0;
-  const activeItem = playlist[activeIndex];
-  const preload = total ? playlist[(activeIndex + 1) % total] : undefined;
+  const activeSlot = slotCount ? step % slotCount : 0;
+  const nextItemIndex = playlist.length ? (step + 1) % playlist.length : 0;
 
-  const advance = useCallback(() => setStep((p) => p + 1), []);
+  // Advance strictly in order; the next slot receives the next clip up front so
+  // it is already mounted (and preloading) before it becomes active.
+  const advance = useCallback(() => {
+    if (!slotCount || !playlist.length) return;
+    setStep((prev) => {
+      const next = prev + 1;
+      if (playlist.length > slotCount) {
+        const slot = next % slotCount;
+        const idx = next % playlist.length;
+        setAssign((a) => {
+          if (a[slot] === idx) return a;
+          const copy = [...a];
+          copy[slot] = idx;
+          return copy;
+        });
+      }
+      return next;
+    });
+  }, [playlist.length, slotCount]);
 
-  // Fixed clock so a malformed or endless clip can never stall the sequence.
+  // Keep the upcoming slot's clip assigned ahead of time for a seamless swap.
   useEffect(() => {
-    if (paused || !inView || !total) return;
+    if (!slotCount || playlist.length <= slotCount) return;
+    const slot = (step + 1) % slotCount;
+    const idx = (step + 1) % playlist.length;
+    setAssign((a) => {
+      if (a[slot] === idx) return a;
+      const copy = [...a];
+      copy[slot] = idx;
+      return copy;
+    });
+  }, [step, slotCount, playlist.length]);
+
+  const activeItem = playlist[assign[activeSlot] % Math.max(playlist.length, 1)];
+
+  // Advance on a fixed clock so a long, malformed, or non-ending clip cannot
+  // stop the 1 → 2 → 3 sequence. Active clips loop until their turn finishes.
+  useEffect(() => {
+    if (paused || !inView || !slotCount) return;
     const t = setTimeout(advance, activeItem?.video ? VIDEO_ROTATE_MS : STILL_MS);
     return () => clearTimeout(t);
-  }, [paused, inView, total, activeItem, advance]);
+  }, [paused, inView, slotCount, activeItem, advance]);
 
   const onOpen = useCallback((item: CollageItem) => setOpen(item), []);
 
-  if (!total || !activeItem) return null;
+  const preload = useMemo(() => playlist[nextItemIndex], [playlist, nextItemIndex]);
+
+  if (!playlist.length) return null;
 
   return (
-    <div ref={wrapRef} className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10">
+    <div
+      ref={wrapRef}
+      className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10"
+    >
       <div
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
-        className="relative h-[62vh] min-h-[360px] w-full overflow-hidden rounded-[1.5rem] bg-black lg:h-[78vh]"
+        className={
+          isMobile
+            ? "grid grid-cols-4 auto-rows-[86px] gap-2.5"
+            : "grid grid-cols-6 grid-rows-6 gap-3 h-[660px] lg:h-[720px] [grid-auto-flow:dense]"
+        }
       >
-        <AnimatePresence initial={false} mode="sync">
-          <motion.div
-            key={activeItem.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduced ? 0.2 : 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-0"
-          >
-            <Layer
-              item={activeItem}
-              play={inView && !paused}
+        {layout.slice(0, slotCount).map((cls, i) => {
+          const item = playlist[assign[i] % playlist.length];
+          if (!item) return null;
+          return (
+            <Slot
+              key={i}
+              item={item}
+              className={cls}
+              reduced={reduced}
+              active={i === activeSlot && inView && !paused}
               soundOn={soundOn}
-              onEnded={advance}
-              onPlaybackError={advance}
+              onToggleSound={toggleSound}
+              onEnded={() => undefined}
+              onPlaybackError={() => undefined}
               onSoundBlocked={handleSoundBlocked}
+              onOpen={onOpen}
             />
-          </motion.div>
-        </AnimatePresence>
-
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3"
-          style={{
-            background:
-              "linear-gradient(180deg, transparent, color-mix(in oklab, var(--foreground) 78%, var(--primary) 22%))",
-          }}
-        />
-
-        <button
-          type="button"
-          onClick={() => onOpen(activeItem)}
-          aria-label={activeItem.title ?? "Open full clip"}
-          className="absolute inset-0 z-[1]"
-        >
-          <span className="sr-only">{activeItem.title ?? "Open full clip"}</span>
-        </button>
-
-        {activeItem.video && (
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleSound();
-            }}
-            aria-label={soundOn ? "Mute videos" : "Unmute videos"}
-            className="absolute left-4 top-4 z-[3] grid h-10 w-10 place-items-center rounded-full border border-white/25 bg-black/40 text-white backdrop-blur transition-colors hover:bg-black/60"
-          >
-            {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}
-          </button>
-        )}
-
-        <span className="pointer-events-none absolute right-4 top-4 z-[2] grid h-10 w-10 place-items-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur">
-          <Maximize2 size={14} />
-        </span>
-
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] p-5">
-          {activeItem.subtitle && (
-            <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">
-              {activeItem.subtitle}
-            </p>
-          )}
-          {activeItem.title && (
-            <p className="mt-1 text-base font-medium text-white line-clamp-2">{activeItem.title}</p>
-          )}
-        </div>
+          );
+        })}
       </div>
 
-      {total > 1 && (
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-          {playlist.map((it, i) => (
-            <button
-              key={it.id}
-              type="button"
-              onClick={() => setStep(i)}
-              aria-label={it.title ?? `Clip ${i + 1}`}
-              className="h-1.5 rounded-full transition-all"
-              style={{
-                width: i === activeIndex ? 34 : 14,
-                background:
-                  i === activeIndex
-                    ? "var(--primary)"
-                    : "color-mix(in oklab, var(--foreground) 25%, transparent)",
-              }}
-            />
-          ))}
-        </div>
-      )}
-
       {/* invisible preloader for the upcoming clip */}
-      {preload?.video && preload.id !== activeItem.id && (
+      {preload?.video && (
         <video
           key={preload.id}
           src={preload.video}
@@ -374,7 +500,7 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
       )}
 
       <p className="mt-4 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-        <Play size={10} /> Tap the frame for the full clip
+        <Play size={10} /> Tap any frame for the full clip
       </p>
 
       <AnimatePresence>
