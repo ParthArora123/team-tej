@@ -255,7 +255,7 @@ function Media({ item, isActive, onEnded }: { item: CoverflowItem; isActive: boo
             src={item.poster}
             alt=""
             aria-hidden
-            className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+            className="absolute inset-0 w-full h-full object-cover scale-125 blur-xl opacity-100"
           />
         )}
         <video
@@ -267,7 +267,7 @@ function Media({ item, isActive, onEnded }: { item: CoverflowItem; isActive: boo
           playsInline
           preload={isActive ? "auto" : "metadata"}
           onEnded={onEnded}
-          className="absolute inset-0 w-full h-full object-contain"
+          className="absolute inset-0 w-full h-full object-contain bg-transparent"
         />
       </>
     );
@@ -280,7 +280,7 @@ function Media({ item, isActive, onEnded }: { item: CoverflowItem; isActive: boo
           src={item.poster}
           alt=""
           aria-hidden
-          className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+          className="absolute inset-0 w-full h-full object-cover scale-125 blur-xl opacity-100"
         />
         <img
           src={item.poster}

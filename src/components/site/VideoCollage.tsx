@@ -13,6 +13,7 @@ export type CollageItem = {
 
 /** Fallback duration for slides that have no playable video. */
 const STILL_MS = 6000;
+const VIDEO_ROTATE_MS = 10000;
 const SOUND_KEY = "feed-sound-on";
 
 const DESKTOP_SLOTS = [
@@ -90,7 +91,7 @@ function Layer({
           src={item.poster}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl opacity-60"
+          className="absolute inset-0 h-full w-full scale-125 object-cover blur-xl opacity-100"
         />
       )}
       {item.poster && (
@@ -108,6 +109,7 @@ function Layer({
           src={item.video}
           poster={item.poster ?? undefined}
           playsInline
+          loop
           preload={play ? "auto" : "metadata"}
           onEnded={onEnded}
           onError={onPlaybackError}
@@ -410,11 +412,11 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
   const activeItem = playlist[assign[activeSlot] % Math.max(playlist.length, 1)];
 
-  // Stills (no video) still need to move the sequence along.
+  // Advance on a fixed clock so a long, malformed, or non-ending clip cannot
+  // stop the 1 → 2 → 3 sequence. Active clips loop until their turn finishes.
   useEffect(() => {
     if (paused || !inView || !slotCount) return;
-    if (activeItem?.video) return;
-    const t = setTimeout(advance, STILL_MS);
+    const t = setTimeout(advance, activeItem?.video ? VIDEO_ROTATE_MS : STILL_MS);
     return () => clearTimeout(t);
   }, [paused, inView, slotCount, activeItem, advance]);
 
@@ -448,8 +450,8 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
               active={i === activeSlot && inView && !paused}
               soundOn={soundOn}
               onToggleSound={toggleSound}
-              onEnded={i === activeSlot ? advance : () => undefined}
-              onPlaybackError={i === activeSlot ? advance : () => undefined}
+              onEnded={() => undefined}
+              onPlaybackError={() => undefined}
               onSoundBlocked={handleSoundBlocked}
               onOpen={onOpen}
             />

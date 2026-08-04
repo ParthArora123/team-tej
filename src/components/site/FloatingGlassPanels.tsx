@@ -42,7 +42,7 @@ function PanelMedia({ item, active }: { item: DeckItem; active: boolean }) {
           src={item.poster}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl opacity-60"
+          className="absolute inset-0 h-full w-full scale-125 object-cover blur-xl opacity-100"
         />
       )}
       {item.poster && (
@@ -51,7 +51,7 @@ function PanelMedia({ item, active }: { item: DeckItem; active: boolean }) {
           alt={item.title}
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 h-full w-full object-contain"
+          className="absolute inset-0 h-full w-full object-contain bg-transparent"
         />
       )}
       {item.video && active && (
