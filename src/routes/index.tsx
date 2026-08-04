@@ -699,7 +699,6 @@ function Index() {
               </h2>
             </div>
 
-            </div>
             <MagneticButton>
               <Link
                 to="/workshops"
