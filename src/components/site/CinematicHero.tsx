@@ -95,7 +95,15 @@ export function CinematicHero({
             className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top"
             fetchPriority="high"
             decoding="async"
+            loading="eager"
+            sizes="100vw"
             draggable={false}
+            ref={(el) => {
+              if (el && el.complete && el.naturalWidth > 0 && !loaded) {
+                setLoaded(true);
+                onReady?.();
+              }
+            }}
             onLoad={() => {
               setLoaded(true);
               onReady?.();
@@ -106,6 +114,7 @@ export function CinematicHero({
               onReady?.();
             }}
           />
+
         ) : null}
       </div>
 
