@@ -23,8 +23,6 @@ import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
-import { type DeckItem } from "@/components/site/VideoDeck";
-import { type Reel } from "@/components/site/ReelWall";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 import { LazySection } from "@/components/site/LazySection";
 
@@ -33,14 +31,8 @@ import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.fun
 
 // Below-the-fold, media-heavy sections are code-split and only fetched
 // when the visitor scrolls near them.
-const CurvedRibbonGallery = lazy(() =>
-  import("@/components/site/CurvedRibbonGallery").then((m) => ({ default: m.CurvedRibbonGallery }))
-);
 const WorkshopDeck = lazy(() =>
   import("@/components/site/HomeDecks").then((m) => ({ default: m.WorkshopDeck }))
-);
-const VideoCollage = lazy(() =>
-  import("@/components/site/VideoCollage").then((m) => ({ default: m.VideoCollage }))
 );
 const CoverflowCarousel = lazy(() =>
   import("@/components/site/CoverflowCarousel").then((m) => ({ default: m.CoverflowCarousel }))
@@ -572,39 +564,8 @@ function Index() {
     [],
   );
 
-  // Viral showcase deck — videos first (falls back to stills only if no videos exist).
-  const deckItems = useMemo<DeckItem[]>(() => {
-    const withVideo = choreos.filter((c) => c.video_url);
-    const source = withVideo.length ? withVideo : choreos.filter((c) => c.thumbnail_url);
-    return source.slice(0, 7).map((c) => ({
-      id: c.id,
-      title: c.title,
-      subtitle: "Viral Choreography",
-      video: c.video_url ?? null,
-      poster: c.thumbnail_url ?? null,
-      href: c.instagram_url ?? c.youtube_url ?? null,
-    }));
-  }, [choreos]);
 
 
-  // Reel wall — vertical reels from choreographies + gallery frames.
-  const reels = useMemo<Reel[]>(() => {
-    const fromChoreos: Reel[] = choreos
-      .filter((c) => c.video_url || c.thumbnail_url)
-      .map((c) => ({
-        id: `c-${c.id}`,
-        title: c.title,
-        video: c.video_url ?? null,
-        poster: c.thumbnail_url ?? null,
-        href: c.instagram_url ?? c.youtube_url ?? null,
-      }));
-    const fromGallery: Reel[] = gallery
-      .filter((g: any) => g.image_url)
-      .slice(0, 10)
-      .map((g: any) => ({ id: `g-${g.id}`, title: g.caption ?? null, poster: g.image_url }));
-    // No hard cap: every uploaded reel joins the orbit rotation.
-    return [...fromChoreos, ...fromGallery];
-  }, [choreos, gallery]);
 
 
   return (
@@ -667,86 +628,6 @@ function Index() {
       {/* MOST VIRAL CHOREOGRAPHIES */}
       <CinematicShowreel choreos={choreos} workshops={workshops} />
 
-      {/* CINEMATIC VIDEO COLLAGE — one frame refreshes every 10s */}
-      {reels.length > 0 && (
-        <section className="py-20 lg:py-28 border-t border-border overflow-hidden">
-          <div className="max-w-7xl mx-auto px-6 lg:px-10 mb-10 flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-primary">Latest Reels</p>
-              <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
-                Straight from the <span className="italic font-light">feed.</span>
-              </h2>
-            </div>
-
-          </div>
-          <LazySection minHeight={520}>
-            <VideoCollage
-              items={reels.map((r) => ({
-                id: r.id,
-                title: r.title,
-                subtitle: r.video ? "Reel" : "Moment",
-                video: r.video ?? null,
-                poster: r.poster ?? null,
-              }))}
-            />
-          </LazySection>
-
-        </section>
-      )}
-
-
-      {/* STATS */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10"
-        >
-          {stats.map((s) => (
-            <motion.div key={s.label} variants={item} className="relative border-t border-border pt-6">
-              <div
-                aria-hidden
-                className="absolute -top-px left-0 h-px w-16"
-                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
-              />
-              <p className="font-display text-5xl lg:text-7xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
-                {s.value}{s.suffix ?? ""}
-              </p>
-              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* VIRAL SHOWCASE — floating glass panels */}
-      {deckItems.length > 0 && (
-        <section id="showcase" className="relative max-w-7xl mx-auto px-6 lg:px-10 py-20 lg:py-28 border-t border-border overflow-hidden">
-          <div className="flex flex-wrap items-end justify-between gap-8 mb-12">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-primary">Viral Showcase</p>
-              <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
-                The work that <span className="italic font-light">travels.</span>
-              </h2>
-            </div>
-
-            <MagneticButton>
-              <Link
-                to="/workshops"
-                className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em]"
-                style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
-              >
-                Learn these routines <ArrowUpRight size={14} />
-              </Link>
-            </MagneticButton>
-          </div>
-          <LazySection minHeight={480}>
-            <CurvedRibbonGallery items={deckItems} />
-          </LazySection>
-
-        </section>
-      )}
 
 
 
@@ -958,7 +839,22 @@ function Index() {
 
       {/* Celebrities · Brands · India to the Globe — dynamic */}
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-24 space-y-20">
+        {brands.length > 0 && (
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
+            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">Trusted partners</h2>
+            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+              {brands.map((b) => (
+                <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
+                  {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {celebrities.length > 0 && (
+
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
             <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
@@ -1003,19 +899,6 @@ function Index() {
           </div>
         )}
 
-        {brands.length > 0 && (
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">Trusted partners</h2>
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-              {brands.map((b) => (
-                <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
-                  {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {globe.length > 0 && (() => {
           const conducted = globe.filter((g) => g.status === "conducted");
@@ -1052,6 +935,32 @@ function Index() {
           );
         })()}
       </section>
+
+      {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10"
+        >
+          {stats.map((s) => (
+            <motion.div key={s.label} variants={item} className="relative border-t border-border pt-6">
+              <div
+                aria-hidden
+                className="absolute -top-px left-0 h-px w-16"
+                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
+              />
+              <p className="font-display text-5xl lg:text-7xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
+                {s.value}{s.suffix ?? ""}
+              </p>
+              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
 
 
 
