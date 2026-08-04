@@ -2,7 +2,8 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+// Supabase is imported lazily inside the effect so the auth bundle never
+// blocks first paint of the header.
 
 const links = [
   { to: "/", label: "Home" },
