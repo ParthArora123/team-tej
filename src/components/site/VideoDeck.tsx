@@ -123,7 +123,7 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
     });
 
   return (
-    <div className="mx-auto w-full max-w-[420px] sm:max-w-[520px]">
+    <div className="mx-auto w-full max-w-[520px] sm:max-w-[680px]">
     <div
       ref={ref}
       onMouseEnter={() => setPaused(true)}
