@@ -143,7 +143,7 @@ export function CoverflowCarousel({
               }}
             >
 
-              <Media item={it} isActive={isActive} onEnded={() => count > 1 && go(1)} />
+              <Media item={it} isActive={isActive} near={abs === 1} onEnded={() => count > 1 && go(1)} />
 
               {/* glassmorphism sheen */}
               <div
