@@ -22,10 +22,20 @@ export function Header() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s));
-    return () => sub.subscription.unsubscribe();
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+    void import("@/integrations/supabase/client").then(({ supabase }) => {
+      if (cancelled) return;
+      void supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+      const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s));
+      unsubscribe = () => sub.subscription.unsubscribe();
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
+
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
