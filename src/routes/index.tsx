@@ -87,11 +87,6 @@ type HomeLoaderData = {
   heroSlides: HeroSlide[];
 };
 
-const heroVideoType = (src: string) => {
-  if (/\.webm(\?|#|$)/i.test(src)) return "video/webm";
-  return "video/mp4";
-};
-
 const preloadLinkForHeroMedia = (src?: string | null) => {
   if (!src) return null;
   // Never preload video — hero clips load only once they become active.
@@ -139,15 +134,8 @@ function warmHeroMedia(slides: HeroSlide[], activeIndex: number, ahead = 2) {
     const src = slide?.image_url;
     if (!src || warmedHeroMedia.has(src)) continue;
     warmedHeroMedia.add(src);
-    if (isVideoUrl(src)) {
-      const video = document.createElement("video");
-      video.preload = "metadata";
-      video.muted = true;
-      video.playsInline = true;
-      video.src = src;
-      video.load();
-      continue;
-    }
+    // Videos are never pre-warmed; they load only when they become active.
+    if (isVideoUrl(src)) continue;
     const img = new Image();
     img.decoding = "async";
     (img as any).fetchPriority = "low";
