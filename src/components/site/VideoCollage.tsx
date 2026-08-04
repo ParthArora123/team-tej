@@ -114,6 +114,21 @@ function Layer({
           className="absolute inset-0 h-full w-full object-contain"
         />
       )}
+      {item.video && !item.poster && (
+        <video
+          ref={bgRef}
+          src={item.video}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-hidden
+          tabIndex={-1}
+          disableRemotePlayback
+          disablePictureInPicture
+          className="pointer-events-none absolute inset-0 h-full w-full scale-150 object-cover blur-2xl"
+        />
+      )}
       {item.video && (
         <video
           ref={ref}
