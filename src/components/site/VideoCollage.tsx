@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Play, X, Maximize2, Volume2, VolumeX } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export type CollageItem = {
   id: string;
@@ -15,16 +14,6 @@ export type CollageItem = {
 const STILL_MS = 6000;
 const VIDEO_ROTATE_MS = 10000;
 const SOUND_KEY = "feed-sound-on";
-
-const DESKTOP_SLOTS = [
-  "col-span-3 row-span-4",
-  "col-span-3 row-span-2",
-  "col-span-2 row-span-4",
-  "col-span-1 row-span-2",
-  "col-span-3 row-span-2",
-];
-
-const MOBILE_SLOTS = ["col-span-4 row-span-3", "col-span-2 row-span-2", "col-span-2 row-span-2"];
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -128,118 +117,6 @@ function Layer({
         />
       )}
     </>
-  );
-}
-
-function Slot({
-  item,
-  className,
-  reduced,
-  active,
-  soundOn,
-  onToggleSound,
-  onEnded,
-  onPlaybackError,
-  onSoundBlocked,
-  onOpen,
-}: {
-  item: CollageItem;
-  className: string;
-  reduced: boolean;
-  active: boolean;
-  soundOn: boolean;
-  onToggleSound: () => void;
-  onEnded: () => void;
-  onPlaybackError: () => void;
-  onSoundBlocked: () => void;
-  onOpen: (item: CollageItem) => void;
-}) {
-  return (
-    <motion.div
-      animate={
-        reduced
-          ? { opacity: active ? 1 : 0.75 }
-          : { scale: active ? 1.03 : 0.985, opacity: active ? 1 : 0.55 }
-      }
-      transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-      style={{ zIndex: active ? 2 : 1 }}
-      className={`group relative overflow-hidden rounded-[1.25rem] bg-muted text-left transform-gpu ${className}`}
-    >
-      <button
-        type="button"
-        onClick={() => onOpen(item)}
-        aria-label={item.title ?? "Play video"}
-        className="absolute inset-0 z-[1]"
-      >
-        <span className="sr-only">{item.title ?? "Play video"}</span>
-      </button>
-
-      <AnimatePresence initial={false} mode="popLayout">
-        <motion.div
-          key={item.id}
-          initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 1.08 }}
-          animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: reduced ? 0.2 : 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute inset-0 will-change-[opacity,transform]"
-        >
-          <Layer
-            item={item}
-            play={active}
-            soundOn={soundOn}
-            onEnded={onEnded}
-            onPlaybackError={onPlaybackError}
-            onSoundBlocked={onSoundBlocked}
-          />
-        </motion.div>
-      </AnimatePresence>
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 transition-opacity duration-700"
-        style={{
-          opacity: active ? 0.85 : 1,
-          background:
-            "linear-gradient(180deg, transparent 45%, color-mix(in oklab, var(--foreground) 72%, var(--primary) 28%) 100%)",
-        }}
-      />
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-[1.25rem] transition-opacity duration-500"
-        style={{
-          opacity: active ? 1 : 0,
-          boxShadow: "inset 0 0 0 1px color-mix(in oklab, var(--primary) 55%, transparent)",
-        }}
-      />
-
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] p-4">
-        {item.subtitle && (
-          <p className="text-[9px] uppercase tracking-[0.3em] text-white/65">{item.subtitle}</p>
-        )}
-        {item.title && (
-          <p className="mt-1 text-sm font-medium text-white line-clamp-2">{item.title}</p>
-        )}
-      </div>
-
-      {item.video && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleSound();
-          }}
-          aria-label={soundOn ? "Mute videos" : "Unmute videos"}
-          className="absolute left-3 top-3 z-[3] grid h-9 w-9 place-items-center rounded-full border border-white/25 bg-black/35 text-white backdrop-blur transition-colors hover:bg-black/55"
-        >
-          {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
-        </button>
-      )}
-
-      <span className="pointer-events-none absolute right-3 top-3 z-[2] grid h-8 w-8 place-items-center rounded-full border border-white/25 bg-white/10 text-white opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
-        <Maximize2 size={13} />
-      </span>
-    </motion.div>
   );
 }
 
