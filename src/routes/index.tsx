@@ -851,7 +851,10 @@ function Index() {
       </section>
 
       {/* FEATURED PERFORMANCES — admin managed */}
-      <FeaturedPerformances rows={performances} />
+      <LazySection minHeight={400}>
+        <FeaturedPerformances rows={performances} />
+      </LazySection>
+
 
       {/* SIGNATURE PROGRAMS */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
