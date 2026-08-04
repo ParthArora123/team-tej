@@ -55,7 +55,7 @@ export function WorkshopDeck({ workshops }: { workshops: any[] }) {
               alt={w.name}
               loading="lazy"
               decoding="async"
-              className="absolute inset-0 h-full w-full object-cover object-top"
+              className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top"
             />
           ) : (
             <div
@@ -196,7 +196,7 @@ export function GalleryDeck({ items }: { items: any[] }) {
             alt={g.caption ?? ""}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 h-full w-full object-cover lg:object-contain"
           />
         )}
         <div

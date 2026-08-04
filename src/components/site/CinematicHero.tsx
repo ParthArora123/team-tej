@@ -105,7 +105,7 @@ export function CinematicHero({
           <img
             src={backgroundImage}
             alt="Tejas D Dhoke"
-            className="absolute inset-0 h-full w-full object-cover object-top"
+            className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top"
             fetchPriority="high"
             decoding="async"
             draggable={false}

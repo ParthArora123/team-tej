@@ -39,7 +39,7 @@ function WorkshopBanner({ r }: { r: any }) {
     return (
       <div className="relative w-full aspect-[4/5] overflow-hidden bg-black">
         <img src={r.banner_gif_url} alt={r.name} loading="lazy" decoding="async"
-          className="w-full h-full object-cover object-top transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
+          className="w-full h-full object-cover lg:object-contain object-top transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       </div>
     );
@@ -48,7 +48,7 @@ function WorkshopBanner({ r }: { r: any }) {
     return (
       <div className="relative w-full aspect-[4/5] overflow-hidden bg-black">
         <img src={r.banner_url} alt={r.name} loading="lazy" decoding="async"
-          className="w-full h-full object-cover object-top transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
+          className="w-full h-full object-cover lg:object-contain object-top transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
       </div>
     );

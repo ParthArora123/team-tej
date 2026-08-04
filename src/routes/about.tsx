@@ -191,7 +191,7 @@ function About() {
                       alt={founder?.name || "Tejas D Dhoke — Founder"}
                       loading="lazy"
                       decoding="async"
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover lg:object-contain"
                     />
                   ) : (
                     <MotionImage src={aboutImg} alt="Tejas D Dhoke — Founder" width={1200} height={1400} className="h-full w-full" />

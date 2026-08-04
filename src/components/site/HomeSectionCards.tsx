@@ -47,7 +47,7 @@ function Media({ c, front }: { c: HomeCard; front: boolean }) {
       alt={c.title}
       loading="lazy"
       decoding="async"
-      className="absolute inset-0 h-full w-full object-cover"
+      className="absolute inset-0 h-full w-full object-cover lg:object-contain"
     />
   );
 }

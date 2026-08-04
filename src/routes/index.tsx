@@ -201,7 +201,7 @@ function HeroSlideMedia({
   }, [active]);
 
   if (!src) return null;
-  const common = "absolute inset-0 h-full w-full object-cover lg:object-cover lg:object-center transform-gpu backface-hidden";
+  const common = "absolute inset-0 h-full w-full object-cover lg:object-contain transform-gpu backface-hidden";
 
   if (isVideoUrl(src)) {
     // For inactive video slides, render ONLY the poster image — keeps memory
@@ -773,7 +773,7 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
             <div className="grid lg:grid-cols-2">
               <div className="relative aspect-[4/3] lg:aspect-auto bg-muted">
                 {featured.banner_url && (
-                  <img src={featured.banner_url} alt={featured.title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
+                  <img src={featured.banner_url} alt={featured.title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover lg:object-contain" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent lg:hidden" />
               </div>
@@ -951,7 +951,7 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
               );
             }
             if (s.image_url) {
-              return <img src={s.image_url} alt={s.name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />;
+              return <img src={s.image_url} alt={s.name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover lg:object-contain" />;
             }
             return (
               <Suspense fallback={null}>
@@ -1014,7 +1014,7 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
                       src={c.photo_url}
                       alt={c.name}
                       loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
+                      className="absolute inset-0 w-full h-full object-cover lg:object-contain object-center transition-transform duration-700 ease-out group-hover:scale-110"
                     />
                   ) : null}
                   {/* shine sweep on hover */}
@@ -1429,7 +1429,7 @@ function FounderSection({ founder }: { founder: any | null }) {
                 alt={name}
                 loading="lazy"
                 decoding="async"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
+                className="absolute inset-0 h-full w-full object-cover lg:object-contain transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
               />
             ) : (
