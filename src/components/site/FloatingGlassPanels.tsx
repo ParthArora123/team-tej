@@ -40,10 +40,18 @@ function PanelMedia({ item, active }: { item: DeckItem; active: boolean }) {
       {item.poster && (
         <img
           src={item.poster}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl opacity-60"
+        />
+      )}
+      {item.poster && (
+        <img
+          src={item.poster}
           alt={item.title}
           loading="lazy"
           decoding="async"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain"
         />
       )}
       {item.video && active && (
@@ -59,7 +67,7 @@ function PanelMedia({ item, active }: { item: DeckItem; active: boolean }) {
           disablePictureInPicture
           onLoadedData={() => setReady(true)}
           onCanPlay={() => setReady(true)}
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-contain"
           style={{ visibility: ready ? "visible" : "hidden" }}
         />
       )}
