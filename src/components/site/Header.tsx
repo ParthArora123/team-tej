@@ -48,10 +48,7 @@ export function Header() {
     to === "/" ? pathname === "/" : pathname === to || pathname.startsWith(`${to}/`);
 
   return (
-    <motion.header
-      initial={{ y: -20, opacity: 1 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
+    <header
       className="fixed top-0 inset-x-0 z-50 pointer-events-none"
     >
       <div className={`mx-auto flex items-center justify-between gap-3 px-3 pointer-events-auto transition-all duration-500 ${
