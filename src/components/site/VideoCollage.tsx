@@ -266,12 +266,12 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
   const n = playlist.length;
   const active = playlist[index];
-  const radiusX = isMobile ? 118 : 300;
-  const radiusY = isMobile ? 44 : 92;
-  const centerW = isMobile ? 190 : 300;
-  const centerH = isMobile ? 320 : 470;
-  const orbitW = isMobile ? 92 : 150;
-  const orbitH = isMobile ? 150 : 235;
+  const radiusX = isMobile ? 132 : 420;
+  const radiusY = isMobile ? 40 : 96;
+  const centerW = isMobile ? 300 : 500;
+  const centerH = isMobile ? 500 : 700;
+  const orbitW = isMobile ? 108 : 200;
+  const orbitH = isMobile ? 180 : 300;
   const maxVisible = isMobile ? 3 : 5;
 
   return (
