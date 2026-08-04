@@ -54,6 +54,17 @@ function Layer({
   onSoundBlocked: () => void;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
+  const bgRef = useRef<HTMLVideoElement>(null);
+
+  // Keep the blurred fill frame in step with the main clip so letterbox bars
+  // never show through as black boundaries.
+  useEffect(() => {
+    const b = bgRef.current;
+    if (!b) return;
+    b.muted = true;
+    if (play) void b.play().catch(() => undefined);
+    else b.pause();
+  }, [play, item.video]);
 
   // Apply mute state without remounting the element (no flicker / reload).
   useEffect(() => {
