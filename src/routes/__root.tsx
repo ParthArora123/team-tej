@@ -157,13 +157,13 @@ function RootComponent() {
           <SmoothScroll />
         </Suspense>
       </DeferMount>
-      <div className="min-h-screen relative grain-bg">
+      <div className="min-h-screen relative grain-bg ambient-backdrop">
         <DeferMount>
           <Suspense fallback={null}>
-            <FloatingWorldScene />
             <CursorGlow />
           </Suspense>
         </DeferMount>
+
         <ScrollProgress />
         <Header />
         <main className="pt-16">
