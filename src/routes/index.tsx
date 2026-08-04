@@ -394,15 +394,28 @@ function Index() {
   const [choreos, setChoreos] = useState<Choreo[]>([]);
   const [founder, setFounder] = useState<any | null>(null);
   const [heroPhoto, setHeroPhoto] = useState<string | null>(null);
-  const [heroPhotoResolved, setHeroPhotoResolved] = useState(false);
 
-  // Admin-managed homepage hero photo (falls back to the bundled portrait).
+  // Admin-managed homepage hero photo. The bundled portrait paints immediately
+  // (it is preloaded in <head>); the CMS photo swaps in only once it has fully
+  // decoded, so the hero is never blocked on a network round-trip.
   useEffect(() => {
+    let cancelled = false;
     cachedCall("siteContent:hero_portrait", () => getSiteContent({ data: { key: "hero_portrait" } }))
-      .then((r: any) => { if (r?.image_url) setHeroPhoto(r.image_url); })
-      .catch(() => {})
-      .finally(() => setHeroPhotoResolved(true));
+      .then((r: any) => {
+        const url = r?.image_url;
+        if (!url || cancelled || url === uploadedHeroImg.url) return;
+        const img = new Image();
+        img.decoding = "async";
+        const swap = () => { if (!cancelled) setHeroPhoto(url); };
+        img.onload = swap;
+        img.onerror = () => {};
+        img.src = url;
+        img.decode?.().then(swap).catch(() => {});
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, []);
+
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [performances, setPerformances] = useState<HomeCard[]>([]);
   const [sigPrograms, setSigPrograms] = useState<HomeCard[]>([]);
