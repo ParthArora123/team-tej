@@ -635,7 +635,7 @@ function WorkshopDetailPage() {
                   autoPlay muted loop playsInline preload="auto"
                   className="w-full h-full object-contain" />
               ) : heroMedia?.media_url ? (
-                <img src={heroMedia.media_url} alt={program.name} className="w-full h-full object-cover" />
+                <img src={heroMedia.media_url} alt={program.name} className="w-full h-full object-cover lg:object-contain" />
               ) : (
                 <div className="w-full h-full grid place-items-center bg-gradient-to-br from-accent/40 to-black">
                   <Sparkles className="text-primary/60" size={48} />
@@ -740,7 +740,7 @@ function WorkshopDetailPage() {
                 <video key={heroMedia.media_url ?? ""} src={heroMedia.media_url ?? undefined} poster={heroMedia.poster_url ?? undefined}
                        controls playsInline className="w-full h-full object-contain bg-black" />
               ) : heroMedia?.media_url ? (
-                <img src={heroMedia.media_url} alt="" className="w-full h-full object-cover" />
+                <img src={heroMedia.media_url} alt="" className="w-full h-full object-cover lg:object-contain" />
               ) : null}
             </div>
             {galleryItems.length > 1 && (
@@ -754,7 +754,7 @@ function WorkshopDetailPage() {
                         <PlayCircle className="absolute inset-0 m-auto text-primary/90" size={22} />
                       </>
                     ) : (
-                      <img src={m.media_url ?? ""} alt="" loading="lazy" className="w-full h-full object-cover" />
+                      <img src={m.media_url ?? ""} alt="" loading="lazy" className="w-full h-full object-cover lg:object-contain" />
                     )}
                   </button>
                 ))}

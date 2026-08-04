@@ -38,7 +38,7 @@ export function WorkshopGallery({ programId }: { programId: string }) {
                 </span>
               </>
             ) : (
-              <img src={m.media_url ?? ""} alt={m.caption ?? ""} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+              <img src={m.media_url ?? ""} alt={m.caption ?? ""} loading="lazy" decoding="async" className="w-full h-full object-cover lg:object-contain" />
             )}
           </button>
         ))}

@@ -353,7 +353,7 @@ function ZeroToHeroPage() {
                             alt={`${s.chapter} — ${s.title}`}
                             loading="lazy"
                             decoding="async"
-                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
+                            className="absolute inset-0 h-full w-full object-cover lg:object-contain transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
                           <div className="absolute inset-0 bg-gradient-to-br from-black/10 via-transparent to-black/40" />
@@ -533,7 +533,7 @@ function ZeroToHeroPage() {
                   <img
                     src={aboutImg}
                     alt={founder?.name || "Tejas D Dhoke — Founder"}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover lg:object-contain"
                     loading="lazy"
                     decoding="async"
                   />
@@ -677,7 +677,7 @@ function ZeroToHeroGallery() {
                   className="w-full h-full object-contain" />
               ) : (
                 <img src={m.media_url} alt={m.caption ?? ""} loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  className="w-full h-full object-cover lg:object-contain transition-transform duration-500 group-hover:scale-105" />
               )}
               {m.caption && (
                 <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent">

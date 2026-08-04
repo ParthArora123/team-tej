@@ -62,7 +62,7 @@ export function WorkshopHero() {
                 src={s.media_url ?? undefined}
                 alt={s.title ?? ""}
                 initial={{ scale: 1.05 }} animate={{ scale: 1 }} transition={{ duration: 8, ease: "linear" }}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover lg:object-contain"
                 loading="eager"
               />}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
