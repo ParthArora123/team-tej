@@ -142,9 +142,13 @@ export function SignatureProgramsGrid({ rows }: { rows: HomeCard[] }) {
   const cards: StackedDeckItem[] = rows.map((c) => ({
     id: c.id,
     render: ({ front, active }) => (
-      <DeckShell className="flex flex-col">
+      <DeckShell className="flex flex-col df-border-card overflow-hidden">
         <div className="relative h-[58%] overflow-hidden bg-muted">
           <Media c={c} front={active} />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-1 df-gradient-bg"
+          />
         </div>
         <div className="flex flex-1 flex-col p-6">
           <h3 className="font-display text-2xl font-bold leading-tight">{c.title}</h3>
@@ -152,10 +156,11 @@ export function SignatureProgramsGrid({ rows }: { rows: HomeCard[] }) {
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-3">{c.description}</p>
           )}
           <div className="mt-auto">
-            <Cta c={c} />
+            <Cta c={c} tone="brand" />
           </div>
         </div>
       </DeckShell>
+
     ),
   }));
 
