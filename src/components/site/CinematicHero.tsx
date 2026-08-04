@@ -60,6 +60,7 @@ export function CinematicHero({
       onReady?.();
       return;
     }
+    setFailed(false);
     const img = new Image();
     img.decoding = "async";
     img.src = backgroundImage;
@@ -68,6 +69,7 @@ export function CinematicHero({
       onReady?.();
     };
     img.onerror = () => {
+      setFailed(true);
       setLoaded(true);
       onReady?.();
     };
