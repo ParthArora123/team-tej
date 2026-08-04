@@ -37,8 +37,8 @@ import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.fun
 const StyleAnimation = lazy(() =>
   import("@/components/site/StyleAnimation").then((m) => ({ default: m.StyleAnimation }))
 );
-const FloatingGlassPanels = lazy(() =>
-  import("@/components/site/FloatingGlassPanels").then((m) => ({ default: m.FloatingGlassPanels }))
+const CurvedRibbonGallery = lazy(() =>
+  import("@/components/site/CurvedRibbonGallery").then((m) => ({ default: m.CurvedRibbonGallery }))
 );
 const WorkshopDeck = lazy(() =>
   import("@/components/site/HomeDecks").then((m) => ({ default: m.WorkshopDeck }))
@@ -697,8 +697,8 @@ function Index() {
                 The work that <span className="italic font-light">travels.</span>
               </h2>
               <p className="mt-5 text-muted-foreground max-w-lg">
-                A floating wall of Tejas's most-watched choreographies. The spotlight moves on its own —
-                hover to hold it, tap any panel to bring it forward.
+A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on its own —
+                hover to hold it, tap any clip to bring it centre stage.
               </p>
             </div>
             <MagneticButton>
@@ -712,7 +712,7 @@ function Index() {
             </MagneticButton>
           </div>
           <LazySection minHeight={480}>
-            <FloatingGlassPanels items={deckItems} />
+            <CurvedRibbonGallery items={deckItems} />
           </LazySection>
 
         </section>
