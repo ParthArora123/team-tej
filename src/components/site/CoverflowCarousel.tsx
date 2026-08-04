@@ -386,4 +386,5 @@ const Media = memo(function Media({
   }
 
   return <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />;
-}
+});
+
