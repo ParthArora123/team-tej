@@ -27,9 +27,6 @@ const SmoothScroll = lazy(() =>
 const ScrollToTop = lazy(() =>
   import("../components/site/ScrollToTop").then((m) => ({ default: m.ScrollToTop }))
 );
-const FloatingWorldScene = lazy(() =>
-  import("../components/site/FloatingWorldScene").then((m) => ({ default: m.FloatingWorldScene }))
-);
 
 
 
@@ -157,13 +154,13 @@ function RootComponent() {
           <SmoothScroll />
         </Suspense>
       </DeferMount>
-      <div className="min-h-screen relative grain-bg">
+      <div className="min-h-screen relative grain-bg ambient-backdrop">
         <DeferMount>
           <Suspense fallback={null}>
-            <FloatingWorldScene />
             <CursorGlow />
           </Suspense>
         </DeferMount>
+
         <ScrollProgress />
         <Header />
         <main className="pt-16">

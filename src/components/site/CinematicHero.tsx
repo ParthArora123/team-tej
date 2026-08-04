@@ -75,61 +75,73 @@ export function CinematicHero({
       style={{ background: "var(--surface)" }}
     >
       <style>{`
+        /* Ken-burns zoom is a full-screen repaint every frame — desktop only. */
+        @media (max-width: 1024px), (hover: none), (pointer: coarse) {
+          .hero-zoom-layer { animation: none !important; }
+        }
         @keyframes heroZoom { from { transform: scale(1.0); } to { transform: scale(1.12); } }
         @keyframes heroClipDrift { from { transform: scale(1.04); } to { transform: scale(1.14); } }
         @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
       `}</style>
 
+      {/* Blurred backdrop — static (never animated) so the expensive blur is
+          rasterised once instead of every frame of the ken-burns zoom. */}
+      {backgroundImage && !failed ? (
+        <img
+          src={backgroundImage}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-80 transform-gpu"
+          style={{
+            visibility: loaded ? "visible" : "hidden",
+            // Promote to its own compositor layer so the expensive blur is
+            // rasterised once instead of on every frame of the hero zoom.
+            willChange: "transform",
+            contain: "paint",
+          }}
+          loading="eager"
+          decoding="async"
+          draggable={false}
+        />
+      ) : null}
+
       {/* Static background — Tejas D Dhoke photo, full-bleed, single image */}
       <div
-        className="absolute inset-0 w-full h-full transform-gpu will-change-transform"
+        className="hero-zoom-layer absolute inset-0 w-full h-full transform-gpu"
         style={{
           animation: reduce ? "none" : "heroZoom 24s ease-out forwards",
           visibility: loaded && !failed && backgroundImage ? "visible" : "hidden",
         }}
       >
         {backgroundImage && !failed ? (
-          <>
-            {/* Blurred backdrop fills the full screen so the hero never looks
-                letterboxed on wide desktop viewports. The main portrait below
-                stays uncropped with object-contain. */}
-            <img
-              src={backgroundImage}
-              alt=""
-              aria-hidden
-              className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80"
-              loading="eager"
-              decoding="async"
-              draggable={false}
-            />
-            <img
-              src={backgroundImage}
-              alt="Tejas D Dhoke"
-              className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top lg:object-center"
-              fetchPriority="high"
-              decoding="async"
-              loading="eager"
-              sizes="100vw"
-              draggable={false}
-              ref={(el) => {
-                if (el && el.complete && el.naturalWidth > 0 && !loaded) {
-                  setLoaded(true);
-                  onReady?.();
-                }
-              }}
-              onLoad={() => {
+          <img
+            src={backgroundImage}
+            alt="Tejas D Dhoke"
+            className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top lg:object-center"
+            fetchPriority="high"
+            decoding="async"
+            loading="eager"
+            sizes="100vw"
+            draggable={false}
+            ref={(el) => {
+              if (el && el.complete && el.naturalWidth > 0 && !loaded) {
                 setLoaded(true);
                 onReady?.();
-              }}
-              onError={() => {
-                setFailed(true);
-                setLoaded(true);
-                onReady?.();
-              }}
-            />
-          </>
+              }
+            }}
+            onLoad={() => {
+              setLoaded(true);
+              onReady?.();
+            }}
+            onError={() => {
+              setFailed(true);
+              setLoaded(true);
+              onReady?.();
+            }}
+          />
         ) : null}
       </div>
+
 
       {/* Cinematic clip montage — crossfades over the portrait on desktop */}
       {cinemaOn && activeClip && (
@@ -138,7 +150,8 @@ export function CinematicHero({
             src={backgroundImage}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-70"
+            className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-70 transform-gpu"
+            style={{ willChange: "transform", contain: "paint" }}
             draggable={false}
           />
           <video
@@ -286,7 +299,7 @@ export function CinematicHero({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6 + idx * 0.12, duration: 0.7 }}
-              className={`absolute ${spots[idx]} rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)]`}
+              className={`absolute ${spots[idx]} rounded-2xl border border-white/15 bg-black/45 px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)]`}
               style={{
                 animation: `heroFloat ${7 + idx}s ease-in-out ${idx * 0.6}s infinite`,
               }}
