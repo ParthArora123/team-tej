@@ -23,8 +23,6 @@ import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
-import { type DeckItem } from "@/components/site/VideoDeck";
-import { type Reel } from "@/components/site/ReelWall";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 import { LazySection } from "@/components/site/LazySection";
 
@@ -33,14 +31,8 @@ import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.fun
 
 // Below-the-fold, media-heavy sections are code-split and only fetched
 // when the visitor scrolls near them.
-const CurvedRibbonGallery = lazy(() =>
-  import("@/components/site/CurvedRibbonGallery").then((m) => ({ default: m.CurvedRibbonGallery }))
-);
 const WorkshopDeck = lazy(() =>
   import("@/components/site/HomeDecks").then((m) => ({ default: m.WorkshopDeck }))
-);
-const VideoCollage = lazy(() =>
-  import("@/components/site/VideoCollage").then((m) => ({ default: m.VideoCollage }))
 );
 const CoverflowCarousel = lazy(() =>
   import("@/components/site/CoverflowCarousel").then((m) => ({ default: m.CoverflowCarousel }))
