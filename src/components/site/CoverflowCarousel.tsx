@@ -220,7 +220,7 @@ export function CoverflowCarousel({
   );
 }
 
-function Media({ item, isActive, onEnded }: { item: CoverflowItem; isActive: boolean; onEnded: () => void }) {
+function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem; isActive: boolean; near?: boolean; onEnded: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
