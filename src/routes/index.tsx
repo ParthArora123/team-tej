@@ -288,7 +288,7 @@ function WorkshopCardMedia({ w, desktop }: { w: any; desktop?: boolean }) {
     return (
       <div className="w-full aspect-video overflow-hidden bg-muted">
         <img src={w.banner_gif_url} alt={w.name} loading="lazy"
-          className={`w-full h-full object-cover ${desktop ? "transition-transform duration-500 group-hover:scale-105" : ""}`} />
+          className="w-full h-full object-contain" />
       </div>
     );
   }
