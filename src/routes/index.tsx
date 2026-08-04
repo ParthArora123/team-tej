@@ -25,7 +25,6 @@ import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { type DeckItem } from "@/components/site/VideoDeck";
 import { type Reel } from "@/components/site/ReelWall";
-import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 import { LazySection } from "@/components/site/LazySection";
 
@@ -34,9 +33,6 @@ import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.fun
 
 // Below-the-fold, media-heavy sections are code-split and only fetched
 // when the visitor scrolls near them.
-const StyleAnimation = lazy(() =>
-  import("@/components/site/StyleAnimation").then((m) => ({ default: m.StyleAnimation }))
-);
 const CurvedRibbonGallery = lazy(() =>
   import("@/components/site/CurvedRibbonGallery").then((m) => ({ default: m.CurvedRibbonGallery }))
 );
@@ -57,9 +53,6 @@ const FeaturedPerformances = lazy(() =>
 );
 const SignatureProgramsGrid = lazy(() =>
   import("@/components/site/HomeSectionCards").then((m) => ({ default: m.SignatureProgramsGrid }))
-);
-const TestimonialsCarousel = lazy(() =>
-  import("@/components/site/TestimonialsCarousel").then((m) => ({ default: m.TestimonialsCarousel }))
 );
 
 
@@ -633,6 +626,47 @@ function Index() {
         onReady={() => setHeroReady(true)}
       />
 
+      {/* FOUNDER / ABOUT — directly below hero */}
+      <FounderSection founder={founder} />
+
+      {/* WORKSHOPS — dynamic (primary CTA) */}
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-8 lg:pt-24 lg:pb-12">
+        <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+              <Calendar size={12} /> Upcoming Workshops
+            </p>
+            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+              Register Now. Experience the Magic.
+            </h2>
+            <p className="mt-4 text-muted-foreground max-w-xl">
+              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
+            </p>
+          </div>
+          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
+            See all workshops <ArrowUpRight size={14} />
+          </Link>
+        </div>
+
+        {workshops.length === 0 && !workshopsLoaded ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+          </div>
+        ) : workshops.length === 0 ? (
+          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
+            <p className="font-display text-2xl">Coming Soon</p>
+            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+          </div>
+        ) : (
+          <LazySection minHeight={520}>
+            <WorkshopDeck workshops={workshops} />
+          </LazySection>
+        )}
+      </section>
+
+      {/* MOST VIRAL CHOREOGRAPHIES */}
+      <CinematicShowreel choreos={choreos} workshops={workshops} />
+
       {/* CINEMATIC VIDEO COLLAGE — one frame refreshes every 10s */}
       {reels.length > 0 && (
         <section className="py-20 lg:py-28 border-t border-border overflow-hidden">
@@ -643,9 +677,7 @@ function Index() {
                 Straight from the <span className="italic font-light">feed.</span>
               </h2>
             </div>
-            <p className="text-sm text-muted-foreground max-w-sm">
-              A living wall of performance moments — one frame refreshes every few seconds.
-            </p>
+
           </div>
           <LazySection minHeight={520}>
             <VideoCollage
@@ -697,11 +729,8 @@ function Index() {
               <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
                 The work that <span className="italic font-light">travels.</span>
               </h2>
-              <p className="mt-5 text-muted-foreground max-w-lg">
-A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on its own —
-                hover to hold it, tap any clip to bring it centre stage.
-              </p>
             </div>
+
             <MagneticButton>
               <Link
                 to="/workshops"
@@ -725,41 +754,8 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
 
 
 
-      {/* WORKSHOPS — dynamic (primary CTA — placed directly after hero) */}
-      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-8 lg:pt-24 lg:pb-12">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-              <Calendar size={12} /> Upcoming Workshops
-            </p>
-            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
-              Register Now. Experience the Magic.
-            </h2>
-            <p className="mt-4 text-muted-foreground max-w-xl">
-              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
-            </p>
-          </div>
-          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
-            See all workshops <ArrowUpRight size={14} />
-          </Link>
-        </div>
 
-        {workshops.length === 0 && !workshopsLoaded ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
-          </div>
-        ) : workshops.length === 0 ? (
-          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
-            <p className="font-display text-2xl">Coming Soon</p>
-            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
-          </div>
-        ) : (
-          <LazySection minHeight={520}>
-            <WorkshopDeck workshops={workshops} />
-          </LazySection>
 
-        )}
-      </section>
 
 
       {featured && (
@@ -813,11 +809,11 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
       )}
 
 
-      {/* THE TEJ METHOD — USP / philosophy */}
+      {/* HOW WE BUILD DANCERS — USP / philosophy */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
         <div className="max-w-2xl">
           <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-            <Sparkles size={12} /> The Tej Method
+            <Sparkles size={12} /> How We Build Dancers
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
             Not just steps. <span className="italic font-light">A way of moving.</span>
@@ -836,21 +832,21 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
           className="mt-14 grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {[
-            { icon: HeartHandshake, title: "Confidence", desc: "Every class is built to make you feel capable before it makes you feel correct." },
-            { icon: Target, title: "Technique", desc: "Real fundamentals, broken down so beginners and pros both walk away sharper." },
-            { icon: Music2, title: "Musicality", desc: "Movement that listens to the music, not just counts to it." },
-            { icon: Users2, title: "Performance", desc: "Stage-ready energy — because a workshop should prepare you to be watched, not just to watch." },
+            { icon: HeartHandshake, title: "Confidence" },
+            { icon: Target, title: "Technique" },
+            { icon: Music2, title: "Musicality" },
+            { icon: Users2, title: "Performance" },
           ].map((p) => (
             <motion.div key={p.title} variants={item} className="premium-card bg-card p-6">
               <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                 <p.icon size={20} />
               </div>
               <p className="mt-4 font-display text-xl font-bold">{p.title}</p>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
+
 
       {/* FEATURED PERFORMANCES — admin managed */}
       <LazySection minHeight={400}>
@@ -924,68 +920,38 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
 
 
         {(() => {
-          // Always show the restored live dance animations first. Backend style
-          // names are merged only when they are truly custom, so variants like
-          // "Hip hop" do not hide the canonical Hip-Hop dancer video.
-          type RenderStyle = { name: string; tagline: string; image_url?: string | null; video_url?: string | null };
-          const normalizeStyleName = (value: string) => value.trim().toLowerCase().replace(/[–—_-]+/g, " ").replace(/\s+/g, " ");
-          const backend: RenderStyle[] = (danceStyles ?? []).map((s: any) => ({
-            name: String(s.name ?? "Dance Style").trim() || "Dance Style",
-            tagline: s.tagline ?? "",
-            image_url: s.image_url ?? null,
-            video_url: s.video_url ?? null,
-          }));
-          // If admin has added any dance styles, show ONLY those. Otherwise fall back to defaults.
-          const stylesToRender: RenderStyle[] = backend.length > 0 ? backend : defaultStyles;
-
-          const renderMedia = (s: RenderStyle, active: boolean) => {
-            if (s.video_url && active) {
-              return (
-                <>
-                  {s.image_url && (
-                    <img src={s.image_url} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80" />
-                  )}
-                  <video src={s.video_url} poster={s.image_url ?? undefined}
-                    autoPlay loop muted playsInline preload="metadata"
-                    className="absolute inset-0 h-full w-full object-contain" />
-                </>
-              );
-            }
-            if (s.image_url) {
-              return <img src={s.image_url} alt={s.name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover lg:object-contain" />;
-            }
-            return (
-              <Suspense fallback={null}>
-                <StyleAnimation name={s.name} active={active} />
-              </Suspense>
-            );
-
-          };
-
-          const deckCards: StackedDeckItem[] = stylesToRender.map((s) => ({
-            id: s.name,
-            render: ({ active }) => (
-              <DeckShell dark className="text-white">
-                {renderMedia(s, active)}
-                <div aria-hidden className="absolute inset-0"
-                  style={{ background: "linear-gradient(180deg, transparent 30%, color-mix(in oklab, var(--foreground) 82%, var(--primary) 18%) 100%)" }} />
-                <div className="absolute inset-x-0 bottom-0 p-7">
-                  <p className="font-display text-3xl font-bold text-white">{s.name}</p>
-                  {s.tagline && <p className="mt-2 text-sm text-white/75">{s.tagline}</p>}
-                </div>
-              </DeckShell>
-            ),
-          }));
+          const backendNames: string[] = (danceStyles ?? [])
+            .map((s: any) => String(s.name ?? "").trim())
+            .filter(Boolean);
+          const names = backendNames.length > 0 ? backendNames : defaultStyles.map((s) => s.name);
 
           return (
-            <StackedDeck
-              items={deckCards}
-              variant="stack"
-              className="mx-auto h-[440px] w-full max-w-[380px] sm:h-[520px] sm:max-w-[440px]"
-            />
+            <motion.div
+              variants={stagger}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-80px" }}
+              className="flex flex-wrap gap-3 sm:gap-4"
+            >
+              {names.map((name) => (
+                <motion.span
+                  key={name}
+                  variants={item}
+                  whileHover={{ y: -3 }}
+                  className="group relative inline-flex items-center overflow-hidden rounded-full border border-border bg-card px-6 py-3.5 sm:px-8 sm:py-4 font-display text-base sm:text-lg font-semibold tracking-tight shadow-[0_10px_30px_-18px_color-mix(in_oklab,var(--foreground)_50%,transparent)] transition-colors duration-300 hover:border-primary hover:text-primary cursor-default"
+                >
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
+                    style={{ background: "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--primary) 12%, transparent) 50%, transparent 70%)" }}
+                  />
+                  <span className="relative">{name}</span>
+                </motion.span>
+              ))}
+            </motion.div>
           );
-
         })()}
+
 
       </section>
 
@@ -1086,24 +1052,8 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
           );
         })()}
       </section>
-      {/* TESTIMONIALS */}
-      <LazySection minHeight={420}>
-        <TestimonialsCarousel items={testimonials.map((t) => ({
-          id: t.id,
-          name: t.name,
-          role: t.role,
-          story: t.story,
-          rating: t.rating,
-          avatar_url: t.avatar_url,
-        }))} />
-      </LazySection>
 
 
-      {/* CINEMATIC SHOWREEL */}
-      <CinematicShowreel choreos={choreos} workshops={workshops} />
-
-      {/* FOUNDER / ABOUT */}
-      <FounderSection founder={founder} />
 
 
 
@@ -1138,10 +1088,10 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-[2.5rem] border border-white/10 p-12 lg:p-24 text-center"
+          className="relative overflow-hidden rounded-[2.5rem] border border-border p-12 lg:p-24 text-center"
           style={{
             background:
-              "radial-gradient(80% 120% at 50% 0%, color-mix(in oklab, var(--primary) 55%, transparent) 0%, transparent 60%), linear-gradient(135deg, #0a0a12 0%, #1a0b2e 45%, #0a0a12 100%)",
+              "radial-gradient(80% 120% at 50% 0%, color-mix(in oklab, var(--background) 22%, transparent) 0%, transparent 62%), var(--gradient-primary)",
           }}
         >
           {/* Floating orbs */}
@@ -1149,15 +1099,15 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
             aria-hidden
             animate={{ y: [0, -20, 0], x: [0, 12, 0] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-70"
-            style={{ background: "radial-gradient(circle, #C7A34A 0%, transparent 70%)" }}
+            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-40"
+            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--background) 55%, transparent) 0%, transparent 70%)" }}
           />
           <motion.div
             aria-hidden
             animate={{ y: [0, 24, 0], x: [0, -18, 0] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-60"
-            style={{ background: "radial-gradient(circle, #7A3BFF 0%, transparent 70%)" }}
+            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-30"
+            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--background) 45%, transparent) 0%, transparent 70%)" }}
           />
           <motion.div
             aria-hidden
@@ -1166,9 +1116,10 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
             className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/10"
           />
 
-          <p className="relative text-xs uppercase tracking-[0.4em] text-primary">The stage is set</p>
+
+          <p className="relative text-xs uppercase tracking-[0.4em] text-white/70">The stage is set</p>
           <h2 className="relative mt-4 font-display text-4xl lg:text-7xl font-bold text-white text-balance leading-[1.02]">
-            Your journey <span className="italic font-light bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(120deg,#C7A34A,#7A3BFF,#3B82F6)" }}>begins now.</span>
+            Your journey <span className="italic font-light text-white/70">begins now.</span>
           </h2>
           <p className="relative mt-5 text-white/70 max-w-xl mx-auto text-base lg:text-lg">
             Step in. Move freely. Leave transformed.
@@ -1186,13 +1137,12 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
                     setTimeout(go, 350);
                   } catch { go(); }
                 }}
-                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-primary-foreground overflow-hidden"
+                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-foreground bg-background overflow-hidden hover:opacity-90 transition-opacity"
                 style={{
-                  background: "linear-gradient(135deg, var(--primary) 0%, #7A3BFF 100%)",
-                  boxShadow:
-                    "0 0 60px color-mix(in oklab, var(--primary) 70%, transparent), 0 0 120px color-mix(in oklab, #7A3BFF 40%, transparent)",
+                  boxShadow: "0 24px 70px -22px color-mix(in oklab, var(--background) 60%, transparent)",
                 }}
               >
+
                 <span className="relative z-10 flex items-center gap-2">
                   Start Your Dance Journey
                   <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
@@ -1356,12 +1306,10 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
             <Play size={12} /> On screen
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
-            The <span className="italic font-light">showreel.</span>
+            Most Viral <span className="italic font-light">Choreographies.</span>
           </h2>
         </div>
-        <p className="hidden sm:block max-w-sm text-sm text-muted-foreground">
-          Choreography drops and workshop highlights — the flow moves on its own, or swipe and tap a side clip to bring it centre stage.
-        </p>
+
       </div>
 
       <LazySection minHeight={560}>
