@@ -94,11 +94,11 @@ const heroVideoType = (src: string) => {
 
 const preloadLinkForHeroMedia = (src?: string | null) => {
   if (!src) return null;
-  if (isVideoUrl(src)) {
-    return { rel: "preload", as: "video", href: src, type: heroVideoType(src) };
-  }
-  return { rel: "preload", as: "image", href: src };
+  // Never preload video — hero clips load only once they become active.
+  if (isVideoUrl(src)) return null;
+  return { rel: "preload", as: "image", href: src, fetchpriority: "high" };
 };
+
 
 const preconnectLinkForHeroMedia = (src?: string | null) => {
   if (!src || src.startsWith("/")) return null;
