@@ -42,27 +42,8 @@ export function FloatingWorldScene() {
   const horizonY = useTransform(smooth, [0, 1], ["8%", "-8%"]);
   const architectureY = useTransform(smooth, [0, 1], ["0%", "-12%"]);
 
-  // Cursor spotlight for desktop
-  const mx = useMotionValue(0.5);
-  const my = useMotionValue(0.3);
-  const smx = useSpring(mx, { stiffness: 60, damping: 20 });
-  const smy = useSpring(my, { stiffness: 60, damping: 20 });
+  // (Cursor-driven spotlight removed for performance — see render below.)
 
-  useEffect(() => {
-    if (isMobile || reduce) return;
-    const onMove = (e: MouseEvent) => {
-      mx.set(e.clientX / window.innerWidth);
-      my.set(e.clientY / window.innerHeight);
-    };
-    window.addEventListener("mousemove", onMove, { passive: true });
-    return () => window.removeEventListener("mousemove", onMove);
-  }, [isMobile, reduce, mx, my]);
-
-  const spotlightBg = useTransform(
-    [smx, smy] as any,
-    ([x, y]: number[]) =>
-      `radial-gradient(500px circle at ${x * 100}% ${y * 100}%, color-mix(in oklab, var(--primary) 22%, transparent), transparent 70%)`
-  );
 
   const birds = useMemo(
     () => Array.from({ length: isMobile ? 3 : 6 }, (_, i) => ({
