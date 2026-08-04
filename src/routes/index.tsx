@@ -904,9 +904,14 @@ function Index() {
           const renderMedia = (s: RenderStyle, active: boolean) => {
             if (s.video_url && active) {
               return (
-                <video src={s.video_url} poster={s.image_url ?? undefined}
-                  autoPlay loop muted playsInline preload="metadata"
-                  className="absolute inset-0 h-full w-full object-cover" />
+                <>
+                  {s.image_url && (
+                    <img src={s.image_url} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80" />
+                  )}
+                  <video src={s.video_url} poster={s.image_url ?? undefined}
+                    autoPlay loop muted playsInline preload="metadata"
+                    className="absolute inset-0 h-full w-full object-contain" />
+                </>
               );
             }
             if (s.image_url) {
