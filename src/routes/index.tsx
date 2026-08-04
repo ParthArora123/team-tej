@@ -952,7 +952,12 @@ function Index() {
             if (s.image_url) {
               return <img src={s.image_url} alt={s.name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />;
             }
-            return <StyleAnimation name={s.name} active={active} />;
+            return (
+              <Suspense fallback={null}>
+                <StyleAnimation name={s.name} active={active} />
+              </Suspense>
+            );
+
           };
 
           const deckCards: StackedDeckItem[] = stylesToRender.map((s) => ({
