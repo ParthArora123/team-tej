@@ -739,9 +739,9 @@ function Index() {
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
           <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Signature Programs</p>
+            <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Signature Programs</p>
             <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
-              Find your <span className="italic font-light">format.</span>
+              Find your <span className="italic font-light df-gradient-text">format.</span>
             </h2>
           </div>
           <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
@@ -769,14 +769,22 @@ function Index() {
             { icon: Video, title: "Online Training", desc: "Structured remote training for dancers anywhere in the world.", href: "/online-trainings" },
           ].map((p) => (
             <motion.div key={p.title} variants={item}>
-              <Link to={p.href} className="group block h-full premium-card bg-card p-6">
-                <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <Link
+                to={p.href}
+                className="group relative block h-full df-border-card bg-card p-6 overflow-hidden transition-shadow duration-300 hover:shadow-[0_24px_60px_-28px_rgba(238,61,139,0.55)]"
+              >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: "linear-gradient(135deg, rgba(249,178,51,0.10), rgba(238,61,139,0.10) 55%, rgba(142,45,168,0.12))" }}
+                />
+                <div className="relative h-11 w-11 rounded-xl df-gradient-bg text-white flex items-center justify-center shadow-[0_10px_24px_-10px_rgba(238,61,139,0.7)]">
                   <p.icon size={20} />
                 </div>
-                <p className="mt-4 font-display text-xl font-bold">{p.title}</p>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                  Learn more <ArrowUpRight size={14} />
+                <p className="relative mt-4 font-display text-xl font-bold">{p.title}</p>
+                <p className="relative mt-2 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+                <span className="relative mt-4 inline-flex items-center gap-1.5 text-xs font-semibold df-gradient-text opacity-0 group-hover:opacity-100 transition-opacity">
+                  Learn more <ArrowUpRight size={14} className="text-[#EE3D8B]" />
                 </span>
               </Link>
             </motion.div>
@@ -784,6 +792,7 @@ function Index() {
         </motion.div>
         )}
       </section>
+
 
       {/* DANCE STYLES */}
       <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
