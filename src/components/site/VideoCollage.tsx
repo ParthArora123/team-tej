@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Play, X, Maximize2 } from "lucide-react";
+import { Play, X, Maximize2, Volume2, VolumeX } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export type CollageItem = {
@@ -11,7 +11,9 @@ export type CollageItem = {
   poster?: string | null;
 };
 
-const CYCLE_MS = 10000;
+/** Fallback duration for slides that have no playable video. */
+const STILL_MS = 6000;
+const SOUND_KEY = "feed-sound-on";
 
 const DESKTOP_SLOTS = [
   "col-span-3 row-span-4",
@@ -35,8 +37,27 @@ function useReducedMotion() {
   return reduced;
 }
 
-function Layer({ item, play }: { item: CollageItem; play: boolean }) {
+function Layer({
+  item,
+  play,
+  soundOn,
+  onEnded,
+  onSoundBlocked,
+}: {
+  item: CollageItem;
+  play: boolean;
+  soundOn: boolean;
+  onEnded: () => void;
+  onSoundBlocked: () => void;
+}) {
   const ref = useRef<HTMLVideoElement>(null);
+
+  // Apply mute state without remounting the element (no flicker / reload).
+  useEffect(() => {
+    const v = ref.current;
+    if (!v) return;
+    v.muted = !play || !soundOn;
+  }, [play, soundOn]);
 
   useEffect(() => {
     const v = ref.current;
@@ -47,10 +68,17 @@ function Layer({ item, play }: { item: CollageItem; play: boolean }) {
       } catch {
         /* ignore */
       }
-      void v.play().catch(() => undefined);
+      v.muted = !soundOn;
+      v.play().catch(() => {
+        // Autoplay with sound blocked → fall back to muted playback.
+        v.muted = true;
+        onSoundBlocked();
+        void v.play().catch(() => undefined);
+      });
     } else {
       v.pause();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [play, item.video]);
 
   return (
@@ -69,10 +97,9 @@ function Layer({ item, play }: { item: CollageItem; play: boolean }) {
           ref={ref}
           src={item.video}
           poster={item.poster ?? undefined}
-          muted
-          loop
           playsInline
           preload={play ? "auto" : "metadata"}
+          onEnded={onEnded}
           disableRemotePlayback
           disablePictureInPicture
           className="absolute inset-0 h-full w-full object-cover object-[50%_28%]"
@@ -96,19 +123,24 @@ function Slot({
   className,
   reduced,
   active,
+  soundOn,
+  onToggleSound,
+  onEnded,
+  onSoundBlocked,
   onOpen,
 }: {
   item: CollageItem;
   className: string;
   reduced: boolean;
   active: boolean;
+  soundOn: boolean;
+  onToggleSound: () => void;
+  onEnded: () => void;
+  onSoundBlocked: () => void;
   onOpen: (item: CollageItem) => void;
 }) {
   return (
-    <motion.button
-      type="button"
-      onClick={() => onOpen(item)}
-      aria-label={item.title ?? "Play video"}
+    <motion.div
       animate={
         reduced
           ? { opacity: active ? 1 : 0.75 }
@@ -118,6 +150,15 @@ function Slot({
       style={{ zIndex: active ? 2 : 1 }}
       className={`group relative overflow-hidden rounded-[1.25rem] bg-muted text-left transform-gpu ${className}`}
     >
+      <button
+        type="button"
+        onClick={() => onOpen(item)}
+        aria-label={item.title ?? "Play video"}
+        className="absolute inset-0 z-[1]"
+      >
+        <span className="sr-only">{item.title ?? "Play video"}</span>
+      </button>
+
       <AnimatePresence initial={false} mode="popLayout">
         <motion.div
           key={item.id}
@@ -127,7 +168,13 @@ function Slot({
           transition={{ duration: reduced ? 0.2 : 0.9, ease: [0.16, 1, 0.3, 1] }}
           className="absolute inset-0 will-change-[opacity,transform]"
         >
-          <Layer item={item} play={active} />
+          <Layer
+            item={item}
+            play={active}
+            soundOn={soundOn}
+            onEnded={onEnded}
+            onSoundBlocked={onSoundBlocked}
+          />
         </motion.div>
       </AnimatePresence>
 
@@ -150,7 +197,7 @@ function Slot({
         }}
       />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] p-4">
         {item.subtitle && (
           <p className="text-[9px] uppercase tracking-[0.3em] text-white/65">{item.subtitle}</p>
         )}
@@ -159,13 +206,26 @@ function Slot({
         )}
       </div>
 
-      <span className="pointer-events-none absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border border-white/25 bg-white/10 text-white opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
+      {item.video && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleSound();
+          }}
+          aria-label={soundOn ? "Mute videos" : "Unmute videos"}
+          className="absolute left-3 top-3 z-[3] grid h-9 w-9 place-items-center rounded-full border border-white/25 bg-black/35 text-white backdrop-blur transition-colors hover:bg-black/55"
+        >
+          {soundOn ? <Volume2 size={14} /> : <VolumeX size={14} />}
+        </button>
+      )}
+
+      <span className="pointer-events-none absolute right-3 top-3 z-[2] grid h-8 w-8 place-items-center rounded-full border border-white/25 bg-white/10 text-white opacity-0 backdrop-blur transition-opacity duration-300 group-hover:opacity-100">
         <Maximize2 size={13} />
       </span>
-    </motion.button>
+    </motion.div>
   );
 }
-
 
 function Lightbox({
   item,
@@ -221,7 +281,6 @@ function Lightbox({
             playsInline
             className="h-full max-h-[80vh] w-full bg-black object-contain"
           />
-
         ) : item.poster ? (
           <img src={item.poster} alt={item.title ?? ""} className="max-h-[80vh] w-full object-contain" />
         ) : null}
@@ -231,8 +290,9 @@ function Lightbox({
 }
 
 /**
- * Editorial video collage: several videos on screen at once, one swaps
- * every 5 seconds with a cinematic crossfade + drift zoom.
+ * Editorial video collage. Videos play in a fixed sequence (1 → 2 → 3 … → 1),
+ * each one plays to the end before the spotlight moves on. Sound starts muted
+ * and the user's unmute choice is remembered for the session.
  */
 export function VideoCollage({ items }: { items: CollageItem[] }) {
   const isMobile = useIsMobile();
@@ -240,21 +300,49 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
   const layout = isMobile ? MOBILE_SLOTS : DESKTOP_SLOTS;
   const slotCount = Math.min(layout.length, items.length);
 
+  // assign[slot] = index into `items` currently rendered in that slot.
   const [assign, setAssign] = useState<number[]>(() =>
     Array.from({ length: layout.length }, (_, i) => i),
   );
-  const [active, setActive] = useState(0);
+  const [step, setStep] = useState(0); // sequential position in the playlist
   const [paused, setPaused] = useState(false);
   const [inView, setInView] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
   const [open, setOpen] = useState<CollageItem | null>(null);
-  const cursor = useRef(0);
   const wrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    cursor.current = slotCount;
-    setActive(0);
-    setAssign(Array.from({ length: layout.length }, (_, i) => i % Math.max(items.length, 1)));
-  }, [items, slotCount, layout.length]);
+    if (typeof sessionStorage === "undefined") return;
+    if (sessionStorage.getItem(SOUND_KEY) === "1") setSoundOn(true);
+  }, []);
+
+  const toggleSound = useCallback(() => {
+    setSoundOn((s) => {
+      const next = !s;
+      try {
+        sessionStorage.setItem(SOUND_KEY, next ? "1" : "0");
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
+
+  const handleSoundBlocked = useCallback(() => {
+    setSoundOn(false);
+    try {
+      sessionStorage.setItem(SOUND_KEY, "0");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    setStep(0);
+    setAssign(
+      Array.from({ length: layout.length }, (_, i) => (items.length ? i % items.length : 0)),
+    );
+  }, [items, layout.length]);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -264,47 +352,61 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
     return () => io.disconnect();
   }, []);
 
-  // Next item that will be swapped in — preloaded ahead of the transition.
-  const nextIndex = items.length ? cursor.current % items.length : 0;
+  const activeSlot = slotCount ? step % slotCount : 0;
+  const nextItemIndex = items.length ? (step + 1) % items.length : 0;
 
-  // One frame at a time: it pops forward, plays its clip, then after 5s the
-  // spotlight moves to the next frame (which gets a fresh clip when available).
+  // Advance strictly in order; the next slot receives the next clip up front so
+  // it is already mounted (and preloading) before it becomes active.
+  const advance = useCallback(() => {
+    if (!slotCount || !items.length) return;
+    setStep((prev) => {
+      const next = prev + 1;
+      if (items.length > slotCount) {
+        const slot = next % slotCount;
+        const idx = next % items.length;
+        setAssign((a) => {
+          if (a[slot] === idx) return a;
+          const copy = [...a];
+          copy[slot] = idx;
+          return copy;
+        });
+      }
+      return next;
+    });
+  }, [items.length, slotCount]);
+
+  // Keep the upcoming slot's clip assigned ahead of time for a seamless swap.
   useEffect(() => {
-    if (paused || !inView || slotCount === 0) return;
-    const t = setInterval(() => {
-      setActive((prev) => {
-        const next = (prev + 1) % slotCount;
-        if (items.length > slotCount) {
-          setAssign((a) => {
-            const copy = [...a];
-            copy[next] = cursor.current % items.length;
-            cursor.current += 1;
-            return copy;
-          });
-        }
-        return next;
-      });
-    }, CYCLE_MS);
-    return () => clearInterval(t);
-  }, [paused, inView, items.length, slotCount]);
+    if (!slotCount || items.length <= slotCount) return;
+    const slot = (step + 1) % slotCount;
+    const idx = (step + 1) % items.length;
+    setAssign((a) => {
+      if (a[slot] === idx) return a;
+      const copy = [...a];
+      copy[slot] = idx;
+      return copy;
+    });
+  }, [step, slotCount, items.length]);
 
+  const activeItem = items[assign[activeSlot] % Math.max(items.length, 1)];
 
-  const onOpen = useCallback((item: CollageItem) => {
-    setOpen(item);
-  }, []);
+  // Stills (no video) still need to move the sequence along.
+  useEffect(() => {
+    if (paused || !inView || !slotCount) return;
+    if (activeItem?.video) return;
+    const t = setTimeout(advance, STILL_MS);
+    return () => clearTimeout(t);
+  }, [paused, inView, slotCount, activeItem, advance]);
 
-  const preload = useMemo(() => items[nextIndex], [items, nextIndex]);
+  const onOpen = useCallback((item: CollageItem) => setOpen(item), []);
 
+  const preload = useMemo(() => items[nextItemIndex], [items, nextItemIndex]);
 
   if (!items.length) return null;
 
   return (
     <div
       ref={wrapRef}
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onTouchStart={() => setPaused(true)}
-      onTouchEnd={() => setPaused(false)}
       className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-10"
     >
       <div
@@ -323,17 +425,16 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
               item={item}
               className={cls}
               reduced={reduced}
-              active={i === active}
+              active={i === activeSlot && inView && !paused}
+              soundOn={soundOn}
+              onToggleSound={toggleSound}
+              onEnded={advance}
+              onSoundBlocked={handleSoundBlocked}
               onOpen={onOpen}
             />
           );
-
         })}
       </div>
-
-
-
-
 
       {/* invisible preloader for the upcoming clip */}
       {preload?.video && (
@@ -354,10 +455,7 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
       </p>
 
       <AnimatePresence>
-        {open && (
-          <Lightbox item={open} onClose={() => setOpen(null)} />
-
-        )}
+        {open && <Lightbox item={open} onClose={() => setOpen(null)} muted={!soundOn} />}
       </AnimatePresence>
     </div>
   );
