@@ -752,7 +752,10 @@ function Index() {
             <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
           </div>
         ) : (
-          <WorkshopDeck workshops={workshops} />
+          <LazySection minHeight={520}>
+            <WorkshopDeck workshops={workshops} />
+          </LazySection>
+
         )}
       </section>
 
