@@ -722,3 +722,84 @@ export function WhatsappTemplateTab() {
     </form>
   );
 }
+
+// ============ HERO PHOTO TAB ============
+export function HeroPortraitTab() {
+  const load = useServerFn(getSiteContent);
+  const save = useServerFn(adminSaveSiteContent);
+  const upload = useServerFn(adminUploadChoreographyMedia);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+  const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    load({ data: { key: "hero_portrait" } }).then((v: any) => {
+      if (!v) return;
+      setImageUrl(v.image_url ?? "");
+      setPreview(v.image_url ?? null);
+    }).catch(() => {});
+  }, []);
+
+  const pickImage = async (rawFile: File) => {
+    if (rawFile.size > 50 * 1024 * 1024) return toast.error("Max 50 MB");
+    setUploading(true);
+    try {
+      const file = await compressImageFile(rawFile);
+      const dataBase64 = await fileToBase64(file);
+      const res: any = await upload({ data: { kind: "image", filename: file.name, contentType: file.type, dataBase64 } });
+      setImageUrl(res.url);
+      setPreview(res.preview_url ?? URL.createObjectURL(file));
+      toast.success("Photo uploaded");
+    } catch (e: any) { toast.error(e.message ?? "Upload failed"); }
+    finally { setUploading(false); }
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!imageUrl) return toast.error("Upload a photo first");
+    setBusy(true);
+    try {
+      await save({ data: { key: "hero_portrait", value: { image_url: imageUrl } } });
+      toast.success("Homepage hero photo saved");
+    } catch (e: any) { toast.error(e.message ?? "Save failed"); }
+    finally { setBusy(false); }
+  };
+
+  return (
+    <form onSubmit={submit} className="mt-8 max-w-2xl space-y-5 p-6 rounded-2xl border border-border bg-card">
+      <div>
+        <p className="font-display text-lg">Homepage hero photo</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          This photo fills the top of the homepage. Portrait / tall images work best.
+        </p>
+      </div>
+
+      <div className="rounded-xl overflow-hidden border border-border bg-muted aspect-[3/4] max-w-xs flex items-center justify-center">
+        {preview
+          ? <img src={preview} alt="Hero preview" className="h-full w-full object-cover object-top" />
+          : <span className="text-xs text-muted-foreground">No photo yet</span>}
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button type="button" disabled={uploading} onClick={() => fileRef.current?.click()}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm">
+          <Upload size={14} /> {uploading ? "Uploading…" : preview ? "Replace photo" : "Upload photo"}
+        </button>
+        {preview && (
+          <button type="button" onClick={() => { setImageUrl(""); setPreview(null); }}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm text-muted-foreground">
+            <Trash2 size={14} /> Remove
+          </button>
+        )}
+        <input ref={fileRef} type="file" hidden accept="image/jpeg,image/png,image/webp"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) pickImage(f); e.currentTarget.value = ""; }} />
+      </div>
+
+      <button disabled={busy} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">
+        {busy ? "Saving…" : "Save hero photo"}
+      </button>
+    </form>
+  );
+}
