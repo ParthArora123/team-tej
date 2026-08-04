@@ -133,39 +133,48 @@ export function CinematicHero({
 
       {/* Cinematic clip montage — crossfades over the portrait on desktop */}
       {cinemaOn && activeClip && (
-        <video
-          key={activeClip}
-          ref={(node) => {
-            videoRef.current = node;
-            if (node) {
-              node.muted = true;
-              void playHomepageVideo(node);
-            }
-          }}
-          src={activeClip}
-          poster={backgroundImage}
-          autoPlay
-          muted
-          loop={clips.length === 1}
-          playsInline
-          preload="metadata"
-          aria-hidden
-          onCanPlay={() => setClipReady(true)}
-          onEnded={() => {
-            if (clips.length > 1) {
-              setClipReady(false);
-              setClipIdx((i) => (i + 1) % clips.length);
-            }
-          }}
-          onError={() => {
-            if (clips.length > 1) setClipIdx((i) => (i + 1) % clips.length);
-          }}
-          className="absolute inset-0 h-full w-full object-contain transform-gpu"
-          style={{
-            opacity: clipReady ? 1 : 0,
-            transition: "opacity 1.4s ease",
-          }}
-        />
+        <>
+          <img
+            src={backgroundImage}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-70"
+            draggable={false}
+          />
+          <video
+            key={activeClip}
+            ref={(node) => {
+              videoRef.current = node;
+              if (node) {
+                node.muted = true;
+                void playHomepageVideo(node);
+              }
+            }}
+            src={activeClip}
+            poster={backgroundImage}
+            autoPlay
+            muted
+            loop={clips.length === 1}
+            playsInline
+            preload="metadata"
+            aria-hidden
+            onCanPlay={() => setClipReady(true)}
+            onEnded={() => {
+              if (clips.length > 1) {
+                setClipReady(false);
+                setClipIdx((i) => (i + 1) % clips.length);
+              }
+            }}
+            onError={() => {
+              if (clips.length > 1) setClipIdx((i) => (i + 1) % clips.length);
+            }}
+            className="absolute inset-0 h-full w-full object-contain transform-gpu z-[1]"
+            style={{
+              opacity: clipReady ? 1 : 0,
+              transition: "opacity 1.4s ease",
+            }}
+          />
+        </>
       )}
 
       {/* Cinematic grading — stronger at bottom so text stays legible, clear at top for the portrait */}
