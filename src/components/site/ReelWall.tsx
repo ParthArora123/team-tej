@@ -32,7 +32,7 @@ function ReelCard({ reel }: { reel: Reel }) {
     <div
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      className="group relative aspect-[9/16] w-[180px] sm:w-[220px] shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition-transform duration-500 hover:scale-[1.04] transform-gpu"
+      className="group relative aspect-[9/16] w-[240px] sm:w-[300px] shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-black/40 transition-transform duration-500 hover:scale-[1.04] transform-gpu"
     >
       {reel.poster && (
         <img
