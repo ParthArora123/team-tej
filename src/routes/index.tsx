@@ -633,6 +633,47 @@ function Index() {
         onReady={() => setHeroReady(true)}
       />
 
+      {/* FOUNDER / ABOUT — directly below hero */}
+      <FounderSection founder={founder} />
+
+      {/* WORKSHOPS — dynamic (primary CTA) */}
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-8 lg:pt-24 lg:pb-12">
+        <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+              <Calendar size={12} /> Upcoming Workshops
+            </p>
+            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+              Register Now. Experience the Magic.
+            </h2>
+            <p className="mt-4 text-muted-foreground max-w-xl">
+              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
+            </p>
+          </div>
+          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
+            See all workshops <ArrowUpRight size={14} />
+          </Link>
+        </div>
+
+        {workshops.length === 0 && !workshopsLoaded ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+          </div>
+        ) : workshops.length === 0 ? (
+          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
+            <p className="font-display text-2xl">Coming Soon</p>
+            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+          </div>
+        ) : (
+          <LazySection minHeight={520}>
+            <WorkshopDeck workshops={workshops} />
+          </LazySection>
+        )}
+      </section>
+
+      {/* MOST VIRAL CHOREOGRAPHIES */}
+      <CinematicShowreel choreos={choreos} workshops={workshops} />
+
       {/* CINEMATIC VIDEO COLLAGE — one frame refreshes every 10s */}
       {reels.length > 0 && (
         <section className="py-20 lg:py-28 border-t border-border overflow-hidden">
@@ -643,9 +684,7 @@ function Index() {
                 Straight from the <span className="italic font-light">feed.</span>
               </h2>
             </div>
-            <p className="text-sm text-muted-foreground max-w-sm">
-              A living wall of performance moments — one frame refreshes every few seconds.
-            </p>
+
           </div>
           <LazySection minHeight={520}>
             <VideoCollage
