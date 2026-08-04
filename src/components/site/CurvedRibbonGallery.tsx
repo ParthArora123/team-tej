@@ -21,7 +21,7 @@ type Stage = {
   side: number;
 };
 
-function useStage(width: number): Stage {
+function computeStage(width: number): Stage {
   if (width && width < 640) {
     return { gap: 118, amp: 26, centerW: 208, centerH: 320, height: 430, side: 2 };
   }
@@ -140,7 +140,7 @@ export function CurvedRibbonGallery({ items }: { items: DeckItem[] }) {
   const countRef = useRef(n);
   countRef.current = n;
   const reduce = useReducedMotion();
-  const stage = useStage(width);
+  const stage = computeStage(width);
 
   useEffect(() => {
     if (typeof sessionStorage === "undefined") return;
@@ -346,15 +346,17 @@ export function CurvedRibbonGallery({ items }: { items: DeckItem[] }) {
       </div>
 
       {active?.video && (
+        <div className="mt-5 flex justify-center">
         <button
           type="button"
           onClick={toggleSound}
           aria-label={soundOn ? "Mute video" : "Unmute video"}
-          className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-foreground backdrop-blur transition-colors hover:border-primary hover:text-primary"
+          className="inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-foreground backdrop-blur transition-colors hover:border-primary hover:text-primary"
         >
           {soundOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
           {soundOn ? "Sound on" : "Unmute"}
         </button>
+        </div>
       )}
 
       {n > 1 && (
