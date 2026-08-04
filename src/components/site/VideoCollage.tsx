@@ -275,12 +275,12 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
   const maxVisible = isMobile ? 3 : 5;
 
   return (
-    <div ref={wrapRef} className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-10">
+    <div ref={wrapRef} className="relative mx-auto w-full max-w-7xl px-2 sm:px-6 lg:px-10">
       <div
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         className="relative mx-auto flex items-center justify-center"
-        style={{ height: isMobile ? 430 : 620, perspective: 1400 }}
+        style={{ height: isMobile ? 600 : 820, perspective: 1400 }}
       >
         {/* ambient stage lighting */}
         <div
