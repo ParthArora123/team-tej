@@ -56,7 +56,7 @@ export function WorkshopHero() {
                 poster={s.poster_url ?? undefined}
                 autoPlay muted loop playsInline
                 preload="metadata"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             : <motion.img
                 src={s.media_url ?? undefined}

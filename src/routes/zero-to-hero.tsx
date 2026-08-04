@@ -674,7 +674,7 @@ function ZeroToHeroGallery() {
               {m.media_kind === "video" ? (
                 <video src={m.media_url} poster={m.poster_url ?? undefined}
                   autoPlay muted loop playsInline preload="metadata"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  className="w-full h-full object-contain" />
               ) : (
                 <img src={m.media_url} alt={m.caption ?? ""} loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />

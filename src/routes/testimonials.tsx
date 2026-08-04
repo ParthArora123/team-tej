@@ -255,7 +255,7 @@ function Testimonials() {
                 <video
                   src={t.video}
                   controls
-                  className="w-full aspect-video bg-black object-cover"
+                  className="w-full aspect-video bg-black object-contain"
                 />
               ) : (
                 <div className="w-full aspect-video bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
