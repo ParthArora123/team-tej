@@ -1361,21 +1361,24 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
         </p>
       </div>
 
-      <CoverflowCarousel
-        items={items.map((it) => ({
-          id: it.id,
-          title: it.title,
-          subtitle: it.subtitle,
-          badge: it.badge,
-          videoSrc: it.videoSrc,
-          embedSrc: it.embedSrc,
-          poster: it.poster,
-          ctaLabel: it.ctaLabel,
-          ctaLink: it.ctaLink,
-          ctaExternal: it.ctaExternal,
-        }))}
-        interval={5000}
-      />
+      <LazySection minHeight={560}>
+        <CoverflowCarousel
+          items={items.map((it) => ({
+            id: it.id,
+            title: it.title,
+            subtitle: it.subtitle,
+            badge: it.badge,
+            videoSrc: it.videoSrc,
+            embedSrc: it.embedSrc,
+            poster: it.poster,
+            ctaLabel: it.ctaLabel,
+            ctaLink: it.ctaLink,
+            ctaExternal: it.ctaExternal,
+          }))}
+          interval={5000}
+        />
+      </LazySection>
+
     </section>
   );
 }
