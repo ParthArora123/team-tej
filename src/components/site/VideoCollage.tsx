@@ -235,21 +235,31 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
     return () => io.disconnect();
   }, []);
 
+  // Auto-advance: one single interval, always stepping to the *next* clip and
+  // wrapping only after the very last one — for any number of clips.
+  const countRef = useRef(playlist.length);
+  countRef.current = playlist.length;
+
   useEffect(() => {
-    if (paused || !inView || playlist.length < 2) return;
+    if (paused || !inView) return;
     const interval = window.setInterval(() => {
-      setIndex((current) => (current + 1) % playlist.length);
+      const total = countRef.current;
+      if (total < 2) return;
+      setIndex((current) => (current + 1) % total);
     }, ROTATE_MS);
     return () => window.clearInterval(interval);
-  }, [paused, inView, playlist.length, playlistKey]);
+  }, [paused, inView]);
 
   // Manual interaction pauses auto-rotation, then resumes.
   const nudge = useCallback((dir: number) => {
     setPaused(true);
-    setIndex((i) => (i + dir + 1000 * playlist.length) % playlist.length);
+    setIndex((i) => {
+      const total = countRef.current || 1;
+      return (i + dir + total) % total;
+    });
     if (resumeRef.current) clearTimeout(resumeRef.current);
     resumeRef.current = setTimeout(() => setPaused(false), RESUME_MS);
-  }, [playlist.length]);
+  }, []);
 
   const focus = useCallback((target: number) => {
     setPaused(true);
@@ -262,17 +272,33 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
     if (resumeRef.current) clearTimeout(resumeRef.current);
   }, []);
 
+  // Track the stage width so the orbit scales on tablet as well as phone/desktop.
+  const [stageW, setStageW] = useState(0);
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([e]) => setStageW(e.contentRect.width));
+    ro.observe(el);
+    setStageW(el.getBoundingClientRect().width);
+    return () => ro.disconnect();
+  }, []);
+
   if (!playlist.length) return null;
 
   const n = playlist.length;
   const active = playlist[index];
-  const radiusX = isMobile ? 132 : 420;
-  const radiusY = isMobile ? 40 : 96;
-  const centerW = isMobile ? 300 : 500;
-  const centerH = isMobile ? 500 : 700;
-  const orbitW = isMobile ? 108 : 200;
-  const orbitH = isMobile ? 180 : 300;
-  const maxVisible = isMobile ? 3 : 5;
+  const width = stageW || (isMobile ? 380 : 1200);
+  const tablet = !isMobile && width < 1024;
+
+  const radiusX = isMobile ? 132 : tablet ? 300 : 420;
+  const radiusY = isMobile ? 40 : tablet ? 74 : 96;
+  const centerW = isMobile ? Math.min(320, width - 40) : tablet ? 380 : 500;
+  const centerH = isMobile ? 500 : tablet ? 540 : 700;
+  const orbitW = isMobile ? 108 : tablet ? 150 : 200;
+  const orbitH = isMobile ? 180 : tablet ? 225 : 300;
+  const maxVisible = isMobile ? 3 : tablet ? 3 : 5;
+  const stageH = isMobile ? 600 : tablet ? 660 : 820;
+
 
   return (
     <div ref={wrapRef} className="relative mx-auto w-full max-w-7xl px-2 sm:px-6 lg:px-10">
