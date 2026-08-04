@@ -888,3 +888,28 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ---------------------------------------------------------------
+   Performance: large-radius blurs are the single biggest paint cost
+   on this site (measured). We cap the radii of the ambient/backdrop
+   blur utilities — visually near-identical, dramatically cheaper.
+   --------------------------------------------------------------- */
+.blur-3xl { --tw-blur: blur(30px); filter: blur(30px); }
+.blur-2xl { --tw-blur: blur(20px); filter: blur(20px); }
+.blur-xl  { --tw-blur: blur(14px); filter: blur(14px); }
+[class*="backdrop-blur-2xl"],
+[class*="backdrop-blur-xl"] {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Tablets, laptops with touch, and any coarse-pointer device: drop
+   backdrop-filter entirely and soften ambient blurs further. */
+@media (max-width: 1024px), (hover: none), (pointer: coarse) {
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  .blur-3xl { --tw-blur: blur(18px); filter: blur(18px); }
+  .blur-2xl { --tw-blur: blur(14px); filter: blur(14px); }
+}
