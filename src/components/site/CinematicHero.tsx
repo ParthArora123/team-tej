@@ -98,21 +98,28 @@ export function CinematicHero({
         className="absolute inset-0 w-full h-full transform-gpu will-change-transform"
         style={{
           animation: reduce ? "none" : "heroZoom 24s ease-out forwards",
-          visibility: loaded ? "visible" : "hidden",
+          visibility: loaded && !failed && backgroundImage ? "visible" : "hidden",
         }}
       >
-        <img
-          src={backgroundImage}
-          alt="Tejas D Dhoke"
-          className="absolute inset-0 h-full w-full object-cover object-top"
-          fetchPriority="high"
-          decoding="async"
-          draggable={false}
-          onLoad={() => {
-            setLoaded(true);
-            onReady?.();
-          }}
-        />
+        {backgroundImage && !failed ? (
+          <img
+            src={backgroundImage}
+            alt="Tejas D Dhoke"
+            className="absolute inset-0 h-full w-full object-cover object-top"
+            fetchPriority="high"
+            decoding="async"
+            draggable={false}
+            onLoad={() => {
+              setLoaded(true);
+              onReady?.();
+            }}
+            onError={() => {
+              setFailed(true);
+              setLoaded(true);
+              onReady?.();
+            }}
+          />
+        ) : null}
       </div>
 
       {/* Cinematic clip montage — crossfades over the portrait on desktop */}
