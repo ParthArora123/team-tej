@@ -262,7 +262,19 @@ export function CoverflowCarousel({
   );
 }
 
-function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem; isActive: boolean; near?: boolean; onEnded: () => void }) {
+const Media = memo(function Media({
+  item,
+  isActive,
+  near = false,
+  onEnded,
+  onBuffering,
+}: {
+  item: CoverflowItem;
+  isActive: boolean;
+  near?: boolean;
+  onEnded: () => void;
+  onBuffering?: (buffering: boolean) => void;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   // Only the active card (and the one queued next) keeps a <video> element in
   // the DOM — everything else falls back to the poster, so no off-screen clip
@@ -280,6 +292,27 @@ function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem;
     }
     return () => { if (v) pauseHomepageVideo(v); };
   }, [isActive]);
+
+  // Report buffering so the carousel's auto-advance waits instead of cutting
+  // away from a stalled clip.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !onBuffering) return;
+    const busy = () => onBuffering(true);
+    const ready = () => onBuffering(false);
+    v.addEventListener("waiting", busy);
+    v.addEventListener("stalled", busy);
+    v.addEventListener("playing", ready);
+    v.addEventListener("canplay", ready);
+    return () => {
+      v.removeEventListener("waiting", busy);
+      v.removeEventListener("stalled", busy);
+      v.removeEventListener("playing", ready);
+      v.removeEventListener("canplay", ready);
+      onBuffering(false);
+    };
+  }, [onBuffering, mounted]);
+
 
   if (item.embedSrc && isActive) {
     return (
