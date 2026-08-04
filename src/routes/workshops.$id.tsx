@@ -606,7 +606,7 @@ function WorkshopDetailPage() {
               <button
                 onClick={scrollToRegister}
                 disabled={full}
-                className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-primary via-primary to-accent text-black text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(212,130,41,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
+                className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-primary via-primary to-accent text-primary-foreground text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(212,130,41,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
               >
                 <Sparkles size={16} />
                 {full ? "Sold Out" : "Register Now"}
