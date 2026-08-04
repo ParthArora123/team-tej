@@ -140,7 +140,10 @@ export function ReelDeck({ reels }: { reels: ReelCard[] }) {
         {r.video ? (
           <ReelVideo src={r.video} poster={r.poster} active={active} title={r.title ?? "Reel"} />
         ) : r.poster ? (
-          <img src={r.poster} alt={r.title ?? "Reel"} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+          <>
+            <div aria-hidden className="absolute inset-0 scale-150 blur-2xl" style={{ backgroundImage: `url(${r.poster})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+            <img src={r.poster} alt={r.title ?? "Reel"} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain" />
+          </>
         ) : (
           <div
             className="absolute inset-0"
