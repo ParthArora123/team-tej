@@ -27,9 +27,6 @@ const SmoothScroll = lazy(() =>
 const ScrollToTop = lazy(() =>
   import("../components/site/ScrollToTop").then((m) => ({ default: m.ScrollToTop }))
 );
-const FloatingWorldScene = lazy(() =>
-  import("../components/site/FloatingWorldScene").then((m) => ({ default: m.FloatingWorldScene }))
-);
 
 
 
