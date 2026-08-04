@@ -733,7 +733,7 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
               <Calendar size={12} /> Upcoming Workshops
             </p>
             <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
-              Register. Show up. Transform.
+              Register Now. Experience the Magic.
             </h2>
             <p className="mt-4 text-muted-foreground max-w-xl">
               Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
