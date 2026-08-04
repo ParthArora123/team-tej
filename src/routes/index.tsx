@@ -1138,10 +1138,10 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-[2.5rem] border border-white/10 p-12 lg:p-24 text-center"
+          className="relative overflow-hidden rounded-[2.5rem] border border-border p-12 lg:p-24 text-center"
           style={{
             background:
-              "radial-gradient(80% 120% at 50% 0%, color-mix(in oklab, var(--primary) 55%, transparent) 0%, transparent 60%), linear-gradient(135deg, #0a0a12 0%, #1a0b2e 45%, #0a0a12 100%)",
+              "radial-gradient(80% 120% at 50% 0%, color-mix(in oklab, var(--background) 22%, transparent) 0%, transparent 62%), var(--gradient-primary)",
           }}
         >
           {/* Floating orbs */}
@@ -1149,15 +1149,15 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
             aria-hidden
             animate={{ y: [0, -20, 0], x: [0, 12, 0] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-70"
-            style={{ background: "radial-gradient(circle, #C7A34A 0%, transparent 70%)" }}
+            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-40"
+            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--background) 55%, transparent) 0%, transparent 70%)" }}
           />
           <motion.div
             aria-hidden
             animate={{ y: [0, 24, 0], x: [0, -18, 0] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-60"
-            style={{ background: "radial-gradient(circle, #7A3BFF 0%, transparent 70%)" }}
+            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-30"
+            style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--background) 45%, transparent) 0%, transparent 70%)" }}
           />
           <motion.div
             aria-hidden
@@ -1165,6 +1165,7 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
             transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
             className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/10"
           />
+
 
           <p className="relative text-xs uppercase tracking-[0.4em] text-primary">The stage is set</p>
           <h2 className="relative mt-4 font-display text-4xl lg:text-7xl font-bold text-white text-balance leading-[1.02]">
