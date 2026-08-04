@@ -1260,8 +1260,6 @@ function FounderSection({ founder }: { founder: any | null }) {
   const vision = founder?.vision || "";
   const mission = founder?.mission || "";
   const socials = founder?.socials || {};
-  const ctaText = founder?.cta_text || "Register for Workshops";
-  const ctaLink = founder?.cta_link || "/workshops";
 
   const hasMore = Boolean(biography || achievements.length || vision || mission);
 
@@ -1345,17 +1343,6 @@ function FounderSection({ founder }: { founder: any | null }) {
               >
                 Know more <ArrowUpRight size={18} />
               </button>
-            )}
-            {ctaText && ctaLink && (
-              ctaLink.startsWith("/") ? (
-                <Link to={ctaLink} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition">
-                  {ctaText} <ArrowUpRight size={18} />
-                </Link>
-              ) : (
-                <a href={ctaLink} className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition">
-                  {ctaText} <ArrowUpRight size={18} />
-                </a>
-              )
             )}
           </div>
 
