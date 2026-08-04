@@ -75,7 +75,7 @@ export default function HorizontalPager({ children }: { children: React.ReactNod
               key={i}
               className="h-full w-full shrink-0 grow-0 basis-full overflow-y-auto overflow-x-hidden overscroll-contain"
               aria-hidden={!active}
-              inert={!active ? "" : undefined}
+              inert={!active}
               style={{
                 pointerEvents: active ? "auto" : "none",
                 opacity: active ? 1 : 0.25,
