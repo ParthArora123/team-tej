@@ -572,39 +572,8 @@ function Index() {
     [],
   );
 
-  // Viral showcase deck — videos first (falls back to stills only if no videos exist).
-  const deckItems = useMemo<DeckItem[]>(() => {
-    const withVideo = choreos.filter((c) => c.video_url);
-    const source = withVideo.length ? withVideo : choreos.filter((c) => c.thumbnail_url);
-    return source.slice(0, 7).map((c) => ({
-      id: c.id,
-      title: c.title,
-      subtitle: "Viral Choreography",
-      video: c.video_url ?? null,
-      poster: c.thumbnail_url ?? null,
-      href: c.instagram_url ?? c.youtube_url ?? null,
-    }));
-  }, [choreos]);
 
 
-  // Reel wall — vertical reels from choreographies + gallery frames.
-  const reels = useMemo<Reel[]>(() => {
-    const fromChoreos: Reel[] = choreos
-      .filter((c) => c.video_url || c.thumbnail_url)
-      .map((c) => ({
-        id: `c-${c.id}`,
-        title: c.title,
-        video: c.video_url ?? null,
-        poster: c.thumbnail_url ?? null,
-        href: c.instagram_url ?? c.youtube_url ?? null,
-      }));
-    const fromGallery: Reel[] = gallery
-      .filter((g: any) => g.image_url)
-      .slice(0, 10)
-      .map((g: any) => ({ id: `g-${g.id}`, title: g.caption ?? null, poster: g.image_url }));
-    // No hard cap: every uploaded reel joins the orbit rotation.
-    return [...fromChoreos, ...fromGallery];
-  }, [choreos, gallery]);
 
 
   return (
