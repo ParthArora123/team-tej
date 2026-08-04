@@ -1313,12 +1313,10 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
             <Play size={12} /> On screen
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
-            The <span className="italic font-light">showreel.</span>
+            Most Viral <span className="italic font-light">Choreographies.</span>
           </h2>
         </div>
-        <p className="hidden sm:block max-w-sm text-sm text-muted-foreground">
-          Choreography drops and workshop highlights — the flow moves on its own, or swipe and tap a side clip to bring it centre stage.
-        </p>
+
       </div>
 
       <LazySection minHeight={560}>
