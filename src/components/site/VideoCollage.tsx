@@ -42,12 +42,14 @@ function Layer({
   play,
   soundOn,
   onEnded,
+  onPlaybackError,
   onSoundBlocked,
 }: {
   item: CollageItem;
   play: boolean;
   soundOn: boolean;
   onEnded: () => void;
+  onPlaybackError: () => void;
   onSoundBlocked: () => void;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -100,6 +102,7 @@ function Layer({
           playsInline
           preload={play ? "auto" : "metadata"}
           onEnded={onEnded}
+          onError={onPlaybackError}
           disableRemotePlayback
           disablePictureInPicture
           className="absolute inset-0 h-full w-full object-cover object-[50%_28%]"
@@ -126,6 +129,7 @@ function Slot({
   soundOn,
   onToggleSound,
   onEnded,
+  onPlaybackError,
   onSoundBlocked,
   onOpen,
 }: {
@@ -136,6 +140,7 @@ function Slot({
   soundOn: boolean;
   onToggleSound: () => void;
   onEnded: () => void;
+  onPlaybackError: () => void;
   onSoundBlocked: () => void;
   onOpen: (item: CollageItem) => void;
 }) {
@@ -173,6 +178,7 @@ function Slot({
             play={active}
             soundOn={soundOn}
             onEnded={onEnded}
+            onPlaybackError={onPlaybackError}
             onSoundBlocked={onSoundBlocked}
           />
         </motion.div>
@@ -295,10 +301,16 @@ function Lightbox({
  * and the user's unmute choice is remembered for the session.
  */
 export function VideoCollage({ items }: { items: CollageItem[] }) {
+  // When videos exist, keep still images out of the playback queue so every
+  // uploaded clip is reached in an uninterrupted 1 → 2 → 3 sequence.
+  const playlist = useMemo(() => {
+    const videos = items.filter((item) => Boolean(item.video));
+    return videos.length ? videos : items;
+  }, [items]);
   const isMobile = useIsMobile();
   const reduced = useReducedMotion();
   const layout = isMobile ? MOBILE_SLOTS : DESKTOP_SLOTS;
-  const slotCount = Math.min(layout.length, items.length);
+  const slotCount = Math.min(layout.length, playlist.length);
 
   // assign[slot] = index into `items` currently rendered in that slot.
   const [assign, setAssign] = useState<number[]>(() =>
@@ -340,9 +352,9 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
   useEffect(() => {
     setStep(0);
     setAssign(
-      Array.from({ length: layout.length }, (_, i) => (items.length ? i % items.length : 0)),
+      Array.from({ length: layout.length }, (_, i) => (playlist.length ? i % playlist.length : 0)),
     );
-  }, [items, layout.length]);
+  }, [playlist, layout.length]);
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -353,17 +365,17 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
   }, []);
 
   const activeSlot = slotCount ? step % slotCount : 0;
-  const nextItemIndex = items.length ? (step + 1) % items.length : 0;
+  const nextItemIndex = playlist.length ? (step + 1) % playlist.length : 0;
 
   // Advance strictly in order; the next slot receives the next clip up front so
   // it is already mounted (and preloading) before it becomes active.
   const advance = useCallback(() => {
-    if (!slotCount || !items.length) return;
+    if (!slotCount || !playlist.length) return;
     setStep((prev) => {
       const next = prev + 1;
-      if (items.length > slotCount) {
+      if (playlist.length > slotCount) {
         const slot = next % slotCount;
-        const idx = next % items.length;
+        const idx = next % playlist.length;
         setAssign((a) => {
           if (a[slot] === idx) return a;
           const copy = [...a];
@@ -373,22 +385,22 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
       }
       return next;
     });
-  }, [items.length, slotCount]);
+  }, [playlist.length, slotCount]);
 
   // Keep the upcoming slot's clip assigned ahead of time for a seamless swap.
   useEffect(() => {
-    if (!slotCount || items.length <= slotCount) return;
+    if (!slotCount || playlist.length <= slotCount) return;
     const slot = (step + 1) % slotCount;
-    const idx = (step + 1) % items.length;
+    const idx = (step + 1) % playlist.length;
     setAssign((a) => {
       if (a[slot] === idx) return a;
       const copy = [...a];
       copy[slot] = idx;
       return copy;
     });
-  }, [step, slotCount, items.length]);
+  }, [step, slotCount, playlist.length]);
 
-  const activeItem = items[assign[activeSlot] % Math.max(items.length, 1)];
+  const activeItem = playlist[assign[activeSlot] % Math.max(playlist.length, 1)];
 
   // Stills (no video) still need to move the sequence along.
   useEffect(() => {
@@ -400,9 +412,9 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
   const onOpen = useCallback((item: CollageItem) => setOpen(item), []);
 
-  const preload = useMemo(() => items[nextItemIndex], [items, nextItemIndex]);
+  const preload = useMemo(() => playlist[nextItemIndex], [playlist, nextItemIndex]);
 
-  if (!items.length) return null;
+  if (!playlist.length) return null;
 
   return (
     <div
@@ -417,7 +429,7 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
         }
       >
         {layout.slice(0, slotCount).map((cls, i) => {
-          const item = items[assign[i] % items.length];
+          const item = playlist[assign[i] % playlist.length];
           if (!item) return null;
           return (
             <Slot
@@ -428,7 +440,8 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
               active={i === activeSlot && inView && !paused}
               soundOn={soundOn}
               onToggleSound={toggleSound}
-              onEnded={advance}
+              onEnded={i === activeSlot ? advance : () => undefined}
+              onPlaybackError={i === activeSlot ? advance : () => undefined}
               onSoundBlocked={handleSoundBlocked}
               onOpen={onOpen}
             />
