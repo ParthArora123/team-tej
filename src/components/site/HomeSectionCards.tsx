@@ -52,7 +52,7 @@ function Media({ c, front }: { c: HomeCard; front: boolean }) {
   );
 }
 
-function Cta({ c, tone = "light" }: { c: HomeCard; tone?: "light" | "dark" }) {
+function Cta({ c, tone = "light" }: { c: HomeCard; tone?: "light" | "dark" | "brand" }) {
   if (!c.cta_link) return null;
   const external = /^https?:\/\//i.test(c.cta_link);
   return (
@@ -63,13 +63,16 @@ function Cta({ c, tone = "light" }: { c: HomeCard; tone?: "light" | "dark" }) {
       className={`mt-4 inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:gap-2.5 ${
         tone === "dark"
           ? "border-white/25 bg-white/10 text-white backdrop-blur"
-          : "border-primary/40 text-primary hover:bg-primary/10"
+          : tone === "brand"
+            ? "df-gradient-bg border-transparent text-white shadow-[0_10px_26px_-12px_rgba(238,61,139,0.8)]"
+            : "border-primary/40 text-primary hover:bg-primary/10"
       }`}
     >
       {c.cta_text || "Learn more"} <ArrowUpRight size={13} />
     </a>
   );
 }
+
 
 export function FeaturedPerformances({ rows }: { rows: HomeCard[] }) {
   if (!rows.length) return null;
