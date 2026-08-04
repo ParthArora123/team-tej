@@ -140,7 +140,7 @@ export function CinematicHero({
             src={backgroundImage}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-70"
+            className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-70 transform-gpu"
             draggable={false}
           />
           <video
@@ -288,7 +288,7 @@ export function CinematicHero({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6 + idx * 0.12, duration: 0.7 }}
-              className={`absolute ${spots[idx]} rounded-2xl border border-white/15 bg-white/10 backdrop-blur-xl px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)]`}
+              className={`absolute ${spots[idx]} rounded-2xl border border-white/15 bg-black/45 px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)]`}
               style={{
                 animation: `heroFloat ${7 + idx}s ease-in-out ${idx * 0.6}s infinite`,
               }}
