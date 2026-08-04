@@ -1003,19 +1003,6 @@ function Index() {
           </div>
         )}
 
-        {brands.length > 0 && (
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">Trusted partners</h2>
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-              {brands.map((b) => (
-                <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
-                  {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {globe.length > 0 && (() => {
           const conducted = globe.filter((g) => g.status === "conducted");
