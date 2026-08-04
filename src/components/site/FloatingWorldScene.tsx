@@ -45,19 +45,21 @@ export function FloatingWorldScene() {
   // (Cursor-driven spotlight removed for performance — see render below.)
 
 
+  // Element counts kept deliberately low: every one of these is an infinitely
+  // animating, blurred, composited layer.
   const birds = useMemo(
-    () => Array.from({ length: isMobile ? 3 : 6 }, (_, i) => ({
+    () => Array.from({ length: 3 }, (_, i) => ({
       id: i,
       top: 12 + (i * 9) % 40,
       duration: 40 + (i % 4) * 8,
       delay: -i * 6,
       scale: 0.6 + (i % 3) * 0.25,
     })),
-    [isMobile]
+    []
   );
 
   const feathers = useMemo(
-    () => Array.from({ length: isMobile ? 6 : 14 }, (_, i) => ({
+    () => Array.from({ length: 6 }, (_, i) => ({
       id: i,
       left: (i * 37) % 100,
       size: 4 + (i % 4) * 2,
@@ -65,18 +67,18 @@ export function FloatingWorldScene() {
       delay: -i * 3,
       drift: (i % 2 ? 1 : -1) * (20 + (i % 5) * 8),
     })),
-    [isMobile]
+    []
   );
 
   const fish = useMemo(
-    () => Array.from({ length: isMobile ? 3 : 6 }, (_, i) => ({
+    () => Array.from({ length: 3 }, (_, i) => ({
       id: i,
       top: 60 + (i * 7) % 30,
       duration: 24 + (i % 4) * 6,
       delay: -i * 4,
       dir: i % 2 ? 1 : -1,
     })),
-    [isMobile]
+    []
   );
 
   // This scene is a large, permanently-animating fixed backdrop. On phones and
