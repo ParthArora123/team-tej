@@ -249,29 +249,47 @@ function Media({ item, isActive, onEnded }: { item: CoverflowItem; isActive: boo
 
   if (item.videoSrc) {
     return (
-      <video
-        ref={videoRef}
-        src={item.videoSrc}
-        poster={item.poster ?? undefined}
-        muted
-        loop
-        playsInline
-        preload={isActive ? "auto" : "metadata"}
-        onEnded={onEnded}
-        className="absolute inset-0 w-full h-full object-cover [object-position:50%_28%]"
-      />
+      <>
+        {item.poster && (
+          <img
+            src={item.poster}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+          />
+        )}
+        <video
+          ref={videoRef}
+          src={item.videoSrc}
+          poster={item.poster ?? undefined}
+          muted
+          loop
+          playsInline
+          preload={isActive ? "auto" : "metadata"}
+          onEnded={onEnded}
+          className="absolute inset-0 w-full h-full object-contain"
+        />
+      </>
     );
   }
 
   if (item.poster) {
     return (
-      <img
-        src={item.poster}
-        alt={item.title}
-        loading="lazy"
-        decoding="async"
-        className="absolute inset-0 w-full h-full object-cover [object-position:50%_28%]"
-      />
+      <>
+        <img
+          src={item.poster}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+        />
+        <img
+          src={item.poster}
+          alt={item.title}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-contain"
+        />
+      </>
     );
   }
 
