@@ -1121,7 +1121,10 @@ function Index() {
               {gallery.length} frames
             </div>
           </div>
-          <MasonryGallery items={gallery} />
+          <LazySection minHeight={600}>
+            <MasonryGallery items={gallery} />
+          </LazySection>
+
 
         </section>
       )}
