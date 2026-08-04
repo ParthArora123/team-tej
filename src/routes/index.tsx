@@ -645,15 +645,18 @@ function Index() {
               A living wall of performance moments — one frame refreshes every few seconds.
             </p>
           </div>
-          <VideoCollage
-            items={reels.map((r) => ({
-              id: r.id,
-              title: r.title,
-              subtitle: r.video ? "Reel" : "Moment",
-              video: r.video ?? null,
-              poster: r.poster ?? null,
-            }))}
-          />
+          <LazySection minHeight={520}>
+            <VideoCollage
+              items={reels.map((r) => ({
+                id: r.id,
+                title: r.title,
+                subtitle: r.video ? "Reel" : "Moment",
+                video: r.video ?? null,
+                poster: r.poster ?? null,
+              }))}
+            />
+          </LazySection>
+
         </section>
       )}
 
