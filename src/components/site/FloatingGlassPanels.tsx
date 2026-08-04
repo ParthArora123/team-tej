@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Play } from "lucide-react";
 import type { DeckItem } from "@/components/site/VideoDeck";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
@@ -189,17 +190,29 @@ export function FloatingGlassPanels({ items }: { items: DeckItem[] }) {
   const panels = useMemo(() => items.slice(0, SLOTS.length), [items]);
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [inView, setInView] = useState(false);
+  const isMobile = useIsMobile();
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Pause the whole wall when it scrolls out of view so nothing plays offscreen.
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.15 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
-    if (paused || panels.length < 2) return;
+    if (paused || !inView || panels.length < 2) return;
     const t = setInterval(() => setActive((i) => (i + 1) % panels.length), ROTATE_MS);
     return () => clearInterval(t);
-  }, [paused, panels.length]);
+  }, [paused, inView, panels.length]);
 
   if (!panels.length) return null;
 
   return (
-    <div className="relative">
+    <div ref={rootRef} className="relative">
       {/* ambient background */}
       <div
         aria-hidden
@@ -222,8 +235,9 @@ export function FloatingGlassPanels({ items }: { items: DeckItem[] }) {
       </div>
 
       {/* Desktop / tablet: organic floating composition */}
+      {!isMobile && (
       <div
-        className="relative hidden h-[700px] w-full sm:block lg:h-[820px]"
+        className="relative h-[700px] w-full lg:h-[820px]"
         onMouseLeave={() => setPaused(false)}
       >
         {panels.map((it, i) => (
@@ -231,16 +245,18 @@ export function FloatingGlassPanels({ items }: { items: DeckItem[] }) {
             <Panel
               item={it}
               slot={SLOTS[i]}
-              active={i === active}
+              active={i === active && inView}
               onSelect={() => setActive(i)}
               onHover={(v) => setPaused(v)}
             />
           </div>
         ))}
       </div>
+      )}
 
       {/* Mobile: gently overlapping vertical stack */}
-      <div className="sm:hidden space-y-[-24px]">
+      {isMobile && (
+      <div className="space-y-[-24px]">
         {panels.map((it, i) => (
           <div
             key={it.id}
@@ -250,13 +266,14 @@ export function FloatingGlassPanels({ items }: { items: DeckItem[] }) {
             <Panel
               item={it}
               slot={{ x: 0, y: 0, w: 100, h: 100, drift: 5, delay: i * 0.4 }}
-              active={i === active}
+              active={i === active && inView}
               onSelect={() => setActive(i)}
               onHover={() => {}}
             />
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }
