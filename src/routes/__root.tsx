@@ -7,18 +7,30 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "../components/site/Header";
 import { Footer } from "../components/site/Footer";
 import { ScrollProgress } from "../components/site/ScrollProgress";
-import { CursorGlow } from "../components/site/CursorGlow";
-import { SmoothScroll } from "../components/site/SmoothScroll";
-import { ScrollToTop } from "../components/site/ScrollToTop";
 import { DeferMount } from "../components/site/DeferMount";
-import { FloatingWorldScene } from "../components/site/FloatingWorldScene";
+
+// Non-critical ambient/interaction layers — split out of the entry bundle and
+// only fetched once the browser is idle after first paint.
+const CursorGlow = lazy(() =>
+  import("../components/site/CursorGlow").then((m) => ({ default: m.CursorGlow }))
+);
+const SmoothScroll = lazy(() =>
+  import("../components/site/SmoothScroll").then((m) => ({ default: m.SmoothScroll }))
+);
+const ScrollToTop = lazy(() =>
+  import("../components/site/ScrollToTop").then((m) => ({ default: m.ScrollToTop }))
+);
+const FloatingWorldScene = lazy(() =>
+  import("../components/site/FloatingWorldScene").then((m) => ({ default: m.FloatingWorldScene }))
+);
+
 
 
 function NotFoundComponent() {
@@ -109,8 +121,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Hind:wght@300;400;500;600;700&display=swap" },
+      // Only the weights actually used by the design; display=swap avoids
+      // blocking first paint on font download.
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Hind:wght@400;600;700&display=swap" },
     ],
+
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -138,12 +153,16 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <DeferMount delay={200}>
-        <SmoothScroll />
+        <Suspense fallback={null}>
+          <SmoothScroll />
+        </Suspense>
       </DeferMount>
       <div className="min-h-screen relative grain-bg">
         <DeferMount>
-          <FloatingWorldScene />
-          <CursorGlow />
+          <Suspense fallback={null}>
+            <FloatingWorldScene />
+            <CursorGlow />
+          </Suspense>
         </DeferMount>
         <ScrollProgress />
         <Header />
@@ -152,9 +171,12 @@ function RootComponent() {
         </main>
         <Footer />
         <DeferMount>
-          <ScrollToTop />
+          <Suspense fallback={null}>
+            <ScrollToTop />
+          </Suspense>
         </DeferMount>
       </div>
     </QueryClientProvider>
   );
+
 }

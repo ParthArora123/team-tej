@@ -18,30 +18,50 @@ import uploadedHeroImg from "@/assets/tejasdhoke-hero.jpg.asset.json";
 import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
-import { StyleAnimation } from "@/components/site/StyleAnimation";
 import { MagneticButton } from "@/components/site/MagneticButton";
 import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { type DeckItem } from "@/components/site/VideoDeck";
-import { FloatingGlassPanels } from "@/components/site/FloatingGlassPanels";
 import { type Reel } from "@/components/site/ReelWall";
-import { WorkshopDeck } from "@/components/site/HomeDecks";
-import { VideoCollage } from "@/components/site/VideoCollage";
-import { CoverflowCarousel } from "@/components/site/CoverflowCarousel";
-
-import { MasonryGallery } from "@/components/site/MasonryGallery";
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
+import { LazySection } from "@/components/site/LazySection";
 
-
-import { FeaturedPerformances, SignatureProgramsGrid, type HomeCard } from "@/components/site/HomeSectionCards";
+import { type HomeCard } from "@/components/site/HomeSectionCards";
 import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.functions";
 
+// Below-the-fold, media-heavy sections are code-split and only fetched
+// when the visitor scrolls near them.
+const StyleAnimation = lazy(() =>
+  import("@/components/site/StyleAnimation").then((m) => ({ default: m.StyleAnimation }))
+);
+const FloatingGlassPanels = lazy(() =>
+  import("@/components/site/FloatingGlassPanels").then((m) => ({ default: m.FloatingGlassPanels }))
+);
+const WorkshopDeck = lazy(() =>
+  import("@/components/site/HomeDecks").then((m) => ({ default: m.WorkshopDeck }))
+);
+const VideoCollage = lazy(() =>
+  import("@/components/site/VideoCollage").then((m) => ({ default: m.VideoCollage }))
+);
+const CoverflowCarousel = lazy(() =>
+  import("@/components/site/CoverflowCarousel").then((m) => ({ default: m.CoverflowCarousel }))
+);
+const MasonryGallery = lazy(() =>
+  import("@/components/site/MasonryGallery").then((m) => ({ default: m.MasonryGallery }))
+);
+const FeaturedPerformances = lazy(() =>
+  import("@/components/site/HomeSectionCards").then((m) => ({ default: m.FeaturedPerformances }))
+);
+const SignatureProgramsGrid = lazy(() =>
+  import("@/components/site/HomeSectionCards").then((m) => ({ default: m.SignatureProgramsGrid }))
+);
 const TestimonialsCarousel = lazy(() =>
   import("@/components/site/TestimonialsCarousel").then((m) => ({ default: m.TestimonialsCarousel }))
 );
+
 
 
 const defaultStyles = [
@@ -625,15 +645,18 @@ function Index() {
               A living wall of performance moments — one frame refreshes every few seconds.
             </p>
           </div>
-          <VideoCollage
-            items={reels.map((r) => ({
-              id: r.id,
-              title: r.title,
-              subtitle: r.video ? "Reel" : "Moment",
-              video: r.video ?? null,
-              poster: r.poster ?? null,
-            }))}
-          />
+          <LazySection minHeight={520}>
+            <VideoCollage
+              items={reels.map((r) => ({
+                id: r.id,
+                title: r.title,
+                subtitle: r.video ? "Reel" : "Moment",
+                video: r.video ?? null,
+                poster: r.poster ?? null,
+              }))}
+            />
+          </LazySection>
+
         </section>
       )}
 
@@ -687,7 +710,10 @@ function Index() {
               </Link>
             </MagneticButton>
           </div>
-          <FloatingGlassPanels items={deckItems} />
+          <LazySection minHeight={480}>
+            <FloatingGlassPanels items={deckItems} />
+          </LazySection>
+
         </section>
       )}
 
@@ -726,7 +752,10 @@ function Index() {
             <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
           </div>
         ) : (
-          <WorkshopDeck workshops={workshops} />
+          <LazySection minHeight={520}>
+            <WorkshopDeck workshops={workshops} />
+          </LazySection>
+
         )}
       </section>
 
@@ -822,7 +851,10 @@ function Index() {
       </section>
 
       {/* FEATURED PERFORMANCES — admin managed */}
-      <FeaturedPerformances rows={performances} />
+      <LazySection minHeight={400}>
+        <FeaturedPerformances rows={performances} />
+      </LazySection>
+
 
       {/* SIGNATURE PROGRAMS */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
@@ -839,7 +871,10 @@ function Index() {
         </div>
 
         {sigPrograms.length > 0 ? (
-          <SignatureProgramsGrid rows={sigPrograms} />
+          <LazySection minHeight={400}>
+            <SignatureProgramsGrid rows={sigPrograms} />
+          </LazySection>
+
         ) : (
         <motion.div
           variants={stagger}
@@ -917,7 +952,12 @@ function Index() {
             if (s.image_url) {
               return <img src={s.image_url} alt={s.name} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />;
             }
-            return <StyleAnimation name={s.name} active={active} />;
+            return (
+              <Suspense fallback={null}>
+                <StyleAnimation name={s.name} active={active} />
+              </Suspense>
+            );
+
           };
 
           const deckCards: StackedDeckItem[] = stylesToRender.map((s) => ({
@@ -1045,7 +1085,7 @@ function Index() {
         })()}
       </section>
       {/* TESTIMONIALS */}
-      <Suspense fallback={null}>
+      <LazySection minHeight={420}>
         <TestimonialsCarousel items={testimonials.map((t) => ({
           id: t.id,
           name: t.name,
@@ -1054,7 +1094,8 @@ function Index() {
           rating: t.rating,
           avatar_url: t.avatar_url,
         }))} />
-      </Suspense>
+      </LazySection>
+
 
       {/* CINEMATIC SHOWREEL */}
       <CinematicShowreel choreos={choreos} workshops={workshops} />
@@ -1081,7 +1122,10 @@ function Index() {
               {gallery.length} frames
             </div>
           </div>
-          <MasonryGallery items={gallery} />
+          <LazySection minHeight={600}>
+            <MasonryGallery items={gallery} />
+          </LazySection>
+
 
         </section>
       )}
@@ -1318,21 +1362,24 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
         </p>
       </div>
 
-      <CoverflowCarousel
-        items={items.map((it) => ({
-          id: it.id,
-          title: it.title,
-          subtitle: it.subtitle,
-          badge: it.badge,
-          videoSrc: it.videoSrc,
-          embedSrc: it.embedSrc,
-          poster: it.poster,
-          ctaLabel: it.ctaLabel,
-          ctaLink: it.ctaLink,
-          ctaExternal: it.ctaExternal,
-        }))}
-        interval={5000}
-      />
+      <LazySection minHeight={560}>
+        <CoverflowCarousel
+          items={items.map((it) => ({
+            id: it.id,
+            title: it.title,
+            subtitle: it.subtitle,
+            badge: it.badge,
+            videoSrc: it.videoSrc,
+            embedSrc: it.embedSrc,
+            poster: it.poster,
+            ctaLabel: it.ctaLabel,
+            ctaLink: it.ctaLink,
+            ctaExternal: it.ctaExternal,
+          }))}
+          interval={5000}
+        />
+      </LazySection>
+
     </section>
   );
 }

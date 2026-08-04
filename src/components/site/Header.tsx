@@ -2,7 +2,8 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+// Supabase is imported lazily inside the effect so the auth bundle never
+// blocks first paint of the header.
 
 const links = [
   { to: "/", label: "Home" },
@@ -21,10 +22,20 @@ export function Header() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s));
-    return () => sub.subscription.unsubscribe();
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+    void import("@/integrations/supabase/client").then(({ supabase }) => {
+      if (cancelled) return;
+      void supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
+      const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => setSignedIn(!!s));
+      unsubscribe = () => sub.subscription.unsubscribe();
+    });
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
+
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);

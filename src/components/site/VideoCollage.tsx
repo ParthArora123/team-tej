@@ -99,7 +99,7 @@ function Media({
           poster={item.poster ?? undefined}
           playsInline
           loop
-          preload={active || preloadNext ? "auto" : "metadata"}
+          preload={active ? "auto" : preloadNext ? "metadata" : "none"}
           disableRemotePlayback
           disablePictureInPicture
           onLoadedData={() => setReady(true)}

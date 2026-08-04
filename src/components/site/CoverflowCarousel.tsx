@@ -143,7 +143,7 @@ export function CoverflowCarousel({
               }}
             >
 
-              <Media item={it} isActive={isActive} onEnded={() => count > 1 && go(1)} />
+              <Media item={it} isActive={isActive} near={abs === 1} onEnded={() => count > 1 && go(1)} />
 
               {/* glassmorphism sheen */}
               <div
@@ -220,7 +220,7 @@ export function CoverflowCarousel({
   );
 }
 
-function Media({ item, isActive, onEnded }: { item: CoverflowItem; isActive: boolean; onEnded: () => void }) {
+function Media({ item, isActive, near = false, onEnded }: { item: CoverflowItem; isActive: boolean; near?: boolean; onEnded: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -265,7 +265,7 @@ function Media({ item, isActive, onEnded }: { item: CoverflowItem; isActive: boo
           muted
           loop
           playsInline
-          preload={isActive ? "auto" : "metadata"}
+          preload={isActive ? "auto" : near ? "metadata" : "none"}
           onEnded={onEnded}
           className="absolute inset-0 w-full h-full object-contain bg-transparent"
         />
