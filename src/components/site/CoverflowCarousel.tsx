@@ -174,7 +174,13 @@ export function CoverflowCarousel({
               }}
             >
 
-              <Media item={it} isActive={isActive && inView} near={abs === 1} onEnded={() => count > 1 && go(1)} />
+              <Media
+                item={it}
+                isActive={isActive && inView}
+                near={d === 1}
+                onEnded={handleEnded}
+                onBuffering={isActive ? onBuffering : undefined}
+              />
 
               {/* glassmorphism sheen */}
               <div
@@ -183,9 +189,9 @@ export function CoverflowCarousel({
                 style={{
                   background:
                     "linear-gradient(160deg, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 38%, rgba(0,0,0,0.06))",
-                  backdropFilter: isActive ? undefined : "blur(1px)",
                 }}
               />
+
 
               <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
 
