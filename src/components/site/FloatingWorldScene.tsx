@@ -19,8 +19,14 @@ export function FloatingWorldScene() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(max-width: 768px)");
-    const update = () => setIsMobile(mq.matches);
+    // Treat small screens AND low-powered machines (few cores / little RAM,
+    // e.g. older laptops and tablets) as "mobile" so they never pay for this
+    // permanently-animating backdrop.
+    const cores = navigator.hardwareConcurrency ?? 8;
+    const mem = (navigator as any).deviceMemory ?? 8;
+    const weak = cores <= 4 || mem <= 4;
+    const mq = window.matchMedia("(max-width: 1024px), (hover: none)");
+    const update = () => setIsMobile(weak || mq.matches);
     update();
     mq.addEventListener("change", update);
     // slight delay so it never fights hero LCP
