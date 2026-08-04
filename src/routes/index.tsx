@@ -639,7 +639,7 @@ function Index() {
 
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
       <CinematicHero
-        backgroundImage={heroPhoto ?? (heroPhotoResolved ? uploadedHeroImg.url : "")}
+        backgroundImage={heroPhoto ?? uploadedHeroImg.url}
         clips={heroClips}
         badges={heroBadges}
         onReady={() => setHeroReady(true)}
