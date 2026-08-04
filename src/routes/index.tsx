@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import HorizontalPager from "@/components/site/HorizontalPager";
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { cachedCall } from "@/lib/public-data-cache";
@@ -579,6 +580,7 @@ function Index() {
         <Sparkles size={16} /> Register for a Workshop
       </Link>
 
+      <HorizontalPager>
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
       <CinematicHero
         backgroundImage={heroPhoto ?? uploadedHeroImg.url}
@@ -1073,6 +1075,7 @@ function Index() {
 
         </motion.div>
       </section>
+      </HorizontalPager>
 
 
     </>
