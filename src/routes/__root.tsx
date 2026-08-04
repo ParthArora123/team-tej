@@ -160,6 +160,8 @@ function RootComponent() {
       <div className="min-h-screen relative grain-bg">
         <DeferMount>
           <Suspense fallback={null}>
+            <FloatingWorldScene />
+            <CursorGlow />
           </Suspense>
         </DeferMount>
         <ScrollProgress />
