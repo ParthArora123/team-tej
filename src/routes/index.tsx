@@ -725,41 +725,8 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
 
 
 
-      {/* WORKSHOPS — dynamic (primary CTA — placed directly after hero) */}
-      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-8 lg:pt-24 lg:pb-12">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-              <Calendar size={12} /> Upcoming Workshops
-            </p>
-            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
-              Register Now. Experience the Magic.
-            </h2>
-            <p className="mt-4 text-muted-foreground max-w-xl">
-              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
-            </p>
-          </div>
-          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
-            See all workshops <ArrowUpRight size={14} />
-          </Link>
-        </div>
 
-        {workshops.length === 0 && !workshopsLoaded ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
-          </div>
-        ) : workshops.length === 0 ? (
-          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
-            <p className="font-display text-2xl">Coming Soon</p>
-            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
-          </div>
-        ) : (
-          <LazySection minHeight={520}>
-            <WorkshopDeck workshops={workshops} />
-          </LazySection>
 
-        )}
-      </section>
 
 
       {featured && (
