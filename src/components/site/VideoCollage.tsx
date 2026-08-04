@@ -32,12 +32,14 @@ function Media({
   item,
   active,
   preloadNext,
+  mount,
   soundOn,
   onSoundBlocked,
 }: {
   item: CollageItem;
   active: boolean;
   preloadNext: boolean;
+  mount: boolean;
   soundOn: boolean;
   onSoundBlocked: () => void;
 }) {
@@ -92,7 +94,7 @@ function Media({
           style={{ opacity: active && ready ? 0 : 1, transition: "opacity 400ms ease" }}
         />
       )}
-      {item.video && (
+      {item.video && mount && (
         <video
           ref={ref}
           src={item.video}
@@ -379,6 +381,7 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
                   item={item}
                   active={isActive && inView}
                   preloadNext={i === (index + 1) % n}
+                  mount={!hidden || i === (index + 1) % n}
                   soundOn={soundOn}
                   onSoundBlocked={handleSoundBlocked}
                 />
@@ -430,7 +433,7 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
 
       {/* orbit position dots */}
       {n > 1 && (
-        <div className="mt-4 flex items-center justify-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           {playlist.map((item, i) => (
             <button
               key={item.id}

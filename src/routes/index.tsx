@@ -608,7 +608,8 @@ function Index() {
       .filter((g: any) => g.image_url)
       .slice(0, 10)
       .map((g: any) => ({ id: `g-${g.id}`, title: g.caption ?? null, poster: g.image_url }));
-    return [...fromChoreos, ...fromGallery].slice(0, 16);
+    // No hard cap: every uploaded reel joins the orbit rotation.
+    return [...fromChoreos, ...fromGallery];
   }, [choreos, gallery]);
 
 
