@@ -697,10 +697,8 @@ function Index() {
               <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
                 The work that <span className="italic font-light">travels.</span>
               </h2>
-              <p className="mt-5 text-muted-foreground max-w-lg">
-A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on its own —
-                hover to hold it, tap any clip to bring it centre stage.
-              </p>
+            </div>
+
             </div>
             <MagneticButton>
               <Link
