@@ -34,19 +34,30 @@ export function CoverflowCarousel({
   const [side, setSide] = useState(1); // visible cards per side
   const rootRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef<number | null>(null);
+  // Set while the centre clip is buffering — the auto-advance timer waits so we
+  // never cut away mid-stall (which is what looked like "freezing").
+  const bufferingRef = useRef(false);
 
   const count = items.length;
 
   // Responsive fan width: desktop 3, tablet 2, mobile 1 card per side.
   useEffect(() => {
     if (typeof window === "undefined") return;
+    let frame = 0;
     const compute = () => {
       const w = window.innerWidth;
       setSide(w >= 1280 ? 3 : w >= 1024 ? 2 : 1);
     };
+    const onResize = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(compute);
+    };
     compute();
-    window.addEventListener("resize", compute);
-    return () => window.removeEventListener("resize", compute);
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -59,13 +70,33 @@ export function CoverflowCarousel({
 
   useEffect(() => {
     if (!inView || paused || count <= 1) return;
-    const id = setInterval(() => setActive((i) => (i + 1) % count), interval);
-    return () => clearInterval(id);
+    let cancelled = false;
+    let timer: number;
+    const tick = () => {
+      if (cancelled) return;
+      if (bufferingRef.current) {
+        // still loading — check again shortly instead of forcing a switch
+        timer = window.setTimeout(tick, 600);
+        return;
+      }
+      setActive((i) => (i + 1) % count);
+      timer = window.setTimeout(tick, interval);
+    };
+    timer = window.setTimeout(tick, interval);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
   }, [inView, paused, count, interval]);
+
+  const onBuffering = useCallback((b: boolean) => {
+    bufferingRef.current = b;
+  }, []);
 
   const go = useCallback((dir: number) => {
     setActive((i) => (i + dir + count) % count);
   }, [count]);
+
 
   // Shortest wrapped distance so the flow loops seamlessly in both directions.
   const rel = useCallback(
