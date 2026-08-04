@@ -1167,9 +1167,9 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
           />
 
 
-          <p className="relative text-xs uppercase tracking-[0.4em] text-primary">The stage is set</p>
+          <p className="relative text-xs uppercase tracking-[0.4em] text-white/70">The stage is set</p>
           <h2 className="relative mt-4 font-display text-4xl lg:text-7xl font-bold text-white text-balance leading-[1.02]">
-            Your journey <span className="italic font-light bg-clip-text text-transparent" style={{ backgroundImage: "linear-gradient(120deg,#C7A34A,#7A3BFF,#3B82F6)" }}>begins now.</span>
+            Your journey <span className="italic font-light text-white/70">begins now.</span>
           </h2>
           <p className="relative mt-5 text-white/70 max-w-xl mx-auto text-base lg:text-lg">
             Step in. Move freely. Leave transformed.
@@ -1187,13 +1187,12 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
                     setTimeout(go, 350);
                   } catch { go(); }
                 }}
-                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-primary-foreground overflow-hidden"
+                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-foreground bg-background overflow-hidden hover:opacity-90 transition-opacity"
                 style={{
-                  background: "linear-gradient(135deg, var(--primary) 0%, #7A3BFF 100%)",
-                  boxShadow:
-                    "0 0 60px color-mix(in oklab, var(--primary) 70%, transparent), 0 0 120px color-mix(in oklab, #7A3BFF 40%, transparent)",
+                  boxShadow: "0 24px 70px -22px color-mix(in oklab, var(--background) 60%, transparent)",
                 }}
               >
+
                 <span className="relative z-10 flex items-center gap-2">
                   Start Your Dance Journey
                   <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
