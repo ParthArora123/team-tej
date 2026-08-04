@@ -1086,24 +1086,8 @@ A flowing ribbon of Tejas's most-watched choreographies. The spotlight glides on
           );
         })()}
       </section>
-      {/* TESTIMONIALS */}
-      <LazySection minHeight={420}>
-        <TestimonialsCarousel items={testimonials.map((t) => ({
-          id: t.id,
-          name: t.name,
-          role: t.role,
-          story: t.story,
-          rating: t.rating,
-          avatar_url: t.avatar_url,
-        }))} />
-      </LazySection>
 
 
-      {/* CINEMATIC SHOWREEL */}
-      <CinematicShowreel choreos={choreos} workshops={workshops} />
-
-      {/* FOUNDER / ABOUT */}
-      <FounderSection founder={founder} />
 
 
 
