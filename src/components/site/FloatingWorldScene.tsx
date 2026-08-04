@@ -306,13 +306,8 @@ export function FloatingWorldScene() {
         />
       </motion.div>
 
-      {/* Cursor spotlight (desktop only) */}
-      {!isMobile && !reduce && (
-        <motion.div
-          className="absolute inset-0 mix-blend-screen"
-          style={{ background: spotlightBg as any }}
-        />
-      )}
+      {/* Cursor spotlight removed: repainting a full-viewport radial gradient
+          on every mouse frame was the single biggest desktop jank source. */}
 
       {/* Cinematic vignette + grain */}
       <div
