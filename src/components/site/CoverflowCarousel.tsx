@@ -97,6 +97,11 @@ export function CoverflowCarousel({
     setActive((i) => (i + dir + count) % count);
   }, [count]);
 
+  const handleEnded = useCallback(() => {
+    if (count > 1) go(1);
+  }, [count, go]);
+
+
 
   // Shortest wrapped distance so the flow loops seamlessly in both directions.
   const rel = useCallback(
