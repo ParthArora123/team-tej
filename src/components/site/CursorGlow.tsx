@@ -35,9 +35,9 @@ export function CursorGlow() {
           y: sy,
           willChange: "transform",
           background:
-            "radial-gradient(circle, color-mix(in oklab, var(--primary) 34%, transparent) 0%, color-mix(in oklab, var(--accent-cyan) 14%, transparent) 45%, transparent 70%)",
+            "radial-gradient(circle, color-mix(in oklab, var(--primary) 26%, transparent) 0%, color-mix(in oklab, var(--accent-cyan) 10%, transparent) 45%, transparent 70%)",
         }}
-        className="pointer-events-none fixed top-0 left-0 z-[55] h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-45 mix-blend-screen"
+        className="pointer-events-none fixed top-0 left-0 z-[55] h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40"
       />
     </>
   );

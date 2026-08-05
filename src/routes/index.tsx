@@ -202,7 +202,7 @@ function HeroSlideMedia({
             src={fallbackSrc}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80"
+            className="blur-backdrop-wide opacity-80"
             draggable={false}
           />
         )}
@@ -1264,7 +1264,7 @@ function FounderSection({ founder }: { founder: any | null }) {
               </div>
             )}
             {/* film grain accent */}
-            <div aria-hidden className="pointer-events-none absolute inset-0 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+            <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
               style={{ background: "radial-gradient(120% 80% at 50% 100%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 60%)" }} />
             {/* shine sweep */}
             <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1400ms] ease-out"

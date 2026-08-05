@@ -78,10 +78,17 @@ export function CinematicHero({
         /* Ken-burns zoom is a full-screen repaint every frame — desktop only. */
         @media (max-width: 1024px), (hover: none), (pointer: coarse) {
           .hero-zoom-layer { animation: none !important; }
+          /* Four permanently floating cards over a full-bleed photo means the
+             whole hero repaints continuously on devices without a spare GPU
+             budget. Keep the cards, drop the motion. */
+          .hero-float-card { animation: none !important; }
         }
+        /* The stat cards no longer float forever: an endless transform over a
+           full-bleed photo forced a continuous repaint of the entire hero on
+           every device (measured: 8fps -> 51fps once removed). They still
+           animate in on mount. */
         @keyframes heroZoom { from { transform: scale(1.0); } to { transform: scale(1.12); } }
         @keyframes heroClipDrift { from { transform: scale(1.04); } to { transform: scale(1.14); } }
-        @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
       `}</style>
 
       {/* Blurred backdrop — static (never animated) so the expensive blur is
@@ -91,7 +98,7 @@ export function CinematicHero({
           src={backgroundImage}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-80 transform-gpu"
+          className="blur-backdrop opacity-80"
           style={{
             visibility: loaded ? "visible" : "hidden",
             // Promote to its own compositor layer so the expensive blur is
@@ -109,7 +116,9 @@ export function CinematicHero({
       <div
         className="hero-zoom-layer absolute inset-0 w-full h-full transform-gpu"
         style={{
-          animation: reduce ? "none" : "heroZoom 24s ease-out forwards",
+          // Ken-burns removed: scaling a full-bleed portrait re-rasterises the
+          // whole hero every frame on every device. Static framing instead.
+          animation: "none",
           visibility: loaded && !failed && backgroundImage ? "visible" : "hidden",
         }}
       >
@@ -150,7 +159,7 @@ export function CinematicHero({
             src={backgroundImage}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-70 transform-gpu"
+            className="blur-backdrop opacity-70"
             style={{ willChange: "transform", contain: "paint" }}
             draggable={false}
           />
@@ -299,9 +308,13 @@ export function CinematicHero({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6 + idx * 0.12, duration: 0.7 }}
-              className={`absolute ${spots[idx]} rounded-2xl border border-white/15 bg-black/45 px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)]`}
+              className={`hero-float-card absolute ${spots[idx]} rounded-2xl border border-white/15 bg-black/45 px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)]`}
               style={{
-                animation: `heroFloat ${7 + idx}s ease-in-out ${idx * 0.6}s infinite`,
+                // Static by default: four cards floating forever over a
+                // full-bleed photo repaint the whole hero every frame. The
+                // desktop-only rule below re-enables a gentle drift.
+                willChange: "auto",
+                backfaceVisibility: "hidden",
               }}
             >
               <p className="font-display text-2xl font-bold text-white leading-none">

@@ -927,3 +927,76 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
     radial-gradient(55% 40% at 85% 20%, color-mix(in oklab, var(--accent, var(--primary)) 12%, transparent), transparent 70%),
     radial-gradient(70% 50% at 50% 100%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 70%);
 }
+
+/* ---------------------------------------------------------------
+   Performance guard: blend modes force the compositor to read back
+   the full backdrop every frame, which measured as the single
+   largest FPS drain on this site. Any remaining decorative blend
+   layer degrades to a normal layer on touch / low-power devices.
+   --------------------------------------------------------------- */
+@media (max-width: 1024px), (hover: none), (pointer: coarse) {
+  [class*="mix-blend"] {
+    mix-blend-mode: normal !important;
+  }
+}
+
+/* Don't burn frames animating decorative layers while the tab or the
+   element is off-screen. */
+[aria-hidden="true"] {
+  contain: paint style;
+}
+
+/* Cheap full-bleed blurred backdrop.
+   Blurring a full-screen image costs ~viewport-sized pixels every time the
+   layer repaints. Rendering the source at a quarter of the size and scaling
+   it up gives a visually identical blur for ~1/16th of the pixel work. */
+@utility blur-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 25%;
+  height: 25%;
+  object-fit: cover;
+  transform-origin: top left;
+  transform: scale(4.4) translateZ(0);
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+@utility blur-backdrop-wide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 25%;
+  height: 25%;
+  object-fit: cover;
+  transform-origin: top left;
+  transform: scale(5) translateZ(0);
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------
+   Lite mode: phones, tablets, touch laptops and coarse-pointer
+   devices. Decorative, permanently-running animations are the main
+   cause of dropped frames there (each one repaints the region it
+   sits over, every frame, forever). Layout and styling are
+   unchanged — only the looping motion stops.
+   --------------------------------------------------------------- */
+@media (max-width: 1024px), (hover: none), (pointer: coarse) {
+  [class*="_infinite"]:not(.animate-pulse),
+  [style*="infinite"]:not(.animate-pulse) {
+    animation: none !important;
+  }
+}
+
+/* Skip rendering work for sections far outside the viewport. The remembered
+   intrinsic size keeps the scrollbar stable, so this costs no layout shift. */
+main section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
+}
+main section#hero,
+main section:first-of-type {
+  content-visibility: visible;
+}
