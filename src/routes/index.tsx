@@ -943,8 +943,29 @@ function Index() {
           </p>
 
         </motion.div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-3 rounded-2xl border border-border bg-card/60 p-5 text-sm">
+          <p className="text-muted-foreground">
+            <span className="font-semibold text-foreground">Studio</span>
+            <br />
+            Mumbai, India
+          </p>
+          <p className="text-muted-foreground">
+            <span className="font-semibold text-foreground">Contact</span>
+            <br />
+            <Link to="/contact" className="hover:text-primary transition-colors">
+              Reach the team
+            </Link>
+          </p>
+          <p className="text-muted-foreground">
+            <span className="font-semibold text-foreground">Follow</span>
+            <br />
+            @tejasddhoke
+          </p>
+        </div>
       </section>
       </Chapter>
+
 
       </HorizontalPager>
     </>
