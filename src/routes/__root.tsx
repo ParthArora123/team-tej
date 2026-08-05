@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "../components/site/Header";
 import { Footer } from "../components/site/Footer";
 import { ScrollProgress } from "../components/site/ScrollProgress";
+import { ScrollPerfMode } from "../components/site/ScrollPerfMode";
 import { DeferMount } from "../components/site/DeferMount";
 
 // Non-critical ambient/interaction layers — split out of the entry bundle and
@@ -161,6 +162,7 @@ function RootComponent() {
           </Suspense>
         </DeferMount>
 
+        <ScrollPerfMode />
         <ScrollProgress />
         <Header />
         <main className="pt-16">
