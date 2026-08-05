@@ -12,52 +12,38 @@ export function StageLights() {
       className="pointer-events-none absolute inset-0 overflow-hidden"
       style={{ contain: "strict" }}
     >
-      {/* Screen-blend beam layer so lights read over any image */}
-      <div className="absolute inset-0 mix-blend-screen">
+      {/* Plain (non-blended) beam layer. mix-blend-mode forced a full-screen
+          compositor readback on every animation frame — measured as the
+          largest single FPS drain on the site — so the beams now paint
+          normally with slightly higher opacity for the same look. */}
+      <div className="absolute inset-0">
         {/* Left spotlight beam — wide sweep */}
         <div
-          className="absolute -top-40 left-[18%] h-[150%] w-[36%] origin-top blur-2xl opacity-70 transform-gpu will-change-transform animate-[beam-sweep-l_18s_ease-in-out_infinite] motion-reduce:animate-none"
+          className="absolute -top-40 left-[18%] h-[150%] w-[36%] origin-top blur-2xl opacity-50 transform-gpu animate-[beam-sweep-l_18s_ease-in-out_infinite] motion-reduce:animate-none"
           style={{
             background:
-              "linear-gradient(to bottom, hsl(var(--primary) / 0.95), hsl(var(--primary) / 0.5) 35%, hsl(var(--primary) / 0.15) 65%, transparent 85%)",
+              "linear-gradient(to bottom, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.45) 35%, hsl(var(--primary) / 0.12) 65%, transparent 85%)",
           }}
         />
         {/* Right spotlight beam — opposing sweep */}
         <div
-          className="absolute -top-40 right-[18%] h-[150%] w-[36%] origin-top blur-2xl opacity-70 transform-gpu will-change-transform animate-[beam-sweep-r_22s_ease-in-out_infinite] motion-reduce:animate-none"
+          className="absolute -top-40 right-[18%] h-[150%] w-[36%] origin-top blur-2xl opacity-50 transform-gpu animate-[beam-sweep-r_22s_ease-in-out_infinite] motion-reduce:animate-none"
           style={{
             background:
-              "linear-gradient(to bottom, hsl(var(--accent) / 0.95), hsl(var(--accent) / 0.5) 35%, hsl(var(--accent) / 0.15) 65%, transparent 85%)",
-          }}
-        />
-        {/* Center accent beam — slow drift (desktop only: three overlapping
-            blurred full-height beams are too heavy for phones/tablets) */}
-        <div
-          className="hidden lg:block absolute -top-32 left-1/2 h-[140%] w-[26%] -translate-x-1/2 origin-top blur-3xl opacity-70 transform-gpu will-change-transform animate-[beam-sweep-c_26s_ease-in-out_infinite] motion-reduce:animate-none"
-          style={{
-            background:
-              "linear-gradient(to bottom, hsl(var(--primary) / 0.75), hsl(var(--accent) / 0.35) 45%, transparent 80%)",
+              "linear-gradient(to bottom, hsl(var(--accent) / 0.9), hsl(var(--accent) / 0.45) 35%, hsl(var(--accent) / 0.12) 65%, transparent 85%)",
           }}
         />
 
-        {/* Center hotspot / lens flare */}
+        {/* Center hotspot / lens flare — static on touch devices */}
         <div
-          className="absolute top-[28%] left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl opacity-50 transform-gpu will-change-transform animate-[stage-pulse_14s_ease-in-out_infinite] motion-reduce:animate-none"
+          className="hidden lg:block absolute top-[28%] left-1/2 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl opacity-40 transform-gpu animate-[stage-pulse_14s_ease-in-out_infinite] motion-reduce:animate-none"
           style={{
             background:
-              "radial-gradient(circle, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.3) 45%, transparent 75%)",
-          }}
-        />
-
-        {/* Drifting side flare */}
-        <div
-          className="hidden lg:block absolute top-[45%] left-[10%] h-64 w-64 rounded-full blur-3xl opacity-60 transform-gpu will-change-transform animate-[flare-drift_20s_ease-in-out_infinite] motion-reduce:animate-none"
-          style={{
-            background:
-              "radial-gradient(circle, hsl(var(--accent) / 0.8), transparent 70%)",
+              "radial-gradient(circle, hsl(var(--primary) / 0.8), hsl(var(--primary) / 0.25) 45%, transparent 75%)",
           }}
         />
       </div>
+
 
       {/* Soft smoke/fog at the base — normal blend for depth */}
       <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background/60 via-background/15 to-transparent" />
