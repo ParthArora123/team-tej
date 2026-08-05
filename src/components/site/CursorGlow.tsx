@@ -6,9 +6,6 @@ export function CursorGlow() {
   const y = useMotionValue(-400);
   const sx = useSpring(x, { stiffness: 180, damping: 22, mass: 0.3 });
   const sy = useSpring(y, { stiffness: 180, damping: 22, mass: 0.3 });
-  // Faster follower for the inner dot
-  const dx = useSpring(x, { stiffness: 500, damping: 30, mass: 0.15 });
-  const dy = useSpring(y, { stiffness: 500, damping: 30, mass: 0.15 });
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
@@ -42,22 +39,6 @@ export function CursorGlow() {
         }}
         className="pointer-events-none fixed top-0 left-0 z-[55] h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-45 mix-blend-screen"
       />
-      {/* Sharp inner glow dot */}
-      <motion.div
-        aria-hidden
-        style={{ x: dx, y: dy, willChange: "transform" }}
-        className="pointer-events-none fixed top-0 left-0 z-[56] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full"
-      >
-        <div
-          className="h-full w-full rounded-full"
-          style={{
-            background: "var(--primary)",
-            boxShadow:
-              "0 0 20px color-mix(in oklab, var(--primary) 80%, transparent)",
-            opacity: 0.75,
-          }}
-        />
-      </motion.div>
     </>
   );
 }
