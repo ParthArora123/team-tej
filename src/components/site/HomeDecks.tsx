@@ -65,7 +65,7 @@ function WorkshopCard({ w }: { w: any }) {
           />
         )}
         {w.category && (
-          <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-[#B4288F]/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
+          <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-foreground/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
             {w.category}
           </span>
         )}

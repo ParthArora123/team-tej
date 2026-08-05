@@ -145,7 +145,7 @@ function WorkshopsPage() {
                       </motion.div>
                     )}
                     {full && (
-                      <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-[#B4288F]/70 backdrop-blur text-white text-[10px] uppercase tracking-wider">Sold out</div>
+                      <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-foreground/70 backdrop-blur text-white text-[10px] uppercase tracking-wider">Sold out</div>
                     )}
                     {r.category && (
                       <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white text-[10px] uppercase tracking-widest">

@@ -356,7 +356,7 @@ function ZeroToHeroPage() {
                             className="absolute inset-0 h-full w-full object-cover lg:object-contain transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                          <div className="absolute inset-0 bg-gradient-to-br from-[#B4288F]/10 via-transparent to-[#B4288F]/40" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-foreground/10 via-transparent to-foreground/40" />
 
                           {/* Chapter badge */}
                           <div className="absolute top-5 left-5 flex items-center gap-2">
@@ -365,7 +365,7 @@ function ZeroToHeroPage() {
                             >
                               {s.n}
                             </span>
-                            <span className="px-3 py-1 rounded-full bg-[#B4288F]/40 backdrop-blur-md border border-white/15 text-[10px] uppercase tracking-[0.3em] text-white">
+                            <span className="px-3 py-1 rounded-full bg-foreground/40 backdrop-blur-md border border-white/15 text-[10px] uppercase tracking-[0.3em] text-white">
                               {s.chapter}
                             </span>
                           </div>
@@ -680,7 +680,7 @@ function ZeroToHeroGallery() {
                   className="w-full h-full object-cover lg:object-contain transition-transform duration-500 group-hover:scale-105" />
               )}
               {m.caption && (
-                <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-[#B4288F]/70 to-transparent">
+                <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-foreground/70 to-transparent">
                   <p className="text-xs sm:text-sm text-white/95">{m.caption}</p>
                 </div>
               )}

@@ -311,11 +311,11 @@ export function CoverflowCarousel({
 
                 <div
                   className="pointer-events-none absolute inset-0"
-                  style={{ background: "linear-gradient(to top, color-mix(in oklab, var(--df-4) 75%, transparent) 0%, color-mix(in oklab, var(--df-4) 10%, transparent) 55%, transparent 100%)" }}
+                  style={{ background: "linear-gradient(to top, color-mix(in oklab, var(--foreground) 70%, transparent) 0%, color-mix(in oklab, var(--foreground) 10%, transparent) 55%, transparent 100%)" }}
                 />
 
                 {item.badge && (
-                  <span className="absolute left-4 top-4 rounded-full border border-white/25 bg-[#B4288F]/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
+                  <span className="absolute left-4 top-4 rounded-full border border-white/25 bg-foreground/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
                     {item.badge}
                   </span>
                 )}
