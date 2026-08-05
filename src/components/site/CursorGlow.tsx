@@ -6,9 +6,6 @@ export function CursorGlow() {
   const y = useMotionValue(-400);
   const sx = useSpring(x, { stiffness: 180, damping: 22, mass: 0.3 });
   const sy = useSpring(y, { stiffness: 180, damping: 22, mass: 0.3 });
-  // Faster follower for the inner dot
-  const dx = useSpring(x, { stiffness: 500, damping: 30, mass: 0.15 });
-  const dy = useSpring(y, { stiffness: 500, damping: 30, mass: 0.15 });
   const [enabled, setEnabled] = useState(false);
 
   useEffect(() => {
