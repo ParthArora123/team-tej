@@ -1,27 +1,81 @@
 import { Children, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 /**
  * Turns its children into a full-screen, one-section-at-a-time horizontal
  * experience. Each direct child becomes one slide. Content taller than the
  * viewport stays vertically scrollable inside its slide.
+ *
+ * Performance notes:
+ * - Visited slides stay mounted (hidden with `display:none`) so re-visiting a
+ *   section costs nothing — no re-render of decks, no re-download of video.
+ * - A slide is mounted hidden one frame BEFORE it animates in, so its mount
+ *   cost never lands in the middle of the transition (that was the source of
+ *   400-600ms long tasks on phones).
+ * - The transition itself runs through the Web Animations API (transform +
+ *   opacity only), so it is compositor-driven instead of a per-frame JS spring.
  */
 export function HorizontalPager({ children }: { children: React.ReactNode }) {
   const slides = useMemo(() => Children.toArray(children).filter(Boolean), [children]);
-  const [[index, dir], setState] = useState<[number, number]>([0, 0]);
   const count = slides.length;
+
+  const [index, setIndex] = useState(0);
+  const [mounted, setMounted] = useState<number[]>([0]);
+  const pending = useRef<{ next: number; dir: number } | null>(null);
+  const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
-  const go = useCallback(
-    (delta: number) => {
-      setState(([i]) => {
-        const next = Math.min(count - 1, Math.max(0, i + delta));
-        return next === i ? [i, 0] : [next, delta];
-      });
+  const [nav, setNav] = useState(0);
+
+  const navigate = useCallback(
+    (target: number, dir: number) => {
+      const next = Math.min(count - 1, Math.max(0, target));
+      if (next === index) return;
+      pending.current = { next, dir };
+      setMounted((m) => (m.includes(next) ? m : [...m, next]));
+      setNav((n) => n + 1);
     },
-    [count],
+    [count, index],
   );
+
+  const go = useCallback((delta: number) => navigate(index + delta, delta >= 0 ? 1 : -1), [navigate, index]);
+  const jumpTo = useCallback((target: number) => navigate(target, target > index ? 1 : -1), [navigate, index]);
+
+  // Commit the pending slide one frame after it has been mounted (hidden), so
+  // the mount cost never lands inside the transition.
+  useEffect(() => {
+    const p = pending.current;
+    if (!p || !mounted.includes(p.next)) return;
+    const id = requestAnimationFrame(() => {
+      pending.current = null;
+      setIndex(p.next);
+      requestAnimationFrame(() => {
+        const el = slideRefs.current[p.next];
+        if (!el || typeof el.animate !== "function") return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        el.animate(
+          [
+            { transform: `translate3d(${p.dir >= 0 ? 100 : -100}%,0,0)`, opacity: 0 },
+            { transform: "translate3d(0,0,0)", opacity: 1 },
+          ],
+          { duration: 480, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+        );
+      });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [mounted, nav]);
+
+
+  // Reset vertical scroll + stop media in the slide we just left.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+    slideRefs.current.forEach((el, i) => {
+      if (!el || i === index) return;
+      el.querySelectorAll("video").forEach((v) => {
+        if (!v.paused) v.pause();
+      });
+    });
+  }, [index]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -31,17 +85,6 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [go]);
-
-  useEffect(() => {
-    // Reset vertical scroll of the newly shown slide
-    window.scrollTo({ top: 0 });
-  }, [index]);
-
-  const variants = {
-    enter: (d: number) => ({ x: d >= 0 ? "100%" : "-100%", opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (d: number) => ({ x: d >= 0 ? "-100%" : "100%", opacity: 0 }),
-  };
 
   return (
     <div
@@ -61,21 +104,27 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
         touchStart.current = null;
       }}
     >
-      <AnimatePresence initial={false} mode="wait" custom={dir}>
-        <motion.div
-          key={index}
-          custom={dir}
-          variants={variants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ type: "tween", ease: [0.22, 1, 0.36, 1], duration: 0.55 }}
-          className="w-full"
-          style={{ willChange: "transform, opacity" }}
-        >
-          {slides[index]}
-        </motion.div>
-      </AnimatePresence>
+      {slides.map((slide, i) => {
+        if (!mounted.includes(i)) return null;
+        const active = i === index;
+        return (
+          <div
+            key={i}
+            ref={(el) => {
+              slideRefs.current[i] = el;
+            }}
+            className="w-full"
+            aria-hidden={!active}
+            style={
+              active
+                ? { willChange: "transform, opacity" }
+                : { display: "none", contentVisibility: "hidden" }
+            }
+          >
+            {slide}
+          </div>
+        );
+      })}
 
       {/* Fixed navigation arrows */}
       <button
@@ -104,7 +153,7 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
             key={i}
             type="button"
             aria-label={`Go to section ${i + 1}`}
-            onClick={() => setState(([cur]) => [i, i > cur ? 1 : -1])}
+            onClick={() => jumpTo(i)}
             className={`h-1.5 rounded-full transition-all ${i === index ? "w-5 bg-primary" : "w-1.5 bg-muted-foreground/40"}`}
           />
         ))}
