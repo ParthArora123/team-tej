@@ -696,13 +696,9 @@ function Index() {
         </section>
       </Chapter>
 
-      {/* SCREEN 4 — Mindset & Movement */}
-      <Chapter index={4} total={6} kicker="Mindset & Movement">
-        <MindsetSection />
-      </Chapter>
-
-      {/* SCREEN 5 — Programs & Styles */}
-      <Chapter index={5} total={6} kicker="Programs & Styles">
+      {/* SCREEN 4 — Mindset, Programs & Styles */}
+      <Chapter index={4} total={5} kicker="Mindset & Programs">
+      <MindsetSection />
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 grid gap-10 lg:gap-12 lg:grid-cols-[1.6fr_1fr] items-start">
 
       {/* SIGNATURE PROGRAMS */}
