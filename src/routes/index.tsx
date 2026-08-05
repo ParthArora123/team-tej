@@ -551,12 +551,12 @@ function Index() {
       {/* SCREEN 4 — Workshops + formats + styles */}
       <div>
       <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-10 pb-6 lg:pt-14 lg:pb-8">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
+        <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
               <Calendar size={12} /> Upcoming Workshops
             </p>
-            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold leading-[1.02] text-balance">
               Register Now. Experience the Magic.
             </h2>
             <p className="mt-4 text-muted-foreground max-w-xl">
@@ -592,7 +592,7 @@ function Index() {
         <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
             <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Signature Programs</p>
-            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold leading-[1.02] text-balance">
               Find your <span className="italic font-light df-gradient-text">format.</span>
             </h2>
           </div>
@@ -651,7 +651,7 @@ function Index() {
         <div className="mb-7 flex items-end justify-between gap-6">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
-            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
+            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold text-balance leading-[1.02]">
               Styles on the <span className="italic font-light">floor.</span>
             </h2>
           </div>
