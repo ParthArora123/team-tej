@@ -25,7 +25,7 @@ import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { HorizontalPager } from "@/components/site/HorizontalPager";
 import { Chapter } from "@/components/site/Chapter";
-import { BeliefRail, TourRail } from "@/components/site/HeroRails";
+import { TourRail } from "@/components/site/HeroRails";
 import { MindsetSection } from "@/components/site/MindsetSection";
 
 
@@ -588,8 +588,8 @@ function Index() {
       </Link>
 
       <HorizontalPager>
-      {/* SCREEN 1 — HOME: cinematic hero flanked by the story rails */}
-      <Chapter index={1} total={5} bleed>
+      {/* SCREEN 1 — HOME: cinematic hero, kept clean with a single tour rail */}
+      <Chapter index={1} total={6} bleed>
         <div className="relative">
           <CinematicHero
             backgroundImage={heroPhoto ?? uploadedHeroImg.url}
@@ -597,22 +597,23 @@ function Index() {
             badges={heroBadges}
             onReady={() => setHeroReady(true)}
           />
-          <div className="hidden xl:flex pointer-events-none absolute inset-y-0 left-0 z-30 w-[21rem] items-center px-6">
-            <div className="pointer-events-auto w-full"><BeliefRail founder={founder} /></div>
-          </div>
-          <div className="hidden xl:flex pointer-events-none absolute inset-y-0 right-0 z-30 w-[21rem] items-center px-6">
+          <div className="hidden xl:flex pointer-events-none absolute inset-y-0 right-0 z-30 w-[20rem] items-center px-6">
             <div className="pointer-events-auto w-full"><TourRail workshops={workshops} /></div>
           </div>
         </div>
 
-        <div className="xl:hidden max-w-7xl mx-auto px-6 py-10 grid gap-4 md:grid-cols-2">
-          <BeliefRail founder={founder} />
+        <div className="xl:hidden max-w-3xl mx-auto px-6 py-8">
           <TourRail workshops={workshops} />
         </div>
       </Chapter>
 
-      {/* SCREEN 2 — Work & Tour */}
-      <Chapter index={2} total={5} kicker="Work & Tour">
+      {/* SCREEN 2 — Meet the founder */}
+      <Chapter index={2} total={6} kicker="Meet Tejas">
+        <FounderSection founder={founder} />
+      </Chapter>
+
+      {/* SCREEN 3 — Work & Tour */}
+      <Chapter index={3} total={6} kicker="Work & Tour">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
 
         <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-10 lg:py-14 space-y-10 lg:space-y-12">
@@ -695,13 +696,13 @@ function Index() {
         </section>
       </Chapter>
 
-      {/* SCREEN 3 — Mindset & Movement */}
-      <Chapter index={3} total={5} kicker="Mindset & Movement">
+      {/* SCREEN 4 — Mindset & Movement */}
+      <Chapter index={4} total={6} kicker="Mindset & Movement">
         <MindsetSection />
       </Chapter>
 
-      {/* SCREEN 4 — Programs & Styles */}
-      <Chapter index={4} total={5} kicker="Programs & Styles">
+      {/* SCREEN 5 — Programs & Styles */}
+      <Chapter index={5} total={6} kicker="Programs & Styles">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 grid gap-10 lg:gap-12 lg:grid-cols-[1.6fr_1fr] items-start">
 
       {/* SIGNATURE PROGRAMS */}
@@ -809,8 +810,8 @@ function Index() {
 
 
 
-      {/* SCREEN 5 — Register */}
-      <Chapter index={5} total={5} kicker="Register">
+      {/* SCREEN 6 — Register */}
+      <Chapter index={6} total={6} kicker="Register">
       <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-4 pb-6 lg:pt-6 lg:pb-8">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
@@ -1103,7 +1104,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
   if (!items.length) return null;
 
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14">
       <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
         <div>
           <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
@@ -1155,7 +1156,7 @@ function FounderSection({ founder }: { founder: any | null }) {
   const hasMore = Boolean(biography || achievements.length || vision || mission);
 
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14">
       <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
         {/* Portrait — editorial frame */}
         <motion.div
