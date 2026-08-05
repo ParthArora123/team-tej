@@ -65,6 +65,32 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
     return () => cancelAnimationFrame(id);
   }, [mounted, nav]);
 
+  // Pre-warm the neighbouring slides while the browser is idle, so navigating
+  // never has to pay the React mount + DOM creation cost inside the animation.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const idle: typeof window.requestIdleCallback | undefined = window.requestIdleCallback;
+    let cancelled = false;
+    const warm = () => {
+      if (cancelled) return;
+      const targets = [index + 1, index - 1, index + 2].filter((i) => i >= 0 && i < count);
+      setMounted((m) => {
+        const next = targets.find((t) => !m.includes(t));
+        return next === undefined ? m : [...m, next];
+      });
+    };
+    const handle = idle
+      ? idle.call(window, warm, { timeout: 2000 })
+      : window.setTimeout(warm, 600);
+    return () => {
+      cancelled = true;
+      if (idle && window.cancelIdleCallback) window.cancelIdleCallback(handle as number);
+      else clearTimeout(handle as number);
+    };
+  }, [index, count, mounted]);
+
+
+
 
   // Reset vertical scroll + stop media in the slide we just left.
   useEffect(() => {
