@@ -696,6 +696,9 @@ function Index() {
 
 
       </section>
+      </div>
+
+
 
       {/* SCREEN 5 — Proof + final CTA */}
       <div>
