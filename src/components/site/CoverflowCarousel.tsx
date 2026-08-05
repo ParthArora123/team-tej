@@ -38,9 +38,30 @@ const CardMedia = memo(function CardMedia({
     const v = videoRef.current;
     if (!v) return;
     v.muted = active ? muted : true;
-    if (active && playing) void playHomepageVideo(v);
-    else v.pause();
+    if (!(active && playing)) {
+      v.pause();
+      return;
+    }
+    // Some browsers (battery saver, autoplay heuristics, slow decode) reject or
+    // stall the first play() — retry on the events that signal readiness.
+    const attempt = () => {
+      if (v.paused) void playHomepageVideo(v);
+    };
+    attempt();
+    v.addEventListener("canplay", attempt);
+    v.addEventListener("loadeddata", attempt);
+    v.addEventListener("stalled", attempt);
+    v.addEventListener("suspend", attempt);
+    const id = window.setInterval(attempt, 1500);
+    return () => {
+      window.clearInterval(id);
+      v.removeEventListener("canplay", attempt);
+      v.removeEventListener("loadeddata", attempt);
+      v.removeEventListener("stalled", attempt);
+      v.removeEventListener("suspend", attempt);
+    };
   }, [active, playing, muted]);
+
 
   useEffect(() => {
     const v = videoRef.current;
@@ -179,8 +200,12 @@ export function CoverflowCarousel({
     const el = rootRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     const obs = new IntersectionObserver(([e]) => setInView(e.isIntersecting), {
-      threshold: 0.25,
+      // Low threshold: on short/scaled laptop screens the tall card stage can
+      // never reach 25% visibility, which would keep the video paused forever.
+      threshold: 0.01,
+      rootMargin: "200px 0px",
     });
+
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
