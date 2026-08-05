@@ -90,7 +90,7 @@ export function MasonryGallery({ items }: { items: GalleryItem[] }) {
               src={active.image_url!}
               alt={active.caption ?? "Gallery frame"}
               onClick={(e) => e.stopPropagation()}
-              className="max-h-[86vh] max-w-full rounded-2xl object-contain shadow-[0_40px_120px_-40px_rgba(0,0,0,0.9)]"
+              className="max-h-[86vh] max-w-full rounded-2xl object-contain shadow-[0_40px_120px_-40px_color-mix(in_oklab,var(--df-4)_60%,transparent)]"
             />
             {active.caption && (
               <p className="absolute bottom-6 inset-x-0 text-center text-xs uppercase tracking-[0.25em] text-white/75 px-6">
