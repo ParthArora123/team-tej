@@ -84,7 +84,7 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
       : window.setTimeout(warm, 600);
     return () => {
       cancelled = true;
-      if (idle && window.cancelIdleCallback) window.cancelIdleCallback(handle as number);
+      if (idle && typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(handle as number);
       else clearTimeout(handle as number);
     };
   }, [index, count, mounted]);
