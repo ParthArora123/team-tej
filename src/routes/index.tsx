@@ -550,7 +550,7 @@ function Index() {
 
       {/* SCREEN 4 — Workshops + formats + styles */}
       <div>
-      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-8 lg:pt-24 lg:pb-12">
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-10 pb-6 lg:pt-14 lg:pb-8">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
@@ -588,8 +588,8 @@ function Index() {
 
 
       {/* SIGNATURE PROGRAMS */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 border-t border-border">
+        <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
             <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Signature Programs</p>
             <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
@@ -647,8 +647,8 @@ function Index() {
 
 
       {/* DANCE STYLES */}
-      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-        <div className="mb-12 flex items-end justify-between gap-6">
+      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 border-t border-border">
+        <div className="mb-7 flex items-end justify-between gap-6">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
             <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
@@ -702,7 +702,7 @@ function Index() {
 
       {/* SCREEN 5 — Proof + final CTA */}
       <div>
-      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-24 space-y-20">
+      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-10 lg:py-14 space-y-10 lg:space-y-12">
 
         {brands.length > 0 && (
           <div>
@@ -802,7 +802,7 @@ function Index() {
       </section>
 
       {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -831,12 +831,12 @@ function Index() {
 
 
       {/* FINAL CTA */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-8 lg:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-12 lg:p-24 text-center"
+          className="df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-8 lg:p-14 text-center"
         >
           {/* Floating orbs */}
           <motion.div
