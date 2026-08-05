@@ -219,12 +219,12 @@ export function CinematicHero({
       />
 
 
-      <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-10 xl:px-[18rem] flex flex-col items-center text-center pointer-events-none justify-end pb-[12vh] sm:pb-[14vh]">
+      <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center pointer-events-none justify-end pb-[12vh] sm:pb-[14vh]">
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.7 }}
-          className="text-[10px] sm:text-xs uppercase tracking-[0.35em] sm:tracking-[0.45em] text-white/80"
+          className="text-[10px] sm:text-xs uppercase tracking-[0.45em] text-white/80"
         >
           Dance Educator • Performer • Choreographer
         </motion.p>
@@ -233,7 +233,7 @@ export function CinematicHero({
           initial={{ opacity: 0, y: 26 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-3 w-full max-w-full font-display font-bold uppercase leading-[0.95] text-white text-[clamp(2.1rem,7vw,4.25rem)] xl:text-[clamp(2.5rem,3.6vw,3.75rem)] tracking-tight drop-shadow-[0_10px_40px_rgba(0,0,0,0.6)] text-balance"
+          className="mt-3 font-display font-bold uppercase leading-[0.92] text-white text-[clamp(2.2rem,8vw,6.5rem)] tracking-tight drop-shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
         >
           Tejas D Dhoke
         </motion.h1>
@@ -242,11 +242,10 @@ export function CinematicHero({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="mt-3 text-sm sm:text-base text-white/85 max-w-xl"
+          className="mt-3 text-sm sm:text-lg text-white/85 max-w-xl"
         >
           Transforming passion into performance.
         </motion.p>
-
 
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -296,7 +295,7 @@ export function CinematicHero({
       {/* Floating achievement badges */}
       <div
         aria-hidden={false}
-        className="absolute inset-0 z-20 hidden lg:block xl:hidden pointer-events-none"
+        className="absolute inset-0 z-20 hidden lg:block pointer-events-none"
       >
         {badges.slice(0, 4).map((b, idx) => {
           const spots = [
