@@ -589,7 +589,7 @@ function Index() {
 
       <HorizontalPager>
       {/* SCREEN 1 — HOME: cinematic hero, kept clean with a single tour rail */}
-      <Chapter index={1} total={6} bleed>
+      <Chapter index={1} total={5} bleed>
         <div className="relative">
           <CinematicHero
             backgroundImage={heroPhoto ?? uploadedHeroImg.url}
@@ -608,12 +608,12 @@ function Index() {
       </Chapter>
 
       {/* SCREEN 2 — Meet the founder */}
-      <Chapter index={2} total={6} kicker="Meet Tejas">
+      <Chapter index={2} total={5} kicker="Meet Tejas">
         <FounderSection founder={founder} />
       </Chapter>
 
       {/* SCREEN 3 — Work & Tour */}
-      <Chapter index={3} total={6} kicker="Work & Tour">
+      <Chapter index={3} total={5} kicker="Work & Tour">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
 
         <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-10 lg:py-14 space-y-10 lg:space-y-12">
@@ -807,7 +807,7 @@ function Index() {
 
 
       {/* SCREEN 6 — Register */}
-      <Chapter index={6} total={6} kicker="Register">
+      <Chapter index={6} total={5} kicker="Register">
       <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-4 pb-6 lg:pt-6 lg:pb-8">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
