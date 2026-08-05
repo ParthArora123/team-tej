@@ -608,16 +608,16 @@ function Index() {
 
       {/* SCREEN 4 — Register Workshop */}
       <Chapter index={4} total={5} kicker="Register Workshop">
-      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-10 pb-6 lg:pt-14 lg:pb-8">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
               <Calendar size={12} /> Upcoming Workshops
             </p>
-            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold leading-[1.02] text-balance">
+            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
               Register Now. Experience the Magic.
             </h2>
-            <p className="mt-4 text-muted-foreground max-w-xl">
+            <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
               Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
             </p>
           </div>
@@ -646,11 +646,11 @@ function Index() {
 
 
       {/* SIGNATURE PROGRAMS */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 border-t border-border">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10 border-t border-border">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
             <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Signature Programs</p>
-            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold leading-[1.02] text-balance">
+            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
               Find your <span className="italic font-light df-gradient-text">format.</span>
             </h2>
           </div>
@@ -658,6 +658,7 @@ function Index() {
             Every way to train with Tejas.
           </p>
         </div>
+
 
         {sigPrograms.length > 0 ? (
           <LazySection minHeight={400}>
@@ -670,7 +671,7 @@ function Index() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
-          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5"
         >
           {[
             { icon: Rocket, title: "Zero to Hero", desc: "A full beginner-to-confident-dancer track — no prior experience needed.", href: "/zero-to-hero" },
@@ -681,7 +682,7 @@ function Index() {
             <motion.div key={p.title} variants={item}>
               <Link
                 to={p.href}
-                className="group relative block h-full df-border-card bg-card p-6 overflow-hidden transition-shadow duration-300 hover:shadow-[0_24px_60px_-28px_rgba(238,61,139,0.55)]"
+                className="group relative block h-full df-border-card bg-card p-4 lg:p-6 overflow-hidden transition-shadow duration-300 hover:shadow-[0_24px_60px_-28px_rgba(238,61,139,0.55)]"
               >
                 <span
                   aria-hidden
@@ -692,7 +693,7 @@ function Index() {
                   <p.icon size={20} />
                 </div>
                 <p className="relative mt-4 font-display text-xl font-bold">{p.title}</p>
-                <p className="relative mt-2 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+                <p className="relative mt-2 hidden sm:block text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
                 <span className="relative mt-4 inline-flex items-center gap-1.5 text-xs font-semibold df-gradient-text opacity-0 group-hover:opacity-100 transition-opacity">
                   Learn more <ArrowUpRight size={14} className="text-primary" />
                 </span>
@@ -705,11 +706,11 @@ function Index() {
 
 
       {/* DANCE STYLES */}
-      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 border-t border-border">
-        <div className="mb-7 flex items-end justify-between gap-6">
+      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10 border-t border-border">
+        <div className="mb-5 flex items-end justify-between gap-6">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
-            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold text-balance leading-[1.02]">
+            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold text-balance leading-[1.02]">
               Styles on the <span className="italic font-light">floor.</span>
             </h2>
           </div>
@@ -760,7 +761,7 @@ function Index() {
 
       {/* SCREEN 5 — Final CTA */}
       <Chapter index={5} total={5} kicker="The Final Call">
-      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-10 lg:py-14 space-y-10 lg:space-y-12">
+      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
 
         {brands.length > 0 && (
           <div>
@@ -828,7 +829,7 @@ function Index() {
           const upcoming = globe.filter((g) => g.status === "upcoming");
           
           return (
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-6 lg:p-12">
               <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
               <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
               <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
@@ -860,7 +861,7 @@ function Index() {
       </section>
 
       {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -889,7 +890,7 @@ function Index() {
 
 
       {/* FINAL CTA */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-8 lg:py-12">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-6 lg:py-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
