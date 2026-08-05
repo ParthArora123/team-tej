@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "motion/react";
 import { useRef, type MouseEvent } from "react";
+import { useLiteMode } from "@/lib/device-tier";
 
 type Props = {
   src: string;
@@ -34,20 +35,24 @@ export function MotionImage({
   overlay,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+  // Phones/tablets/low-power machines skip the continuous ken-burns loop,
+  // the scroll parallax spring and the pointer tilt entirely.
+  const lite = useLiteMode();
 
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
   });
-  const y = useTransform(scrollYProgress, [0, 1], [`-${parallax}%`, `${parallax}%`]);
-  const scaleScroll = useTransform(scrollYProgress, [0, 0.5, 1], [1.05, 1.12, 1.05]);
+  const parallaxAmt = lite ? 0 : parallax;
+  const y = useTransform(scrollYProgress, [0, 1], [`-${parallaxAmt}%`, `${parallaxAmt}%`]);
+  const scaleScroll = useTransform(scrollYProgress, [0, 0.5, 1], lite ? [1.05, 1.05, 1.05] : [1.05, 1.12, 1.05]);
 
   // tilt
   const rx = useSpring(useMotionValue(0), { stiffness: 120, damping: 14 });
   const ry = useSpring(useMotionValue(0), { stiffness: 120, damping: 14 });
 
   const onMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!tilt || !ref.current) return;
+    if (!tilt || lite || !ref.current) return;
     const r = ref.current.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
@@ -67,7 +72,7 @@ export function MotionImage({
       style={{ rotateX: rx, rotateY: ry, transformPerspective: 1000 }}
       className={`relative overflow-hidden ${className}`}
     >
-      <motion.div style={{ y, scale: scaleScroll }} className="absolute inset-0 will-change-transform">
+      <motion.div style={{ y, scale: scaleScroll }} className="absolute inset-0">
         <motion.img
           src={src}
           alt={alt}
@@ -75,12 +80,12 @@ export function MotionImage({
           height={height}
           loading={loading}
           animate={
-            kenBurns
+            kenBurns && !lite
               ? { scale: [1, 1.08, 1.04, 1], x: ["0%", "-1.5%", "1%", "0%"], y: ["0%", "1%", "-1%", "0%"] }
               : undefined
           }
           transition={
-            kenBurns
+            kenBurns && !lite
               ? { duration: 18, repeat: Infinity, ease: "easeInOut" }
               : undefined
           }
