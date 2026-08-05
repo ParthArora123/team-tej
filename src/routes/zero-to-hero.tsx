@@ -680,7 +680,7 @@ function ZeroToHeroGallery() {
                   className="w-full h-full object-cover lg:object-contain transition-transform duration-500 group-hover:scale-105" />
               )}
               {m.caption && (
-                <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-[#B4288F]/70 to-transparent">
                   <p className="text-xs sm:text-sm text-white/95">{m.caption}</p>
                 </div>
               )}
