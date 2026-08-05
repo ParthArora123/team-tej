@@ -132,7 +132,7 @@ function WorkshopsPage() {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.7, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
               >
-                <TiltCard className="group relative rounded-3xl border border-white/10 bg-card/40 backdrop-blur-2xl overflow-hidden shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)] hover:shadow-[0_40px_120px_-30px_color-mix(in_oklab,var(--df-3)_30%,transparent)] transition-shadow duration-500 h-full flex flex-col">
+                <TiltCard className="group relative rounded-3xl border border-white/10 bg-card/40 backdrop-blur-2xl overflow-hidden shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)] hover:shadow-[0_40px_120px_-30px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-shadow duration-500 h-full flex flex-col">
                   <Link to="/workshops/$id" params={{ id: r.id }} className="relative block">
                     <WorkshopBanner r={r} />
                     {scarcity && (
@@ -145,7 +145,7 @@ function WorkshopsPage() {
                       </motion.div>
                     )}
                     {full && (
-                      <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-[#B4288F]/70 backdrop-blur text-white text-[10px] uppercase tracking-wider">Sold out</div>
+                      <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-foreground/70 backdrop-blur text-white text-[10px] uppercase tracking-wider">Sold out</div>
                     )}
                     {r.category && (
                       <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white text-[10px] uppercase tracking-widest">

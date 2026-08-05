@@ -303,7 +303,7 @@ export function CoverflowCarousel({
                 }
                 className={`group relative h-full w-full overflow-hidden rounded-3xl border ${
                   active
-                    ? "border-primary/40 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--df-3)_45%,transparent)]"
+                    ? "border-primary/40 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)]"
                     : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
@@ -311,11 +311,11 @@ export function CoverflowCarousel({
 
                 <div
                   className="pointer-events-none absolute inset-0"
-                  style={{ background: "linear-gradient(to top, color-mix(in oklab, var(--df-4) 75%, transparent) 0%, color-mix(in oklab, var(--df-4) 10%, transparent) 55%, transparent 100%)" }}
+                  style={{ background: "linear-gradient(to top, color-mix(in oklab, var(--foreground) 70%, transparent) 0%, color-mix(in oklab, var(--foreground) 10%, transparent) 55%, transparent 100%)" }}
                 />
 
                 {item.badge && (
-                  <span className="absolute left-4 top-4 rounded-full border border-white/25 bg-[#B4288F]/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
+                  <span className="absolute left-4 top-4 rounded-full border border-white/25 bg-foreground/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
                     {item.badge}
                   </span>
                 )}

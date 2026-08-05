@@ -527,7 +527,7 @@ function Index() {
       {/* Sticky mobile CTA */}
       <Link
         to="/workshops"
-        className="md:hidden fixed bottom-5 inset-x-5 z-40 flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold py-3.5 shadow-[0_10px_40px_-10px_color-mix(in_oklab,var(--df-3)_40%,transparent)]"
+        className="md:hidden fixed bottom-5 inset-x-5 z-40 flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold py-3.5 shadow-[0_10px_40px_-10px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]"
       >
         <Sparkles size={16} /> Register for a Workshop
       </Link>
@@ -751,7 +751,7 @@ function Index() {
                 <p className="relative mt-4 font-display text-xl font-bold">{p.title}</p>
                 <p className="relative mt-2 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
                 <span className="relative mt-4 inline-flex items-center gap-1.5 text-xs font-semibold df-gradient-text opacity-0 group-hover:opacity-100 transition-opacity">
-                  Learn more <ArrowUpRight size={14} className="text-[#EE3D8B]" />
+                  Learn more <ArrowUpRight size={14} className="text-primary" />
                 </span>
               </Link>
             </motion.div>
@@ -1019,7 +1019,7 @@ function Index() {
                 }}
                 className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-white bg-white/10 backdrop-blur-sm border border-white/30 overflow-hidden hover:bg-white/20 transition-colors"
                 style={{
-                  boxShadow: "0 24px 70px -22px color-mix(in oklab, var(--df-3) 30%, transparent)",
+                  boxShadow: "0 24px 70px -22px color-mix(in oklab, var(--accent-gold) 30%, transparent)",
                 }}
               >
                 <span className="relative z-10 flex items-center gap-2">
