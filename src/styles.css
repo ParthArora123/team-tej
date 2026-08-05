@@ -975,3 +975,28 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
   filter: blur(4px);
   pointer-events: none;
 }
+
+/* ---------------------------------------------------------------
+   Lite mode: phones, tablets, touch laptops and coarse-pointer
+   devices. Decorative, permanently-running animations are the main
+   cause of dropped frames there (each one repaints the region it
+   sits over, every frame, forever). Layout and styling are
+   unchanged — only the looping motion stops.
+   --------------------------------------------------------------- */
+@media (max-width: 1024px), (hover: none), (pointer: coarse) {
+  [class*="_infinite"]:not(.animate-pulse),
+  [style*="infinite"]:not(.animate-pulse) {
+    animation: none !important;
+  }
+}
+
+/* Skip rendering work for sections far outside the viewport. The remembered
+   intrinsic size keeps the scrollbar stable, so this costs no layout shift. */
+main section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 640px;
+}
+main section#hero,
+main section:first-of-type {
+  content-visibility: visible;
+}
