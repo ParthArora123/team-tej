@@ -947,19 +947,24 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
 }
 
 /* Cheap full-bleed blurred backdrop.
-   Blurring a full-screen image costs ~viewport-sized pixels every time the
-   layer repaints. Rendering the source at a quarter of the size and scaling
-   it up gives a visually identical blur for ~1/16th of the pixel work. */
+   A real `filter: blur()` on a full-screen layer forces its own render
+   surface and re-rasterises viewport-sized pixels on every scroll frame —
+   profiling showed it roughly halved desktop scroll FPS. Instead the source
+   is laid out in a tiny box and magnified: the layer rasterises at the small
+   pre-transform size and the GPU's bilinear upscale supplies the softness,
+   for a fraction of the cost and no filter pass at all. */
 @utility blur-backdrop {
   position: absolute;
   top: 0;
   left: 0;
-  width: 25%;
-  height: 25%;
+  width: 8%;
+  height: 8%;
   object-fit: cover;
   transform-origin: top left;
-  transform: scale(4.4) translateZ(0);
-  filter: blur(4px);
+  transform: scale(12.5) translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  contain: paint;
   pointer-events: none;
 }
 
@@ -967,14 +972,17 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
   position: absolute;
   top: 0;
   left: 0;
-  width: 25%;
-  height: 25%;
+  width: 8%;
+  height: 8%;
   object-fit: cover;
   transform-origin: top left;
-  transform: scale(5) translateZ(0);
-  filter: blur(4px);
+  transform: scale(14) translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  contain: paint;
   pointer-events: none;
 }
+
 
 /* ---------------------------------------------------------------
    Lite mode: phones, tablets, touch laptops and coarse-pointer
