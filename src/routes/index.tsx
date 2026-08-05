@@ -649,10 +649,10 @@ function Index() {
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
         <div className="max-w-2xl">
           <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-            <Sparkles size={12} /> How We Build Dancers
+            <Sparkles size={12} /> Tej Method
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
-            More than steps. <span className="italic font-light">A way of being.</span>
+            How We Build Dancers
           </h2>
           <p className="mt-4 text-muted-foreground">
             Every session is built around four pillars — whether you're stepping onto a
@@ -685,9 +685,11 @@ function Index() {
 
 
       {/* FEATURED PERFORMANCES — admin managed */}
-      <LazySection minHeight={400}>
-        <FeaturedPerformances rows={performances} />
-      </LazySection>
+      {performances.length > 0 && (
+        <LazySection minHeight={400}>
+          <FeaturedPerformances rows={performances} />
+        </LazySection>
+      )}
 
 
       {/* SIGNATURE PROGRAMS */}
