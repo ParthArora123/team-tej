@@ -499,6 +499,7 @@ export function FounderTab() {
     image_preview: null as string | null,
     biography: "",
     achievements: [] as string[],
+    belief: "",
     vision: "",
     mission: "",
     socials: { instagram: "", youtube: "", facebook: "", twitter: "", linkedin: "" },
@@ -517,6 +518,7 @@ export function FounderTab() {
         image_preview: v.image_url ?? null,
         biography: v.biography ?? "",
         achievements: Array.isArray(v.achievements) ? v.achievements : [],
+        belief: v.belief ?? v.philosophy ?? "",
         vision: v.vision ?? "",
         mission: v.mission ?? "",
         socials: { instagram: "", youtube: "", facebook: "", twitter: "", linkedin: "", ...(v.socials ?? {}) },
@@ -598,6 +600,7 @@ export function FounderTab() {
       </div>
 
       <Input label="Biography / About" value={f.biography} onChange={(v: string) => setF({ ...f, biography: v })} rows={5} />
+      <Input label="Belief" value={f.belief} onChange={(v: string) => setF({ ...f, belief: v })} rows={3} />
       <Input label="Vision" value={f.vision} onChange={(v: string) => setF({ ...f, vision: v })} rows={3} />
       <Input label="Mission" value={f.mission} onChange={(v: string) => setF({ ...f, mission: v })} rows={3} />
 
