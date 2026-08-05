@@ -282,7 +282,7 @@ export function CoverflowCarousel({
                     : "border-border/60 shadow-xl cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
-                <CardMedia item={item} active={active} playing={inView} muted={muted} />
+                <CardMedia item={item} active={active} visible={!hidden} playing={inView} muted={muted} />
 
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
 
