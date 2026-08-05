@@ -930,32 +930,6 @@ function Index() {
 
 
 
-
-
-
-      {/* GALLERY — editorial bento */}
-
-      {gallery.length > 0 && (
-        <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-          <div className="mb-10 flex items-end justify-between gap-6">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-primary">Moments</p>
-              <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
-                From the <span className="italic font-light">floor.</span>
-              </h2>
-            </div>
-            <div className="hidden sm:block text-xs uppercase tracking-widest text-muted-foreground">
-              {gallery.length} frames
-            </div>
-          </div>
-          <LazySection minHeight={600}>
-            <MasonryGallery items={gallery} />
-          </LazySection>
-
-
-        </section>
-      )}
-
       {/* FINAL CTA */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
         <motion.div
