@@ -648,11 +648,11 @@ function Index() {
       {/* HOW WE BUILD DANCERS — USP / philosophy */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
         <div className="max-w-2xl">
-          <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+          <p className="text-xs uppercase tracking-widest df-gradient-text font-bold inline-flex items-center gap-1.5">
             <Sparkles size={12} /> Tej Method
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
-            How We Build Dancers
+            How We Build <span className="italic font-light df-gradient-text">Dancers</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
             Every session is built around four pillars — whether you're stepping onto a
@@ -673,15 +673,25 @@ function Index() {
             { icon: Music2, title: "Musicality" },
             { icon: Users2, title: "Performance" },
           ].map((p) => (
-            <motion.div key={p.title} variants={item} className="premium-card bg-card p-6">
-              <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <motion.div
+              key={p.title}
+              variants={item}
+              className="group relative h-full df-border-card bg-card p-6 overflow-hidden transition-shadow duration-300 hover:shadow-[0_24px_60px_-28px_rgba(238,61,139,0.55)]"
+            >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: "linear-gradient(135deg, rgba(249,178,51,0.10), rgba(238,61,139,0.10) 55%, rgba(142,45,168,0.12))" }}
+              />
+              <div className="relative h-11 w-11 rounded-xl df-gradient-bg text-white flex items-center justify-center shadow-[0_10px_24px_-10px_rgba(238,61,139,0.7)]">
                 <p.icon size={20} />
               </div>
-              <p className="mt-4 font-display text-xl font-bold">{p.title}</p>
+              <p className="relative mt-4 font-display text-xl font-bold">{p.title}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
+
 
 
       {/* FEATURED PERFORMANCES — admin managed */}
