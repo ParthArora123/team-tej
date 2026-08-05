@@ -310,7 +310,7 @@ export function CinematicHero({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6 + idx * 0.12, duration: 0.7 }}
-              className={`hero-float-card absolute ${spots[idx]} rounded-2xl border border-white/15 bg-black/45 px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)]`}
+              className={`hero-float-card absolute ${spots[idx]} rounded-2xl border border-white/15 bg-black/45 px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)] lg:shadow-none`}
               style={{
                 // Static by default: four cards floating forever over a
                 // full-bleed photo repaint the whole hero every frame. The
