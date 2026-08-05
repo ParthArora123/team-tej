@@ -310,16 +310,50 @@ function Index() {
   const loaderData = Route.useLoaderData() as HomeLoaderData;
 
   const [workshops, setWorkshops] = useState<any[]>([]);
-  const [celebrities, setCelebrities] = useState<any[]>([]);
-  const [brands, setBrands] = useState<any[]>([]);
-  const [globe, setGlobe] = useState<any[]>([]);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(loaderData.heroSlides ?? []);
   const [featured, setFeatured] = useState<any | null>(null);
-  const [gallery, setGallery] = useState<any[]>([]);
-  const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
-  const [choreos, setChoreos] = useState<Choreo[]>([]);
-  const [founder, setFounder] = useState<any | null>(null);
   const [heroPhoto, setHeroPhoto] = useState<string | null>(null);
+
+  // Every below-the-fold dataset lands in ONE state object. Previously each of
+  // the ten fetches called its own setState, so the whole 5-screen homepage
+  // tree re-rendered ten times in a row (the single biggest source of long
+  // tasks + video re-mount flicker on mid/low-end phones).
+  const [deferred, setDeferred] = useState<{
+    celebrities: any[];
+    brands: any[];
+    globe: any[];
+    gallery: any[];
+    danceStyles: any[] | null;
+    choreos: Choreo[];
+    founder: any | null;
+    testimonials: any[];
+    performances: HomeCard[];
+    sigPrograms: HomeCard[];
+  }>({
+    celebrities: [],
+    brands: [],
+    globe: [],
+    gallery: [],
+    danceStyles: null,
+    choreos: [],
+    founder: null,
+    testimonials: [],
+    performances: [],
+    sigPrograms: [],
+  });
+  const {
+    celebrities,
+    brands,
+    globe,
+    gallery,
+    danceStyles,
+    choreos,
+    founder,
+    testimonials,
+    performances,
+    sigPrograms,
+  } = deferred;
+
 
   // Admin-managed homepage hero photo. The bundled portrait paints immediately
   // (it is preloaded in <head>); the CMS photo swaps in only once it has fully
@@ -342,9 +376,6 @@ function Index() {
     return () => { cancelled = true; };
   }, []);
 
-  const [testimonials, setTestimonials] = useState<any[]>([]);
-  const [performances, setPerformances] = useState<HomeCard[]>([]);
-  const [sigPrograms, setSigPrograms] = useState<HomeCard[]>([]);
   const [slideIdx, setSlideIdx] = useState(0);
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
@@ -418,17 +449,37 @@ function Index() {
     // now so it fires almost immediately in practice while still yielding
     // to the very first paint.
     const loadDeferred = () => {
-      cachedCall("celebrities", () => listPublicCelebrities()).then((r: any) => setCelebrities(r ?? [])).catch((e) => { console.error("Failed to load celebrities:", e); setCelebrities([]); });
-      cachedCall("brands", () => listPublicBrands()).then((r: any) => setBrands(r ?? [])).catch((e) => { console.error("Failed to load brands:", e); setBrands([]); });
-      cachedCall("globe", () => listPublicGlobe()).then((r: any) => setGlobe(r ?? [])).catch((e) => { console.error("Failed to load globe locations:", e); setGlobe([]); });
-      cachedCall("gallery", () => listGalleryItems()).then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
-      cachedCall("danceStyles", () => listDanceStyles()).then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
-      cachedCall("choreographies", () => listChoreographies()).then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
-      cachedCall("siteContent:founder", () => getSiteContent({ data: { key: "founder" } })).then((r: any) => setFounder(r)).catch(() => setFounder(null));
-      cachedCall("testimonials", () => listPublicTestimonials()).then((r: any) => setTestimonials(r ?? [])).catch(() => setTestimonials([]));
-      cachedCall("homePerformances", () => listPerformances()).then((r: any) => setPerformances(r ?? [])).catch(() => setPerformances([]));
-      cachedCall("signaturePrograms", () => listSignaturePrograms()).then((r: any) => setSigPrograms(r ?? [])).catch(() => setSigPrograms([]));
+      // Results are accumulated and committed in a single rAF-scheduled
+      // setState, so ten network responses cost one render, not ten.
+      let pending: Record<string, unknown> | null = null;
+      let frame = 0;
+      const commit = (patch: Record<string, unknown>) => {
+        pending = { ...(pending ?? {}), ...patch };
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const next = pending;
+          pending = null;
+          if (next) setDeferred((prev) => ({ ...prev, ...next }));
+        });
+      };
+      const load = (key: string, field: string, fn: () => Promise<any>, empty: any) =>
+        cachedCall(key, fn)
+          .then((r: any) => commit({ [field]: r ?? empty }))
+          .catch(() => commit({ [field]: empty }));
+
+      load("celebrities", "celebrities", () => listPublicCelebrities(), []);
+      load("brands", "brands", () => listPublicBrands(), []);
+      load("globe", "globe", () => listPublicGlobe(), []);
+      load("gallery", "gallery", () => listGalleryItems(), []);
+      load("danceStyles", "danceStyles", () => listDanceStyles(), []);
+      load("choreographies", "choreos", () => listChoreographies(), []);
+      load("siteContent:founder", "founder", () => getSiteContent({ data: { key: "founder" } }), null);
+      load("testimonials", "testimonials", () => listPublicTestimonials(), []);
+      load("homePerformances", "performances", () => listPerformances(), []);
+      load("signaturePrograms", "sigPrograms", () => listSignaturePrograms(), []);
     };
+
     const ric: any = (window as any).requestIdleCallback;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let idleId: number | undefined;
@@ -838,27 +889,23 @@ function Index() {
           viewport={{ once: true }}
           className="df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-8 lg:p-14 text-center"
         >
-          {/* Floating orbs */}
-          <motion.div
+          {/* Floating orbs — CSS-driven (compositor only). Framer's rAF loops
+              kept ticking even while this slide was hidden. */}
+          <div
             aria-hidden
-            animate={{ y: [0, -20, 0], x: [0, 12, 0] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-40"
+            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-40 transform-gpu animate-[cta-orb-a_8s_ease-in-out_infinite] motion-reduce:animate-none"
             style={{ background: "radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%)" }}
           />
-          <motion.div
+          <div
             aria-hidden
-            animate={{ y: [0, 24, 0], x: [0, -18, 0] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-30"
+            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-30 transform-gpu animate-[cta-orb-b_10s_ease-in-out_infinite] motion-reduce:animate-none"
             style={{ background: "radial-gradient(circle, rgba(255,255,255,0.28) 0%, transparent 70%)" }}
           />
-          <motion.div
+          <div
             aria-hidden
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/20"
+            className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/20 transform-gpu animate-[cta-orb-spin_60s_linear_infinite] motion-reduce:animate-none"
           />
+
 
           <p className="relative text-xs uppercase tracking-[0.4em] text-white/80">The stage is set</p>
           <h2 className="relative mt-3 font-display text-3xl lg:text-6xl font-bold text-white text-balance leading-[1.02]">
