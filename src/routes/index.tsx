@@ -1029,6 +1029,8 @@ function Index() {
 
         </motion.div>
       </section>
+      </div>
+
 
 
       </HorizontalPager>
