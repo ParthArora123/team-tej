@@ -449,17 +449,37 @@ function Index() {
     // now so it fires almost immediately in practice while still yielding
     // to the very first paint.
     const loadDeferred = () => {
-      cachedCall("celebrities", () => listPublicCelebrities()).then((r: any) => setCelebrities(r ?? [])).catch((e) => { console.error("Failed to load celebrities:", e); setCelebrities([]); });
-      cachedCall("brands", () => listPublicBrands()).then((r: any) => setBrands(r ?? [])).catch((e) => { console.error("Failed to load brands:", e); setBrands([]); });
-      cachedCall("globe", () => listPublicGlobe()).then((r: any) => setGlobe(r ?? [])).catch((e) => { console.error("Failed to load globe locations:", e); setGlobe([]); });
-      cachedCall("gallery", () => listGalleryItems()).then((r: any) => setGallery(r ?? [])).catch(() => setGallery([]));
-      cachedCall("danceStyles", () => listDanceStyles()).then((r: any) => setDanceStyles(r ?? [])).catch(() => setDanceStyles([]));
-      cachedCall("choreographies", () => listChoreographies()).then((r: any) => setChoreos(r ?? [])).catch(() => setChoreos([]));
-      cachedCall("siteContent:founder", () => getSiteContent({ data: { key: "founder" } })).then((r: any) => setFounder(r)).catch(() => setFounder(null));
-      cachedCall("testimonials", () => listPublicTestimonials()).then((r: any) => setTestimonials(r ?? [])).catch(() => setTestimonials([]));
-      cachedCall("homePerformances", () => listPerformances()).then((r: any) => setPerformances(r ?? [])).catch(() => setPerformances([]));
-      cachedCall("signaturePrograms", () => listSignaturePrograms()).then((r: any) => setSigPrograms(r ?? [])).catch(() => setSigPrograms([]));
+      // Results are accumulated and committed in a single rAF-scheduled
+      // setState, so ten network responses cost one render, not ten.
+      let pending: Record<string, unknown> | null = null;
+      let frame = 0;
+      const commit = (patch: Record<string, unknown>) => {
+        pending = { ...(pending ?? {}), ...patch };
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const next = pending;
+          pending = null;
+          if (next) setDeferred((prev) => ({ ...prev, ...next }));
+        });
+      };
+      const load = (key: string, field: string, fn: () => Promise<any>, empty: any) =>
+        cachedCall(key, fn)
+          .then((r: any) => commit({ [field]: r ?? empty }))
+          .catch(() => commit({ [field]: empty }));
+
+      load("celebrities", "celebrities", () => listPublicCelebrities(), []);
+      load("brands", "brands", () => listPublicBrands(), []);
+      load("globe", "globe", () => listPublicGlobe(), []);
+      load("gallery", "gallery", () => listGalleryItems(), []);
+      load("danceStyles", "danceStyles", () => listDanceStyles(), []);
+      load("choreographies", "choreos", () => listChoreographies(), []);
+      load("siteContent:founder", "founder", () => getSiteContent({ data: { key: "founder" } }), null);
+      load("testimonials", "testimonials", () => listPublicTestimonials(), []);
+      load("homePerformances", "performances", () => listPerformances(), []);
+      load("signaturePrograms", "sigPrograms", () => listSignaturePrograms(), []);
     };
+
     const ric: any = (window as any).requestIdleCallback;
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let idleId: number | undefined;
