@@ -764,20 +764,15 @@ function Index() {
       </section>
 
 
-      {/* DANCE STYLES */}
-      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 border-t border-border">
-        <div className="mb-7 flex items-end justify-between gap-6">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
-            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold text-balance leading-[1.02]">
-              Styles on the <span className="italic font-light">floor.</span>
-            </h2>
-          </div>
-          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
-            Four vocabularies. One fusion.
-          </p>
-        </div>
-
+      {/* DANCE STYLES — side panel */}
+      <section id="classes" className="rounded-3xl border border-border bg-card/60 p-6 lg:p-7">
+        <p className="text-xs uppercase tracking-widest text-primary">Dance disciplines</p>
+        <h2 className="mt-2 font-display text-2xl lg:text-3xl font-bold text-balance leading-[1.05]">
+          Styles on the <span className="italic font-light">floor.</span>
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Core styles taught in studio masterclasses and online modules.
+        </p>
 
         {(() => {
           const backendNames: string[] = (danceStyles ?? [])
@@ -791,30 +786,26 @@ function Index() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-80px" }}
-              className="flex flex-wrap gap-3 sm:gap-4"
+              className="mt-5 flex flex-col gap-2.5"
             >
               {names.map((name) => (
                 <motion.span
                   key={name}
                   variants={item}
-                  whileHover={{ y: -3 }}
-                  className="group relative inline-flex items-center overflow-hidden rounded-full border border-border bg-card px-6 py-3.5 sm:px-8 sm:py-4 font-display text-base sm:text-lg font-semibold tracking-tight shadow-[0_10px_30px_-18px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-colors duration-300 hover:border-primary hover:text-primary cursor-default"
+                  whileHover={{ x: 4 }}
+                  className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-border bg-background/60 px-4 py-3 font-display text-sm sm:text-base font-semibold tracking-tight transition-colors duration-300 hover:border-primary hover:text-primary cursor-default"
                 >
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
-                    style={{ background: "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--accent-gold) 18%, transparent) 50%, transparent 70%)" }}
-                  />
+                  <span aria-hidden className="h-1.5 w-1.5 rounded-full df-gradient-bg" />
                   <span className="relative">{name}</span>
                 </motion.span>
               ))}
             </motion.div>
           );
         })()}
-
-
       </section>
+      </div>
       </Chapter>
+
 
 
 
