@@ -38,84 +38,82 @@ function ReelVideo({ src, poster, active, title }: { src: string; poster?: strin
   );
 }
 
-
 /* ------------------------------ WORKSHOPS ------------------------------ */
+
+function WorkshopCard({ w }: { w: any }) {
+  const hasImage = !!w.banner_url;
+
+  return (
+    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-18px_color-mix(in_oklab,var(--foreground)_16%,transparent)]">
+      {/* Media — fixed, medium aspect ratio */}
+      <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+        {hasImage ? (
+          <img
+            src={w.banner_url}
+            alt={w.name}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover lg:object-contain transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div
+            className="h-full w-full"
+            style={{
+              background:
+                "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 70%)",
+            }}
+          />
+        )}
+        {w.category && (
+          <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-black/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
+            {w.category}
+          </span>
+        )}
+      </div>
+
+      {/* Content — compact, balanced padding */}
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <h3 className="font-display text-lg sm:text-xl font-bold leading-tight line-clamp-2">{w.name}</h3>
+
+        <div className="mt-2.5 space-y-1 text-xs text-muted-foreground">
+          {w.event_date && (
+            <p className="flex items-center gap-1.5">
+              <Calendar size={12} />
+              {new Date(w.event_date).toDateString()}
+              {w.event_time ? ` · ${w.event_time}` : ""}
+            </p>
+          )}
+          {w.venue && (
+            <p className="flex items-center gap-1.5">
+              <MapPin size={12} /> {w.venue}
+            </p>
+          )}
+        </div>
+
+        <div className="mt-auto pt-4 flex items-end justify-between gap-3">
+          <p className="font-display text-xl font-bold">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
+          <Link
+            to="/workshops/$id"
+            params={{ id: w.id }}
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground transition-all hover:gap-2"
+          >
+            Details <ArrowUpRight size={13} />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function WorkshopDeck({ workshops }: { workshops: any[] }) {
   if (!workshops.length) return null;
 
-  const cards: StackedDeckItem[] = workshops.map((w) => ({
-    id: w.id,
-    render: ({ front }) => (
-      <DeckShell dark className="flex flex-col text-white">
-        <div className="absolute inset-0 bg-muted">
-          {w.banner_url ? (
-            <img
-              src={w.banner_url}
-              alt={w.name}
-              loading="lazy"
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover lg:object-contain object-top"
-            />
-          ) : (
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 70%)",
-              }}
-            />
-          )}
-        </div>
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(180deg, transparent 25%, color-mix(in oklab, var(--foreground) 82%, var(--primary) 18%) 100%)" }}
-        />
-        <div className="absolute inset-x-0 bottom-0 p-7">
-          {w.category && (
-            <p className="text-[10px] uppercase tracking-[0.3em] text-white/70">{w.category}</p>
-          )}
-          <p className="mt-1.5 font-display text-2xl lg:text-3xl font-bold leading-tight line-clamp-2">{w.name}</p>
-          <div className="mt-3 space-y-1 text-xs text-white/75">
-            {w.event_date && (
-              <p className="flex items-center gap-2">
-                <Calendar size={12} />
-                {new Date(w.event_date).toDateString()}
-                {w.event_time ? ` · ${w.event_time}` : ""}
-              </p>
-            )}
-            {w.venue && (
-              <p className="flex items-center gap-2">
-                <MapPin size={12} /> {w.venue}
-              </p>
-            )}
-          </div>
-          <div className="mt-5 flex items-end justify-between gap-4">
-            <p className="font-display text-2xl">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
-            {front && (
-              <Link
-                to="/workshops/$id"
-                params={{ id: w.id }}
-                onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur transition-all hover:gap-2.5"
-              >
-                Details <ArrowUpRight size={13} />
-              </Link>
-            )}
-          </div>
-        </div>
-      </DeckShell>
-    ),
-  }));
-
   return (
-    <StackedDeck
-      items={cards}
-      variant="stack"
-      
-      className="mx-auto h-[560px] w-full max-w-[560px] sm:h-[680px] sm:max-w-[680px]"
-    />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {workshops.map((w) => (
+        <WorkshopCard key={w.id} w={w} />
+      ))}
+    </div>
   );
 }
 
@@ -175,7 +173,6 @@ export function ReelDeck({ reels }: { reels: ReelCard[] }) {
     <StackedDeck
       items={cards}
       variant="fan"
-      
       className="mx-auto h-[600px] w-full max-w-[400px] sm:h-[720px] sm:max-w-[460px]"
     />
   );
@@ -219,7 +216,6 @@ export function GalleryDeck({ items }: { items: any[] }) {
     <StackedDeck
       items={cards}
       variant="shuffle"
-      
       className="mx-auto h-[500px] w-full max-w-[680px] sm:h-[620px]"
     />
   );
