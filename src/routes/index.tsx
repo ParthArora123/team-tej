@@ -587,7 +587,7 @@ function Index() {
       <HorizontalPager>
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
 
-      <Chapter index={1} total={5} bleed>
+      <Chapter index={1} total={4} bleed>
         <CinematicHero
           backgroundImage={heroPhoto ?? uploadedHeroImg.url}
           clips={heroClips}
@@ -597,7 +597,7 @@ function Index() {
       </Chapter>
 
       {/* SCREEN 2 — Iconic Work: choreographies + world tour */}
-      <Chapter index={2} total={5} kicker="Iconic Work">
+      <Chapter index={2} total={4} kicker="Iconic Work">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
 
@@ -700,7 +700,7 @@ function Index() {
       </Chapter>
 
       {/* SCREEN 3 — How We Teach: mindset & movement */}
-      <Chapter index={3} total={5} kicker="How We Teach">
+      <Chapter index={3} total={4} kicker="How We Teach">
         <FounderSection founder={founder} />
       {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10">
