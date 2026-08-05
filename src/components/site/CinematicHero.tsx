@@ -296,7 +296,7 @@ export function CinematicHero({
       {/* Floating achievement badges */}
       <div
         aria-hidden={false}
-        className="absolute inset-0 z-20 hidden lg:block pointer-events-none"
+        className="absolute inset-0 z-20 hidden lg:block xl:hidden pointer-events-none"
       >
         {badges.slice(0, 4).map((b, idx) => {
           const spots = [
