@@ -113,6 +113,8 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
             ref={(el) => {
               slideRefs.current[i] = el;
             }}
+            data-pager-slide={active ? "active" : "hidden"}
+
             className="w-full"
             aria-hidden={!active}
             style={
