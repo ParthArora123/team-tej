@@ -376,9 +376,6 @@ function Index() {
     return () => { cancelled = true; };
   }, []);
 
-  const [testimonials, setTestimonials] = useState<any[]>([]);
-  const [performances, setPerformances] = useState<HomeCard[]>([]);
-  const [sigPrograms, setSigPrograms] = useState<HomeCard[]>([]);
   const [slideIdx, setSlideIdx] = useState(0);
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
