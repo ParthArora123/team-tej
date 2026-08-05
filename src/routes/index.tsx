@@ -24,6 +24,7 @@ import { StageLights } from "@/components/site/StageLights";
 import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { HorizontalPager } from "@/components/site/HorizontalPager";
+import { Chapter } from "@/components/site/Chapter";
 
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 import { LazySection } from "@/components/site/LazySection";
@@ -586,21 +587,27 @@ function Index() {
       <HorizontalPager>
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
 
-      <CinematicHero
-        backgroundImage={heroPhoto ?? uploadedHeroImg.url}
-        clips={heroClips}
-        badges={heroBadges}
-        onReady={() => setHeroReady(true)}
-      />
+      <Chapter index={1} total={5} bleed>
+        <CinematicHero
+          backgroundImage={heroPhoto ?? uploadedHeroImg.url}
+          clips={heroClips}
+          badges={heroBadges}
+          onReady={() => setHeroReady(true)}
+        />
+      </Chapter>
 
       {/* FOUNDER / ABOUT — directly below hero */}
-      <FounderSection founder={founder} />
+      <Chapter index={2} total={5} kicker="Meet Tejas">
+        <FounderSection founder={founder} />
+      </Chapter>
 
       {/* MOST VIRAL CHOREOGRAPHIES */}
-      <CinematicShowreel choreos={choreos} workshops={workshops} />
+      <Chapter index={3} total={5} kicker="Most Viral Choreographies">
+        <CinematicShowreel choreos={choreos} workshops={workshops} />
+      </Chapter>
 
-      {/* SCREEN 4 — Workshops + formats + styles */}
-      <div>
+      {/* SCREEN 4 — Register Workshop */}
+      <Chapter index={4} total={5} kicker="Register Workshop">
       <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-10 pb-6 lg:pt-14 lg:pb-8">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
@@ -747,12 +754,12 @@ function Index() {
 
 
       </section>
-      </div>
+      </Chapter>
 
 
 
-      {/* SCREEN 5 — Proof + final CTA */}
-      <div>
+      {/* SCREEN 5 — Final CTA */}
+      <Chapter index={5} total={5} kicker="The Final Call">
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-10 lg:py-14 space-y-10 lg:space-y-12">
 
         {brands.length > 0 && (
@@ -950,9 +957,7 @@ function Index() {
 
         </motion.div>
       </section>
-      </div>
-
-
+      </Chapter>
 
       </HorizontalPager>
     </>
