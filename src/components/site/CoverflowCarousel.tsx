@@ -345,38 +345,19 @@ export function CoverflowCarousel({
       </div>
 
       {count > 1 && (
-        <>
-          <button
-            type="button"
-            onClick={() => go(-1)}
-            aria-label="Previous choreography"
-            className="absolute left-1 top-1/2 z-20 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background/80 text-foreground shadow-lg transition hover:scale-105"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <button
-            type="button"
-            onClick={() => go(1)}
-            aria-label="Next choreography"
-            className="absolute right-1 top-1/2 z-20 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-background/80 text-foreground shadow-lg transition hover:scale-105"
-          >
-            <ChevronRight size={20} />
-          </button>
-
-          <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-2">
-            {items.map((it, i) => (
-              <button
-                key={it.id}
-                type="button"
-                onClick={() => setIndex(i)}
-                aria-label={`Go to ${it.title}`}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === index ? "w-7 bg-primary" : "w-1.5 bg-muted-foreground/40"
-                }`}
-              />
-            ))}
-          </div>
-        </>
+        <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-2">
+          {items.map((it, i) => (
+            <button
+              key={it.id}
+              type="button"
+              onClick={() => setIndex(i)}
+              aria-label={`Go to ${it.title}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === index ? "w-7 bg-primary" : "w-1.5 bg-muted-foreground/40"
+              }`}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
