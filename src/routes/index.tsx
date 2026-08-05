@@ -587,7 +587,7 @@ function Index() {
       <HorizontalPager>
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
 
-      <Chapter index={1} total={5} bleed>
+      <Chapter index={1} total={4} bleed>
         <CinematicHero
           backgroundImage={heroPhoto ?? uploadedHeroImg.url}
           clips={heroClips}
@@ -597,7 +597,7 @@ function Index() {
       </Chapter>
 
       {/* SCREEN 2 — Iconic Work: choreographies + world tour */}
-      <Chapter index={2} total={5} kicker="Iconic Work">
+      <Chapter index={2} total={4} kicker="Iconic Work">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
 
@@ -699,8 +699,8 @@ function Index() {
       </section>
       </Chapter>
 
-      {/* SCREEN 3 — How We Teach: mindset & movement */}
-      <Chapter index={3} total={5} kicker="How We Teach">
+      {/* SCREEN 3 — Meet Tejas: mindset & movement */}
+      <Chapter index={3} total={4} kicker="Meet Tejas">
         <FounderSection founder={founder} />
       {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10">
@@ -728,28 +728,21 @@ function Index() {
       </section>
       </Chapter>
 
-      {/* SCREEN 4 — Programs & Styles */}
-      <Chapter index={4} total={5} kicker="Programs & Styles">
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10 border-t border-border">
+      {/* SCREEN 4 — Start Moving: how we teach + book your experience */}
+      <Chapter index={4} total={4} kicker="Start Moving">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 lg:pt-10">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
-            <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Programs & Formats</p>
+            <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">How We Teach</p>
             <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-              Ways to <span className="italic font-light df-gradient-text">train.</span>
+              A method that <span className="italic font-light df-gradient-text">builds dancers.</span>
             </h2>
           </div>
           <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
-            Every way to train with Tejas.
+            Four steps. One transformation.
           </p>
         </div>
 
-
-        {sigPrograms.length > 0 ? (
-          <LazySection minHeight={400}>
-            <SignatureProgramsGrid rows={sigPrograms} />
-          </LazySection>
-
-        ) : (
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -758,88 +751,29 @@ function Index() {
           className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5"
         >
           {[
-            { icon: Rocket, title: "Zero to Hero", desc: "A full beginner-to-confident-dancer track — no prior experience needed.", href: "/zero-to-hero" },
-            { icon: Calendar, title: "Workshops", desc: "Live intensives across styles, running through the year.", href: "/workshops" },
-            { icon: Heart, title: "Wedding Choreography", desc: "Bespoke routines for the couple, the family, or the whole baraat.", href: "/contact" },
-            { icon: Video, title: "Online Training", desc: "Structured remote training for dancers anywhere in the world.", href: "/online-trainings" },
+            { icon: Heart, title: "Mindset First", desc: "Confidence before choreography — we start with how you feel on the floor." },
+            { icon: Rocket, title: "Foundations", desc: "Body control, rhythm and posture drilled until movement becomes instinct." },
+            { icon: Video, title: "Choreography", desc: "Real routines, taught the way they're performed — layered, clean, cinematic." },
+            { icon: Calendar, title: "Performance", desc: "Stage-ready practice, filming and feedback so you can own any spotlight." },
           ].map((p) => (
             <motion.div key={p.title} variants={item}>
-              <Link
-                to={p.href}
-                className="group relative block h-full df-border-card bg-card p-4 lg:p-6 overflow-hidden transition-shadow duration-300 hover:shadow-[0_24px_60px_-28px_rgba(238,61,139,0.55)]"
-              >
+              <div className="group relative block h-full df-border-card bg-card p-4 lg:p-6 overflow-hidden transition-shadow duration-300">
                 <span
                   aria-hidden
                   className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   style={{ background: "linear-gradient(135deg, rgba(249,178,51,0.10), rgba(238,61,139,0.10) 55%, rgba(142,45,168,0.12))" }}
                 />
-                <div className="relative h-11 w-11 rounded-xl df-gradient-bg text-white flex items-center justify-center shadow-[0_10px_24px_-10px_rgba(238,61,139,0.7)]">
+                <div className="relative h-11 w-11 rounded-xl df-gradient-bg text-white flex items-center justify-center">
                   <p.icon size={20} />
                 </div>
                 <p className="relative mt-4 font-display text-xl font-bold">{p.title}</p>
                 <p className="relative mt-2 hidden sm:block text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
-                <span className="relative mt-4 inline-flex items-center gap-1.5 text-xs font-semibold df-gradient-text opacity-0 group-hover:opacity-100 transition-opacity">
-                  Learn more <ArrowUpRight size={14} className="text-primary" />
-                </span>
-              </Link>
+              </div>
             </motion.div>
           ))}
         </motion.div>
-        )}
       </section>
-      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10 border-t border-border">
-        <div className="mb-5 flex items-end justify-between gap-6">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Dance Disciplines</p>
-            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold text-balance leading-[1.02]">
-              Styles on the <span className="italic font-light">floor.</span>
-            </h2>
-          </div>
-          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
-            Four vocabularies. One fusion.
-          </p>
-        </div>
 
-
-        {(() => {
-          const backendNames: string[] = (danceStyles ?? [])
-            .map((s: any) => String(s.name ?? "").trim())
-            .filter(Boolean);
-          const names = backendNames.length > 0 ? backendNames : defaultStyles.map((s) => s.name);
-
-          return (
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-80px" }}
-              className="flex flex-wrap gap-3 sm:gap-4"
-            >
-              {names.map((name) => (
-                <motion.span
-                  key={name}
-                  variants={item}
-                  whileHover={{ y: -3 }}
-                  className="group relative inline-flex items-center overflow-hidden rounded-full border border-border bg-card px-6 py-3.5 sm:px-8 sm:py-4 font-display text-base sm:text-lg font-semibold tracking-tight shadow-[0_10px_30px_-18px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-colors duration-300 hover:border-primary hover:text-primary cursor-default"
-                >
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
-                    style={{ background: "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--accent-gold) 18%, transparent) 50%, transparent 70%)" }}
-                  />
-                  <span className="relative">{name}</span>
-                </motion.span>
-              ))}
-            </motion.div>
-          );
-        })()}
-
-
-      </section>
-      </Chapter>
-
-      {/* SCREEN 5 — Start Moving: book your experience */}
-      <Chapter index={5} total={5} kicker="Start Moving">
       <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
