@@ -548,7 +548,8 @@ function Index() {
       {/* MOST VIRAL CHOREOGRAPHIES */}
       <CinematicShowreel choreos={choreos} workshops={workshops} />
 
-      {/* WORKSHOPS — dynamic (primary CTA) */}
+      {/* SCREEN 4 — Workshops + formats + styles */}
+      <div>
       <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-8 lg:pt-24 lg:pb-12">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
           <div>
