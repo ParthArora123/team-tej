@@ -310,16 +310,50 @@ function Index() {
   const loaderData = Route.useLoaderData() as HomeLoaderData;
 
   const [workshops, setWorkshops] = useState<any[]>([]);
-  const [celebrities, setCelebrities] = useState<any[]>([]);
-  const [brands, setBrands] = useState<any[]>([]);
-  const [globe, setGlobe] = useState<any[]>([]);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(loaderData.heroSlides ?? []);
   const [featured, setFeatured] = useState<any | null>(null);
-  const [gallery, setGallery] = useState<any[]>([]);
-  const [danceStyles, setDanceStyles] = useState<any[] | null>(null);
-  const [choreos, setChoreos] = useState<Choreo[]>([]);
-  const [founder, setFounder] = useState<any | null>(null);
   const [heroPhoto, setHeroPhoto] = useState<string | null>(null);
+
+  // Every below-the-fold dataset lands in ONE state object. Previously each of
+  // the ten fetches called its own setState, so the whole 5-screen homepage
+  // tree re-rendered ten times in a row (the single biggest source of long
+  // tasks + video re-mount flicker on mid/low-end phones).
+  const [deferred, setDeferred] = useState<{
+    celebrities: any[];
+    brands: any[];
+    globe: any[];
+    gallery: any[];
+    danceStyles: any[] | null;
+    choreos: Choreo[];
+    founder: any | null;
+    testimonials: any[];
+    performances: HomeCard[];
+    sigPrograms: HomeCard[];
+  }>({
+    celebrities: [],
+    brands: [],
+    globe: [],
+    gallery: [],
+    danceStyles: null,
+    choreos: [],
+    founder: null,
+    testimonials: [],
+    performances: [],
+    sigPrograms: [],
+  });
+  const {
+    celebrities,
+    brands,
+    globe,
+    gallery,
+    danceStyles,
+    choreos,
+    founder,
+    testimonials,
+    performances,
+    sigPrograms,
+  } = deferred;
+
 
   // Admin-managed homepage hero photo. The bundled portrait paints immediately
   // (it is preloaded in <head>); the CMS photo swaps in only once it has fully
