@@ -361,7 +361,7 @@
   border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
   box-shadow:
     0 1px 0 0 color-mix(in oklab, var(--foreground) 6%, transparent) inset,
-    0 20px 60px -30px oklch(0 0 0 / 25%);
+    0 20px 60px -30px color-mix(in oklab, var(--accent-gold) 25%, transparent);
 }
 
 
