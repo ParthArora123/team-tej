@@ -303,7 +303,7 @@ export function CoverflowCarousel({
                 }
                 className={`group relative h-full w-full overflow-hidden rounded-3xl border ${
                   active
-                    ? "border-primary/40 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--df-3)_45%,transparent)]"
+                    ? "border-primary/40 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)]"
                     : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
