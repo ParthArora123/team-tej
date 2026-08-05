@@ -23,6 +23,8 @@ import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
+import { HorizontalPager } from "@/components/site/HorizontalPager";
+
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 import { LazySection } from "@/components/site/LazySection";
 
