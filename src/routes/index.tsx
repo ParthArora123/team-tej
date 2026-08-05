@@ -550,13 +550,13 @@ function Index() {
 
       {/* SCREEN 4 — Workshops + formats + styles */}
       <div>
-      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-16 pb-8 lg:pt-24 lg:pb-12">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-10 pb-6 lg:pt-14 lg:pb-8">
+        <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
               <Calendar size={12} /> Upcoming Workshops
             </p>
-            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold leading-[1.02] text-balance">
               Register Now. Experience the Magic.
             </h2>
             <p className="mt-4 text-muted-foreground max-w-xl">
@@ -588,11 +588,11 @@ function Index() {
 
 
       {/* SIGNATURE PROGRAMS */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-12">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 border-t border-border">
+        <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
             <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Signature Programs</p>
-            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
+            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold leading-[1.02] text-balance">
               Find your <span className="italic font-light df-gradient-text">format.</span>
             </h2>
           </div>
@@ -647,11 +647,11 @@ function Index() {
 
 
       {/* DANCE STYLES */}
-      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
-        <div className="mb-12 flex items-end justify-between gap-6">
+      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 border-t border-border">
+        <div className="mb-7 flex items-end justify-between gap-6">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
-            <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
+            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold text-balance leading-[1.02]">
               Styles on the <span className="italic font-light">floor.</span>
             </h2>
           </div>
@@ -702,13 +702,13 @@ function Index() {
 
       {/* SCREEN 5 — Proof + final CTA */}
       <div>
-      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-24 space-y-20">
+      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-10 lg:py-14 space-y-10 lg:space-y-12">
 
         {brands.length > 0 && (
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">Trusted partners</h2>
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">Trusted partners</h2>
+            <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
               {brands.map((b) => (
                 <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
                   {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
@@ -722,13 +722,13 @@ function Index() {
 
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
+            <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">On stage with the best</h2>
             <motion.div
               variants={stagger}
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-80px" }}
-              className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"
+              className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3"
             >
               {celebrities.map((c) => (
                 <motion.div
@@ -772,7 +772,7 @@ function Index() {
           return (
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
               <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
-              <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
+              <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
               <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
               {conducted.length > 0 && (
                 <div className="mt-8">
@@ -802,7 +802,7 @@ function Index() {
       </section>
 
       {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -817,7 +817,7 @@ function Index() {
                 className="absolute -top-px left-0 h-px w-16"
                 style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
               />
-              <p className="font-display text-5xl lg:text-7xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
+              <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
                 {s.value}{s.suffix ?? ""}
               </p>
               <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
@@ -831,12 +831,12 @@ function Index() {
 
 
       {/* FINAL CTA */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-8 lg:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-12 lg:p-24 text-center"
+          className="df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-8 lg:p-14 text-center"
         >
           {/* Floating orbs */}
           <motion.div
@@ -861,14 +861,14 @@ function Index() {
           />
 
           <p className="relative text-xs uppercase tracking-[0.4em] text-white/80">The stage is set</p>
-          <h2 className="relative mt-4 font-display text-4xl lg:text-7xl font-bold text-white text-balance leading-[1.02]">
+          <h2 className="relative mt-3 font-display text-3xl lg:text-6xl font-bold text-white text-balance leading-[1.02]">
             Your journey <span className="italic font-light text-white/80">begins now.</span>
           </h2>
           <p className="relative mt-5 text-white/80 max-w-xl mx-auto text-base lg:text-lg">
             Step in. Move freely. Leave transformed.
           </p>
 
-          <div className="relative mt-10 flex justify-center">
+          <div className="relative mt-7 flex justify-center">
             <MagneticButton strength={0.5}>
               <a
                 href="/zero-to-hero"
@@ -894,7 +894,7 @@ function Index() {
             </MagneticButton>
           </div>
 
-          <p className="relative mt-8 text-sm text-white/70">
+          <p className="relative mt-5 text-sm text-white/70">
             Not ready to register today?{" "}
             <Link to="/contact" className="text-white font-medium underline underline-offset-4 hover:text-white/90 transition-colors">
               Get in touch and we'll notify you about the next batch
