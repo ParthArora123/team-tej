@@ -945,3 +945,33 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
 [aria-hidden="true"] {
   contain: paint style;
 }
+
+/* Cheap full-bleed blurred backdrop.
+   Blurring a full-screen image costs ~viewport-sized pixels every time the
+   layer repaints. Rendering the source at a quarter of the size and scaling
+   it up gives a visually identical blur for ~1/16th of the pixel work. */
+@utility blur-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 25%;
+  height: 25%;
+  object-fit: cover;
+  transform-origin: top left;
+  transform: scale(4.4) translateZ(0);
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+@utility blur-backdrop-wide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 25%;
+  height: 25%;
+  object-fit: cover;
+  transform-origin: top left;
+  transform: scale(5) translateZ(0);
+  filter: blur(4px);
+  pointer-events: none;
+}

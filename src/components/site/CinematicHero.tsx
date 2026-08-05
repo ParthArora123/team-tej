@@ -91,7 +91,7 @@ export function CinematicHero({
           src={backgroundImage}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-80 transform-gpu"
+          className="blur-backdrop opacity-80"
           style={{
             visibility: loaded ? "visible" : "hidden",
             // Promote to its own compositor layer so the expensive blur is
@@ -150,7 +150,7 @@ export function CinematicHero({
             src={backgroundImage}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl opacity-70 transform-gpu"
+            className="blur-backdrop opacity-70"
             style={{ willChange: "transform", contain: "paint" }}
             draggable={false}
           />

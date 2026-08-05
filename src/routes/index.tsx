@@ -202,7 +202,7 @@ function HeroSlideMedia({
             src={fallbackSrc}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80"
+            className="blur-backdrop-wide opacity-80"
             draggable={false}
           />
         )}

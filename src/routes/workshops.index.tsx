@@ -21,7 +21,7 @@ function WorkshopBanner({ r }: { r: any }) {
     return (
       <div className="relative w-full aspect-[4/5] overflow-hidden bg-black">
         {r.banner_url && (
-          <img src={r.banner_url} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-70" />
+          <img src={r.banner_url} alt="" aria-hidden className="blur-backdrop-wide opacity-70" />
         )}
         <video
           src={r.banner_video_url}

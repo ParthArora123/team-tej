@@ -54,7 +54,7 @@ const CardMedia = memo(function CardMedia({
       aria-hidden
       loading="lazy"
       decoding="async"
-      className="absolute inset-0 h-full w-full scale-125 object-cover blur-xl opacity-70"
+      className="blur-backdrop-wide opacity-70"
     />
   ) : (
     <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/40" />
