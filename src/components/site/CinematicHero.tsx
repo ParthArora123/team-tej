@@ -199,10 +199,11 @@ export function CinematicHero({
         </>
       )}
 
-      {/* Cinematic grading — stronger at bottom so text stays legible, clear at top for the portrait */}
+      {/* Cinematic grading — mobile only. On desktop/laptop the dark vignette
+          read as a black shadow over the design, so it's hidden there. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 lg:hidden"
         style={{
           background:
             "linear-gradient(180deg, oklch(0 0 0 / 25%) 0%, oklch(0 0 0 / 10%) 40%, oklch(0 0 0 / 55%) 100%)",
@@ -210,12 +211,13 @@ export function CinematicHero({
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-70"
+        className="pointer-events-none absolute inset-0 opacity-70 lg:hidden"
         style={{
           background:
             "radial-gradient(80% 60% at 50% 80%, oklch(0 0 0 / 60%) 0%, transparent 60%)",
         }}
       />
+
 
       <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center pointer-events-none justify-end pb-[12vh] sm:pb-[14vh]">
         <motion.p
