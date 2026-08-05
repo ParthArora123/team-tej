@@ -87,10 +87,10 @@
     radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, var(--accent) 9%, transparent), transparent 65%),
     radial-gradient(ellipse 80% 60% at 50% 100%,color-mix(in oklab, var(--accent-gold) 12%, transparent), transparent 60%);
   --shadow-soft:
-    0 1px 2px oklch(0.12 0.004 60 / 8%),
-    0 16px 40px -14px oklch(0.12 0.004 60 / 20%),
-    0 40px 100px -48px oklch(0.12 0.004 60 / 24%);
-  --shadow-glow: 0 24px 70px -22px color-mix(in oklab, var(--primary) 40%, transparent);
+    0 1px 2px color-mix(in oklab, var(--accent-gold) 8%, transparent),
+    0 16px 40px -14px color-mix(in oklab, var(--accent-gold) 18%, transparent),
+    0 40px 100px -48px color-mix(in oklab, var(--accent-gold) 22%, transparent);
+  --shadow-glow: 0 24px 70px -22px color-mix(in oklab, var(--df-3) 30%, transparent);
   --shadow-gold: 0 14px 44px -16px color-mix(in oklab, var(--accent-gold) 45%, transparent);
 
   /* Dancefit official brand ramp — gold → orange → pink → purple */
@@ -272,21 +272,15 @@
 
 @utility glow-primary {
   box-shadow:
-    0 0 0 1px color-mix(in oklab, var(--primary) 25%, transparent),
-    0 10px 40px -10px color-mix(in oklab, var(--primary) 55%, transparent),
-    0 30px 80px -30px color-mix(in oklab, var(--accent-cyan) 45%, transparent);
+    0 0 0 1px color-mix(in oklab, var(--accent-gold) 25%, transparent),
+    0 10px 40px -10px color-mix(in oklab, var(--df-3) 45%, transparent),
+    0 30px 80px -30px color-mix(in oklab, var(--accent-gold) 35%, transparent);
 }
 
 @utility glow-soft {
   box-shadow:
-    0 8px 32px -8px color-mix(in oklab, var(--primary) 25%, transparent),
-    0 2px 8px -2px oklch(0 0 0 / 8%);
-}
-
-@utility glow-soft {
-  box-shadow:
-    0 8px 32px -8px color-mix(in oklab, var(--primary) 25%, transparent),
-    0 2px 8px -2px oklch(0 0 0 / 8%);
+    0 8px 32px -8px color-mix(in oklab, var(--accent-gold) 25%, transparent),
+    0 2px 8px -2px color-mix(in oklab, var(--df-3) 8%, transparent);
 }
 
 /* Premium section eyebrow pill — used across the homepage sections */
@@ -367,7 +361,7 @@
   border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
   box-shadow:
     0 1px 0 0 color-mix(in oklab, var(--foreground) 6%, transparent) inset,
-    0 20px 60px -30px oklch(0 0 0 / 25%);
+    0 20px 60px -30px color-mix(in oklab, var(--accent-gold) 25%, transparent);
 }
 
 
@@ -431,7 +425,7 @@
 }
 .hover-lift:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 50px -20px color-mix(in oklab, var(--primary) 40%, transparent);
+  box-shadow: 0 20px 50px -20px color-mix(in oklab, var(--accent-gold) 30%, transparent);
 }
 
 /* Premium card — soft glass surface, rounded, lift + dynamic rim light on
@@ -441,7 +435,7 @@
   border-radius: 1rem;
   border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
   background-color: color-mix(in oklab, var(--card) 72%, transparent);
-  box-shadow: 0 24px 60px -34px oklch(0 0 0 / 45%);
+  box-shadow: 0 24px 60px -34px color-mix(in oklab, var(--accent-gold) 22%, transparent);
   transition:
     transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.5s cubic-bezier(0.22, 1, 0.36, 1),
@@ -450,8 +444,8 @@
     transform: translateY(-6px);
     border-color: color-mix(in oklab, var(--primary) 45%, transparent);
     box-shadow:
-      0 32px 80px -32px color-mix(in oklab, var(--primary) 45%, transparent),
-      0 0 0 1px color-mix(in oklab, var(--primary) 18%, transparent);
+      0 32px 80px -32px color-mix(in oklab, var(--df-3) 28%, transparent),
+      0 0 0 1px color-mix(in oklab, var(--df-3) 14%, transparent);
   }
 }
 

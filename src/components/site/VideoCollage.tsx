@@ -428,7 +428,7 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
             type="button"
             onClick={toggleSound}
             aria-label={soundOn ? "Mute videos" : "Unmute videos"}
-            className="absolute bottom-2 left-1/2 z-[80] -translate-x-1/2 inline-flex items-center gap-2 rounded-full border border-white/25 bg-black/40 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-white backdrop-blur transition-colors hover:bg-black/60"
+            className="absolute bottom-2 left-1/2 z-[80] -translate-x-1/2 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/20 px-4 py-2 text-[10px] uppercase tracking-[0.25em] text-white backdrop-blur transition-colors hover:bg-white/30"
           >
             {soundOn ? <Volume2 size={13} /> : <VolumeX size={13} />}
             {soundOn ? "Sound on" : "Unmute"}

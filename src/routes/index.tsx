@@ -527,7 +527,7 @@ function Index() {
       {/* Sticky mobile CTA */}
       <Link
         to="/workshops"
-        className="md:hidden fixed bottom-5 inset-x-5 z-40 flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold py-3.5 shadow-[0_10px_40px_-10px_color-mix(in_oklab,var(--primary)_60%,transparent)]"
+        className="md:hidden fixed bottom-5 inset-x-5 z-40 flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold py-3.5 shadow-[0_10px_40px_-10px_color-mix(in_oklab,var(--df-3)_40%,transparent)]"
       >
         <Sparkles size={16} /> Register for a Workshop
       </Link>
@@ -795,12 +795,12 @@ function Index() {
                   key={name}
                   variants={item}
                   whileHover={{ y: -3 }}
-                  className="group relative inline-flex items-center overflow-hidden rounded-full border border-border bg-card px-6 py-3.5 sm:px-8 sm:py-4 font-display text-base sm:text-lg font-semibold tracking-tight shadow-[0_10px_30px_-18px_color-mix(in_oklab,var(--foreground)_50%,transparent)] transition-colors duration-300 hover:border-primary hover:text-primary cursor-default"
+                  className="group relative inline-flex items-center overflow-hidden rounded-full border border-border bg-card px-6 py-3.5 sm:px-8 sm:py-4 font-display text-base sm:text-lg font-semibold tracking-tight shadow-[0_10px_30px_-18px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-colors duration-300 hover:border-primary hover:text-primary cursor-default"
                 >
                   <span
                     aria-hidden
                     className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
-                    style={{ background: "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--primary) 12%, transparent) 50%, transparent 70%)" }}
+                    style={{ background: "linear-gradient(115deg, transparent 30%, color-mix(in oklab, var(--accent-gold) 18%, transparent) 50%, transparent 70%)" }}
                   />
                   <span className="relative">{name}</span>
                 </motion.span>
@@ -928,7 +928,7 @@ function Index() {
                 className="absolute -top-px left-0 h-px w-16"
                 style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
               />
-              <p className="font-display text-5xl lg:text-7xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--primary)_45%,transparent)]">
+              <p className="font-display text-5xl lg:text-7xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
                 {s.value}{s.suffix ?? ""}
               </p>
               <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
@@ -1019,7 +1019,7 @@ function Index() {
                 }}
                 className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-white bg-white/10 backdrop-blur-sm border border-white/30 overflow-hidden hover:bg-white/20 transition-colors"
                 style={{
-                  boxShadow: "0 24px 70px -22px rgba(0,0,0,0.35)",
+                  boxShadow: "0 24px 70px -22px color-mix(in oklab, var(--df-3) 30%, transparent)",
                 }}
               >
                 <span className="relative z-10 flex items-center gap-2">

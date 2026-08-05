@@ -48,7 +48,7 @@ export function MasonryGallery({ items }: { items: GalleryItem[] }) {
             <div
               aria-hidden
               className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{ background: "linear-gradient(180deg, transparent 40%, oklch(0 0 0 / 70%) 100%)" }}
+              style={{ background: "linear-gradient(180deg, transparent 40%, color-mix(in oklab, var(--df-4) 80%, transparent) 100%)" }}
             />
             {g.caption && (
               <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 p-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
@@ -72,7 +72,7 @@ export function MasonryGallery({ items }: { items: GalleryItem[] }) {
             role="dialog"
             aria-modal="true"
             className="fixed inset-0 z-[70] grid place-items-center p-4 sm:p-10"
-            style={{ background: "oklch(0 0 0 / 88%)" }}
+            style={{ background: "color-mix(in oklab, var(--df-4) 88%, transparent)" }}
           >
             <button
               type="button"
@@ -90,7 +90,7 @@ export function MasonryGallery({ items }: { items: GalleryItem[] }) {
               src={active.image_url!}
               alt={active.caption ?? "Gallery frame"}
               onClick={(e) => e.stopPropagation()}
-              className="max-h-[86vh] max-w-full rounded-2xl object-contain shadow-[0_40px_120px_-40px_rgba(0,0,0,0.9)]"
+              className="max-h-[86vh] max-w-full rounded-2xl object-contain shadow-[0_40px_120px_-40px_color-mix(in_oklab,var(--df-4)_60%,transparent)]"
             />
             {active.caption && (
               <p className="absolute bottom-6 inset-x-0 text-center text-xs uppercase tracking-[0.25em] text-white/75 px-6">

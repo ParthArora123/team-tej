@@ -35,7 +35,7 @@ export function CursorGlow() {
           y: sy,
           willChange: "transform",
           background:
-            "radial-gradient(circle, color-mix(in oklab, var(--primary) 26%, transparent) 0%, color-mix(in oklab, var(--accent-cyan) 10%, transparent) 45%, transparent 70%)",
+            "radial-gradient(circle, color-mix(in oklab, var(--accent-gold) 20%, transparent) 0%, color-mix(in oklab, var(--df-3) 8%, transparent) 45%, transparent 70%)",
         }}
         className="pointer-events-none fixed top-0 left-0 z-[55] h-[340px] w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-40"
       />
