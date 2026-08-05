@@ -116,7 +116,9 @@ export function CinematicHero({
       <div
         className="hero-zoom-layer absolute inset-0 w-full h-full transform-gpu"
         style={{
-          animation: reduce ? "none" : "heroZoom 24s ease-out forwards",
+          // Ken-burns removed: scaling a full-bleed portrait re-rasterises the
+          // whole hero every frame on every device. Static framing instead.
+          animation: "none",
           visibility: loaded && !failed && backgroundImage ? "visible" : "hidden",
         }}
       >
