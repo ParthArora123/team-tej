@@ -1085,10 +1085,10 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
       <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
         <div>
           <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-            <Play size={12} /> On screen
+            <Play size={12} /> Iconic Work
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
-            Most Viral <span className="italic font-light">Choreographies.</span>
+            Choreographies & <span className="italic font-light">World Tour.</span>
           </h2>
         </div>
 
