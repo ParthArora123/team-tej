@@ -646,11 +646,11 @@ function Index() {
 
 
       {/* SIGNATURE PROGRAMS */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 border-t border-border">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10 border-t border-border">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
             <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Signature Programs</p>
-            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold leading-[1.02] text-balance">
+            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
               Find your <span className="italic font-light df-gradient-text">format.</span>
             </h2>
           </div>
@@ -658,6 +658,7 @@ function Index() {
             Every way to train with Tejas.
           </p>
         </div>
+
 
         {sigPrograms.length > 0 ? (
           <LazySection minHeight={400}>
