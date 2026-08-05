@@ -801,9 +801,10 @@ function Index() {
 
       </section>
 
-
-      {/* Celebrities · Brands · India to the Globe — dynamic */}
+      {/* SCREEN 5 — Proof + final CTA */}
+      <div>
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-24 space-y-20">
+
         {brands.length > 0 && (
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
