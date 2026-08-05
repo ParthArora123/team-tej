@@ -282,7 +282,7 @@ export function CinematicHero({
                   .getElementById("showcase")
                   ?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.22em] text-white border border-white/25 bg-white/10 backdrop-blur-md hover:bg-white/20 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.22em] text-white border border-white/25 bg-white/15 hover:bg-white/25 transition-colors"
             >
               <Play size={13} /> Watch Performances
             </a>

@@ -67,13 +67,13 @@ export function Footer() {
           <div className="md:col-span-2">
             <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-4">Follow</p>
             <div className="flex gap-2">
-              <a href="#" aria-label="Instagram" className="p-2.5 rounded-full border border-border bg-background/40 backdrop-blur-md hover:border-primary/50 hover:text-primary hover:-translate-y-0.5 transition">
+              <a href="#" aria-label="Instagram" className="p-2.5 rounded-full border border-border bg-background/70 hover:border-primary/50 hover:text-primary hover:-translate-y-0.5 transition">
                 <Instagram size={15} />
               </a>
-              <a href="#" aria-label="YouTube" className="p-2.5 rounded-full border border-border bg-background/40 backdrop-blur-md hover:border-primary/50 hover:text-primary hover:-translate-y-0.5 transition">
+              <a href="#" aria-label="YouTube" className="p-2.5 rounded-full border border-border bg-background/70 hover:border-primary/50 hover:text-primary hover:-translate-y-0.5 transition">
                 <Youtube size={15} />
               </a>
-              <a href="mailto:hello@teamtej.com" aria-label="Email" className="p-2.5 rounded-full border border-border bg-background/40 backdrop-blur-md hover:border-primary/50 hover:text-primary hover:-translate-y-0.5 transition">
+              <a href="mailto:hello@teamtej.com" aria-label="Email" className="p-2.5 rounded-full border border-border bg-background/70 hover:border-primary/50 hover:text-primary hover:-translate-y-0.5 transition">
                 <Mail size={15} />
               </a>
             </div>
