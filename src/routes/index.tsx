@@ -707,8 +707,8 @@ function Index() {
         {brands.length > 0 && (
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">Trusted partners</h2>
-            <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">Trusted partners</h2>
+            <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
               {brands.map((b) => (
                 <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
                   {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
@@ -722,13 +722,13 @@ function Index() {
 
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2">On stage with the best</h2>
+            <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">On stage with the best</h2>
             <motion.div
               variants={stagger}
               initial="hidden"
               whileInView="show"
               viewport={{ once: true, margin: "-80px" }}
-              className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4"
+              className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3"
             >
               {celebrities.map((c) => (
                 <motion.div
@@ -772,7 +772,7 @@ function Index() {
           return (
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
               <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
-              <h2 className="font-display text-4xl lg:text-5xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
+              <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
               <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
               {conducted.length > 0 && (
                 <div className="mt-8">
@@ -817,7 +817,7 @@ function Index() {
                 className="absolute -top-px left-0 h-px w-16"
                 style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
               />
-              <p className="font-display text-5xl lg:text-7xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
+              <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
                 {s.value}{s.suffix ?? ""}
               </p>
               <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
@@ -861,14 +861,14 @@ function Index() {
           />
 
           <p className="relative text-xs uppercase tracking-[0.4em] text-white/80">The stage is set</p>
-          <h2 className="relative mt-4 font-display text-4xl lg:text-7xl font-bold text-white text-balance leading-[1.02]">
+          <h2 className="relative mt-3 font-display text-3xl lg:text-6xl font-bold text-white text-balance leading-[1.02]">
             Your journey <span className="italic font-light text-white/80">begins now.</span>
           </h2>
           <p className="relative mt-5 text-white/80 max-w-xl mx-auto text-base lg:text-lg">
             Step in. Move freely. Leave transformed.
           </p>
 
-          <div className="relative mt-10 flex justify-center">
+          <div className="relative mt-7 flex justify-center">
             <MagneticButton strength={0.5}>
               <a
                 href="/zero-to-hero"
@@ -894,7 +894,7 @@ function Index() {
             </MagneticButton>
           </div>
 
-          <p className="relative mt-8 text-sm text-white/70">
+          <p className="relative mt-5 text-sm text-white/70">
             Not ready to register today?{" "}
             <Link to="/contact" className="text-white font-medium underline underline-offset-4 hover:text-white/90 transition-colors">
               Get in touch and we'll notify you about the next batch
