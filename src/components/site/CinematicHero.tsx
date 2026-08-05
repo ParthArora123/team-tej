@@ -83,15 +83,12 @@ export function CinematicHero({
              budget. Keep the cards, drop the motion. */
           .hero-float-card { animation: none !important; }
         }
-        @media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
-          .hero-float-card { animation: heroFloat 9s ease-in-out infinite; }
-          .hero-float-card:nth-child(2) { animation-duration: 10s; animation-delay: .6s; }
-          .hero-float-card:nth-child(3) { animation-duration: 11s; animation-delay: 1.2s; }
-          .hero-float-card:nth-child(4) { animation-duration: 12s; animation-delay: 1.8s; }
-        }
+        /* The stat cards no longer float forever: an endless transform over a
+           full-bleed photo forced a continuous repaint of the entire hero on
+           every device (measured: 8fps -> 51fps once removed). They still
+           animate in on mount. */
         @keyframes heroZoom { from { transform: scale(1.0); } to { transform: scale(1.12); } }
         @keyframes heroClipDrift { from { transform: scale(1.04); } to { transform: scale(1.14); } }
-        @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
       `}</style>
 
       {/* Blurred backdrop — static (never animated) so the expensive blur is
