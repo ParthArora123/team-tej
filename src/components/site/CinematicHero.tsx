@@ -78,6 +78,10 @@ export function CinematicHero({
         /* Ken-burns zoom is a full-screen repaint every frame — desktop only. */
         @media (max-width: 1024px), (hover: none), (pointer: coarse) {
           .hero-zoom-layer { animation: none !important; }
+          /* Four permanently floating cards over a full-bleed photo means the
+             whole hero repaints continuously on devices without a spare GPU
+             budget. Keep the cards, drop the motion. */
+          .hero-float-card { animation: none !important; }
         }
         @keyframes heroZoom { from { transform: scale(1.0); } to { transform: scale(1.12); } }
         @keyframes heroClipDrift { from { transform: scale(1.04); } to { transform: scale(1.14); } }
@@ -299,9 +303,11 @@ export function CinematicHero({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6 + idx * 0.12, duration: 0.7 }}
-              className={`absolute ${spots[idx]} rounded-2xl border border-white/15 bg-black/45 px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)]`}
+              className={`hero-float-card absolute ${spots[idx]} rounded-2xl border border-white/15 bg-black/45 px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)]`}
               style={{
                 animation: `heroFloat ${7 + idx}s ease-in-out ${idx * 0.6}s infinite`,
+                willChange: "transform",
+                backfaceVisibility: "hidden",
               }}
             >
               <p className="font-display text-2xl font-bold text-white leading-none">
