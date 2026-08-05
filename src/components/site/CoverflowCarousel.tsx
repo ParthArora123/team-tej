@@ -17,15 +17,17 @@ export type CoverflowItem = {
   ctaExternal?: boolean;
 };
 
-/** Media layer — the <video> element only mounts for the active card. */
+/** Media layer — videos mount for all visible cards; only the active one plays. */
 const CardMedia = memo(function CardMedia({
   item,
   active,
+  visible,
   playing,
   muted,
 }: {
   item: CoverflowItem;
   active: boolean;
+  visible: boolean;
   playing: boolean;
   muted: boolean;
 }) {
@@ -35,9 +37,9 @@ const CardMedia = memo(function CardMedia({
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    v.muted = muted;
+    v.muted = active ? muted : true;
     if (active && playing) void playHomepageVideo(v);
-    else pauseHomepageVideo(v);
+    else v.pause();
   }, [active, playing, muted]);
 
   useEffect(() => {
@@ -46,6 +48,20 @@ const CardMedia = memo(function CardMedia({
       if (v) pauseHomepageVideo(v);
     };
   }, []);
+
+  // Nudge non-active videos so a real frame is decoded and painted.
+  const primeFrame = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    setReady(true);
+    if (!active && v.currentTime === 0) {
+      try {
+        v.currentTime = 0.05;
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [active]);
 
   const backdrop = item.poster ? (
     <img
@@ -96,10 +112,10 @@ const CardMedia = memo(function CardMedia({
           loading="lazy"
           decoding="async"
           className="absolute inset-0 h-full w-full object-contain"
-          style={{ opacity: active && ready ? 0 : 1, transition: "opacity 400ms ease" }}
+          style={{ opacity: ready ? 0 : 1, transition: "opacity 400ms ease" }}
         />
       )}
-      {active && item.videoSrc && (
+      {visible && item.videoSrc && (
         <video
           ref={videoRef}
           src={item.videoSrc}
@@ -107,17 +123,19 @@ const CardMedia = memo(function CardMedia({
           muted
           loop
           playsInline
-          preload="auto"
+          preload={active ? "auto" : "metadata"}
           disableRemotePlayback
           disablePictureInPicture
-          onCanPlay={() => setReady(true)}
+          onLoadedData={primeFrame}
+          onCanPlay={primeFrame}
           className="absolute inset-0 h-full w-full object-contain"
-          style={{ opacity: ready ? 1 : 0, transition: "opacity 400ms ease" }}
+          style={{ opacity: ready || item.poster ? 1 : 0, transition: "opacity 400ms ease" }}
         />
       )}
     </>
   );
 });
+
 
 /**
  * Premium floating coverflow carousel for "Most Viral Choreographies".
@@ -264,7 +282,7 @@ export function CoverflowCarousel({
                     : "border-border/60 shadow-xl cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
-                <CardMedia item={item} active={active} playing={inView} muted={muted} />
+                <CardMedia item={item} active={active} visible={!hidden} playing={inView} muted={muted} />
 
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
 
