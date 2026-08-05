@@ -530,7 +530,9 @@ function Index() {
         <Sparkles size={16} /> Register for a Workshop
       </Link>
 
+      <HorizontalPager>
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
+
       <CinematicHero
         backgroundImage={heroPhoto ?? uploadedHeroImg.url}
         clips={heroClips}
