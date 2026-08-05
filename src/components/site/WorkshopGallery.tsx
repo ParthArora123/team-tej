@@ -33,7 +33,7 @@ export function WorkshopGallery({ programId }: { programId: string }) {
               <>
                 <video src={m.media_url ?? undefined} poster={m.poster_url ?? undefined} muted playsInline preload="metadata"
                   className="w-full h-full object-contain" />
-                <span className="absolute inset-0 grid place-items-center bg-white/20 group-hover:bg-white/30">
+                <span className="absolute inset-0 grid place-items-center bg-[#B4288F]/25 group-hover:bg-[#B4288F]/35">
                   <Play size={16} className="text-white" />
                 </span>
               </>
