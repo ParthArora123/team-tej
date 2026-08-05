@@ -699,8 +699,8 @@ function Index() {
       </section>
       </Chapter>
 
-      {/* SCREEN 3 — How We Teach: mindset & movement */}
-      <Chapter index={3} total={4} kicker="How We Teach">
+      {/* SCREEN 3 — Meet Tejas: mindset & movement */}
+      <Chapter index={3} total={4} kicker="Meet Tejas">
         <FounderSection founder={founder} />
       {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10">
