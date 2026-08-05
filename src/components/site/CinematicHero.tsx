@@ -83,6 +83,12 @@ export function CinematicHero({
              budget. Keep the cards, drop the motion. */
           .hero-float-card { animation: none !important; }
         }
+        @media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+          .hero-float-card { animation: heroFloat 9s ease-in-out infinite; }
+          .hero-float-card:nth-child(2) { animation-duration: 10s; animation-delay: .6s; }
+          .hero-float-card:nth-child(3) { animation-duration: 11s; animation-delay: 1.2s; }
+          .hero-float-card:nth-child(4) { animation-duration: 12s; animation-delay: 1.8s; }
+        }
         @keyframes heroZoom { from { transform: scale(1.0); } to { transform: scale(1.12); } }
         @keyframes heroClipDrift { from { transform: scale(1.04); } to { transform: scale(1.14); } }
         @keyframes heroFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -305,8 +311,10 @@ export function CinematicHero({
               transition={{ delay: 0.6 + idx * 0.12, duration: 0.7 }}
               className={`hero-float-card absolute ${spots[idx]} rounded-2xl border border-white/15 bg-black/45 px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)]`}
               style={{
-                animation: `heroFloat ${7 + idx}s ease-in-out ${idx * 0.6}s infinite`,
-                willChange: "transform",
+                // Static by default: four cards floating forever over a
+                // full-bleed photo repaint the whole hero every frame. The
+                // desktop-only rule below re-enables a gentle drift.
+                willChange: "auto",
                 backfaceVisibility: "hidden",
               }}
             >
