@@ -25,29 +25,24 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
   const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
-  const go = useCallback(
-    (delta: number) => {
-      setIndex((i) => {
-        const next = Math.min(count - 1, Math.max(0, i + delta));
-        if (next === i) return i;
-        pending.current = { next, dir: delta >= 0 ? 1 : -1 };
-        setMounted((m) => (m.includes(next) ? m : [...m, next]));
-        return i; // actual switch happens once the slide is mounted
-      });
+  const [nav, setNav] = useState(0);
+
+  const navigate = useCallback(
+    (target: number, dir: number) => {
+      const next = Math.min(count - 1, Math.max(0, target));
+      if (next === index) return;
+      pending.current = { next, dir };
+      setMounted((m) => (m.includes(next) ? m : [...m, next]));
+      setNav((n) => n + 1);
     },
-    [count],
+    [count, index],
   );
 
-  const jumpTo = useCallback((target: number) => {
-    setIndex((i) => {
-      if (target === i) return i;
-      pending.current = { next: target, dir: target > i ? 1 : -1 };
-      setMounted((m) => (m.includes(target) ? m : [...m, target]));
-      return i;
-    });
-  }, []);
+  const go = useCallback((delta: number) => navigate(index + delta, delta >= 0 ? 1 : -1), [navigate, index]);
+  const jumpTo = useCallback((target: number) => navigate(target, target > index ? 1 : -1), [navigate, index]);
 
-  // Commit the pending slide one frame after it has been mounted (hidden).
+  // Commit the pending slide one frame after it has been mounted (hidden), so
+  // the mount cost never lands inside the transition.
   useEffect(() => {
     const p = pending.current;
     if (!p || !mounted.includes(p.next)) return;
@@ -68,7 +63,8 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
       });
     });
     return () => cancelAnimationFrame(id);
-  }, [mounted]);
+  }, [mounted, nav]);
+
 
   // Reset vertical scroll + stop media in the slide we just left.
   useEffect(() => {
