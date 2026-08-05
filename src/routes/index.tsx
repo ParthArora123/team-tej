@@ -23,6 +23,8 @@ import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
+import { HorizontalPager } from "@/components/site/HorizontalPager";
+
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 import { LazySection } from "@/components/site/LazySection";
 
@@ -530,7 +532,9 @@ function Index() {
         <Sparkles size={16} /> Register for a Workshop
       </Link>
 
+      <HorizontalPager>
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
+
       <CinematicHero
         backgroundImage={heroPhoto ?? uploadedHeroImg.url}
         clips={heroClips}
@@ -1026,6 +1030,7 @@ function Index() {
       </section>
 
 
+      </HorizontalPager>
     </>
   );
 }
