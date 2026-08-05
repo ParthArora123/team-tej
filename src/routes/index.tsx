@@ -25,7 +25,7 @@ import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { HorizontalPager } from "@/components/site/HorizontalPager";
 import { Chapter } from "@/components/site/Chapter";
-import { BeliefRail, TourRail } from "@/components/site/HeroRails";
+import { TourRail } from "@/components/site/HeroRails";
 import { MindsetSection } from "@/components/site/MindsetSection";
 
 
@@ -1104,7 +1104,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
   if (!items.length) return null;
 
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14">
       <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
         <div>
           <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
@@ -1156,7 +1156,7 @@ function FounderSection({ founder }: { founder: any | null }) {
   const hasMore = Boolean(biography || achievements.length || vision || mission);
 
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14">
       <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
         {/* Portrait — editorial frame */}
         <motion.div
