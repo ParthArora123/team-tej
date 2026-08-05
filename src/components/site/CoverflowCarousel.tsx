@@ -44,23 +44,30 @@ const CardMedia = memo(function CardMedia({
     }
     // Some browsers (battery saver, autoplay heuristics, slow decode) reject or
     // stall the first play() — retry on the events that signal readiness.
+    // Bounded retries only: a permanent 1.5s interval woke the main thread
+    // forever and showed up as periodic frame drops during playback.
+    let tries = 0;
+    let retry = 0;
     const attempt = () => {
-      if (v.paused) void playHomepageVideo(v);
+      if (!v.paused) return;
+      void playHomepageVideo(v);
+      if (tries++ < 6 && !retry) {
+        retry = window.setTimeout(() => {
+          retry = 0;
+          if (v.paused) attempt();
+        }, 1200);
+      }
     };
     attempt();
     v.addEventListener("canplay", attempt);
     v.addEventListener("loadeddata", attempt);
-    v.addEventListener("stalled", attempt);
-    v.addEventListener("suspend", attempt);
-    const id = window.setInterval(attempt, 1500);
     return () => {
-      window.clearInterval(id);
+      if (retry) window.clearTimeout(retry);
       v.removeEventListener("canplay", attempt);
       v.removeEventListener("loadeddata", attempt);
-      v.removeEventListener("stalled", attempt);
-      v.removeEventListener("suspend", attempt);
     };
   }, [active, playing, muted]);
+
 
 
   useEffect(() => {
