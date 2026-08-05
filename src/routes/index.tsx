@@ -733,9 +733,9 @@ function Index() {
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10 border-t border-border">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
-            <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Signature Programs</p>
+            <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Programs & Formats</p>
             <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-              Find your <span className="italic font-light df-gradient-text">format.</span>
+              Ways to <span className="italic font-light df-gradient-text">train.</span>
             </h2>
           </div>
           <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
@@ -790,7 +790,7 @@ function Index() {
       <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10 border-t border-border">
         <div className="mb-5 flex items-end justify-between gap-6">
           <div>
-            <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
+            <p className="text-xs uppercase tracking-widest text-primary">Dance Disciplines</p>
             <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold text-balance leading-[1.02]">
               Styles on the <span className="italic font-light">floor.</span>
             </h2>
@@ -844,10 +844,10 @@ function Index() {
         <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
             <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-              <Calendar size={12} /> Upcoming Workshops
+              <Calendar size={12} /> Start Moving
             </p>
             <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-              Register Now. Experience the Magic.
+              Book your <span className="italic font-light">experience.</span>
             </h2>
             <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
               Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
