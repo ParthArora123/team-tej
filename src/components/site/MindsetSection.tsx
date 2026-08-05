@@ -59,6 +59,24 @@ export function MindsetSection() {
           </div>
         ))}
       </div>
+
+      <div className="mt-6 rounded-3xl border border-border bg-card/60 p-5 lg:p-6 flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-8">
+        <div className="shrink-0">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-primary">Designed for</p>
+          <p className="mt-1 font-display text-base font-bold">Who benefits most?</p>
+        </div>
+        <div className="flex flex-wrap gap-2.5">
+          {["Complete Beginners", "Actors & Performers", "Content Creators", "Dance Teachers"].map((a) => (
+            <span
+              key={a}
+              className="rounded-full border border-border bg-background/60 px-4 py-2 text-xs font-medium"
+            >
+              {a}
+            </span>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
+
