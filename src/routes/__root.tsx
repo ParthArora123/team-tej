@@ -161,6 +161,7 @@ function RootComponent() {
           </Suspense>
         </DeferMount>
 
+        <ScrollPerfMode />
         <ScrollProgress />
         <Header />
         <main className="pt-16">
