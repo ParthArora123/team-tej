@@ -1028,6 +1028,7 @@ function Index() {
       </section>
 
 
+      </HorizontalPager>
     </>
   );
 }
