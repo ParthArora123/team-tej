@@ -589,7 +589,7 @@ function Index() {
 
       <HorizontalPager>
       {/* SCREEN 1 — HOME: cinematic hero, kept clean with a single tour rail */}
-      <Chapter index={1} total={6} bleed>
+      <Chapter index={1} total={5} bleed>
         <div className="relative">
           <CinematicHero
             backgroundImage={heroPhoto ?? uploadedHeroImg.url}
@@ -608,12 +608,12 @@ function Index() {
       </Chapter>
 
       {/* SCREEN 2 — Meet the founder */}
-      <Chapter index={2} total={6} kicker="Meet Tejas">
+      <Chapter index={2} total={5} kicker="Meet Tejas">
         <FounderSection founder={founder} />
       </Chapter>
 
       {/* SCREEN 3 — Work & Tour */}
-      <Chapter index={3} total={6} kicker="Work & Tour">
+      <Chapter index={3} total={5} kicker="Work & Tour">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
 
         <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-10 lg:py-14 space-y-10 lg:space-y-12">
@@ -696,13 +696,9 @@ function Index() {
         </section>
       </Chapter>
 
-      {/* SCREEN 4 — Mindset & Movement */}
-      <Chapter index={4} total={6} kicker="Mindset & Movement">
-        <MindsetSection />
-      </Chapter>
-
-      {/* SCREEN 5 — Programs & Styles */}
-      <Chapter index={5} total={6} kicker="Programs & Styles">
+      {/* SCREEN 4 — Mindset, Programs & Styles */}
+      <Chapter index={4} total={5} kicker="Mindset & Programs">
+      <MindsetSection />
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 grid gap-10 lg:gap-12 lg:grid-cols-[1.6fr_1fr] items-start">
 
       {/* SIGNATURE PROGRAMS */}
@@ -810,8 +806,8 @@ function Index() {
 
 
 
-      {/* SCREEN 6 — Register */}
-      <Chapter index={6} total={6} kicker="Register">
+      {/* SCREEN 5 — Register */}
+      <Chapter index={5} total={5} kicker="Register">
       <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-4 pb-6 lg:pt-6 lg:pb-8">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
