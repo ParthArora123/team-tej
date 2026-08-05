@@ -278,8 +278,8 @@ export function CoverflowCarousel({
                 }
                 className={`group relative h-full w-full overflow-hidden rounded-3xl border ${
                   active
-                    ? "border-primary/40 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--primary)_55%,transparent)]"
-                    : "border-border/60 shadow-xl cursor-pointer"
+                    ? "border-primary/40 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--df-3)_45%,transparent)]"
+                    : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
                 <CardMedia item={item} active={active} visible={!hidden} playing={inView} muted={muted} />
@@ -300,7 +300,7 @@ export function CoverflowCarousel({
                       setMuted((m) => !m);
                     }}
                     aria-label={muted ? "Unmute video" : "Mute video"}
-                    className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-black/45 text-white transition hover:bg-black/70"
+                    className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/20 text-white transition hover:bg-white/30"
                   >
                     {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
                   </button>

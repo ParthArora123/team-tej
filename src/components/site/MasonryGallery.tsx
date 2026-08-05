@@ -48,7 +48,7 @@ export function MasonryGallery({ items }: { items: GalleryItem[] }) {
             <div
               aria-hidden
               className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{ background: "linear-gradient(180deg, transparent 40%, oklch(0 0 0 / 70%) 100%)" }}
+              style={{ background: "linear-gradient(180deg, transparent 40%, color-mix(in oklab, var(--df-4) 80%, transparent) 100%)" }}
             />
             {g.caption && (
               <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 p-4 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">

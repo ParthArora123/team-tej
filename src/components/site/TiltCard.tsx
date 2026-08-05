@@ -24,7 +24,7 @@ export function TiltCard({
   const ry = useSpring(useTransform(mx, [0, 1], [-max, max]), { stiffness: 180, damping: 18 });
   const gx = useTransform(mx, (v) => v * 100);
   const gy = useTransform(my, (v) => v * 100);
-  const glowBg = useMotionTemplate`radial-gradient(320px circle at ${gx}% ${gy}%, color-mix(in oklab, var(--primary) 55%, transparent), transparent 70%)`;
+  const glowBg = useMotionTemplate`radial-gradient(320px circle at ${gx}% ${gy}%, color-mix(in oklab, var(--accent-gold) 45%, transparent), transparent 70%)`;
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = ref.current;
