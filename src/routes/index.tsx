@@ -702,14 +702,12 @@ function Index() {
 
       {/* SCREEN 4 — Programs & Styles */}
       <Chapter index={4} total={5} kicker="Programs & Styles">
-
-
-
-
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 grid gap-10 lg:gap-12 lg:grid-cols-[1.6fr_1fr] items-start">
 
       {/* SIGNATURE PROGRAMS */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14 border-t border-border">
+      <section>
         <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
+
           <div>
             <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Signature Programs</p>
             <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold leading-[1.02] text-balance">
