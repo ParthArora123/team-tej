@@ -587,7 +587,7 @@ function Index() {
       <HorizontalPager>
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
 
-      <Chapter index={1} total={4} bleed>
+      <Chapter index={1} total={5} bleed>
         <CinematicHero
           backgroundImage={heroPhoto ?? uploadedHeroImg.url}
           clips={heroClips}
