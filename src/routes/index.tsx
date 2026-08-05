@@ -652,7 +652,7 @@ function Index() {
             <Sparkles size={12} /> How We Build Dancers
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold leading-[1.02] text-balance">
-            Not just steps. <span className="italic font-light">A way of moving.</span>
+            More than steps. <span className="italic font-light">A way of being.</span>
           </h2>
           <p className="mt-4 text-muted-foreground">
             Every session is built around four pillars — whether you're stepping onto a
