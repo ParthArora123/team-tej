@@ -72,7 +72,7 @@ export function MasonryGallery({ items }: { items: GalleryItem[] }) {
             role="dialog"
             aria-modal="true"
             className="fixed inset-0 z-[70] grid place-items-center p-4 sm:p-10"
-            style={{ background: "oklch(0 0 0 / 88%)" }}
+            style={{ background: "color-mix(in oklab, var(--df-4) 88%, transparent)" }}
           >
             <button
               type="button"
