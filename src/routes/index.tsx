@@ -810,8 +810,8 @@ function Index() {
 
 
 
-      {/* SCREEN 5 — Register */}
-      <Chapter index={5} total={5} kicker="Register">
+      {/* SCREEN 6 — Register */}
+      <Chapter index={6} total={6} kicker="Register">
       <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-4 pb-6 lg:pt-6 lg:pb-8">
         <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
