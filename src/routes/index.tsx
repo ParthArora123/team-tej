@@ -25,6 +25,9 @@ import { MouseParallax } from "@/components/site/MouseParallax";
 import { CinematicHero } from "@/components/site/CinematicHero";
 import { HorizontalPager } from "@/components/site/HorizontalPager";
 import { Chapter } from "@/components/site/Chapter";
+import { BeliefRail, TourRail } from "@/components/site/HeroRails";
+import { MindsetSection } from "@/components/site/MindsetSection";
+
 
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 import { LazySection } from "@/components/site/LazySection";
@@ -585,62 +588,121 @@ function Index() {
       </Link>
 
       <HorizontalPager>
-      {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
-
+      {/* SCREEN 1 — HOME: cinematic hero flanked by the story rails */}
       <Chapter index={1} total={5} bleed>
-        <CinematicHero
-          backgroundImage={heroPhoto ?? uploadedHeroImg.url}
-          clips={heroClips}
-          badges={heroBadges}
-          onReady={() => setHeroReady(true)}
-        />
-      </Chapter>
-
-      {/* FOUNDER / ABOUT — directly below hero */}
-      <Chapter index={2} total={5} kicker="Meet Tejas">
-        <FounderSection founder={founder} />
-      </Chapter>
-
-      {/* MOST VIRAL CHOREOGRAPHIES */}
-      <Chapter index={3} total={5} kicker="Most Viral Choreographies">
-        <CinematicShowreel choreos={choreos} workshops={workshops} />
-      </Chapter>
-
-      {/* SCREEN 4 — Register Workshop */}
-      <Chapter index={4} total={5} kicker="Register Workshop">
-      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-10 pb-6 lg:pt-14 lg:pb-8">
-        <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-              <Calendar size={12} /> Upcoming Workshops
-            </p>
-            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold leading-[1.02] text-balance">
-              Register Now. Experience the Magic.
-            </h2>
-            <p className="mt-4 text-muted-foreground max-w-xl">
-              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
-            </p>
+        <div className="relative">
+          <CinematicHero
+            backgroundImage={heroPhoto ?? uploadedHeroImg.url}
+            clips={heroClips}
+            badges={heroBadges}
+            onReady={() => setHeroReady(true)}
+          />
+          <div className="hidden xl:flex pointer-events-none absolute inset-y-0 left-0 z-30 w-[21rem] items-center px-6">
+            <div className="pointer-events-auto w-full"><BeliefRail founder={founder} /></div>
           </div>
-          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
-            See all workshops <ArrowUpRight size={14} />
-          </Link>
+          <div className="hidden xl:flex pointer-events-none absolute inset-y-0 right-0 z-30 w-[21rem] items-center px-6">
+            <div className="pointer-events-auto w-full"><TourRail workshops={workshops} /></div>
+          </div>
         </div>
 
-        {workshops.length === 0 && !workshopsLoaded ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
-          </div>
-        ) : workshops.length === 0 ? (
-          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
-            <p className="font-display text-2xl">Coming Soon</p>
-            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
-          </div>
-        ) : (
-          <LazySection minHeight={520}>
-            <WorkshopDeck workshops={workshops} />
-          </LazySection>
-        )}
-      </section>
+        <div className="xl:hidden max-w-7xl mx-auto px-6 py-10 grid gap-4 md:grid-cols-2">
+          <BeliefRail founder={founder} />
+          <TourRail workshops={workshops} />
+        </div>
+      </Chapter>
+
+      {/* SCREEN 2 — Work & Tour */}
+      <Chapter index={2} total={5} kicker="Work & Tour">
+        <CinematicShowreel choreos={choreos} workshops={workshops} />
+
+        <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-10 lg:py-14 space-y-10 lg:space-y-12">
+          {brands.length > 0 && (
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
+              <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">Trusted partners</h2>
+              <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                {brands.map((b) => (
+                  <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
+                    {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {celebrities.length > 0 && (
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
+              <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">On stage with the best</h2>
+              <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+                {celebrities.map((c) => (
+                  <div
+                    key={c.id}
+                    className="group relative aspect-square premium-card bg-card overflow-hidden flex flex-col items-center justify-end text-center"
+                  >
+                    {c.photo_url ? (
+                      <img
+                        src={c.photo_url}
+                        alt={c.name}
+                        loading="lazy"
+                        className="absolute inset-0 w-full h-full object-cover lg:object-contain object-center transition-transform duration-700 ease-out group-hover:scale-110"
+                      />
+                    ) : null}
+                    <div className={`relative w-full p-3 ${c.photo_url ? "bg-gradient-to-t from-background/90 via-background/60 to-transparent" : ""}`}>
+                      <p className="font-display text-sm">{c.name}</p>
+                      {c.role && <p className="text-[10px] text-muted-foreground">{c.role}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {globe.length > 0 && (() => {
+            const conducted = globe.filter((g) => g.status === "conducted");
+            const upcoming = globe.filter((g) => g.status === "upcoming");
+
+            return (
+              <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
+                <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
+                <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
+                <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
+                {conducted.length > 0 && (
+                  <div className="mt-8">
+                    <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
+                    <div className="flex flex-wrap gap-2">
+                      {conducted.map((g) => (
+                        <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{g.city}, {g.country}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {upcoming.length > 0 && (
+                  <div className="mt-6">
+                    <p className="text-[11px] uppercase tracking-widest text-primary mb-3">Upcoming</p>
+                    <div className="flex flex-wrap gap-2">
+                      {upcoming.map((g) => (
+                        <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
+                          {g.city}, {g.country}{g.event_date ? ` · ${new Date(g.event_date).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : ""}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </section>
+      </Chapter>
+
+      {/* SCREEN 3 — Mindset & Movement */}
+      <Chapter index={3} total={5} kicker="Mindset & Movement">
+        <MindsetSection />
+      </Chapter>
+
+      {/* SCREEN 4 — Programs & Styles */}
+      <Chapter index={4} total={5} kicker="Programs & Styles">
+
 
 
 
@@ -758,106 +820,42 @@ function Index() {
 
 
 
-      {/* SCREEN 5 — Final CTA */}
-      <Chapter index={5} total={5} kicker="The Final Call">
-      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-10 lg:py-14 space-y-10 lg:space-y-12">
-
-        {brands.length > 0 && (
+      {/* SCREEN 5 — Register */}
+      <Chapter index={5} total={5} kicker="Register">
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-4 pb-6 lg:pt-6 lg:pb-8">
+        <div className="flex flex-wrap items-end justify-between gap-6 mb-7">
           <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
-            <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">Trusted partners</h2>
-            <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-              {brands.map((b) => (
-                <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
-                  {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
-                </div>
-              ))}
-            </div>
+            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+              <Calendar size={12} /> Start moving
+            </p>
+            <h2 className="mt-3 font-display text-3xl lg:text-5xl font-bold leading-[1.02] text-balance">
+              Book your <span className="italic font-light">experience.</span>
+            </h2>
+            <p className="mt-4 text-muted-foreground max-w-xl">
+              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
+            </p>
           </div>
-        )}
+          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
+            See all workshops <ArrowUpRight size={14} />
+          </Link>
+        </div>
 
-        {celebrities.length > 0 && (
-
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
-            <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">On stage with the best</h2>
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-80px" }}
-              className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3"
-            >
-              {celebrities.map((c) => (
-                <motion.div
-                  key={c.id}
-                  variants={item}
-                  whileHover={{ y: -4 }}
-                  className="group relative aspect-square premium-card bg-card overflow-hidden flex flex-col items-center justify-end text-center"
-                >
-                  {c.photo_url ? (
-                    <img
-                      src={c.photo_url}
-                      alt={c.name}
-                      loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover lg:object-contain object-center transition-transform duration-700 ease-out group-hover:scale-110"
-                    />
-                  ) : null}
-                  {/* shine sweep on hover */}
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
-                    style={{
-                      background:
-                        "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%)",
-                    }}
-                  />
-                  <div className={`relative w-full p-3 ${c.photo_url ? "bg-gradient-to-t from-background/90 via-background/60 to-transparent" : ""}`}>
-                    <p className="font-display text-sm">{c.name}</p>
-                    {c.role && <p className="text-[10px] text-muted-foreground">{c.role}</p>}
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+        {workshops.length === 0 && !workshopsLoaded ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
           </div>
+        ) : workshops.length === 0 ? (
+          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
+            <p className="font-display text-2xl">Coming Soon</p>
+            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+          </div>
+        ) : (
+          <LazySection minHeight={520}>
+            <WorkshopDeck workshops={workshops} />
+          </LazySection>
         )}
-
-
-        {globe.length > 0 && (() => {
-          const conducted = globe.filter((g) => g.status === "conducted");
-          const upcoming = globe.filter((g) => g.status === "upcoming");
-          
-          return (
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-10 lg:p-16">
-              <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
-              <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
-              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
-              {conducted.length > 0 && (
-                <div className="mt-8">
-                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
-                  <div className="flex flex-wrap gap-2">
-                    {conducted.map((g) => (
-                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{g.city}, {g.country}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {upcoming.length > 0 && (
-                <div className="mt-6">
-                  <p className="text-[11px] uppercase tracking-widest text-primary mb-3">Upcoming</p>
-                  <div className="flex flex-wrap gap-2">
-                    {upcoming.map((g) => (
-                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
-                        {g.city}, {g.country}{g.event_date ? ` · ${new Date(g.event_date).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : ""}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })()}
       </section>
+
 
       {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-10 lg:py-14">
