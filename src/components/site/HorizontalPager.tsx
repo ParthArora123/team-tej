@@ -69,7 +69,11 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
   // never has to pay the React mount + DOM creation cost inside the animation.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const idle: typeof window.requestIdleCallback | undefined = window.requestIdleCallback;
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    const useIdle = typeof w.requestIdleCallback === "function";
     let cancelled = false;
     const warm = () => {
       if (cancelled) return;
@@ -79,13 +83,13 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
         return next === undefined ? m : [...m, next];
       });
     };
-    const handle = idle
-      ? idle.call(window, warm, { timeout: 2000 })
+    const handle = useIdle
+      ? w.requestIdleCallback!(warm, { timeout: 2000 })
       : window.setTimeout(warm, 600);
     return () => {
       cancelled = true;
-      if (idle && typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(handle as number);
-      else clearTimeout(handle as number);
+      if (useIdle) w.cancelIdleCallback?.(handle);
+      else clearTimeout(handle);
     };
   }, [index, count, mounted]);
 
