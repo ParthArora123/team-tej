@@ -889,27 +889,23 @@ function Index() {
           viewport={{ once: true }}
           className="df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-8 lg:p-14 text-center"
         >
-          {/* Floating orbs */}
-          <motion.div
+          {/* Floating orbs — CSS-driven (compositor only). Framer's rAF loops
+              kept ticking even while this slide was hidden. */}
+          <div
             aria-hidden
-            animate={{ y: [0, -20, 0], x: [0, 12, 0] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-40"
+            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-40 transform-gpu animate-[cta-orb-a_8s_ease-in-out_infinite] motion-reduce:animate-none"
             style={{ background: "radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%)" }}
           />
-          <motion.div
+          <div
             aria-hidden
-            animate={{ y: [0, 24, 0], x: [0, -18, 0] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-30"
+            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-30 transform-gpu animate-[cta-orb-b_10s_ease-in-out_infinite] motion-reduce:animate-none"
             style={{ background: "radial-gradient(circle, rgba(255,255,255,0.28) 0%, transparent 70%)" }}
           />
-          <motion.div
+          <div
             aria-hidden
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/20"
+            className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/20 transform-gpu animate-[cta-orb-spin_60s_linear_infinite] motion-reduce:animate-none"
           />
+
 
           <p className="relative text-xs uppercase tracking-[0.4em] text-white/80">The stage is set</p>
           <h2 className="relative mt-3 font-display text-3xl lg:text-6xl font-bold text-white text-balance leading-[1.02]">
