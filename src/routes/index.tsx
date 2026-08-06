@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { cachedCall } from "@/lib/public-data-cache";
 import { CardSkeleton } from "@/components/site/Skeletons";
@@ -298,14 +297,10 @@ type Choreo = {
 
 
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } },
-};
+/** Staggered CSS reveal — replaces the per-element Framer Motion runtime
+ *  that used to ship (and tick) on the homepage. Pure compositor work. */
+const revealDelay = (i: number) => ({ animationDelay: `${100 + i * 80}ms` });
+
 
 function Index() {
   const loaderData = Route.useLoaderData() as HomeLoaderData;
@@ -601,15 +596,9 @@ function Index() {
         <FounderSection founder={founder} />
       {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10">
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10"
-        >
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
           {stats.map((s) => (
-            <motion.div key={s.label} variants={item} className="relative border-t border-border pt-6">
+            <div key={s.label} className="reveal-up relative border-t border-border pt-6" style={revealDelay(stats.indexOf(s))}>
               <div
                 aria-hidden
                 className="absolute -top-px left-0 h-px w-16"
@@ -619,9 +608,9 @@ function Index() {
                 {s.value}{s.suffix ?? ""}
               </p>
               <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </section>
       </Chapter>
 
@@ -649,19 +638,12 @@ function Index() {
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
             <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">On stage with the best</h2>
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-80px" }}
-              className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3"
-            >
-              {celebrities.map((c) => (
-                <motion.div
+            <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+              {celebrities.map((c, ci) => (
+                <div
                   key={c.id}
-                  variants={item}
-                  whileHover={{ y: -4 }}
-                  className="group relative aspect-square premium-card bg-card overflow-hidden flex flex-col items-center justify-end text-center"
+                  style={revealDelay(ci)}
+                  className="reveal-up transition-transform duration-300 hover:-translate-y-1 group relative aspect-square premium-card bg-card overflow-hidden flex flex-col items-center justify-end text-center"
                 >
                   {c.photo_url ? (
                     <img
@@ -684,9 +666,9 @@ function Index() {
                     <p className="font-display text-sm">{c.name}</p>
                     {c.role && <p className="text-[10px] text-muted-foreground">{c.role}</p>}
                   </div>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           </div>
         )}
 
@@ -743,20 +725,14 @@ function Index() {
           </p>
         </div>
 
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-80px" }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5"
-        >
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
           {[
             { icon: Heart, title: "Mindset First", desc: "Confidence before choreography — we start with how you feel on the floor." },
             { icon: Rocket, title: "Foundations", desc: "Body control, rhythm and posture drilled until movement becomes instinct." },
             { icon: Video, title: "Choreography", desc: "Real routines, taught the way they're performed — layered, clean, cinematic." },
             { icon: Calendar, title: "Performance", desc: "Stage-ready practice, filming and feedback so you can own any spotlight." },
-          ].map((p) => (
-            <motion.div key={p.title} variants={item}>
+          ].map((p, pi) => (
+            <div key={p.title} className="reveal-up" style={revealDelay(pi)}>
               <div className="group relative block h-full df-border-card bg-card p-4 lg:p-6 overflow-hidden transition-shadow duration-300">
                 <span
                   aria-hidden
@@ -769,18 +745,15 @@ function Index() {
                 <p className="relative mt-4 font-display text-xl font-bold">{p.title}</p>
                 <p className="relative mt-2 hidden sm:block text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </section>
 
       {/* FINAL CTA */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-6 lg:py-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-8 lg:p-14 text-center"
+        <div
+          className="reveal-up df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-8 lg:p-14 text-center"
         >
           {/* Floating orbs — CSS-driven (compositor only). Framer's rAF loops
               kept ticking even while this slide was hidden. */}
@@ -841,7 +814,7 @@ function Index() {
             </Link>.
           </p>
 
-        </motion.div>
+        </div>
       </section>
       </Chapter>
 
@@ -1037,13 +1010,7 @@ function FounderSection({ founder }: { founder: any | null }) {
     <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
       <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
         {/* Portrait — editorial frame */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="lg:col-span-2 relative group"
-        >
+        <div className="reveal-up lg:col-span-2 relative group">
           {/* decorative offset frame */}
           <div
             aria-hidden
@@ -1086,17 +1053,11 @@ function FounderSection({ founder }: { founder: any | null }) {
             <span aria-hidden className="absolute bottom-3 left-3 h-4 w-4 border-b border-l border-white/70" />
             <span aria-hidden className="absolute bottom-3 right-3 h-4 w-4 border-b border-r border-white/70" />
           </div>
-        </motion.div>
+        </div>
 
 
         {/* Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="lg:col-span-3 space-y-6"
-        >
+        <div className="reveal-up lg:col-span-3 space-y-6" style={{ animationDelay: "100ms" }}>
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
             <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance leading-[1.05]">
@@ -1147,27 +1108,20 @@ function FounderSection({ founder }: { founder: any | null }) {
               </a>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Full biography modal */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
-            onClick={() => setOpen(false)}
+      {open && (
+        <div
+          className="modal-fade fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="modal-pop relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border border-border bg-card p-8 lg:p-10 shadow-2xl"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.98 }}
-              transition={{ duration: 0.25 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border border-border bg-card p-8 lg:p-10 shadow-2xl"
-            >
+
               <button
                 onClick={() => setOpen(false)}
                 className="absolute top-4 right-4 h-9 w-9 grid place-items-center rounded-full border border-border hover:border-primary hover:text-primary transition"
@@ -1223,10 +1177,10 @@ function FounderSection({ founder }: { founder: any | null }) {
                 </div>
               )}
 
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
+
     </section>
   );
 }

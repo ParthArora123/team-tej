@@ -41,6 +41,8 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
   const go = useCallback((delta: number) => navigate(index + delta, delta >= 0 ? 1 : -1), [navigate, index]);
   const jumpTo = useCallback((target: number) => navigate(target, target > index ? 1 : -1), [navigate, index]);
 
+  const [animating, setAnimating] = useState(false);
+
   // Commit the pending slide one frame after it has been mounted (hidden), so
   // the mount cost never lands inside the transition.
   useEffect(() => {
@@ -53,20 +55,28 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
         const el = slideRefs.current[p.next];
         if (!el || typeof el.animate !== "function") return;
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-        el.animate(
+        setAnimating(true);
+        const anim = el.animate(
           [
             { transform: `translate3d(${p.dir >= 0 ? 100 : -100}%,0,0)`, opacity: 0 },
             { transform: "translate3d(0,0,0)", opacity: 1 },
           ],
           { duration: 480, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
         );
+        // Drop the promoted layer as soon as the transition is over — a
+        // permanent `will-change` keeps a viewport-sized texture alive.
+        anim.finished.then(() => setAnimating(false)).catch(() => setAnimating(false));
       });
     });
     return () => cancelAnimationFrame(id);
   }, [mounted, nav]);
 
-  // Pre-warm the neighbouring slides while the browser is idle, so navigating
-  // never has to pay the React mount + DOM creation cost inside the animation.
+  // Pre-warm the remaining slides while the browser is idle, one per idle
+  // tick, so navigating never pays the React mount cost inside the animation.
+  // Deliberately does not depend on `mounted` — that re-armed the callback on
+  // every mount and kept scheduling work on the main thread.
+  const mountedRef = useRef(mounted);
+  mountedRef.current = mounted;
   useEffect(() => {
     if (typeof window === "undefined") return;
     const w = window as Window & {
@@ -75,23 +85,27 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
     };
     const useIdle = typeof w.requestIdleCallback === "function";
     let cancelled = false;
+    let handle: number;
+    const schedule = () => {
+      handle = useIdle
+        ? w.requestIdleCallback!(warm, { timeout: 3000 })
+        : window.setTimeout(warm, 800);
+    };
     const warm = () => {
       if (cancelled) return;
-      const targets = [index + 1, index - 1, index + 2].filter((i) => i >= 0 && i < count);
-      setMounted((m) => {
-        const next = targets.find((t) => !m.includes(t));
-        return next === undefined ? m : [...m, next];
-      });
+      const next = mountedRef.current.length;
+      if (next >= count) return;
+      setMounted((m) => (m.includes(next) ? m : [...m, next]));
+      schedule();
     };
-    const handle = useIdle
-      ? w.requestIdleCallback!(warm, { timeout: 2000 })
-      : window.setTimeout(warm, 600);
+    schedule();
     return () => {
       cancelled = true;
       if (useIdle) w.cancelIdleCallback?.(handle);
       else clearTimeout(handle);
     };
-  }, [index, count, mounted]);
+  }, [count]);
+
 
 
 
@@ -149,9 +163,12 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
             aria-hidden={!active}
             style={
               active
-                ? { willChange: "transform, opacity" }
+                ? animating
+                  ? { willChange: "transform, opacity" }
+                  : undefined
                 : { display: "none", contentVisibility: "hidden" }
             }
+
           >
             {slide}
           </div>
