@@ -60,7 +60,7 @@ export function EditorialHero({
   ];
 
   return (
-    <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-5 sm:px-8 lg:px-10 pt-24 pb-12 lg:pt-24 lg:pb-8">
+    <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-5 sm:px-8 lg:px-10 pt-24 pb-10 lg:pt-22 lg:pb-6">
       {/* Title block */}
       <header className="relative z-10 mx-auto w-full max-w-[92rem] text-center">
         <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
@@ -177,7 +177,7 @@ export function EditorialHero({
         </div>
 
         {/* Right — next studio day + tour */}
-        <div className="order-3 grid gap-3">
+        <div className="order-3 grid content-start gap-4">
           <article className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: "300ms" }}>
             <p className="ed-eyebrow">Next Studio Day{next?.city ? ` · ${next.city}` : ""}</p>
             <h2 className="mt-1 font-display text-base lg:text-lg font-bold">
@@ -321,7 +321,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame relative mx-auto aspect-[4/5] w-full max-w-[30rem] sm:max-w-[34rem] lg:aspect-auto lg:h-[50svh] lg:max-w-none"
+      className="ed-rise ed-frame relative mx-auto aspect-[4/5] w-full max-w-[30rem] sm:max-w-[34rem] lg:aspect-auto lg:h-[46svh] lg:max-w-none"
       style={{ animationDelay: "180ms" }}
     >
       <img
