@@ -111,6 +111,24 @@
   --df-5: #8E2DA8;
   --gradient-dancefit: linear-gradient(135deg, var(--df-1) 0%, var(--df-2) 32%, var(--df-3) 66%, var(--df-5) 100%);
 
+  /* ---- Stage-lighting palette (premium performing-arts identity) ---- */
+  --stage-purple: #7B2FF7;
+  --stage-magenta: #E0219B;
+  --stage-pink: #FF5FA2;
+  --stage-blue: #2D6BFF;
+  --stage-cyan: #29D3F5;
+  --stage-orange: #FF7A29;
+  --stage-gold: #FFC93C;
+
+  --gradient-stage: linear-gradient(120deg, var(--stage-purple) 0%, var(--stage-magenta) 34%, var(--stage-orange) 68%, var(--stage-gold) 100%);
+  --gradient-stage-cool: linear-gradient(120deg, var(--stage-blue) 0%, var(--stage-purple) 45%, var(--stage-magenta) 100%);
+  --gradient-stage-warm: linear-gradient(120deg, var(--stage-magenta) 0%, var(--stage-orange) 55%, var(--stage-gold) 100%);
+  --glow-stage: 0 18px 48px -18px color-mix(in oklab, var(--stage-magenta) 60%, transparent);
+  --glow-stage-strong:
+    0 10px 26px -12px color-mix(in oklab, var(--stage-purple) 55%, transparent),
+    0 26px 70px -26px color-mix(in oklab, var(--stage-magenta) 65%, transparent);
+
+
   /* Reference palette — Warm Alabaster Studio */
   --alabaster: #F3F2EE;
   --beige: #E7DFCE;
