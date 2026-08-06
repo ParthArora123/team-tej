@@ -13,7 +13,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
 import heroImg from "@/assets/tejasdhoke.jpg";
-import uploadedHeroImg from "@/assets/tejasdhoke-hero.jpg.asset.json";
+import uploadedHeroImg from "@/assets/tejasdhoke-hero.webp.asset.json";
 import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
@@ -101,8 +101,9 @@ const preloadLinkForHeroMedia = (src?: string | null) => {
   if (!src) return null;
   // Never preload video — hero clips load only once they become active.
   if (isVideoUrl(src)) return null;
-  return { rel: "preload", as: "image", href: src };
+  return { rel: "preload", as: "image", href: src, fetchpriority: "high" };
 };
+
 
 
 const preconnectLinkForHeroMedia = (src?: string | null) => {
