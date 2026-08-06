@@ -54,6 +54,9 @@ export function Chapter({
     return () => io.disconnect();
   }, [seen]);
 
+  const [done, setDone] = useState(false);
+  const state = `${seen ? "chapter-in" : ""} ${done ? "chapter-done" : ""}`;
+
   return (
     <section
       ref={ref}
@@ -63,7 +66,7 @@ export function Chapter({
     >
       {!bleed && kicker && (
         <div
-          className={`chapter-rail relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-10 mb-6 flex items-center gap-4 ${seen ? "chapter-in" : ""}`}
+          className={`chapter-rail relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-10 mb-6 flex items-center gap-4 ${state}`}
         >
           <span className="font-display text-xs tabular-nums tracking-[0.35em] text-primary">
             {String(index).padStart(2, "0")}
@@ -78,23 +81,15 @@ export function Chapter({
         </div>
       )}
 
-      <div className={`chapter-body relative ${seen ? "chapter-in" : ""}`}>{children}</div>
-
-      <style>{`
-        .chapter-body, .chapter-rail {
-          opacity: 0;
-          transform: translate3d(0, 22px, 0);
-          will-change: transform, opacity;
-        }
-        .chapter-body.chapter-in { animation: chapter-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) 90ms forwards; }
-        .chapter-rail.chapter-in { animation: chapter-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-        @keyframes chapter-rise {
-          to { opacity: 1; transform: translate3d(0, 0, 0); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .chapter-body, .chapter-rail { opacity: 1; transform: none; animation: none !important; }
-        }
-      `}</style>
+      <div
+        className={`chapter-body relative ${state}`}
+        onAnimationEnd={(e) => {
+          if (e.target === e.currentTarget) setDone(true);
+        }}
+      >
+        {children}
+      </div>
     </section>
   );
 }
+
