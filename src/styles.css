@@ -825,6 +825,46 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
   --tw-gradient-to: color-mix(in oklab, var(--primary) 85%, black) !important;
 }
 
+/* Zero-to-Hero + workshop backdrop still carried the old neon accent ramp
+   (amber / fuchsia / violet / emerald / rose). Map them onto the Warm
+   Alabaster Studio palette so every public page shares one colour story. */
+.zth-page [class*="text-amber-"],
+.zth-page [class*="text-fuchsia-"],
+.zth-page [class*="text-emerald-"],
+.zth-page [class*="text-violet-"],
+.wlb2-glyph {
+  color: color-mix(in oklab, var(--primary) 55%, var(--muted-foreground)) !important;
+}
+.zth-page [class*="border-amber-"],
+.zth-page [class*="border-fuchsia-"],
+.zth-page [class*="border-violet-"] {
+  border-color: color-mix(in oklab, var(--primary) 35%, var(--border)) !important;
+}
+.zth-page [class*="bg-amber-"],
+.zth-page [class*="bg-fuchsia-"],
+.zth-page [class*="bg-violet-"],
+.zth-page [class*="bg-rose-"],
+.zth-page [class*="bg-emerald-"] {
+  background-color: color-mix(in oklab, var(--accent) 45%, transparent) !important;
+}
+.zth-page [class*="from-amber-"],
+.zth-page [class*="from-fuchsia-"] {
+  --tw-gradient-from: var(--primary) !important;
+}
+.zth-page [class*="via-amber-"],
+.zth-page [class*="via-fuchsia-"],
+.zth-page [class*="via-violet-"],
+.zth-page [class*="via-rose-"] {
+  --tw-gradient-via: var(--accent) !important;
+}
+.zth-page [class*="to-amber-"],
+.zth-page [class*="to-fuchsia-"],
+.zth-page [class*="to-emerald-"] {
+  --tw-gradient-to: color-mix(in oklab, var(--secondary) 90%, var(--primary)) !important;
+}
+
+
+
 /* "slate-950" is a dark NAVY BLUE (#020617), not neutral black — this
    page uses it as gradient stops for its background wash. Previously
    only neutralized in light mode; fixed here for dark mode (default)

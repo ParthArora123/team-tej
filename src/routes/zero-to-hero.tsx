@@ -140,7 +140,7 @@ function ZeroToHeroPage() {
     cachedCall("siteContent:founder", () => loadContent({ data: { key: "founder" } })).then((v: any) => v && setFounder(v)).catch(() => {});
   }, []);
   return (
-    <div className="min-h-screen">
+    <div className="zth-page min-h-screen">
       {/* HERO */}
       <section className="relative overflow-hidden pt-28 pb-24 px-6 lg:px-10">
         <div className="absolute inset-0 -z-10">
