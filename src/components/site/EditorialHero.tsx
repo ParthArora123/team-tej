@@ -56,10 +56,10 @@ export function EditorialHero({
   const tour = upcoming.slice(1, 4);
 
   const columns = [
-    { k: "Philosophy", t: "Belief", v: belief },
-    { k: "Purpose", t: "Vision", v: vision },
-    { k: "Mission", t: "Movement that Transforms", v: mission },
+    { k: "Philosophy", t: "Our Belief", v: belief },
+    { k: "Purpose", t: "Our Vision", v: vision },
   ];
+
 
   const workshopPanel = (
     <article className="ed-rise ed-card group flex h-full flex-col overflow-hidden p-0 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_28px_70px_-30px_color-mix(in_oklab,var(--foreground)_45%,transparent)]" style={{ animationDelay: "300ms" }}>
