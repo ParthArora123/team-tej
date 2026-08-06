@@ -56,7 +56,7 @@ export function EditorialHero({
   const columns = [
     { k: "Philosophy", t: "Belief", v: belief },
     { k: "Purpose", t: "Vision", v: vision },
-    { k: "Our Mission", t: "Movement that Transforms", v: mission },
+    { k: "Mission", t: "Movement that Transforms", v: mission },
   ];
 
   return (
@@ -87,7 +87,7 @@ export function EditorialHero({
             <article key={c.t} className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: `${220 + i * 80}ms` }}>
               <p className="ed-eyebrow">{c.k}</p>
               <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold">{c.t}</h2>
-              <p className="mt-2.5 text-[13.5px] leading-relaxed text-muted-foreground line-clamp-5 whitespace-pre-line">{c.v}</p>
+              <p className={`mt-2.5 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line ${c.k === "Mission" ? "max-h-32 overflow-y-auto pr-1" : "line-clamp-5"}`}>{c.v}</p>
             </article>
           ))}
           {(hasMore || socials.instagram || socials.youtube) && (
