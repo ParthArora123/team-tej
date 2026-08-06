@@ -101,7 +101,7 @@ export function EditorialHero({
         </div>
       </div>
 
-      {/* ROW 2 — Belief & Vision */}
+      {/* ROW 2 — Vision & Mission */}
       <div className="mx-auto mt-8 w-full max-w-[92rem] lg:mt-12">
         <div className="flex min-w-0 flex-col gap-4">
           <div className="grid gap-4 sm:grid-cols-2">
