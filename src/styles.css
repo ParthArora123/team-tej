@@ -1245,57 +1245,115 @@ main section:first-of-type {
   color: color-mix(in oklab, var(--muted-foreground) 85%, transparent);
 }
 
+/* Glass card with a live gradient hairline border (mask trick keeps the
+   interior clean glass) and a coloured stage glow on hover. */
 @utility ed-card {
   position: relative;
-  border-radius: 1.125rem;
-  background: oklch(1 0 0 / 92%);
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 24px oklch(0.18 0.002 60 / 4%);
-  backdrop-filter: blur(20px);
-  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms ease, border-color 320ms ease;
-  &:hover {
-    transform: translate3d(0, -2px, 0);
-    border-color: var(--primary);
-    box-shadow: 0 12px 30px oklch(0.18 0.002 60 / 8%);
+  border-radius: 1.75rem;
+  background: oklch(1 0 0 / 78%);
+  border: 1px solid color-mix(in oklab, var(--stage-purple) 12%, var(--border));
+  box-shadow:
+    0 10px 30px oklch(0.18 0.002 60 / 6%),
+    inset 0 1px 0 oklch(1 0 0 / 60%);
+  backdrop-filter: blur(20px) saturate(150%);
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 380ms ease, border-color 380ms ease;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-stage);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 380ms ease;
+    pointer-events: none;
   }
+  &:hover {
+    transform: translate3d(0, -4px, 0);
+    border-color: transparent;
+    box-shadow: var(--glow-stage-strong), inset 0 1px 0 oklch(1 0 0 / 70%);
+  }
+  &:hover::before { opacity: 1; }
 }
 
 @utility ed-pill {
-  border-radius: 0.875rem;
+  position: relative;
+  border-radius: 1rem;
   padding: 0.5rem 1rem;
   text-align: center;
-  background: oklch(1 0 0 / 94%);
-  border: 1px solid var(--border);
+  background: oklch(1 0 0 / 88%);
+  border: 1px solid color-mix(in oklab, var(--stage-magenta) 14%, var(--border));
   box-shadow: 0 8px 24px oklch(0.18 0.002 60 / 8%);
-  backdrop-filter: blur(16px);
-  transition: transform 300ms ease, border-color 300ms ease;
+  backdrop-filter: blur(16px) saturate(150%);
+  transition: transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
   &:hover {
     transform: translate3d(0, -4px, 0) scale(1.05);
-    border-color: var(--primary);
+    border-color: color-mix(in oklab, var(--stage-magenta) 55%, transparent);
+    box-shadow: var(--glow-stage);
   }
 }
 
+/* Primary CTA — vibrant stage gradient with an animated light sweep. */
 @utility ed-cta {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  box-shadow: 0 10px 26px -14px oklch(0.18 0.002 60 / 65%);
-  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease, background 260ms ease;
-  &:hover {
-    transform: translate3d(0, -2px, 0);
-    background: oklch(0.26 0.002 60);
-    box-shadow: 0 16px 34px -14px oklch(0.18 0.002 60 / 70%);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--gradient-stage);
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+  color: #fff;
+  border: 0;
+  box-shadow: var(--glow-stage);
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease, background-position 600ms ease;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(100deg, transparent 20%, oklch(1 0 0 / 45%) 50%, transparent 80%);
+    transform: translate3d(-120%, 0, 0);
+    transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
   }
+  &:hover {
+    transform: translate3d(0, -3px, 0);
+    background-position: 100% 50%;
+    box-shadow: var(--glow-stage-strong);
+  }
+  &:hover::after { transform: translate3d(120%, 0, 0); }
 }
 
+/* Media frame — coloured edge glow + soft stage-light overlay on the image. */
 @utility ed-frame {
+  position: relative;
   overflow: hidden;
-  border-radius: 1.5rem;
+  border-radius: 2rem;
   background: var(--primary);
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 50px oklch(0.18 0.002 60 / 10%);
-  transition: transform 400ms ease;
-  &:hover { transform: scale(1.02); }
+  border: 1px solid color-mix(in oklab, var(--stage-purple) 18%, var(--border));
+  box-shadow:
+    0 20px 50px oklch(0.18 0.002 60 / 12%),
+    0 0 0 1px oklch(1 0 0 / 30%),
+    var(--glow-stage);
+  transition: transform 400ms ease, box-shadow 400ms ease;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+    opacity: 0.55;
+    background:
+      radial-gradient(60% 45% at 12% 8%, color-mix(in oklab, var(--stage-magenta) 55%, transparent), transparent 70%),
+      radial-gradient(55% 45% at 88% 92%, color-mix(in oklab, var(--stage-blue) 50%, transparent), transparent 70%);
+  }
+  &:hover { transform: scale(1.02); box-shadow: var(--glow-stage-strong); }
 }
+
 
 @keyframes ed-rise {
   from { opacity: 0; transform: translate3d(0, 22px, 0) scale(0.985); }
