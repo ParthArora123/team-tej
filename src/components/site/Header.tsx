@@ -83,7 +83,7 @@ export function Header() {
               <Link
                 key={l.to}
                 to={l.to}
-                className="relative px-3.5 h-8 flex items-center rounded-full text-[12.5px] tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                className="relative px-3.5 h-8 flex items-center rounded-full text-[12.5px] tracking-wide text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all duration-300 hover:-translate-y-[1px]"
               >
                 {active && (
                   <motion.span
