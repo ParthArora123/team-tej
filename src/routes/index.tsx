@@ -48,6 +48,14 @@ const FeaturedPerformances = lazy(() =>
 const SignatureProgramsGrid = lazy(() =>
   import("@/components/site/HomeSectionCards").then((m) => ({ default: m.SignatureProgramsGrid }))
 );
+const StylesDeck = lazy(() =>
+  import("@/components/site/StylesDeck").then((m) => ({ default: m.StylesDeck }))
+);
+
+
+
+
+
 
 
 
@@ -745,7 +753,38 @@ function Index() {
           </LazySection>
         )}
       </section>
+
+      {/* DANCE STYLES — animated style deck */}
+      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 pt-5 pb-7 lg:pt-6 lg:pb-8">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
+            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold text-balance leading-[1.02]">
+              Styles on the <span className="italic font-light">floor.</span>
+            </h2>
+          </div>
+          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
+            Many vocabularies. One fusion.
+          </p>
+        </div>
+
+        <LazySection minHeight={320}>
+          <StylesDeck
+            styles={
+              (danceStyles ?? []).length > 0
+                ? (danceStyles ?? []).map((s: any) => ({
+                    name: String(s.name ?? "Dance Style").trim() || "Dance Style",
+                    tagline: s.tagline ?? "",
+                    image_url: s.image_url ?? null,
+                    video_url: s.video_url ?? null,
+                  }))
+                : defaultStyles
+            }
+          />
+        </LazySection>
+      </section>
       </Chapter>
+
 
       {/* SCREEN 5 — How We Teach + Final Call */}
       <Chapter index={5} total={5} kicker="How We Teach">
