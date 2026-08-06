@@ -32,8 +32,6 @@ export function EditorialHero({
   onWatch: () => void;
 }) {
   const name = founder?.name || "Tejas D Dhoke";
-  const belief = founder?.belief || founder?.philosophy ||
-    "Beyond the steps and choreography, dance is a spark that makes us feel alive.";
   const vision = founder?.vision ||
     "To create a space where everyone — from absolute beginners to artists — can say, \u201CI belong here.\u201D";
   const mission = founder?.mission ||
