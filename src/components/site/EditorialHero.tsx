@@ -448,9 +448,8 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             decoding="async"
             className="ed-kenburns absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
             style={{ opacity: loaded && !failed ? 1 : 0 }}
-            ref={(el) => {
-              if (el && el.complete && el.naturalWidth > 0 && !loaded) setLoaded(true);
-            }}
+            ref={imgRef}
+
             onLoad={() => {
               setLoaded(true);
               onReady?.();
