@@ -624,15 +624,10 @@ function Index() {
         />
       </Chapter>
 
-      {/* SCREEN 2 — Meet Tejas: mindset & movement */}
-      <Chapter index={2} total={5} kicker="The Origin — Meet Tejas">
-        <FounderSection founder={founder} />
-      </Chapter>
-
-
-      {/* SCREEN 3 — Most Viral Choreographies */}
-      <Chapter index={3} total={5} kicker="The Proof — Viral Choreographies">
+      {/* SCREEN 2 — Iconic Work: Choreographies & World Tour */}
+      <Chapter index={2} total={5} kicker="Iconic Work — Choreographies & World Tour">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
+
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
 
         {brands.length > 0 && (
@@ -743,41 +738,125 @@ function Index() {
       </section>
       </Chapter>
 
-      {/* SCREEN 4 — Register Workshop */}
-      <Chapter index={4} total={5} kicker="The Invitation — Register">
-      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
-        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-              <Calendar size={12} /> Start Moving
-            </p>
-            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-              Book your <span className="italic font-light">experience.</span>
-            </h2>
-            <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
-              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
-            </p>
-          </div>
-          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
-            See all workshops <ArrowUpRight size={14} />
-          </Link>
+      {/* SCREEN 3 — Mindset & Movement (How We Teach) */}
+      <Chapter index={3} total={5} kicker="How We Teach — Mindset & Movement">
+      <section id="method" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
+        <div className="text-center">
+          <p className="text-xs uppercase tracking-widest text-primary font-bold">How We Teach</p>
+          <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold uppercase tracking-wide leading-[1.05]">
+            Mindset &amp; Movement
+          </h2>
+          <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+            A 4-pillar learning system designed to help absolute beginners and seasoned dancers express, grow, and feel alive.
+          </p>
         </div>
 
-        {workshops.length === 0 && !workshopsLoaded ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+        {/* Progression banner */}
+        <div className="reveal-up ed-card mt-6 p-5 lg:p-6">
+          <div className="flex flex-wrap items-center justify-center gap-3 lg:gap-5">
+            {["Come move with us", "Come express with us", "Come grow with us"].map((step, i) => (
+              <div key={step} className="flex items-center gap-3 lg:gap-5">
+                <div className="ed-pill flex items-center gap-2 text-sm font-semibold">
+                  <span className="font-display text-primary tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                  {step}
+                </div>
+                {i < 2 && <span aria-hidden className="text-muted-foreground">&rarr;</span>}
+              </div>
+            ))}
           </div>
-        ) : workshops.length === 0 ? (
-          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
-            <p className="font-display text-2xl">Coming Soon</p>
-            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+          <p className="mt-4 text-center text-sm lg:text-base italic text-muted-foreground max-w-3xl mx-auto">
+            “You do not have to be perfect. You do not have to be trained. You do not have to know everything. You just have to begin.”
+          </p>
+        </div>
+
+        {/* 4 pillars */}
+        <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
+          {[
+            { icon: Target, title: "1. Technique", desc: "Mastering posture, footwork, core balance, and body mechanics for effortless execution." },
+            { icon: Heart, title: "2. Expression", desc: "Connecting emotion to motion, bringing authenticity and storytelling to every choreography." },
+            { icon: Music2, title: "3. Musicality", desc: "Deepening rhythm control, tempo changes, and beat timing across diverse global sounds." },
+            { icon: Users2, title: "4. Stage Presence", desc: "Building commanding charisma, spatial control, and authentic connection with audiences." },
+          ].map((p, pi) => (
+            <div key={p.title} className="reveal-up" style={revealDelay(pi)}>
+              <div className="group relative block h-full ed-card p-4 lg:p-6 overflow-hidden transition-transform duration-300 hover:-translate-y-1">
+                <div className="relative h-11 w-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
+                  <p.icon size={20} />
+                </div>
+                <p className="relative mt-4 font-display text-lg lg:text-xl font-bold">{p.title}</p>
+                <p className="relative mt-2 hidden sm:block text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Designed for */}
+        <div className="reveal-up ed-card mt-6 p-4 lg:p-5 flex flex-wrap items-center gap-3 lg:gap-5">
+          <div className="min-w-[9rem]">
+            <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-bold">Designed for</p>
+            <p className="font-display text-base font-bold">Who benefits most?</p>
           </div>
-        ) : (
-          <LazySection minHeight={520}>
-            <WorkshopDeck workshops={workshops} />
-          </LazySection>
-        )}
+          <div className="flex flex-wrap gap-2">
+            {["🌱 Complete Beginners", "🎭 Actors & Performers", "🎥 Content Creators", "🎓 Dance Teachers"].map((a) => (
+              <span key={a} className="ed-pill text-sm">{a}</span>
+            ))}
+          </div>
+        </div>
       </section>
+
+      <FounderSection founder={founder} />
+      </Chapter>
+
+      {/* SCREEN 4 — Programs & Styles */}
+      <Chapter index={4} total={5} kicker="Programs & Formats — Ways to Train">
+      <section id="programs" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-primary font-bold">Programs &amp; Formats</p>
+          <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
+            Ways to <span className="italic font-light">train.</span>
+          </h2>
+          <p className="mt-3 text-muted-foreground max-w-xl">
+            Signature movement experiences tailored for all levels.
+          </p>
+        </div>
+
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5">
+          {[
+            { icon: "✨", title: "Workshops & Events", desc: "High-energy live sessions combining choreography and community energy." },
+            { icon: "🎗️", title: "Nritya Sadhana", desc: "A meditative movement exploration focusing on stillness and breath." },
+            { icon: "👥", title: "DanceFit App & Online", desc: "Structured online learning, live feedback, and dance fitness anywhere.", href: "https://dancefitstudio.app", cta: "Download App & Register" },
+            { icon: "⚡", title: "The Tej Method", desc: "Core philosophy integrating body awareness and confidence." },
+            { icon: "🚀", title: "Zero to Hero", desc: "Step-by-step beginner program to eliminate stage fear.", to: "/zero-to-hero" },
+            { icon: "🪔", title: "Bhakti Experience", desc: "A spiritual blend of grace, devotion, and movement." },
+          ].map((p, pi) => (
+            <article
+              key={p.title}
+              style={revealDelay(pi)}
+              className="reveal-up ed-card p-4 lg:p-5 transition-transform duration-300 hover:-translate-y-1"
+            >
+              <div className="text-2xl leading-none">{p.icon}</div>
+              <h3 className="mt-3 font-display text-lg font-bold">{p.title}</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+              {p.href && (
+                <a
+                  href={p.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all"
+                >
+                  {p.cta} <ArrowUpRight size={14} />
+                </a>
+              )}
+              {p.to && (
+                <Link to={p.to} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all">
+                  Explore program <ArrowUpRight size={14} />
+                </Link>
+              )}
+            </article>
+          ))}
+        </div>
+      </section>
+
+
 
       {/* DANCE STYLES — premium two-column grid */}
       <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 pt-5 pb-7 lg:pt-6 lg:pb-8">
@@ -845,45 +924,43 @@ function Index() {
       </Chapter>
 
 
-      {/* SCREEN 5 — How We Teach + Final Call */}
-      <Chapter index={5} total={5} kicker="The Method — How We Teach">
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 lg:pt-10">
+      {/* SCREEN 5 — Register & Book Your Experience */}
+      <Chapter index={5} total={5} kicker="Start Moving — Book Your Experience">
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
-            <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">How We Teach</p>
+            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+              <Calendar size={12} /> Start Moving
+            </p>
             <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-              A method that <span className="italic font-light df-gradient-text">builds dancers.</span>
+              Book your <span className="italic font-light">experience.</span>
             </h2>
+            <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
+              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
+            </p>
           </div>
-          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
-            Four steps. One transformation.
-          </p>
+          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
+            See all workshops <ArrowUpRight size={14} />
+          </Link>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
-          {[
-            { icon: Heart, title: "Mindset First", desc: "Confidence before choreography — we start with how you feel on the floor." },
-            { icon: Rocket, title: "Foundations", desc: "Body control, rhythm and posture drilled until movement becomes instinct." },
-            { icon: Video, title: "Choreography", desc: "Real routines, taught the way they're performed — layered, clean, cinematic." },
-            { icon: Calendar, title: "Performance", desc: "Stage-ready practice, filming and feedback so you can own any spotlight." },
-          ].map((p, pi) => (
-            <div key={p.title} className="reveal-up" style={revealDelay(pi)}>
-              <div className="group relative block h-full df-border-card bg-card p-4 lg:p-6 overflow-hidden transition-shadow duration-300">
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: "linear-gradient(135deg, rgba(249,178,51,0.10), rgba(238,61,139,0.10) 55%, rgba(142,45,168,0.12))" }}
-                />
-                <div className="relative h-11 w-11 rounded-xl df-gradient-bg text-white flex items-center justify-center">
-                  <p.icon size={20} />
-                </div>
-                <p className="relative mt-4 font-display text-xl font-bold">{p.title}</p>
-                <p className="relative mt-2 hidden sm:block text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        {workshops.length === 0 && !workshopsLoaded ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+          </div>
+        ) : workshops.length === 0 ? (
+          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
+            <p className="font-display text-2xl">Coming Soon</p>
+            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+          </div>
+        ) : (
+          <LazySection minHeight={520}>
+            <WorkshopDeck workshops={workshops} />
+          </LazySection>
+        )}
       </section>
+
+
 
       {/* FINAL CTA */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-6 lg:py-10">
