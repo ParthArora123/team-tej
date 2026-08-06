@@ -40,7 +40,7 @@ function ReelVideo({ src, poster, active, title }: { src: string; poster?: strin
 
 /* ------------------------------ WORKSHOPS ------------------------------ */
 
-function WorkshopCard({ w }: { w: any }) {
+function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void }) {
   const hasImage = !!w.banner_url;
 
   return (
