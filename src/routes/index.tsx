@@ -1,722 +1,1223 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
+import { cachedCall } from "@/lib/public-data-cache";
+import { CardSkeleton } from "@/components/site/Skeletons";
+import { listPrograms } from "@/lib/catalog.functions";
+import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
+import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
+import { listDanceStyles, getSiteContent } from "@/lib/site-content.functions";
+import { listChoreographies } from "@/lib/choreographies.functions";
+import { listPublicTestimonials } from "@/lib/testimonials.functions";
 import { useServerFn } from "@tanstack/react-start";
 
-import { cachedCall } from "@/lib/public-data-cache";
-import { listPrograms } from "@/lib/catalog.functions";
-import { listChoreographies } from "@/lib/choreographies.functions";
-import { listPublicGlobe } from "@/lib/content.functions";
-import { listDanceStyles } from "@/lib/site-content.functions";
+import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
-import { HorizontalPager } from "@/components/site/HorizontalPager";
-import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
-
+import heroImg from "@/assets/tejasdhoke.jpg";
 import uploadedHeroImg from "@/assets/tejasdhoke-hero.jpg.asset.json";
-import heroReel from "@/assets/hero-reel.mp4.asset.json";
+import classesImg from "@/assets/classes.jpg";
+
+import { MotionImage } from "@/components/site/MotionImage";
+import { MagneticButton } from "@/components/site/MagneticButton";
+import { TiltCard } from "@/components/site/TiltCard";
+import { StageLights } from "@/components/site/StageLights";
+import { MouseParallax } from "@/components/site/MouseParallax";
+import { CinematicHero } from "@/components/site/CinematicHero";
+import { HorizontalPager } from "@/components/site/HorizontalPager";
+import { Chapter } from "@/components/site/Chapter";
+
+import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
+import { LazySection } from "@/components/site/LazySection";
+
+import { type HomeCard } from "@/components/site/HomeSectionCards";
+import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.functions";
+
+// Below-the-fold, media-heavy sections are code-split and only fetched
+// when the visitor scrolls near them.
+const WorkshopDeck = lazy(() =>
+  import("@/components/site/HomeDecks").then((m) => ({ default: m.WorkshopDeck }))
+);
+const CoverflowCarousel = lazy(() =>
+  import("@/components/site/CoverflowCarousel").then((m) => ({ default: m.CoverflowCarousel }))
+);
+const MasonryGallery = lazy(() =>
+  import("@/components/site/MasonryGallery").then((m) => ({ default: m.MasonryGallery }))
+);
+const FeaturedPerformances = lazy(() =>
+  import("@/components/site/HomeSectionCards").then((m) => ({ default: m.FeaturedPerformances }))
+);
+const SignatureProgramsGrid = lazy(() =>
+  import("@/components/site/HomeSectionCards").then((m) => ({ default: m.SignatureProgramsGrid }))
+);
+
+
+
+const defaultStyles = [
+  { name: "Fusion", tagline: "Our signature blend." },
+  { name: "Hip-Hop", tagline: "Bounce, groove, attitude." },
+  { name: "Jazz", tagline: "Sharp lines, rhythm, and stage energy." },
+  { name: "Contemporary", tagline: "Fluid, expressive, lyrical movement." },
+  { name: "Semi-Classical", tagline: "Grace, mudras, and rooted expression." },
+  { name: "Kathak", tagline: "Tatkar and storytelling." },
+  { name: "Bollywood", tagline: "Built for the camera." },
+];
 
 const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Tejas D Dhoke — Dance Educator, Performer & Choreographer" },
-      {
-        name: "description",
-        content:
-          "The official home of Tejas D Dhoke — viral choreographies, world tour dates, the Mindset & Movement method, and live workshop registration.",
-      },
-      { property: "og:title", content: "Tejas D Dhoke — Dance Educator, Performer & Choreographer" },
-      {
-        property: "og:description",
-        content:
-          "Viral choreographies, world tour dates, the Mindset & Movement method, and live workshop registration.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "preload", as: "image", href: uploadedHeroImg.url }],
-  }),
-  component: Index,
-});
+type HeroSlide = {
+  id?: string | null;
+  image_url?: string | null;
+  alt?: string | null;
+  sort_order?: number | null;
+};
 
-/* ------------------------------------------------------------------ */
-/* Hero media (video, never cropped — blurred fill behind object-contain) */
-/* ------------------------------------------------------------------ */
+type HomeLoaderData = {
+  heroSlides: HeroSlide[];
+};
 
-function HeroMedia({ src, poster }: { src: string; poster?: string }) {
-  const ref = useRef<HTMLVideoElement>(null);
+const preloadLinkForHeroMedia = (src?: string | null) => {
+  if (!src) return null;
+  // Never preload video — hero clips load only once they become active.
+  if (isVideoUrl(src)) return null;
+  return { rel: "preload", as: "image", href: src };
+};
+
+
+const preconnectLinkForHeroMedia = (src?: string | null) => {
+  if (!src || src.startsWith("/")) return null;
+  try {
+    return { rel: "preconnect", href: new URL(src).origin, crossOrigin: "anonymous" };
+  } catch {
+    return null;
+  }
+};
+
+function loadHomeData(): HomeLoaderData {
+  // Never block the first homepage paint on remote carousel data.
+  // The local hero image renders immediately; CMS slides hydrate after paint.
+  return { heroSlides: [] };
+}
+
+function isSlowNetwork(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const c: any = (navigator as any).connection;
+  if (!c) return false;
+  if (c.saveData) return true;
+  const t = c.effectiveType as string | undefined;
+  return t === "slow-2g" || t === "2g";
+}
+
+const warmedHeroMedia = new Set<string>();
+
+function warmHeroMedia(slides: HeroSlide[], activeIndex: number, ahead = 2) {
+  if (typeof window === "undefined" || slides.length < 2) return;
+  if (isSlowNetwork()) return; // Respect data-saver / 2G — don't hog bandwidth.
+  const n = slides.length;
+  const targets: HeroSlide[] = [];
+  for (let d = 1; d <= ahead; d++) {
+    targets.push(slides[(activeIndex + d) % n]);
+    targets.push(slides[(activeIndex - d + n) % n]);
+  }
+  for (const slide of targets) {
+    const src = slide?.image_url;
+    if (!src || warmedHeroMedia.has(src)) continue;
+    warmedHeroMedia.add(src);
+    // Videos are never pre-warmed; they load only when they become active.
+    if (isVideoUrl(src)) continue;
+    const img = new Image();
+    img.decoding = "async";
+    (img as any).fetchPriority = "low";
+    img.src = src;
+    img.decode?.().catch(() => {});
+  }
+}
+
+function HeroSlideMedia({
+  src,
+  alt,
+  active,
+  priority = false,
+  fallbackSrc,
+  onReady,
+}: {
+  src?: string | null;
+  alt?: string;
+  active: boolean;
+  priority?: boolean;
+  fallbackSrc?: string;
+  onReady?: () => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const readyNotifiedRef = useRef(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const v = ref.current;
-    if (!v) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) void playHomepageVideo(v);
-          else pauseHomepageVideo(v);
-        }
-      },
-      { threshold: 0.2 },
-    );
-    io.observe(v);
-    return () => {
-      io.disconnect();
-      pauseHomepageVideo(v);
-    };
-  }, []);
+    readyNotifiedRef.current = false;
+    setReady(false);
+  }, [src]);
 
-  if (!isVideoUrl(src)) {
+  const markReady = () => {
+    if (readyNotifiedRef.current) return;
+    readyNotifiedRef.current = true;
+    onReady?.();
+    setReady(true);
+  };
+
+  // Pause & release decoder when slide leaves view / becomes inactive.
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (active) {
+      const raf = requestAnimationFrame(() => void playHomepageVideo(v));
+      return () => cancelAnimationFrame(raf);
+    } else {
+      pauseHomepageVideo(v);
+    }
+    return () => pauseHomepageVideo(v);
+  }, [active]);
+
+  if (!src) return null;
+  const common = "absolute inset-0 h-full w-full object-cover lg:object-contain transform-gpu backface-hidden";
+
+  if (isVideoUrl(src)) {
+    // For inactive video slides, render ONLY the poster image — keeps memory
+    // low and avoids background decoding of hidden videos.
+    if (!active) {
+      return fallbackSrc ? (
+        <img
+          src={fallbackSrc}
+          alt=""
+          aria-hidden
+          className={common}
+          loading="lazy"
+          decoding="async"
+          fetchPriority="low"
+          draggable={false}
+        />
+      ) : null;
+    }
     return (
       <>
-        <img src={src} alt="" aria-hidden className="hero-media-fill" />
-        <img src={src} alt="Tejas D Dhoke" className="hero-media" />
+        {fallbackSrc && (
+          <img
+            src={fallbackSrc}
+            alt=""
+            aria-hidden
+            className="blur-backdrop-wide opacity-80"
+            draggable={false}
+          />
+        )}
+        <video
+          ref={videoRef}
+          src={src}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={fallbackSrc}
+          disableRemotePlayback
+          disablePictureInPicture
+          controls={false}
+          onLoadedData={markReady}
+          onCanPlay={markReady}
+          className="absolute inset-0 h-full w-full object-contain transform-gpu backface-hidden"
+          style={{ visibility: ready || !!fallbackSrc ? "visible" : "hidden" }}
+        />
       </>
     );
   }
 
   return (
+    <img
+      src={src}
+      alt={alt ?? ""}
+      className={common}
+      loading={priority || active ? "eager" : "lazy"}
+      decoding="async"
+      fetchPriority={priority ? "high" : active ? "auto" : "low"}
+      sizes="100vw"
+      draggable={false}
+      onLoad={markReady}
+      onError={markReady}
+      ref={(el) => {
+        if (el && el.complete && el.naturalWidth > 0) markReady();
+      }}
+    />
+  );
+
+}
+
+
+
+
+
+export const Route = createFileRoute("/")({
+  loader: loadHomeData,
+  head: ({ loaderData }) => {
+    const firstHero = loaderData?.heroSlides?.[0]?.image_url || uploadedHeroImg.url;
+    const preload = preloadLinkForHeroMedia(firstHero);
+    const preconnect = preconnectLinkForHeroMedia(firstHero);
+    return {
+    meta: [
+      { title: "Tejas D Dhoke — Fusion Dance Company" },
+      {
+        name: "description",
+        content:
+          "A fusion dance company shaping India's next generation of performers. Train, perform, transform.",
+      },
+      { property: "og:title", content: "Tejas D Dhoke — Fusion Dance Company" },
+      {
+        property: "og:description",
+        content: "Train, perform, transform with Tejas D Dhoke.",
+      },
+    ],
+    links: [preconnect, preload].filter(Boolean) as any,
+  };
+  },
+  component: Index,
+});
+
+const stats: { value: number; suffix: string; label: string }[] = [
+  { value: 100, suffix: "k+", label: "Dancers Trained" },
+  { value: 300, suffix: "+", label: "Live Performances" },
+  { value: 1000, suffix: "+", label: "Workshops" },
+  { value: 16, suffix: "+", label: "Years of Experience" },
+];
+
+type Choreo = {
+  id: string;
+  title: string;
+  description?: string | null;
+  thumbnail_url?: string | null;
+  video_url?: string | null;
+  youtube_url?: string | null;
+  instagram_url?: string | null;
+  uploaded_at: string;
+};
+
+
+
+/** Staggered CSS reveal — replaces the per-element Framer Motion runtime
+ *  that used to ship (and tick) on the homepage. Pure compositor work. */
+const revealDelay = (i: number) => ({ animationDelay: `${100 + i * 80}ms` });
+
+
+function Index() {
+  const loaderData = Route.useLoaderData() as HomeLoaderData;
+
+  const [workshops, setWorkshops] = useState<any[]>([]);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(loaderData.heroSlides ?? []);
+  const [featured, setFeatured] = useState<any | null>(null);
+  const [heroPhoto, setHeroPhoto] = useState<string | null>(null);
+
+  // Every below-the-fold dataset lands in ONE state object. Previously each of
+  // the ten fetches called its own setState, so the whole 5-screen homepage
+  // tree re-rendered ten times in a row (the single biggest source of long
+  // tasks + video re-mount flicker on mid/low-end phones).
+  const [deferred, setDeferred] = useState<{
+    celebrities: any[];
+    brands: any[];
+    globe: any[];
+    gallery: any[];
+    danceStyles: any[] | null;
+    choreos: Choreo[];
+    founder: any | null;
+    testimonials: any[];
+    performances: HomeCard[];
+    sigPrograms: HomeCard[];
+  }>({
+    celebrities: [],
+    brands: [],
+    globe: [],
+    gallery: [],
+    danceStyles: null,
+    choreos: [],
+    founder: null,
+    testimonials: [],
+    performances: [],
+    sigPrograms: [],
+  });
+  const {
+    celebrities,
+    brands,
+    globe,
+    gallery,
+    danceStyles,
+    choreos,
+    founder,
+    testimonials,
+    performances,
+    sigPrograms,
+  } = deferred;
+
+
+  // Admin-managed homepage hero photo. The bundled portrait paints immediately
+  // (it is preloaded in <head>); the CMS photo swaps in only once it has fully
+  // decoded, so the hero is never blocked on a network round-trip.
+  useEffect(() => {
+    let cancelled = false;
+    cachedCall("siteContent:hero_portrait", () => getSiteContent({ data: { key: "hero_portrait" } }))
+      .then((r: any) => {
+        const url = r?.image_url;
+        if (!url || cancelled || url === uploadedHeroImg.url) return;
+        const img = new Image();
+        img.decoding = "async";
+        const swap = () => { if (!cancelled) setHeroPhoto(url); };
+        img.onload = swap;
+        img.onerror = () => {};
+        img.src = url;
+        img.decode?.().then(swap).catch(() => {});
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  const [slideIdx, setSlideIdx] = useState(0);
+  const [heroReady, setHeroReady] = useState(false);
+  const [warmSlides, setWarmSlides] = useState(false);
+  const [showStageLights, setShowStageLights] = useState(false);
+  const [workshopsLoaded, setWorkshopsLoaded] = useState(false);
+
+  // Safety net: hero images cached before hydration never fire onLoad, so
+  // ensure heroReady flips true shortly after mount even if the media
+  // callback is missed. Without this, deferred sections (celebrities,
+  // brands, gallery, choreographies, founder, etc.) never load.
+  useEffect(() => {
+    const t = setTimeout(() => setHeroReady(true), 400);
+    return () => clearTimeout(t);
+  }, []);
+  const fetchHeroSlides = useServerFn(listHeroSlides);
+  const fetchPrograms = useServerFn(listPrograms);
+
+  useEffect(() => {
+    if (!heroReady) return;
+    let cancelled = false;
+
+    const hydrateSlides = () => {
+      cachedCall("heroSlides", () => fetchHeroSlides())
+        .then((rows: any) => {
+          if (cancelled || !Array.isArray(rows) || rows.length === 0) return;
+          const next = rows as HeroSlide[];
+          const first = next[0]?.image_url;
+          if (!first || isVideoUrl(first)) {
+            setHeroSlides(next);
+            return;
+          }
+          const img = new Image();
+          img.decoding = "async";
+          (img as any).fetchPriority = "high";
+          img.onload = () => {
+            if (!cancelled) setHeroSlides(next);
+          };
+          img.onerror = () => {
+            if (!cancelled) setHeroSlides(next);
+          };
+          img.src = first;
+          img.decode?.().then(() => {
+            if (!cancelled) setHeroSlides(next);
+          }).catch(() => {});
+        })
+        .catch(() => {});
+    };
+
+    const raf = requestAnimationFrame(() => setTimeout(hydrateSlides, 0));
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+    };
+  }, [fetchHeroSlides, heroReady]);
+  useEffect(() => {
+    if (!heroReady) return;
+
+    // Highest priority — Upcoming Workshops is the #1 business section and
+    // Featured Experience sits right below it. Fetch these immediately,
+    // with no idle-callback wait at all, so they're never the reason a
+    // visitor sees blank sections.
+    cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
+      .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
+      .catch(() => setWorkshops([]))
+      .finally(() => setWorkshopsLoaded(true));
+    cachedCall("featuredExperience", () => getFeaturedExperience()).then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
+
+    // Everything else — still non-blocking, but the previous 1800ms idle
+    // timeout meant browsers under any load could legitimately wait nearly
+    // 2 full seconds before even starting these fetches. Capped much lower
+    // now so it fires almost immediately in practice while still yielding
+    // to the very first paint.
+    const loadDeferred = () => {
+      // Results are accumulated and committed in a single rAF-scheduled
+      // setState, so ten network responses cost one render, not ten.
+      let pending: Record<string, unknown> | null = null;
+      let frame = 0;
+      const commit = (patch: Record<string, unknown>) => {
+        pending = { ...(pending ?? {}), ...patch };
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const next = pending;
+          pending = null;
+          if (next) setDeferred((prev) => ({ ...prev, ...next }));
+        });
+      };
+      const load = (key: string, field: string, fn: () => Promise<any>, empty: any) =>
+        cachedCall(key, fn)
+          .then((r: any) => commit({ [field]: r ?? empty }))
+          .catch(() => commit({ [field]: empty }));
+
+      load("celebrities", "celebrities", () => listPublicCelebrities(), []);
+      load("brands", "brands", () => listPublicBrands(), []);
+      load("globe", "globe", () => listPublicGlobe(), []);
+      load("gallery", "gallery", () => listGalleryItems(), []);
+      load("danceStyles", "danceStyles", () => listDanceStyles(), []);
+      load("choreographies", "choreos", () => listChoreographies(), []);
+      load("siteContent:founder", "founder", () => getSiteContent({ data: { key: "founder" } }), null);
+      load("testimonials", "testimonials", () => listPublicTestimonials(), []);
+      load("homePerformances", "performances", () => listPerformances(), []);
+      load("signaturePrograms", "sigPrograms", () => listSignaturePrograms(), []);
+    };
+
+    const ric: any = (window as any).requestIdleCallback;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let idleId: number | undefined;
+    if (typeof ric === "function") idleId = ric(loadDeferred, { timeout: 200 });
+    else timeout = setTimeout(loadDeferred, 100);
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      if (typeof (window as any).cancelIdleCallback === "function" && idleId) {
+        (window as any).cancelIdleCallback(idleId);
+      }
+    };
+  }, [fetchPrograms, heroReady]);
+
+  useEffect(() => {
+    if (!heroReady) return;
+    const enableWarmup = () => {
+      setWarmSlides(true);
+      warmHeroMedia(heroSlides, slideIdx);
+      setShowStageLights(true);
+    };
+    const ric: any = (window as any).requestIdleCallback;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let idleId: number | undefined;
+    if (typeof ric === "function") idleId = ric(enableWarmup, { timeout: 300 });
+    else timeout = setTimeout(enableWarmup, 150);
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      if (typeof (window as any).cancelIdleCallback === "function" && idleId) {
+        (window as any).cancelIdleCallback(idleId);
+      }
+    };
+  }, [heroReady, heroSlides, slideIdx]);
+
+
+
+  // Admin-uploaded hero media that are videos become the cinematic montage.
+  const heroClips = useMemo(
+    () => heroSlides.map((s) => s.image_url).filter((u): u is string => isVideoUrl(u)),
+    [heroSlides]
+  );
+
+  const heroSectionRef = useRef<HTMLElement>(null);
+  const [heroVisible, setHeroVisible] = useState(true);
+
+  useEffect(() => {
+    const el = heroSectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0.05 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!heroReady || heroSlides.length < 2 || !heroVisible) return;
+    const t = setInterval(() => {
+      requestAnimationFrame(() => setSlideIdx((i) => (i + 1) % heroSlides.length));
+    }, 5000);
+    return () => clearInterval(t);
+  }, [heroReady, heroSlides.length, heroVisible]);
+
+  // Soonest upcoming workshop — fully dynamic, sourced from whatever the
+  // admin has entered for event_date / capacity / seats_taken. No hardcoded
+  // dates or seat counts anywhere in the hero.
+  const nextWorkshop = useMemo(() => {
+    const upcoming = workshops
+      .filter((w) => w.event_date && new Date(w.event_date) >= new Date(new Date().toDateString()))
+      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+    const w = upcoming[0];
+    if (!w) return null;
+    return {
+      id: w.id,
+      dateLabel: new Date(w.event_date).toLocaleDateString("en-IN", { day: "numeric", month: "long" }),
+    };
+  }, [workshops]);
+
+  const heroBadges = useMemo(
+    () => [
+      { value: "1000+", label: "Workshops" },
+      { value: "100k+", label: "Dancers Trained" },
+      { value: "300+", label: "Live Performances" },
+      { value: "16+", label: "Years on Stage" },
+    ],
+    [],
+  );
+
+
+
+
+
+  return (
     <>
-      {poster && <img src={poster} alt="" aria-hidden className="hero-media-fill" />}
-      <video
-        ref={ref}
-        src={src}
-        poster={poster}
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        className="hero-media"
-      />
+
+      {/* Sticky mobile CTA */}
+      <Link
+        to="/workshops"
+        className="md:hidden fixed bottom-5 inset-x-5 z-40 flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold py-3.5 shadow-[0_10px_40px_-10px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]"
+      >
+        <Sparkles size={16} /> Register for a Workshop
+      </Link>
+
+      <HorizontalPager>
+      {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
+
+      <Chapter index={1} total={5} bleed>
+        <CinematicHero
+          backgroundImage={heroPhoto ?? uploadedHeroImg.url}
+          clips={heroClips}
+          badges={heroBadges}
+          onReady={() => setHeroReady(true)}
+        />
+      </Chapter>
+
+      {/* SCREEN 2 — Meet Tejas: mindset & movement */}
+      <Chapter index={2} total={5} kicker="Meet Tejas">
+        <FounderSection founder={founder} />
+      {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+          {stats.map((s) => (
+            <div key={s.label} className="reveal-up relative border-t border-border pt-6" style={revealDelay(stats.indexOf(s))}>
+              <div
+                aria-hidden
+                className="absolute -top-px left-0 h-px w-16"
+                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
+              />
+              <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
+                {s.value}{s.suffix ?? ""}
+              </p>
+              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+      </Chapter>
+
+      {/* SCREEN 3 — Most Viral Choreographies */}
+      <Chapter index={3} total={5} kicker="Most Viral Choreographies">
+        <CinematicShowreel choreos={choreos} workshops={workshops} />
+      <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
+
+        {brands.length > 0 && (
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
+            <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">Trusted partners</h2>
+            <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+              {brands.map((b) => (
+                <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
+                  {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {celebrities.length > 0 && (
+
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">Celebrities we've worked with</p>
+            <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">On stage with the best</h2>
+            <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+              {celebrities.map((c, ci) => (
+                <div
+                  key={c.id}
+                  style={revealDelay(ci)}
+                  className="reveal-up transition-transform duration-300 hover:-translate-y-1 group relative aspect-square premium-card bg-card overflow-hidden flex flex-col items-center justify-end text-center"
+                >
+                  {c.photo_url ? (
+                    <img
+                      src={c.photo_url}
+                      alt={c.name}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover lg:object-contain object-center transition-transform duration-700 ease-out group-hover:scale-110"
+                    />
+                  ) : null}
+                  {/* shine sweep on hover */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
+                    style={{
+                      background:
+                        "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%)",
+                    }}
+                  />
+                  <div className={`relative w-full p-3 ${c.photo_url ? "bg-gradient-to-t from-background/90 via-background/60 to-transparent" : ""}`}>
+                    <p className="font-display text-sm">{c.name}</p>
+                    {c.role && <p className="text-[10px] text-muted-foreground">{c.role}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+
+        {globe.length > 0 && (() => {
+          const conducted = globe.filter((g) => g.status === "conducted");
+          const upcoming = globe.filter((g) => g.status === "upcoming");
+          
+          return (
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-6 lg:p-12">
+              <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
+              <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
+              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
+              {conducted.length > 0 && (
+                <div className="mt-8">
+                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
+                  <div className="flex flex-wrap gap-2">
+                    {conducted.map((g) => (
+                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{g.city}, {g.country}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {upcoming.length > 0 && (
+                <div className="mt-6">
+                  <p className="text-[11px] uppercase tracking-widest text-primary mb-3">Upcoming</p>
+                  <div className="flex flex-wrap gap-2">
+                    {upcoming.map((g) => (
+                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
+                        {g.city}, {g.country}{g.event_date ? ` · ${new Date(g.event_date).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : ""}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+      </section>
+      </Chapter>
+
+      {/* SCREEN 4 — Register Workshop */}
+      <Chapter index={4} total={5} kicker="Register Workshop">
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+              <Calendar size={12} /> Start Moving
+            </p>
+            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
+              Book your <span className="italic font-light">experience.</span>
+            </h2>
+            <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
+              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
+            </p>
+          </div>
+          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
+            See all workshops <ArrowUpRight size={14} />
+          </Link>
+        </div>
+
+        {workshops.length === 0 && !workshopsLoaded ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+          </div>
+        ) : workshops.length === 0 ? (
+          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
+            <p className="font-display text-2xl">Coming Soon</p>
+            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+          </div>
+        ) : (
+          <LazySection minHeight={520}>
+            <WorkshopDeck workshops={workshops} />
+          </LazySection>
+        )}
+      </section>
+      </Chapter>
+
+      {/* SCREEN 5 — How We Teach + Final Call */}
+      <Chapter index={5} total={5} kicker="How We Teach">
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 lg:pt-10">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
+          <div>
+            <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">How We Teach</p>
+            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
+              A method that <span className="italic font-light df-gradient-text">builds dancers.</span>
+            </h2>
+          </div>
+          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
+            Four steps. One transformation.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
+          {[
+            { icon: Heart, title: "Mindset First", desc: "Confidence before choreography — we start with how you feel on the floor." },
+            { icon: Rocket, title: "Foundations", desc: "Body control, rhythm and posture drilled until movement becomes instinct." },
+            { icon: Video, title: "Choreography", desc: "Real routines, taught the way they're performed — layered, clean, cinematic." },
+            { icon: Calendar, title: "Performance", desc: "Stage-ready practice, filming and feedback so you can own any spotlight." },
+          ].map((p, pi) => (
+            <div key={p.title} className="reveal-up" style={revealDelay(pi)}>
+              <div className="group relative block h-full df-border-card bg-card p-4 lg:p-6 overflow-hidden transition-shadow duration-300">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{ background: "linear-gradient(135deg, rgba(249,178,51,0.10), rgba(238,61,139,0.10) 55%, rgba(142,45,168,0.12))" }}
+                />
+                <div className="relative h-11 w-11 rounded-xl df-gradient-bg text-white flex items-center justify-center">
+                  <p.icon size={20} />
+                </div>
+                <p className="relative mt-4 font-display text-xl font-bold">{p.title}</p>
+                <p className="relative mt-2 hidden sm:block text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-6 lg:py-10">
+        <div
+          className="reveal-up df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-8 lg:p-14 text-center"
+        >
+          {/* Floating orbs — CSS-driven (compositor only). Framer's rAF loops
+              kept ticking even while this slide was hidden. */}
+          <div
+            aria-hidden
+            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-40 transform-gpu animate-[cta-orb-a_8s_ease-in-out_infinite] motion-reduce:animate-none"
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%)" }}
+          />
+          <div
+            aria-hidden
+            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-30 transform-gpu animate-[cta-orb-b_10s_ease-in-out_infinite] motion-reduce:animate-none"
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.28) 0%, transparent 70%)" }}
+          />
+          <div
+            aria-hidden
+            className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/20 transform-gpu animate-[cta-orb-spin_60s_linear_infinite] motion-reduce:animate-none"
+          />
+
+
+          <p className="relative text-xs uppercase tracking-[0.4em] text-white/80">The stage is set</p>
+          <h2 className="relative mt-3 font-display text-3xl lg:text-6xl font-bold text-white text-balance leading-[1.02]">
+            Your journey <span className="italic font-light text-white/80">begins now.</span>
+          </h2>
+          <p className="relative mt-5 text-white/80 max-w-xl mx-auto text-base lg:text-lg">
+            Step in. Move freely. Leave transformed.
+          </p>
+
+          <div className="relative mt-7 flex justify-center">
+            <MagneticButton strength={0.5}>
+              <a
+                href="/zero-to-hero"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const go = () => window.location.assign("/zero-to-hero");
+                  try {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    setTimeout(go, 350);
+                  } catch { go(); }
+                }}
+                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-white bg-white/10 backdrop-blur-sm border border-white/30 overflow-hidden hover:bg-white/20 transition-colors"
+                style={{
+                  boxShadow: "0 24px 70px -22px color-mix(in oklab, var(--accent-gold) 30%, transparent)",
+                }}
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Start Your Dance Journey
+                  <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
+                </span>
+                <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+              </a>
+            </MagneticButton>
+          </div>
+
+          <p className="relative mt-5 text-sm text-white/70">
+            Not ready to register today?{" "}
+            <Link to="/contact" className="text-white font-medium underline underline-offset-4 hover:text-white/90 transition-colors">
+              Get in touch and we'll notify you about the next batch
+            </Link>.
+          </p>
+
+        </div>
+      </section>
+      </Chapter>
+
+
+      </HorizontalPager>
     </>
   );
 }
 
-/* ------------------------------------------------------------------ */
-
-const DEFAULT_STYLES = [
-  "🔥 Bollywood Commercial & Cinematic",
-  "⚡ Urban Hip-Hop & Street Grooves",
-  "🪔 Devotional & Indian Folk Fusion",
-  "🌊 Contemporary & Expressive Flow",
-  "💃 Semi-Classical Grace & Technique",
-  "🎯 High-Energy Dance Fitness",
-  "🎭 Storytelling & Stage Performance",
-];
-
-const DEFAULT_TOUR = [
-  "Mumbai", "Delhi", "Bengaluru", "Dubai", "London", "New York", "Singapore",
-];
-
-const PILLARS = [
-  {
-    title: "1. Technique",
-    desc: "Mastering posture, footwork, core balance, and body mechanics for effortless execution.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M2 12V2h10l10 10V22H12z" />
-        <path d="m14 8 3 3" />
-        <path d="m12 6 2 2" />
-      </svg>
-    ),
-  },
-  {
-    title: "2. Expression",
-    desc: "Connecting emotion to motion, bringing authenticity and storytelling to every choreography.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M10 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
-        <path d="M17 12h.01" />
-        <path d="M12 2a10 10 0 0 1 10 10c0 5.5-4.5 10-10 10s-10-4.5-10-10A10 10 0 0 1 12 2z" />
-      </svg>
-    ),
-  },
-  {
-    title: "3. Musicality",
-    desc: "Deepening rhythm control, tempo changes, and beat timing across diverse global sounds.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M2 10v3" /><path d="M6 6v11" /><path d="M10 3v18" />
-        <path d="M14 8v7" /><path d="M18 5v13" /><path d="M22 10v3" />
-      </svg>
-    ),
-  },
-  {
-    title: "4. Stage Presence",
-    desc: "Building commanding charisma, spatial control, and authentic connection with audiences.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <circle cx="12" cy="12" r="10" />
-        <path d="m12 22 2-6h-4l2 6" /><path d="m14 16.5 6-3" /><path d="m10 16.5-6-3" />
-      </svg>
-    ),
-  },
-];
-
-const PROGRAMS = [
-  { icon: "✨", title: "Workshops & Events", desc: "High-energy live sessions combining choreography and community energy.", to: "/workshops" },
-  { icon: "🎗️", title: "Nritya Sadhana", desc: "A meditative movement exploration focusing on stillness and breath.", to: "/nritya-sadhana" },
-  { icon: "👥", title: "DanceFit App & Online", desc: "Structured online learning, live feedback, and dance fitness anywhere.", to: "/online-trainings", app: true },
-  { icon: "⚡", title: "The Tej Method", desc: "Core philosophy integrating body awareness and confidence.", to: "/about" },
-  { icon: "🚀", title: "Zero to Hero", desc: "A guided beginner-to-performer transformation track.", to: "/zero-to-hero" },
-  { icon: "🪔", title: "Bhakti Experience", desc: "A spiritual blend of grace, devotion, and movement.", to: "/nritya-sadhana" },
-];
-
-function fmtDate(d?: string | null) {
-  if (!d) return null;
-  const dt = new Date(d);
-  if (Number.isNaN(dt.getTime())) return null;
-  return dt.toLocaleDateString("en-IN", { weekday: "short", month: "short", day: "numeric" });
+function countryToContinent(country: string): string | null {
+  const c = (country || "").trim().toLowerCase();
+  const map: Record<string, string> = {
+    india: "Asia", "sri lanka": "Asia", nepal: "Asia", bhutan: "Asia", bangladesh: "Asia", pakistan: "Asia",
+    china: "Asia", japan: "Asia", "south korea": "Asia", korea: "Asia", singapore: "Asia", malaysia: "Asia",
+    thailand: "Asia", indonesia: "Asia", vietnam: "Asia", philippines: "Asia", "hong kong": "Asia", taiwan: "Asia",
+    uae: "Asia", "united arab emirates": "Asia", "saudi arabia": "Asia", qatar: "Asia", bahrain: "Asia",
+    kuwait: "Asia", oman: "Asia", israel: "Asia", turkey: "Asia",
+    uk: "Europe", "united kingdom": "Europe", england: "Europe", scotland: "Europe", ireland: "Europe",
+    france: "Europe", germany: "Europe", spain: "Europe", italy: "Europe", portugal: "Europe",
+    netherlands: "Europe", belgium: "Europe", switzerland: "Europe", austria: "Europe", sweden: "Europe",
+    norway: "Europe", denmark: "Europe", finland: "Europe", poland: "Europe", greece: "Europe",
+    "czech republic": "Europe", hungary: "Europe", romania: "Europe", russia: "Europe",
+    usa: "North America", "united states": "North America", "united states of america": "North America",
+    "u.s.a.": "North America", "u.s.": "North America", america: "North America",
+    canada: "North America", mexico: "North America",
+    brazil: "South America", argentina: "South America", chile: "South America", colombia: "South America",
+    peru: "South America",
+    "south africa": "Africa", nigeria: "Africa", kenya: "Africa", egypt: "Africa", morocco: "Africa",
+    ghana: "Africa", tanzania: "Africa", uganda: "Africa", mauritius: "Africa",
+    australia: "Oceania", "new zealand": "Oceania", fiji: "Oceania",
+  };
+  return map[c] ?? null;
 }
 
-function Index() {
-  const fetchPrograms = useServerFn(listPrograms);
-  const fetchChoreos = useServerFn(listChoreographies);
-  const fetchGlobe = useServerFn(listPublicGlobe);
-  const fetchStyles = useServerFn(listDanceStyles);
-
-  const [workshops, setWorkshops] = useState<any[]>([]);
-  const [choreos, setChoreos] = useState<any[]>([]);
-  const [globe, setGlobe] = useState<any[]>([]);
-  const [styles, setStyles] = useState<any[]>([]);
-
-  useEffect(() => {
-    cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
-      .then((r: any) => setWorkshops(r ?? []))
-      .catch(() => setWorkshops([]));
-    cachedCall("choreographies", () => fetchChoreos())
-      .then((r: any) => setChoreos(r ?? []))
-      .catch(() => setChoreos([]));
-    cachedCall("globe", () => fetchGlobe())
-      .then((r: any) => setGlobe(r ?? []))
-      .catch(() => setGlobe([]));
-    cachedCall("styles", () => fetchStyles())
-      .then((r: any) => setStyles(r ?? []))
-      .catch(() => setStyles([]));
-  }, []);
-
-  const upcoming = useMemo(
-    () =>
-      workshops
-        .filter((w) => w.event_date)
-        .sort((a, b) => +new Date(a.event_date) - +new Date(b.event_date)),
-    [workshops],
-  );
-  const nextWorkshop = upcoming[0] ?? workshops[0] ?? null;
-
-  const [month, setMonth] = useState<"august" | "september">("august");
-  const monthRows = useMemo(() => {
-    const target = month === "august" ? 7 : 8; // 0-indexed months
-    const rows = upcoming.filter((w) => new Date(w.event_date).getMonth() === target);
-    return rows.length ? rows : upcoming.slice(0, 3);
-  }, [upcoming, month]);
-
-  const tourCities = globe.length ? globe.map((g) => `${g.city}`) : DEFAULT_TOUR;
-  const styleItems = styles.length ? styles.map((s) => s.name as string) : DEFAULT_STYLES;
-
-  const [activeChoreo, setActiveChoreo] = useState(1);
-  const choreoCards = choreos.slice(0, 3);
-
-  /* ---------- registration state (screen 5) ---------- */
-  const [picked, setPicked] = useState<Record<string, boolean>>({});
-  const sessions = useMemo(() => {
-    if (!nextWorkshop) return [];
-    const base = [
-      { id: `${nextWorkshop.id}-s1`, title: nextWorkshop.workshop_1_name || "Session 1", time: nextWorkshop.event_time || "10:00 AM – 12:00 PM", price: nextWorkshop.price_inr ?? 1200 },
-    ];
-    if (nextWorkshop.workshop_2_name) {
-      base.push({
-        id: `${nextWorkshop.id}-s2`,
-        title: nextWorkshop.workshop_2_name,
-        time: nextWorkshop.event_time_2 || "01:00 PM – 03:00 PM",
-        price: nextWorkshop.price_inr ?? 1200,
-      });
+function youtubeEmbed(url?: string | null): string | null {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtu.be")) return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    if (u.hostname.includes("youtube.com")) {
+      const v = u.searchParams.get("v");
+      if (v) return `https://www.youtube.com/embed/${v}`;
+      if (u.pathname.startsWith("/embed/")) return url;
+      if (u.pathname.startsWith("/shorts/")) return `https://www.youtube.com/embed/${u.pathname.split("/")[2]}`;
     }
-    return base;
-  }, [nextWorkshop]);
+  } catch {}
+  return null;
+}
+
+type ReelItem = {
+  id: string;
+  title: string;
+  subtitle: string;
+  badge: string;
+  videoSrc?: string | null;
+  embedSrc?: string | null;
+  poster?: string | null;
+  ctaLabel?: string;
+  ctaLink?: string;
+  ctaExternal?: boolean;
+};
+
+function buildReelItems(choreos: Choreo[], workshops: any[]): ReelItem[] {
+  // `choreos` already comes sorted newest-first (sort_order, then uploaded_at
+  // desc), so keeping every published clip here means the deck is always
+  // showing the full, current set of latest choreographies — nothing is
+  // artificially trimmed out of rotation.
+  const fromChoreos: ReelItem[] = (choreos || [])
+    .filter((c) => !!(c.video_url || youtubeEmbed(c.youtube_url)))
+    .map((c) => ({
+      id: `choreo-${c.id}`,
+      title: c.title,
+      subtitle: "Choreography",
+      badge: "Choreo",
+      videoSrc: c.video_url ?? null,
+      embedSrc: youtubeEmbed(c.youtube_url),
+      poster: c.thumbnail_url ?? null,
+      ctaLabel: c.instagram_url ? "Watch on Instagram" : undefined,
+      ctaLink: c.instagram_url ?? undefined,
+      ctaExternal: true,
+    }));
+
+  const fromWorkshops: ReelItem[] = (workshops || [])
+    .filter((w: any) => !!w.banner_video_url)
+    .map((w: any) => ({
+      id: `workshop-${w.id}`,
+      title: w.name,
+      subtitle: [w.city, w.instructor].filter(Boolean).join(" · ") || "Workshop highlight",
+      badge: "Workshop",
+      videoSrc: w.banner_video_url as string,
+      embedSrc: null,
+      poster: w.banner_url ?? null,
+      ctaLabel: "View workshop",
+      ctaLink: `/workshops/${w.id}`,
+      ctaExternal: false,
+    }));
+
+  // Weave the two sources together so the reel doesn't read as two blocks stitched end to end.
+  const woven: ReelItem[] = [];
+  const max = Math.max(fromChoreos.length, fromWorkshops.length);
+  for (let i = 0; i < max; i++) {
+    if (fromChoreos[i]) woven.push(fromChoreos[i]);
+    if (fromWorkshops[i]) woven.push(fromWorkshops[i]);
+  }
+  return woven;
+}
+
+
+function MuteToggleIcon({ muted }: { muted: boolean }) {
+  return muted ? (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" /><line x1="22" y1="9" x2="16" y2="15" /><line x1="16" y1="9" x2="22" y2="15" /></svg>
+  ) : (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4z" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></svg>
+  );
+}
+
+/**
+ * Sprocket strip — a thin row of perforation dots that frames the filmstrip,
+ * evoking a literal reel of film. Pure CSS, no image asset.
+ */
+function SprocketStrip() {
+  return (
+    <div
+      aria-hidden
+      className="h-3 w-full rounded-full opacity-70"
+      style={{
+        backgroundImage: "radial-gradient(circle, color-mix(in oklab, var(--primary) 55%, var(--border)) 1.6px, transparent 1.8px)",
+        backgroundSize: "14px 100%",
+        backgroundPosition: "center",
+      }}
+    />
+  );
+}
+
+function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshops: any[] }) {
+  const items = useMemo(() => buildReelItems(choreos, workshops), [choreos, workshops]);
+
+  if (!items.length) return null;
 
   return (
-    <div className="tej-home">
-      <HorizontalPager>
-        {/* ================= SCREEN 1 — HERO STAGE ================= */}
-        <section id="hero" className="screen-slide">
-          <div className="hero-stage">
-            {/* LEFT MODULE */}
-            <div className="side-module-left">
-              <div className="left-sub-panel">
-                <span className="module-tag">Philosophy</span>
-                <h3 className="module-title">Belief</h3>
-                <p className="static-text">
-                  Beyond the steps and choreography, dance is a spark that makes us feel alive.
-                </p>
+    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+      <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
+        <div>
+          <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+            <Play size={12} /> Iconic Work
+          </p>
+          <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
+            Choreographies & <span className="italic font-light">World Tour.</span>
+          </h2>
+        </div>
+
+      </div>
+
+      <LazySection minHeight={560}>
+        <CoverflowCarousel
+          items={items.map((it) => ({
+            id: it.id,
+            title: it.title,
+            subtitle: it.subtitle,
+            badge: it.badge,
+            videoSrc: it.videoSrc,
+            embedSrc: it.embedSrc,
+            poster: it.poster,
+            ctaLabel: it.ctaLabel,
+            ctaLink: it.ctaLink,
+            ctaExternal: it.ctaExternal,
+          }))}
+          interval={5000}
+        />
+      </LazySection>
+
+    </section>
+  );
+}
+
+
+function FounderSection({ founder }: { founder: any | null }) {
+  const [open, setOpen] = useState(false);
+  const name = founder?.name || "Tejas D Dhoke";
+  const title = founder?.title || "Founder";
+  const intro = founder?.intro || "";
+  const image = founder?.image_url || "";
+  const biography = founder?.biography || "";
+  const achievements: string[] = Array.isArray(founder?.achievements) ? founder.achievements : [];
+  const belief = founder?.belief || founder?.philosophy || "";
+  const vision = founder?.vision || "";
+  const mission = founder?.mission || "";
+  const socials = founder?.socials || {};
+
+  const hasMore = Boolean(biography || achievements.length || vision || mission);
+
+  return (
+    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+      <div className="grid lg:grid-cols-5 gap-10 lg:gap-14 items-start">
+        {/* Portrait — editorial frame */}
+        <div className="reveal-up lg:col-span-2 relative group">
+          {/* decorative offset frame */}
+          <div
+            aria-hidden
+            className="absolute -inset-3 lg:-inset-4 rounded-[2rem] opacity-70 blur-xl -z-10 transition-opacity duration-700 group-hover:opacity-100"
+            style={{ background: "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 60%)" }}
+          />
+          {/* offset border shape behind image */}
+          <div aria-hidden className="absolute top-4 -left-4 lg:-left-6 w-full h-full rounded-3xl border border-primary/30" />
+
+          <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/40 border border-border">
+            {image ? (
+              <img
+                src={image}
+                alt={name}
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover lg:object-contain transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+            ) : (
+              <div className="absolute inset-0 grid place-items-center text-8xl font-display font-bold text-primary">
+                {name.charAt(0).toUpperCase()}
               </div>
-              <div className="left-sub-panel">
-                <span className="module-tag">Purpose</span>
-                <h3 className="module-title">Vision</h3>
-                <p className="static-text">
-                  To create a space where everyone—from absolute beginners to artists—can say, “I belong here.”
-                </p>
-              </div>
-              <div className="left-sub-panel">
-                <span className="module-tag">Our Mission</span>
-                <h3 className="module-title">Movement that Transforms</h3>
-                <div className="scrolling-script-container">
-                  <div className="journey-text">
-                    Tejas D Dhoke’s journey began with dance, but it never stayed limited to dance. From teaching
-                    students in studios to creating viral choreographies, from building DanceFit into a large dance
-                    community to launching the DanceFit Studio App, every step of the journey has been about one
-                    thing: making dance more accessible, more human, and more transformational.
-                    <br />
-                    <br />
-                    Tej is not just a name, it is a movement built by Tejas D Dhoke and the community around him.
-                  </div>
-                </div>
-              </div>
+            )}
+            {/* film grain accent */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              style={{ background: "radial-gradient(120% 80% at 50% 100%, color-mix(in oklab, var(--primary) 30%, transparent), transparent 60%)" }} />
+            {/* shine sweep */}
+            <div aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1400ms] ease-out"
+              style={{ background: "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.16) 50%, transparent 70%)" }} />
+
+            <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-background/95 via-background/60 to-transparent">
+              <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
+              <p className="font-display text-2xl font-bold mt-1">{name}</p>
             </div>
 
-            {/* CENTER HERO COLUMN */}
-            <div className="center-hero-col">
-              <div className="center-hero-header">
-                <h1 className="section-title">Tejas D Dhoke</h1>
-                <p className="roles-tag-container">
-                  <span className="role-educator">Dance Educator</span>
-                  <span className="role-bullet">•</span>
-                  <span className="role-performer">Performer</span>
-                  <span className="role-bullet">•</span>
-                  <span className="role-choreographer">Choreographer</span>
-                </p>
-                <p className="hero-slogan">Transforming passion into performance</p>
-              </div>
-
-              <div className="hero-poster-wrapper">
-                <div className="stat-badge badge-top-left">
-                  <div className="num">1000+</div>
-                  <div className="lbl">workshops</div>
-                </div>
-                <div className="stat-badge badge-bottom-left">
-                  <div className="num">300+</div>
-                  <div className="lbl">live performances</div>
-                </div>
-                <div className="stat-badge badge-top-right">
-                  <div className="num">1000k+</div>
-                  <div className="lbl">dancers trained</div>
-                </div>
-                <div className="stat-badge badge-bottom-right">
-                  <div className="num">16+</div>
-                  <div className="lbl">years on stage</div>
-                </div>
-
-                <div className="hero-frame">
-                  <HeroMedia src={heroReel.url} poster={uploadedHeroImg.url} />
-                </div>
-              </div>
-
-              <div className="hero-actions-bottom">
-                <Link to="/workshops" className="btn btn-primary">
-                  Explore Workshops ↗
-                </Link>
-                <Link to="/testimonials" className="btn btn-secondary">
-                  ▷ Watch Performances
-                </Link>
-              </div>
-            </div>
-
-            {/* RIGHT MODULE */}
-            <div className="side-module-right">
-              <div className="side-module-card">
-                <span className="module-tag">
-                  Next Studio Day • {nextWorkshop?.venue?.split(",").pop()?.trim() || "Mumbai"}
-                </span>
-                <h3 className="module-title" style={{ fontSize: "0.95rem" }}>
-                  {nextWorkshop
-                    ? `${fmtDate(nextWorkshop.event_date) ?? "Upcoming"} · ${nextWorkshop.name}`
-                    : "Masterclass Day"}
-                </h3>
-                <div className="venue-info-box">
-                  <span>📍 {nextWorkshop?.venue || "Byou Studio, Bandra West"}</span>
-                  <a
-                    href={`https://maps.google.com/?q=${encodeURIComponent(nextWorkshop?.venue || "Byou Studio Bandra Mumbai")}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Map
-                  </a>
-                </div>
-                <div className="session-checkbox-list">
-                  {(sessions.length ? sessions : [{ id: "d1", title: "Full Day Pass (3 Sessions)", time: "10:00 AM – 5:00 PM", price: 2999 }]).map(
-                    (s, i) => (
-                      <label key={s.id} className={`session-item-option ${i === 0 ? "selected" : ""}`}>
-                        <div className="session-info">
-                          <span className="session-title">
-                            {s.title} {i === 0 && <span className="all-access-badge">Best Value</span>}
-                          </span>
-                          <span className="session-time">{s.time}</span>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <span className="session-price">₹{Number(s.price).toLocaleString("en-IN")}</span>
-                          <input type="checkbox" defaultChecked={i === 0} className="custom-checkbox" />
-                        </div>
-                      </label>
-                    ),
-                  )}
-                </div>
-                {nextWorkshop ? (
-                  <Link to="/workshops/$id" params={{ id: nextWorkshop.id }} className="btn-widget">
-                    Register Selected ↗
-                  </Link>
-                ) : (
-                  <Link to="/workshops" className="btn-widget">
-                    Register Selected ↗
-                  </Link>
-                )}
-              </div>
-
-              <div className="upcoming-workshops-frame">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span className="module-tag" style={{ margin: 0 }}>
-                    Upcoming Weekend Tour
-                  </span>
-                  <div className="city-month-tabs">
-                    <button
-                      type="button"
-                      className={`city-month-btn ${month === "august" ? "active" : ""}`}
-                      onClick={() => setMonth("august")}
-                    >
-                      Aug
-                    </button>
-                    <button
-                      type="button"
-                      className={`city-month-btn ${month === "september" ? "active" : ""}`}
-                      onClick={() => setMonth("september")}
-                    >
-                      Sep
-                    </button>
-                  </div>
-                </div>
-
-                <div className="city-schedule-list">
-                  {monthRows.length === 0 && (
-                    <div className="city-schedule-item">
-                      <span className="city-session-desc">New tour dates drop every month — check back soon.</span>
-                    </div>
-                  )}
-                  {monthRows.map((w) => (
-                    <Link key={w.id} to="/workshops/$id" params={{ id: w.id }} className="city-schedule-item">
-                      <div className="city-item-top">
-                        <span className="city-name-badge">📍 {w.venue?.split(",").pop()?.trim() || w.name}</span>
-                        <span className="city-date-tag">{fmtDate(w.event_date) ?? "TBA"}</span>
-                      </div>
-                      <span className="city-session-desc">
-                        {w.name}
-                        {w.venue ? ` • ${w.venue}` : ""}
-                      </span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
+            {/* corner tick marks — editorial detail */}
+            <span aria-hidden className="absolute top-3 left-3 h-4 w-4 border-t border-l border-white/70" />
+            <span aria-hidden className="absolute top-3 right-3 h-4 w-4 border-t border-r border-white/70" />
+            <span aria-hidden className="absolute bottom-3 left-3 h-4 w-4 border-b border-l border-white/70" />
+            <span aria-hidden className="absolute bottom-3 right-3 h-4 w-4 border-b border-r border-white/70" />
           </div>
-        </section>
+        </div>
 
-        {/* ================= SCREEN 2 — WORK & TOUR ================= */}
-        <section id="choreo" className="screen-slide">
-          <div className="screen-container" style={{ textAlign: "center" }}>
-            <p className="section-tag">Iconic Work</p>
-            <h2 className="section-title">Choreographies &amp; World Tour</h2>
-            <p className="section-desc" style={{ margin: "0 auto 16px auto" }}>
-              A showcase of viral choreographies and world tour destinations.
-            </p>
 
-            <div className="choreo-coverflow">
-              {(choreoCards.length ? choreoCards : [null, null, null]).map((c: any, i: number) => (
-                <div
-                  key={c?.id ?? i}
-                  className={`choreo-card ${i === activeChoreo ? "active" : ""}`}
-                  onMouseEnter={() => setActiveChoreo(i)}
-                  onClick={() => setActiveChoreo(i)}
-                >
-                  {c?.thumbnail_url && (
-                    <>
-                      <img src={c.thumbnail_url} alt="" aria-hidden className="choreo-fill" />
-                      <img src={c.thumbnail_url} alt={c.title} loading="lazy" decoding="async" />
-                    </>
-                  )}
-                  <div className="choreo-title">{c?.title ?? "Coming soon"}</div>
-                </div>
-              ))}
-            </div>
-
-            <p className="section-tag" style={{ marginTop: 10 }}>
-              Tour Destinations
-            </p>
-            <div className="tour-pills">
-              {tourCities.map((city, i) => (
-                <span key={`${city}-${i}`} className="tag-pill">
-                  📍 {city}
-                </span>
-              ))}
-            </div>
+        {/* Content */}
+        <div className="reveal-up lg:col-span-3 space-y-6" style={{ animationDelay: "100ms" }}>
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
+            <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance leading-[1.05]">
+              Meet <span className="italic font-light">{name}.</span>
+            </h2>
+            {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
           </div>
-        </section>
 
-        {/* ================= SCREEN 3 — MINDSET & MOVEMENT ================= */}
-        <section id="about" className="screen-slide">
-          <div className="screen-container">
-            <div className="method-hero-header">
-              <p className="section-tag">How We Teach</p>
-              <h2 className="section-title section-title-sm" style={{ marginBottom: 4 }}>
-                Mindset &amp; Movement
-              </h2>
-              <p className="section-desc" style={{ margin: "0 auto", maxWidth: 750 }}>
-                A 4-pillar learning system designed to help absolute beginners and seasoned dancers express, grow, and
-                feel alive.
-              </p>
-            </div>
-
-            <div className="progression-banner-exact">
-              <div className="progression-steps-flow-exact">
-                <div className="prog-step-item-exact">
-                  <span className="num">01</span> Come move with us
-                </div>
-                <span className="prog-arrow-exact">→</span>
-                <div className="prog-step-item-exact">
-                  <span className="num">02</span> Come express with us
-                </div>
-                <span className="prog-arrow-exact">→</span>
-                <div className="prog-step-item-exact">
-                  <span className="num">03</span> Come grow with us
-                </div>
+          {/* Belief · Vision · Mission — always visible */}
+          <div className="grid sm:grid-cols-3 gap-3">
+            {[
+              { k: "Belief", v: belief || "Anyone can dance. It only takes the courage to begin." },
+              { k: "Vision", v: vision || "To make India's movement culture felt on every global stage." },
+              { k: "Mission", v: mission || "Build dancers with craft, confidence and character." },
+            ].map((c) => (
+              <div key={c.k} className="rounded-2xl border border-border bg-card/60 p-5">
+                <p className="text-xs uppercase tracking-widest text-primary">{c.k}</p>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{c.v}</p>
               </div>
-              <div className="prog-banner-tagline-exact">
-                “You do not have to be perfect. You do not have to be trained. You do not have to know everything. You
-                just have to begin.”
-              </div>
-            </div>
-
-            <div className="method-pillars-grid-exact">
-              {PILLARS.map((p) => (
-                <div key={p.title} className="method-pillar-card-exact">
-                  <div className="method-icon-box-exact">{p.icon}</div>
-                  <h3>{p.title}</h3>
-                  <p>{p.desc}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="embedded-posters-strip">
-              {(choreos.slice(0, 3).length ? choreos.slice(0, 3) : [null, null, null]).map((c: any, i: number) => (
-                <div key={c?.id ?? i} className="embedded-poster-card">
-                  {c?.thumbnail_url && <img src={c.thumbnail_url} alt={c.title} loading="lazy" decoding="async" />}
-                  <div className="poster-caption">
-                    {c?.title ??
-                      ["Studio Masterclass Dynamics", "Tejas & Team Live Stage Sync", "Nritya & Rasa Expression"][i]}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="audience-strip-exact">
-              <div>
-                <span className="module-tag">Designed For</span>
-                <h4 style={{ fontSize: "0.9rem", fontWeight: 800 }}>Who Benefits Most?</h4>
-              </div>
-              <div className="audience-tags-container-exact">
-                <span className="audience-pill-exact">🌱 Complete Beginners</span>
-                <span className="audience-pill-exact">🎭 Actors &amp; Performers</span>
-                <span className="audience-pill-exact">🎥 Content Creators</span>
-                <span className="audience-pill-exact">🎓 Dance Teachers</span>
-              </div>
-            </div>
+            ))}
           </div>
-        </section>
 
-        {/* ================= SCREEN 4 — PROGRAMS & STYLES ================= */}
-        <section id="programs" className="screen-slide">
-          <div className="screen-container">
-            <div className="programs-split-container">
-              <div>
-                <p className="section-tag">Programs &amp; Formats</p>
-                <h2 className="section-title section-title-sm">Ways to Train</h2>
-                <p className="section-desc" style={{ marginBottom: 20 }}>
-                  Signature movement experiences tailored for all levels.
-                </p>
 
-                <div className="signature-grid-compact">
-                  {PROGRAMS.map((p) => (
-                    <div
-                      key={p.title}
-                      className="signature-card-compact"
-                      style={p.app ? { borderColor: "var(--dominant-accent)" } : undefined}
-                    >
-                      <div className="card-icon">{p.icon}</div>
-                      <h3>{p.title}</h3>
-                      <p>{p.desc}</p>
-                      {p.app ? (
-                        <a
-                          href="https://dancefitstudio.app"
-                          target="_blank"
-                          rel="noreferrer"
-                          className="app-download-btn"
-                        >
-                          <span>Download App &amp; Register</span> →
-                        </a>
-                      ) : (
-                        <Link
-                          to={p.to}
-                          className="text-[0.75rem] font-bold uppercase tracking-wider"
-                          style={{ color: "var(--dominant-accent)" }}
-                        >
-                          Explore →
-                        </Link>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              <div className="styles-side-panel">
-                <p className="section-tag">Dance Disciplines</p>
-                <h2 className="section-title section-title-sm">Styles on Floor</h2>
-                <p className="section-desc" style={{ marginBottom: 16 }}>
-                  Core styles taught in studio masterclasses &amp; online modules.
-                </p>
-                <div className="styles-list">
-                  {styleItems.slice(0, 7).map((s, i) => (
-                    <div key={`${s}-${i}`} className="style-item">
-                      {s}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            {hasMore && (
+              <button
+                onClick={() => setOpen(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border hover:border-primary hover:text-primary font-medium transition"
+              >
+                Know more <ArrowUpRight size={18} />
+              </button>
+            )}
           </div>
-        </section>
 
-        {/* ================= SCREEN 5 — REGISTER & CONTACT ================= */}
-        <section id="workshops" className="screen-slide">
-          <div className="screen-container">
-            <div style={{ textAlign: "center", marginBottom: 12 }}>
-              <p className="section-tag">Start Moving</p>
-              <h2 className="section-title section-title-sm" style={{ marginBottom: 4 }}>
-                Book Your Experience
-              </h2>
-              <p style={{ color: "var(--muted-accent)", fontSize: "0.88rem" }}>
-                Select single or multiple workshop sessions from the schedule below:
-              </p>
-            </div>
+          {/* Socials stay on homepage */}
+          <div className="flex items-center gap-2 pt-1">
+            {socials.instagram && (
+              <a href={socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                className="p-2.5 rounded-full border border-border hover:border-primary hover:text-primary transition">
+                <Instagram size={16} />
+              </a>
+            )}
+            {socials.youtube && (
+              <a href={socials.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
+                className="p-2.5 rounded-full border border-border hover:border-primary hover:text-primary transition">
+                <Youtube size={16} />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
 
-            <div className="schedule-form-layout">
-              <div className="schedule-table-card">
-                <span className="module-tag">Upcoming Multi-Session Days</span>
+      {/* Full biography modal */}
+      {open && (
+        <div
+          className="modal-fade fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="modal-pop relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border border-border bg-card p-8 lg:p-10 shadow-2xl"
+          >
 
-                {upcoming.slice(0, 2).length === 0 && (
-                  <div className="day-group-card">
-                    <div className="day-header">
-                      <span className="day-date">📅 New dates announced soon</span>
-                    </div>
-                  </div>
-                )}
+              <button
+                onClick={() => setOpen(false)}
+                className="absolute top-4 right-4 h-9 w-9 grid place-items-center rounded-full border border-border hover:border-primary hover:text-primary transition"
+                aria-label="Close"
+              >
+                ✕
+              </button>
 
-                {upcoming.slice(0, 2).map((w) => {
-                  const rows = [
-                    { key: `${w.id}-1`, title: w.workshop_1_name || w.name, time: w.event_time || "10:00 AM – 12:00 PM", price: w.price_inr ?? 1200 },
-                    ...(w.workshop_2_name
-                      ? [{ key: `${w.id}-2`, title: w.workshop_2_name, time: w.event_time_2 || "01:00 PM – 03:00 PM", price: w.price_inr ?? 1200 }]
-                      : []),
-                  ];
-                  return (
-                    <div key={w.id} className="day-group-card">
-                      <div className="day-header">
-                        <span className="day-date">
-                          📅 {fmtDate(w.event_date) ?? "TBA"} • {w.venue || w.name}
-                        </span>
-                        {w.both_workshops_price_inr && <span className="all-access-badge">All-day pass available</span>}
-                      </div>
-                      <div className="session-checkbox-list">
-                        {rows.map((r) => (
-                          <label key={r.key} className={`session-item-option ${picked[r.key] ? "selected" : ""}`}>
-                            <div className="session-info">
-                              <span className="session-title">{r.title}</span>
-                              <span className="session-time">
-                                {r.time}
-                                {w.venue ? ` • ${w.venue}` : ""}
-                              </span>
-                            </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                              <span className="session-price">₹{Number(r.price).toLocaleString("en-IN")}</span>
-                              <input
-                                type="checkbox"
-                                className="custom-checkbox"
-                                checked={!!picked[r.key]}
-                                onChange={(e) => setPicked((p) => ({ ...p, [r.key]: e.target.checked }))}
-                              />
-                            </div>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
+              <h3 className="mt-2 font-display text-3xl lg:text-4xl font-bold">{name}</h3>
 
-              <div className="register-form">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="reg-name">Full Name</label>
-                  <input id="reg-name" type="text" className="form-input" placeholder="e.g. John Doe" />
+              {biography && (
+                <div className="mt-6">
+                  <p className="text-xs uppercase tracking-widest text-primary mb-2">About</p>
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{biography}</p>
                 </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="reg-email">Email Address</label>
-                  <input id="reg-email" type="email" className="form-input" placeholder="e.g. john@email.com" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="reg-phone">WhatsApp Number (For Updates)</label>
-                  <input id="reg-phone" type="tel" className="form-input" placeholder="+91 98765 43210" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label" htmlFor="reg-pass">Pass Preference</label>
-                  <select id="reg-pass" className="form-input">
-                    {upcoming.slice(0, 3).map((w) => (
-                      <option key={w.id} value={w.id}>
-                        {w.name} — ₹{Number(w.price_inr ?? 0).toLocaleString("en-IN")}
-                      </option>
+              )}
+
+              {achievements.length > 0 && (
+                <div className="mt-6">
+                  <p className="text-xs uppercase tracking-widest text-primary mb-3">Dance journey & achievements</p>
+                  <ul className="grid sm:grid-cols-2 gap-2">
+                    {achievements.map((a, i) => (
+                      <li key={i} className="flex gap-2 text-sm text-muted-foreground">
+                        <Sparkles size={14} className="text-primary shrink-0 mt-0.5" />
+                        <span>{a}</span>
+                      </li>
                     ))}
-                    <option value="selected">Selected Individual Sessions (Checked on Left)</option>
-                  </select>
+                  </ul>
                 </div>
-                {nextWorkshop ? (
-                  <Link
-                    to="/workshops/$id"
-                    params={{ id: nextWorkshop.id }}
-                    className="btn btn-primary"
-                    style={{ marginTop: 6, justifyContent: "center" }}
-                  >
-                    Register &amp; Pay Now ↗
-                  </Link>
-                ) : (
-                  <Link to="/workshops" className="btn btn-primary" style={{ marginTop: 6, justifyContent: "center" }}>
-                    Register &amp; Pay Now ↗
-                  </Link>
-                )}
-              </div>
-            </div>
+              )}
 
-            <div className="company-contact-banner">
-              <div className="company-contact-item">
-                <strong>🏢 Office Address:</strong> TEJ Dance Movements, Bandra West, Mumbai, India - 400050
-              </div>
-              <div className="company-contact-item">
-                <strong>📞 Contact:</strong> <Link to="/contact">Get in touch</Link>
-              </div>
-              <div className="company-contact-item">
-                <strong>✉️ Email:</strong> contact@tejmoves.com
-              </div>
-            </div>
+              {(belief || vision || mission) && (
+                <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {belief && (
+                    <div className="rounded-2xl border border-border bg-background p-5">
+                      <p className="text-xs uppercase tracking-widest text-primary">Belief</p>
+                      <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{belief}</p>
+                    </div>
+                  )}
+                  {vision && (
+                    <div className="rounded-2xl border border-border bg-background p-5">
+                      <p className="text-xs uppercase tracking-widest text-primary">Vision</p>
+                      <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{vision}</p>
+                    </div>
+                  )}
+                  {mission && (
+                    <div className="rounded-2xl border border-border bg-background p-5">
+                      <p className="text-xs uppercase tracking-widest text-primary">Mission</p>
+                      <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{mission}</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
-            <footer style={{ marginTop: 16, textAlign: "center", color: "var(--muted-accent)", fontSize: "0.78rem" }}>
-              <p>© {new Date().getFullYear()} Tejas D Dhoke. All rights reserved.</p>
-            </footer>
           </div>
-        </section>
-      </HorizontalPager>
-    </div>
+        </div>
+      )}
+
+    </section>
   );
 }
