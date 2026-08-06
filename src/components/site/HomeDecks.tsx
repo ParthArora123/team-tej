@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Calendar, MapPin, ArrowUpRight, Play } from "lucide-react";
+import { Calendar, MapPin, ArrowUpRight, Play, Navigation as NavigationIcon } from "lucide-react";
+import { buildMapsUrl } from "@/lib/maps-link";
+
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { useEffect, useRef, useState } from "react";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
