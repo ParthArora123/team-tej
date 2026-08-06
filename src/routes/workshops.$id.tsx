@@ -95,10 +95,10 @@ function DanceMotionCanvas() {
       ctx.globalAlpha = alpha;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      ctx.shadowColor = "rgba(219,145,82, 0.62)";
+      ctx.shadowColor = "rgba(208,211,214,0.62)";
       ctx.shadowBlur = 18 * scale;
-      ctx.strokeStyle = "rgba(245,241,234, 0.9)";
-      ctx.fillStyle = "rgba(245,241,234, 0.84)";
+      ctx.strokeStyle = "rgba(243,242,238,0.9)";
+      ctx.fillStyle = "rgba(243,242,238,0.84)";
       ctx.lineWidth = 8 * scale;
 
       ctx.beginPath();
@@ -133,9 +133,9 @@ function DanceMotionCanvas() {
       ctx.clearRect(0, 0, width, height);
 
       const base = ctx.createLinearGradient(0, 0, width, height);
-      base.addColorStop(0, "rgba(8,5,4, 0.72)");
-      base.addColorStop(0.5, "rgba(18,12,9, 0.58)");
-      base.addColorStop(1, "rgba(8,5,4, 0.8)");
+      base.addColorStop(0, "rgba(18,18,18,0.72)");
+      base.addColorStop(0.5, "rgba(18,18,18,0.58)");
+      base.addColorStop(1, "rgba(18,18,18,0.8)");
       ctx.fillStyle = base;
       ctx.fillRect(0, 0, width, height);
 
@@ -145,9 +145,9 @@ function DanceMotionCanvas() {
         ctx.translate(width * (0.18 + i * 0.16) + rayShift, -height * 0.08);
         ctx.rotate((-18 + i * 9 + Math.sin(t * 0.08 + i) * 3) * Math.PI / 180);
         const ray = ctx.createLinearGradient(0, 0, 0, height * 1.2);
-        ray.addColorStop(0, "rgba(212,130,41, 0.24)");
-        ray.addColorStop(0.62, "rgba(212,130,41, 0.09)");
-        ray.addColorStop(1, "rgba(212,130,41, 0)");
+        ray.addColorStop(0, "rgba(231,223,206,0.24)");
+        ray.addColorStop(0.62, "rgba(231,223,206,0.09)");
+        ray.addColorStop(1, "rgba(231,223,206,0)");
         ctx.fillStyle = ray;
         ctx.beginPath();
         ctx.moveTo(-width * 0.035, 0);
@@ -163,8 +163,8 @@ function DanceMotionCanvas() {
         const py = ((p.y * height - (t * p.speed * height * 0.22)) % (height + 80) + height + 80) % (height + 80) - 40;
         const px = p.x * width + Math.sin(t * 0.45 + p.phase) * p.sway;
         ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = "rgba(219,145,82, 0.82)";
-        ctx.shadowColor = "rgba(212,130,41, 0.55)";
+        ctx.fillStyle = "rgba(208,211,214,0.82)";
+        ctx.shadowColor = "rgba(231,223,206,0.55)";
         ctx.shadowBlur = 9;
         ctx.beginPath();
         ctx.arc(px, py, p.r, 0, Math.PI * 2);
@@ -176,9 +176,9 @@ function DanceMotionCanvas() {
       dancers.forEach((d) => drawDancer(width * d.x, height * d.y, d.s * Math.min(width / 1280, 1.05), t * d.speed + d.phase, d.alpha));
 
       const vignette = ctx.createRadialGradient(width * 0.5, height * 0.42, height * 0.18, width * 0.5, height * 0.52, height * 0.76);
-      vignette.addColorStop(0, "rgba(0,0,0,0.02)");
-      vignette.addColorStop(0.72, "rgba(0,0,0,0.22)");
-      vignette.addColorStop(1, "rgba(0,0,0,0.52)");
+      vignette.addColorStop(0, "rgba(18,18,18,0.02)");
+      vignette.addColorStop(0.72, "rgba(18,18,18,0.22)");
+      vignette.addColorStop(1, "rgba(18,18,18,0.52)");
       ctx.fillStyle = vignette;
       ctx.fillRect(0, 0, width, height);
       frame = requestAnimationFrame(render);
@@ -267,21 +267,21 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
             className="h-full w-full object-cover opacity-[0.34]"
           />
         ) : (
-          <div className="h-full w-full bg-[radial-gradient(ellipse_at_50%_36%,rgba(212,130,41,0.22),transparent_58%),linear-gradient(135deg,rgba(18,12,9,0.68),rgba(5,3,1,0.92)_58%,rgba(219,145,82,0.38))]" />
+          <div className="h-full w-full bg-[radial-gradient(ellipse_at_50%_36%,rgba(231,223,206,0.22),transparent_58%),linear-gradient(135deg,rgba(18,18,18,0.68),rgba(18,18,18,0.92)_58%,rgba(208,211,214,0.38))]" />
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/40 to-background/78" />
       </motion.div>
 
       <div className="absolute -left-[18%] top-[6%] h-[46rem] w-[46rem] rounded-full opacity-40 blur-3xl wlb-drift-a"
-        style={{ background: "radial-gradient(circle, rgba(212,130,41,0.35), transparent 68%)" }} />
+        style={{ background: "radial-gradient(circle, rgba(231,223,206,0.35), transparent 68%)" }} />
       <div className="absolute -right-[14%] bottom-[4%] h-[52rem] w-[52rem] rounded-full opacity-35 blur-3xl wlb-drift-b"
-        style={{ background: "radial-gradient(circle, rgba(219,145,82,0.42), transparent 70%)" }} />
+        style={{ background: "radial-gradient(circle, rgba(208,211,214,0.42), transparent 70%)" }} />
 
       <div className="absolute inset-0">
         {particles.map((p, i) => (
           <span
             key={i}
-            className="absolute rounded-full bg-primary shadow-[0_0_10px_rgba(212,130,41,0.45)] wlb-particle"
+            className="absolute rounded-full bg-primary shadow-[0_0_10px_rgba(231,223,206,0.45)] wlb-particle"
             style={
               {
                 left: `${p.x}%`,
@@ -324,7 +324,7 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
         ))}
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 h-[42vh] bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-[42vh] bg-gradient-to-t from-jet/55 via-black/15 to-transparent" />
 
       <style>{`
         .wlb-drift-a { animation: wlb-drift-a 60s ease-in-out infinite; will-change: transform; }
@@ -545,7 +545,7 @@ function WorkshopDetailPage() {
               <img src={heroMedia.media_url} alt="" loading="eager" fetchPriority="high" className="w-full h-full object-cover opacity-[0.16] scale-105 transform-gpu" />
             )
           ) : null}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,130,41,0.12),transparent_62%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(231,223,206,0.12),transparent_62%)]" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/34 via-background/18 to-background/42" />
         </motion.div>
 
@@ -557,7 +557,7 @@ function WorkshopDetailPage() {
             </Link>
 
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/40 bg-surface/55 shadow-[0_10px_30px_-20px_rgba(219,145,82,0.55)]">
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/40 bg-surface/55 shadow-[0_10px_30px_-20px_rgba(208,211,214,0.55)]">
               <Sparkles size={12} className="text-primary" />
               <span className="text-[10px] tracking-[0.3em] uppercase text-primary">
                 {program.category ?? "Featured Workshop"}
@@ -566,7 +566,7 @@ function WorkshopDetailPage() {
 
             <motion.div
               initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.05 }}
-              className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-primary/50 bg-gradient-to-r from-primary/15 to-primary/8 px-4 py-2 shadow-[0_0_40px_-12px_rgba(212,130,41,0.45)] backdrop-blur-md">
+              className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-primary/50 bg-gradient-to-r from-primary/15 to-primary/8 px-4 py-2 shadow-[0_0_40px_-12px_rgba(231,223,206,0.45)] backdrop-blur-md">
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20 text-primary">
                 <User size={14} strokeWidth={2.5} />
               </div>
@@ -606,7 +606,7 @@ function WorkshopDetailPage() {
               <button
                 onClick={scrollToRegister}
                 disabled={full}
-                className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-primary via-primary to-accent text-primary-foreground text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(212,130,41,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
+                className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-primary via-primary to-accent text-primary-foreground text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(231,223,206,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
               >
                 <Sparkles size={16} />
                 {full ? "Sold Out" : "Register Now"}
@@ -628,8 +628,8 @@ function WorkshopDetailPage() {
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="relative mx-auto w-full max-w-md aspect-[4/5] [perspective:1400px]"
           >
-            <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(212,130,41,0.35),transparent_65%)] blur-2xl" />
-            <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden border border-primary/40 shadow-[0_40px_100px_-30px_rgba(212,130,41,0.5)] bg-black">
+            <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(231,223,206,0.35),transparent_65%)] blur-2xl" />
+            <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden border border-primary/40 shadow-[0_40px_100px_-30px_rgba(231,223,206,0.5)] bg-jet">
               {heroMedia?.media_kind === "video" && heroMedia.media_url ? (
                 <video src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
                   autoPlay muted loop playsInline preload="auto"
@@ -645,7 +645,7 @@ function WorkshopDetailPage() {
               <div className="pointer-events-none absolute top-4 right-4 w-10 h-10 border-t border-r border-primary/70 rounded-tr-lg" />
               <div className="pointer-events-none absolute bottom-4 left-4 w-10 h-10 border-b border-l border-primary/70 rounded-bl-lg" />
               <div className="pointer-events-none absolute bottom-4 right-4 w-10 h-10 border-b border-r border-primary/70 rounded-br-lg" />
-              <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+              <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-jet/90 via-black/50 to-transparent">
                 <p className="text-[10px] tracking-[0.3em] uppercase text-primary">Tejas D Dhoke Presents</p>
                 <p className="font-display text-xl text-primary mt-1" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                   {program.name}
@@ -665,7 +665,7 @@ function WorkshopDetailPage() {
       </section>
 
       {countdown && !countdown.done && (
-        <section id="countdown" className="relative py-14 border-y border-primary/15 bg-black/48">
+        <section id="countdown" className="relative py-14 border-y border-primary/15 bg-jet/48">
           <div className="max-w-5xl mx-auto px-6 flex flex-col items-center gap-6">
             <p className="text-[11px] tracking-[0.4em] uppercase text-primary">The Workshop Starts In</p>
             <div className="grid grid-cols-4 gap-3 sm:gap-8">
@@ -677,7 +677,7 @@ function WorkshopDetailPage() {
               ].map((c, i) => (
                 <div key={c.l} className="text-center">
                   <div className="relative">
-                    <p className="font-display text-4xl sm:text-6xl font-semibold text-primary tabular-nums drop-shadow-[0_4px_20px_rgba(212,130,41,0.4)]"
+                    <p className="font-display text-4xl sm:text-6xl font-semibold text-primary tabular-nums drop-shadow-[0_4px_20px_rgba(231,223,206,0.4)]"
                        style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {String(c.v).padStart(2, "0")}
                     </p>
@@ -718,8 +718,8 @@ function WorkshopDetailPage() {
               <motion.div key={c.label}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="group relative rounded-2xl border border-primary/25 bg-gradient-to-b from-background/28 to-black/72 p-8 text-center overflow-hidden hover:border-primary/60 hover:shadow-[0_20px_60px_-20px_rgba(212,130,41,0.4)] transition-all">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,130,41,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                className="group relative rounded-2xl border border-primary/25 bg-gradient-to-b from-background/28 to-jet/72 p-8 text-center overflow-hidden hover:border-primary/60 hover:shadow-[0_20px_60px_-20px_rgba(231,223,206,0.4)] transition-all">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(231,223,206,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
                 <c.icon className="mx-auto text-primary" size={28} />
                 <p className="mt-4 text-[11px] tracking-[0.3em] uppercase text-primary">{c.label}</p>
                 <p className="mt-3 font-display text-2xl text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>{c.main}</p>
@@ -735,10 +735,10 @@ function WorkshopDetailPage() {
         <section className="relative py-24">
           <div className="max-w-6xl mx-auto px-6">
             <SectionHeader eyebrow="Moments" title="The Experience" />
-            <div className="mt-12 relative rounded-3xl overflow-hidden border border-primary/30 aspect-video bg-black shadow-[0_30px_80px_-30px_rgba(212,130,41,0.4)]">
+            <div className="mt-12 relative rounded-3xl overflow-hidden border border-primary/30 aspect-video bg-jet shadow-[0_30px_80px_-30px_rgba(231,223,206,0.4)]">
               {heroMedia?.media_kind === "video" ? (
                 <video key={heroMedia.media_url ?? ""} src={heroMedia.media_url ?? undefined} poster={heroMedia.poster_url ?? undefined}
-                       controls playsInline className="w-full h-full object-contain bg-black" />
+                       controls playsInline className="w-full h-full object-contain bg-jet" />
               ) : heroMedia?.media_url ? (
                 <img src={heroMedia.media_url} alt="" className="w-full h-full object-cover lg:object-contain" />
               ) : null}
@@ -747,7 +747,7 @@ function WorkshopDetailPage() {
               <div className="mt-4 flex gap-3 overflow-x-auto pb-2 snap-x">
                 {galleryItems.map((m, i) => (
                   <button key={m.id} onClick={() => setHeroIdx(i)}
-                    className={`relative shrink-0 h-20 w-32 rounded-lg overflow-hidden bg-black snap-start border-2 transition ${i === heroIdx ? "border-primary shadow-[0_0_20px_rgba(212,130,41,0.5)]" : "border-primary/10 hover:border-primary/40"}`}>
+                    className={`relative shrink-0 h-20 w-32 rounded-lg overflow-hidden bg-jet snap-start border-2 transition ${i === heroIdx ? "border-primary shadow-[0_0_20px_rgba(231,223,206,0.5)]" : "border-primary/10 hover:border-primary/40"}`}>
                     {m.media_kind === "video" ? (
                       <>
                         <video src={m.media_url ?? undefined} poster={m.poster_url ?? undefined} muted playsInline preload="metadata" className="w-full h-full object-contain" />
@@ -772,9 +772,9 @@ function WorkshopDetailPage() {
             {allowSingle && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
-                className="relative rounded-3xl border border-primary/40 bg-gradient-to-b from-background/40 to-black/90 p-8 shadow-[0_30px_80px_-30px_rgba(212,130,41,0.35)]"
+                className="relative rounded-3xl border border-primary/40 bg-gradient-to-b from-background/40 to-jet/90 p-8 shadow-[0_30px_80px_-30px_rgba(231,223,206,0.35)]"
               >
-                <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(212,130,41,0.25),transparent_70%)] blur-2xl" />
+                <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(231,223,206,0.25),transparent_70%)] blur-2xl" />
                 <div className="relative">
                   <p className="text-[11px] tracking-[0.35em] uppercase text-primary">Single Workshop</p>
                   <h3 className="mt-3 font-display text-3xl text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Individual Entry</h3>
@@ -782,7 +782,7 @@ function WorkshopDetailPage() {
 
                   <div className="mt-6 flex items-baseline gap-1">
                     <span className="text-primary text-xl">₹</span>
-                    <span className="font-display text-5xl font-semibold text-primary drop-shadow-[0_6px_30px_rgba(212,130,41,0.5)]" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                    <span className="font-display text-5xl font-semibold text-primary drop-shadow-[0_6px_30px_rgba(231,223,206,0.5)]" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {singlePrice.toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -811,9 +811,9 @@ function WorkshopDetailPage() {
             {allowBoth && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
-                className="relative rounded-3xl border border-primary/60 bg-gradient-to-b from-background/48 to-black/88 p-8 shadow-[0_30px_80px_-20px_rgba(212,130,41,0.5)]"
+                className="relative rounded-3xl border border-primary/60 bg-gradient-to-b from-background/48 to-jet/88 p-8 shadow-[0_30px_80px_-20px_rgba(231,223,206,0.5)]"
               >
-                <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(212,130,41,0.35),transparent_70%)] blur-2xl" />
+                <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(231,223,206,0.35),transparent_70%)] blur-2xl" />
                 <div className="relative">
                   {allowSingle && (
                     <div className="absolute -top-2 -right-2 rotate-12 px-3 py-1 rounded-md bg-gradient-to-b from-primary to-primary text-primary-foreground text-[10px] font-black tracking-widest shadow-lg">
@@ -826,7 +826,7 @@ function WorkshopDetailPage() {
 
                   <div className="mt-6 flex items-baseline gap-1">
                     <span className="text-primary text-xl">₹</span>
-                    <span className="font-display text-5xl font-semibold text-primary drop-shadow-[0_6px_30px_rgba(212,130,41,0.5)]" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                    <span className="font-display text-5xl font-semibold text-primary drop-shadow-[0_6px_30px_rgba(231,223,206,0.5)]" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {bothPrice.toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -884,7 +884,7 @@ function WorkshopDetailPage() {
               <motion.div key={s.n}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.07 }}
-                className="group relative rounded-2xl border border-primary/20 bg-black/52 p-5 text-center hover:border-primary/60 hover:-translate-y-1 transition-all">
+                className="group relative rounded-2xl border border-primary/20 bg-jet/52 p-5 text-center hover:border-primary/60 hover:-translate-y-1 transition-all">
                 <p className="font-display text-4xl text-primary/90" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                   Step {s.n}
                 </p>
@@ -901,13 +901,13 @@ function WorkshopDetailPage() {
           <div className="max-w-6xl mx-auto px-6">
             <SectionHeader eyebrow="Reach The Studio" title="Location & Directions" />
             <div className="mt-14 grid lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 rounded-3xl overflow-hidden border border-primary/30 aspect-[16/10] bg-black shadow-[0_30px_80px_-30px_rgba(212,130,41,0.4)]">
+              <div className="lg:col-span-2 rounded-3xl overflow-hidden border border-primary/30 aspect-[16/10] bg-jet shadow-[0_30px_80px_-30px_rgba(231,223,206,0.4)]">
                 {mapsEmbed && (
                   <iframe title="Venue map" src={mapsEmbed} loading="lazy" referrerPolicy="no-referrer-when-downgrade"
                     className="w-full h-full border-0 grayscale-[40%] contrast-125" allowFullScreen />
                 )}
               </div>
-              <div className="rounded-3xl border border-primary/30 bg-gradient-to-b from-background/38 to-black/82 p-8 flex flex-col">
+              <div className="rounded-3xl border border-primary/30 bg-gradient-to-b from-background/38 to-jet/82 p-8 flex flex-col">
                 <MapPin className="text-primary" size={22} />
                 <p className="mt-3 text-[11px] tracking-[0.3em] uppercase text-primary">Venue</p>
                 <p className="mt-2 font-display text-2xl text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
@@ -942,8 +942,8 @@ function WorkshopDetailPage() {
               <motion.div key={c.label}
                 initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="group relative rounded-2xl border border-primary/25 bg-gradient-to-b from-background/40 to-black/80 p-6 text-center hover:border-primary/60 hover:-translate-y-1 transition-all">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(212,130,41,0.12),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+                className="group relative rounded-2xl border border-primary/25 bg-gradient-to-b from-background/40 to-jet/80 p-6 text-center hover:border-primary/60 hover:-translate-y-1 transition-all">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(231,223,206,0.12),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
                 <div className="relative mx-auto h-12 w-12 rounded-xl flex items-center justify-center bg-primary/10 text-primary mb-4">
                   <c.icon size={22} />
                 </div>
@@ -975,7 +975,7 @@ function WorkshopDetailPage() {
           </p>
           <div className="mt-12">
             {full ? (
-              <div className="max-w-2xl mx-auto text-center rounded-2xl border border-primary/30 bg-black/60 p-10 text-primary/70">
+              <div className="max-w-2xl mx-auto text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70">
                 This workshop is sold out.
               </div>
             ) : (

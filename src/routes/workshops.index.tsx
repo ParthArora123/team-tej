@@ -19,7 +19,7 @@ export const Route = createFileRoute("/workshops/")({ component: WorkshopsPage }
 function WorkshopBanner({ r }: { r: any }) {
   if (r.banner_video_url) {
     return (
-      <div className="relative w-full aspect-[4/5] overflow-hidden bg-black">
+      <div className="relative w-full aspect-[4/5] overflow-hidden bg-jet">
         {r.banner_url && (
           <img src={r.banner_url} alt="" aria-hidden className="blur-backdrop-wide opacity-70" />
         )}
@@ -31,25 +31,25 @@ function WorkshopBanner({ r }: { r: any }) {
           className="absolute inset-0 w-full h-full object-contain"
         />
 
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-jet/60 via-transparent to-transparent" />
       </div>
     );
   }
   if (r.banner_gif_url) {
     return (
-      <div className="relative w-full aspect-[4/5] overflow-hidden bg-black">
+      <div className="relative w-full aspect-[4/5] overflow-hidden bg-jet">
         <img src={r.banner_gif_url} alt={r.name} loading="lazy" decoding="async"
           className="w-full h-full object-cover lg:object-contain object-top transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-jet/60 via-transparent to-transparent" />
       </div>
     );
   }
   if (r.banner_url) {
     return (
-      <div className="relative w-full aspect-[4/5] overflow-hidden bg-black">
+      <div className="relative w-full aspect-[4/5] overflow-hidden bg-jet">
         <img src={r.banner_url} alt={r.name} loading="lazy" decoding="async"
           className="w-full h-full object-cover lg:object-contain object-top transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-jet/60 via-transparent to-transparent" />
       </div>
     );
   }
@@ -132,23 +132,23 @@ function WorkshopsPage() {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.7, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
               >
-                <TiltCard className="group relative rounded-3xl border border-white/10 bg-card/40 backdrop-blur-2xl overflow-hidden shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)] hover:shadow-[0_40px_120px_-30px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-shadow duration-500 h-full flex flex-col">
+                <TiltCard className="group relative rounded-3xl border border-alabaster/10 bg-card/40 backdrop-blur-2xl overflow-hidden shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)] hover:shadow-[0_40px_120px_-30px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-shadow duration-500 h-full flex flex-col">
                   <Link to="/workshops/$id" params={{ id: r.id }} className="relative block">
                     <WorkshopBanner r={r} />
                     {scarcity && (
                       <motion.div
                         initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
-                        className="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur text-white text-[10px] uppercase tracking-wider font-semibold shadow-lg"
+                        className="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/90 backdrop-blur text-alabaster text-[10px] uppercase tracking-wider font-semibold shadow-lg"
                       >
                         <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
                         Only {seatsLeft} left
                       </motion.div>
                     )}
                     {full && (
-                      <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-foreground/70 backdrop-blur text-white text-[10px] uppercase tracking-wider">Sold out</div>
+                      <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-foreground/70 backdrop-blur text-alabaster text-[10px] uppercase tracking-wider">Sold out</div>
                     )}
                     {r.category && (
-                      <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white text-[10px] uppercase tracking-widest">
+                      <div className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-full bg-alabaster/10 backdrop-blur border border-alabaster/20 text-alabaster text-[10px] uppercase tracking-widest">
                         {r.category}
                       </div>
                     )}
