@@ -116,16 +116,36 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
 
 
 export function WorkshopDeck({ workshops }: { workshops: any[] }) {
+  const [sel, setSel] = useState<EnrollClass | null>(null);
   if (!workshops.length) return null;
 
+  const toEnroll = (w: any): EnrollClass => ({
+    id: w.id,
+    name: w.name,
+    price: Number(w.price_inr),
+    duration: w.duration ?? "",
+    silverSeatEnabled: !!w.silver_seat_enabled,
+    silverSeatPrice: w.silver_seat_price ?? 1000,
+    allowSingle: w.allow_single !== false,
+    allowBoth: !!w.allow_both,
+    bothPrice: w.both_price ?? null,
+    workshop1Name: w.workshop1_name ?? null,
+    workshop2Name: w.workshop2_name ?? null,
+    eventTime: w.event_time ?? null,
+  });
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      {workshops.map((w) => (
-        <WorkshopCard key={w.id} w={w} />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {workshops.map((w) => (
+          <WorkshopCard key={w.id} w={w} onRegister={(ws) => setSel(toEnroll(ws))} />
+        ))}
+      </div>
+      <EnrollDialog klass={sel} onClose={() => setSel(null)} />
+    </>
   );
 }
+
 
 /* -------------------------------- REELS -------------------------------- */
 
