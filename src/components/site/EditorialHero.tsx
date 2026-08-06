@@ -45,101 +45,11 @@ export function EditorialHero({
   const [open, setOpen] = useState(false);
   const hasMore = Boolean(biography || achievements.length);
 
-  const upcoming = useMemo(() => {
-    const today = new Date(new Date().toDateString());
-    return (workshops || [])
-      .filter((w) => w.event_date && new Date(w.event_date) >= today)
-      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
-  }, [workshops]);
-
-  const next = upcoming[0] ?? null;
-  const tour = upcoming.slice(1, 4);
-
   const columns = [
-    { k: "Philosophy", t: "Belief", v: belief },
-    { k: "Purpose", t: "Vision", v: vision },
-    { k: "Mission", t: "Movement that Transforms", v: mission },
+    { k: "Philosophy", t: "Our Belief", v: belief },
+    { k: "Purpose", t: "Our Vision", v: vision },
   ];
 
-  const workshopPanel = (
-    <article className="ed-rise ed-card group flex h-full flex-col overflow-hidden p-0 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_28px_70px_-30px_color-mix(in_oklab,var(--foreground)_45%,transparent)]" style={{ animationDelay: "300ms" }}>
-      {next?.banner_url && (
-        <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden lg:aspect-auto lg:min-h-[34%] lg:flex-1">
-          <img src={next.banner_url} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover opacity-60 blur-2xl" />
-          <img
-            src={next.banner_url}
-            alt={next.name}
-            loading="lazy"
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-contain transition-transform duration-700 group-hover:scale-[1.03]"
-          />
-        </div>
-      )}
-
-      <div className={`flex flex-col p-5 ${next?.banner_url ? "" : "flex-1 justify-center"}`}>
-        <p className="ed-eyebrow">Next Studio Day{next?.city ? ` · ${next.city}` : ""}</p>
-        <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold leading-snug">
-          {next ? next.name : "New dates dropping soon"}
-        </h2>
-
-        {next && (
-          <div className="mt-3 grid gap-2 text-[12.5px] text-muted-foreground">
-            <span className="inline-flex items-center gap-2">
-              <Calendar size={13} className="shrink-0 text-primary" />
-              {new Date(next.event_date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "long", year: "numeric" })}
-            </span>
-            {next.event_time && (
-              <span className="inline-flex items-center gap-2">
-                <Clock size={13} className="shrink-0 text-primary" /> {next.event_time}
-              </span>
-            )}
-            {next.venue && (
-              <a
-                href={buildMapsUrl(next.venue) ?? undefined}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-start gap-2 underline-offset-2 transition hover:text-primary hover:underline"
-              >
-                <MapPin size={13} className="mt-0.5 shrink-0 text-primary" /> <span className="min-w-0">{next.venue}</span>
-              </a>
-            )}
-          </div>
-        )}
-
-        {next?.description && (
-          <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground line-clamp-3">{next.description}</p>
-        )}
-
-        {next?.venue && (
-          <a
-            href={buildMapsUrl(next.venue) ?? undefined}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition hover:border-primary hover:text-primary"
-          >
-            <NavigationIcon size={11} /> Get Directions
-          </a>
-        )}
-
-        {next ? (
-          <Link
-            to="/workshops/$id"
-            params={{ id: String(next.id) }}
-            className="ed-cta mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]"
-          >
-            Register Now <ArrowUpRight size={13} />
-          </Link>
-        ) : (
-          <Link
-            to="/workshops"
-            className="ed-cta mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]"
-          >
-            See all workshops <ArrowUpRight size={13} />
-          </Link>
-        )}
-      </div>
-    </article>
-  );
 
   return (
     <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-8 lg:pt-20 lg:pb-10">
