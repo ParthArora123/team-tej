@@ -165,8 +165,9 @@ export function EditorialHero({
             </p>
           </header>
 
-          <div className="relative z-30 mt-4 flex flex-col lg:mt-4 lg:min-h-0 lg:flex-1">
-            <div className="relative isolate z-30 lg:min-h-0 lg:flex-1">
+          <div className="relative z-30 mt-4 flex flex-col lg:mt-4">
+            <div className="relative isolate z-30">
+
               <div aria-hidden className="cine-spot" />
               <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
             </div>
