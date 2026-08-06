@@ -373,7 +373,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:absolute lg:inset-0 lg:aspect-auto lg:h-full lg:w-full lg:max-w-none"
+      className="ed-rise ed-frame relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:aspect-auto lg:h-full lg:max-w-none"
       style={{ animationDelay: "180ms" }}
     >
       <img
