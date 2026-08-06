@@ -627,6 +627,7 @@ function Index() {
 
       {/* SCREEN 2 — Iconic Work: Choreographies & World Tour */}
       <Chapter index={2} total={5} kicker="Iconic Work — Choreographies & World Tour">
+        <FounderSection founder={founder} />
         <CinematicShowreel choreos={choreos} workshops={workshops} />
 
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
@@ -817,7 +818,6 @@ function Index() {
         </div>
       </section>
 
-      <FounderSection founder={founder} />
       </Chapter>
 
       {/* SCREEN 4 — Programs & Styles */}
@@ -1212,7 +1212,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
             <Play size={12} /> Iconic Work
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
-            Choreographies & <span className="italic font-light">World Tour.</span>
+            Our Most Viral <span className="italic font-light">Choreographies.</span>
           </h2>
         </div>
 
@@ -1316,19 +1316,6 @@ function FounderSection({ founder }: { founder: any | null }) {
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
           </div>
 
-          {/* Belief · Vision · Mission — always visible */}
-          <div className="grid sm:grid-cols-3 gap-3">
-            {[
-              { k: "Belief", v: belief || "Anyone can dance. It only takes the courage to begin." },
-              { k: "Vision", v: vision || "To make India's movement culture felt on every global stage." },
-              { k: "Mission", v: mission || "Build dancers with craft, confidence and character." },
-            ].map((c) => (
-              <div key={c.k} className="rounded-2xl border border-border bg-card/60 p-5">
-                <p className="text-xs uppercase tracking-widest text-primary">{c.k}</p>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{c.v}</p>
-              </div>
-            ))}
-          </div>
 
 
 
@@ -1338,7 +1325,7 @@ function FounderSection({ founder }: { founder: any | null }) {
                 onClick={() => setOpen(true)}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border hover:border-primary hover:text-primary font-medium transition"
               >
-                Know more <ArrowUpRight size={18} />
+                Know My Journey <ArrowUpRight size={18} />
               </button>
             )}
           </div>
