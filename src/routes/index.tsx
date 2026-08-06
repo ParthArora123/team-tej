@@ -623,6 +623,7 @@ function Index() {
           onExplore={() => goToHomeSection("workshops", "/workshops")}
           onWatch={() => goToHomeSection("showcase", "/#showcase")}
         />
+        <FounderSection founder={founder} />
       </Chapter>
 
       {/* SCREEN 2 — Iconic Work: Choreographies & World Tour */}
@@ -816,8 +817,6 @@ function Index() {
           </div>
         </div>
       </section>
-
-      <FounderSection founder={founder} />
       </Chapter>
 
       {/* SCREEN 4 — Programs & Styles */}
@@ -1212,7 +1211,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
             <Play size={12} /> Iconic Work
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
-            Choreographies & <span className="italic font-light">World Tour.</span>
+            Our Most Viral <span className="italic font-light">Choreographies.</span>
           </h2>
         </div>
 
