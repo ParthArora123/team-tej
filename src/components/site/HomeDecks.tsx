@@ -104,7 +104,7 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
                 onClick={(e) => e.stopPropagation()}
                 className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition hover:text-primary"
               >
-                <Navigation size={10} /> Get Directions
+                <NavigationIcon size={10} /> Get Directions
               </a>
             </div>
           )}
