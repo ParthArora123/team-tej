@@ -3,6 +3,7 @@ import { Calendar, MapPin, ArrowUpRight, Play } from "lucide-react";
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { useEffect, useRef, useState } from "react";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
+import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
 function ReelVideo({ src, poster, active, title }: { src: string; poster?: string | null; active: boolean; title: string }) {
   const ref = useRef<HTMLVideoElement>(null);
