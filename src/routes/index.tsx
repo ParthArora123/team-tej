@@ -1314,7 +1314,13 @@ function FounderSection({ founder }: { founder: any | null }) {
               Meet <span className="italic font-light">{name}.</span>
             </h2>
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
+            {biography && (
+              <p className="mt-4 text-muted-foreground leading-relaxed max-w-2xl whitespace-pre-line line-clamp-6">
+                {biography}
+              </p>
+            )}
           </div>
+
 
 
 
