@@ -757,7 +757,7 @@ function Index() {
             {["Come move with us", "Come express with us", "Come grow with us"].map((step, i) => (
               <div key={step} className="flex items-center gap-3 lg:gap-5">
                 <div className="ed-pill flex items-center gap-2 text-sm font-semibold">
-                  <span className="font-display text-primary tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="font-display df-gradient-text tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                   {step}
                 </div>
                 {i < 2 && <span aria-hidden className="text-muted-foreground">&rarr;</span>}
