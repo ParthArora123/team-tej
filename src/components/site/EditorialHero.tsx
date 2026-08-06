@@ -317,9 +317,27 @@ export function EditorialHero({
   );
 }
 
+/**
+ * Tiny inlined WebP of the hero portrait (208 bytes). It paints on the very
+ * first frame with zero network cost, so the frame is never empty and never
+ * shows a broken-image glyph while the full-size portrait streams in.
+ */
+const HERO_LQIP =
+  "data:image/webp;base64,UklGRsgAAABXRUJQVlA4ILwAAACQBgCdASoYACQAPrVUoUynJKMiKrgKAOAWiWcAzu2LGOrXCeLgFuSrTZX4ZknjnbfTfw2jufWLM6VDyckAAP6XxzNOFXdGBWxS/37jYN0Ut0kY9HXKco15NJdq83Y3DXreKaIuN4vcj+lzSgD60F/11m/O5PAATv7ZaRuI4ILkFtjLpDZROCvVVqWEbKCS8GsqMa5zvRRjzdY8X52uq7T8zMJUW3OXI2Fmjl5nY5xzkxtEhNKzfOSJySIAAA==";
+
 function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: string[]; alt: string; onReady?: () => void }) {
   const [idx, setIdx] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // A new source starts as "not loaded" again so the blurred placeholder
+  // covers the swap instead of flashing an empty box.
+  useEffect(() => {
+    setLoaded(false);
+    setFailed(false);
+  }, [image]);
+
 
   useEffect(() => {
     if (clips.length < 2) return;
