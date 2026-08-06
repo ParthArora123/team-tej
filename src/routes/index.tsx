@@ -624,11 +624,11 @@ function Index() {
           onWatch={() => goToHomeSection("showcase", "/#showcase")}
         />
         <FounderSection founder={founder} />
+        <CinematicShowreel choreos={choreos} workshops={workshops} />
       </Chapter>
 
-      {/* SCREEN 2 — Iconic Work: Choreographies & World Tour */}
-      <Chapter index={2} total={5} kicker="Iconic Work — Choreographies & World Tour">
-        <CinematicShowreel choreos={choreos} workshops={workshops} />
+      {/* SCREEN 2 — Iconic Work: World Tour */}
+      <Chapter index={2} total={5} kicker="Iconic Work — World Tour">
 
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
 
