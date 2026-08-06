@@ -48,9 +48,6 @@ const FeaturedPerformances = lazy(() =>
 const SignatureProgramsGrid = lazy(() =>
   import("@/components/site/HomeSectionCards").then((m) => ({ default: m.SignatureProgramsGrid }))
 );
-const StylesDeck = lazy(() =>
-  import("@/components/site/StylesDeck").then((m) => ({ default: m.StylesDeck }))
-);
 
 
 
@@ -602,24 +599,6 @@ function Index() {
       {/* SCREEN 2 — Meet Tejas: mindset & movement */}
       <Chapter index={2} total={5} kicker="Meet Tejas">
         <FounderSection founder={founder} />
-      {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
-          {stats.map((s) => (
-            <div key={s.label} className="reveal-up relative border-t border-border pt-6" style={revealDelay(stats.indexOf(s))}>
-              <div
-                aria-hidden
-                className="absolute -top-px left-0 h-px w-16"
-                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
-              />
-              <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
-                {s.value}{s.suffix ?? ""}
-              </p>
-              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
       </Chapter>
 
       {/* SCREEN 3 — Most Viral Choreographies */}
@@ -715,6 +694,23 @@ function Index() {
             </div>
           );
         })()}
+
+        {/* RHYTHM & COUNTING — animated stats, immediately after the globe */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+          {stats.map((s, si) => (
+            <div key={s.label} className="reveal-up relative border-t border-border pt-6" style={revealDelay(si)}>
+              <div
+                aria-hidden
+                className="absolute -top-px left-0 h-px w-16"
+                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
+              />
+              <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
+                {s.value}{s.suffix ?? ""}
+              </p>
+              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
+            </div>
+          ))}
+        </div>
       </section>
       </Chapter>
 
@@ -754,7 +750,7 @@ function Index() {
         )}
       </section>
 
-      {/* DANCE STYLES — animated style deck */}
+      {/* DANCE STYLES — premium two-column grid */}
       <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 pt-5 pb-7 lg:pt-6 lg:pb-8">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -768,33 +764,54 @@ function Index() {
           </p>
         </div>
 
-        <LazySection minHeight={320}>
-          <StylesDeck
-            styles={
-              (danceStyles ?? []).length > 0
-                ? (danceStyles ?? []).map((s: any) => ({
-                    name: String(s.name ?? "Dance Style").trim() || "Dance Style",
-                    tagline: s.tagline ?? "",
-                    image_url: s.image_url ?? null,
-                    video_url: s.video_url ?? null,
-                  }))
-                : defaultStyles
-            }
-          />
-        </LazySection>
-
-        <ul className="mt-5 flex flex-wrap justify-center gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-5">
           {((danceStyles ?? []).length > 0
-            ? (danceStyles ?? []).map((s: any) => String(s.name ?? "").trim()).filter(Boolean)
-            : defaultStyles.map((s) => s.name)
-          ).map((name: string) => (
-            <li key={name}>
-              <span className="inline-flex items-center rounded-full border border-border/70 bg-card/60 px-4 py-2 text-xs font-medium uppercase tracking-widest text-foreground/80 backdrop-blur-sm transition-colors hover:border-primary/60 hover:text-primary">
-                {name}
-              </span>
-            </li>
+            ? (danceStyles ?? []).map((s: any) => ({
+                name: String(s.name ?? "Dance Style").trim() || "Dance Style",
+                tagline: String(s.tagline ?? "").trim(),
+                image_url: s.image_url ?? null,
+              }))
+            : defaultStyles.map((s) => ({ name: s.name, tagline: s.tagline, image_url: null }))
+          ).map((s, si) => (
+            <article
+              key={s.name}
+              style={revealDelay(si)}
+              className="reveal-up group relative overflow-hidden rounded-2xl border border-border/70 bg-card/70 backdrop-blur-sm p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+            >
+              {s.image_url && (
+                <img
+                  src={s.image_url}
+                  alt=""
+                  aria-hidden
+                  loading="lazy"
+                  decoding="async"
+                  className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-15 transition-opacity duration-500 group-hover:opacity-25"
+                />
+              )}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: "linear-gradient(135deg, rgba(249,178,51,0.10), rgba(238,61,139,0.10) 55%, rgba(142,45,168,0.12))" }}
+              />
+              <div className="relative flex items-baseline gap-4">
+                <span className="font-display text-sm text-primary/70 tabular-nums">
+                  {String(si + 1).padStart(2, "0")}
+                </span>
+                <div className="min-w-0">
+                  <h3 className="font-display text-xl lg:text-2xl font-bold truncate">{s.name}</h3>
+                  {s.tagline && (
+                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{s.tagline}</p>
+                  )}
+                </div>
+              </div>
+              <span
+                aria-hidden
+                className="pointer-events-none absolute bottom-0 left-0 h-px w-0 group-hover:w-full transition-[width] duration-500"
+                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
+              />
+            </article>
           ))}
-        </ul>
+        </div>
       </section>
       </Chapter>
 
