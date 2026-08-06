@@ -772,10 +772,10 @@ function Index() {
         {/* 4 pillars */}
         <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
           {[
-            { icon: Target, title: "1. Technique", desc: "Mastering posture, footwork, core balance, and body mechanics for effortless execution.", tone: "var(--jet)" },
-            { icon: Heart, title: "2. Expression", desc: "Connecting emotion to motion, bringing authenticity and storytelling to every choreography.", tone: "var(--role-choreographer)" },
-            { icon: Music2, title: "3. Musicality", desc: "Deepening rhythm control, tempo changes, and beat timing across diverse global sounds.", tone: "var(--role-educator)" },
-            { icon: Users2, title: "4. Stage Presence", desc: "Building commanding charisma, spatial control, and authentic connection with audiences.", tone: "var(--role-performer)" },
+            { icon: Target, title: "1. Technique", desc: "Mastering posture, footwork, core balance, and body mechanics for effortless execution.", tone: "var(--df-1)" },
+            { icon: Heart, title: "2. Expression", desc: "Connecting emotion to motion, bringing authenticity and storytelling to every choreography.", tone: "var(--df-2)" },
+            { icon: Music2, title: "3. Musicality", desc: "Deepening rhythm control, tempo changes, and beat timing across diverse global sounds.", tone: "var(--df-3)" },
+            { icon: Users2, title: "4. Stage Presence", desc: "Building commanding charisma, spatial control, and authentic connection with audiences.", tone: "var(--df-5)" },
           ].map((p, pi) => (
             <div key={p.title} className="reveal-up" style={revealDelay(pi)}>
               <div className="group relative block h-full ed-card p-4 lg:p-6 overflow-hidden transition-transform duration-300 hover:-translate-y-1">
