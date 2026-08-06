@@ -840,45 +840,43 @@ function Index() {
       </Chapter>
 
 
-      {/* SCREEN 5 — How We Teach + Final Call */}
-      <Chapter index={5} total={5} kicker="The Method — How We Teach">
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 lg:pt-10">
+      {/* SCREEN 5 — Register & Book Your Experience */}
+      <Chapter index={5} total={5} kicker="Start Moving — Book Your Experience">
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
-            <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">How We Teach</p>
+            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+              <Calendar size={12} /> Start Moving
+            </p>
             <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-              A method that <span className="italic font-light df-gradient-text">builds dancers.</span>
+              Book your <span className="italic font-light">experience.</span>
             </h2>
+            <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
+              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
+            </p>
           </div>
-          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
-            Four steps. One transformation.
-          </p>
+          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
+            See all workshops <ArrowUpRight size={14} />
+          </Link>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
-          {[
-            { icon: Heart, title: "Mindset First", desc: "Confidence before choreography — we start with how you feel on the floor." },
-            { icon: Rocket, title: "Foundations", desc: "Body control, rhythm and posture drilled until movement becomes instinct." },
-            { icon: Video, title: "Choreography", desc: "Real routines, taught the way they're performed — layered, clean, cinematic." },
-            { icon: Calendar, title: "Performance", desc: "Stage-ready practice, filming and feedback so you can own any spotlight." },
-          ].map((p, pi) => (
-            <div key={p.title} className="reveal-up" style={revealDelay(pi)}>
-              <div className="group relative block h-full df-border-card bg-card p-4 lg:p-6 overflow-hidden transition-shadow duration-300">
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{ background: "linear-gradient(135deg, rgba(249,178,51,0.10), rgba(238,61,139,0.10) 55%, rgba(142,45,168,0.12))" }}
-                />
-                <div className="relative h-11 w-11 rounded-xl df-gradient-bg text-white flex items-center justify-center">
-                  <p.icon size={20} />
-                </div>
-                <p className="relative mt-4 font-display text-xl font-bold">{p.title}</p>
-                <p className="relative mt-2 hidden sm:block text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        {workshops.length === 0 && !workshopsLoaded ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+          </div>
+        ) : workshops.length === 0 ? (
+          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
+            <p className="font-display text-2xl">Coming Soon</p>
+            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+          </div>
+        ) : (
+          <LazySection minHeight={520}>
+            <WorkshopDeck workshops={workshops} />
+          </LazySection>
+        )}
       </section>
+
+
 
       {/* FINAL CTA */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-6 lg:py-10">
