@@ -165,13 +165,14 @@ export function EditorialHero({
             </p>
           </header>
 
-          <div className="relative z-30 mt-4 lg:mt-5">
-            <div className="relative isolate z-30">
+          <div className="relative z-30 mt-4 flex flex-col lg:mt-4 lg:min-h-0 lg:flex-1">
+            <div className="relative isolate z-30 lg:min-h-0 lg:flex-1">
               <div aria-hidden className="cine-spot" />
               <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
             </div>
 
-            <div className="ed-rise mt-5 flex flex-wrap items-center justify-center gap-3 lg:justify-start" style={{ animationDelay: "520ms" }}>
+            <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3 lg:mt-4 lg:justify-start" style={{ animationDelay: "520ms" }}>
+
               <button
                 type="button"
                 onClick={onExplore}
