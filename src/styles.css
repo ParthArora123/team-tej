@@ -1119,5 +1119,7 @@ main section:first-of-type {
 
 @media (prefers-reduced-motion: reduce) {
   .chapter-body, .chapter-rail { opacity: 1; transform: none; animation: none !important; }
+  .chapter-body.chapter-stagger.chapter-in > * { animation: none !important; opacity: 1; transform: none; }
+  .pager-grade { display: none; }
   .reveal-up, .modal-fade, .modal-pop { animation: none !important; opacity: 1; transform: none; }
 }
