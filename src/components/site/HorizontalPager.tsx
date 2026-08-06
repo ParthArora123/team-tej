@@ -130,6 +130,39 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [go]);
 
+  // Lets any CTA on a slide jump to the slide that owns a given element id:
+  //   window.dispatchEvent(new CustomEvent("pager:goto", { detail: { id: "workshops" } }))
+  // Works even if the target slide is not mounted yet — slides pre-warm by
+  // index, so we fall back to mounting everything and retrying next frame.
+  useEffect(() => {
+    const onGoto = (e: Event) => {
+      const id = (e as CustomEvent<{ id?: string }>).detail?.id;
+      if (!id) return;
+      const findSlide = () =>
+        slideRefs.current.findIndex((el) => !!el && (el.id === id || !!el.querySelector(`#${CSS.escape(id)}`)));
+      const target = findSlide();
+      if (target >= 0) {
+        if (target === index) {
+          document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          jumpTo(target);
+          window.setTimeout(() => {
+            document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 600);
+        }
+        return;
+      }
+      // Not mounted yet: mount all slides, then retry once.
+      setMounted(Array.from({ length: count }, (_, i) => i));
+      window.setTimeout(() => {
+        const t = findSlide();
+        if (t >= 0) jumpTo(t);
+      }, 120);
+    };
+    window.addEventListener("pager:goto", onGoto as EventListener);
+    return () => window.removeEventListener("pager:goto", onGoto as EventListener);
+  }, [count, index, jumpTo]);
+
   return (
     <div
       className="relative w-full overflow-hidden"

@@ -47,6 +47,28 @@ function parseStat(raw: string) {
   return { value: Math.round(base * mult), suffix: m[3] ?? "" };
 }
 
+/**
+ * Smooth-scrolls (or pages) to an on-page section when it exists on this page;
+ * otherwise falls back to a normal navigation to `fallbackHref`.
+ */
+function goToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string, fallbackHref: string) {
+  if (typeof document === "undefined") return;
+  const onHome = window.location.pathname === "/";
+  if (!onHome) return; // let the browser follow the href
+  e.preventDefault();
+  const target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  // Also ask the horizontal pager to bring the owning slide into view.
+  window.dispatchEvent(new CustomEvent("pager:goto", { detail: { id } }));
+  if (!target) {
+    window.setTimeout(() => {
+      if (!document.getElementById(id)) window.location.href = fallbackHref;
+    }, 700);
+  }
+}
+
 export function CinematicHero({
   backgroundImage,
   badges,
@@ -355,11 +377,8 @@ export function CinematicHero({
         >
           <MagneticButton>
             <a
-              href="#workshops"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
-              }}
+              href="/workshops"
+              onClick={(e) => goToSection(e, "workshops", "/workshops")}
               className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full px-9 py-4 sm:px-11 sm:py-[1.15rem] text-primary-foreground text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.22em] transition-transform duration-300 hover:scale-[1.04]"
               style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
             >
@@ -373,17 +392,14 @@ export function CinematicHero({
           </MagneticButton>
           <MagneticButton>
             <a
-              href="#showcase"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById("showcase")?.scrollIntoView({ behavior: "smooth" });
-              }}
+              href="/#showcase"
+              onClick={(e) => goToSection(e, "showcase", "/#showcase")}
               className="group inline-flex items-center gap-2.5 rounded-full px-8 py-4 sm:px-9 sm:py-[1.15rem] text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.22em] text-white border border-white/25 bg-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:scale-[1.03]"
             >
               <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 transition-transform group-hover:scale-110">
                 <Play size={12} className="translate-x-[1px]" fill="currentColor" />
               </span>
-              Watch Showreel
+              Watch Viral Choreos
             </a>
           </MagneticButton>
         </motion.div>
