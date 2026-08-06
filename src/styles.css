@@ -1002,8 +1002,9 @@ html[data-scrolling="1"] .blur-xl {
   filter: none !important;
 }
 
-/* Static ambient backdrop replacing the permanently-animating scene layer.
-   Same mood, zero per-frame paint cost. */
+/* Ambient stage-lighting backdrop — layered coloured beams behind the whole
+   site. Static gradients (zero per-frame paint) + one slow, compositor-only
+   drift layer for life. */
 .ambient-backdrop::before {
   content: "";
   position: fixed;
@@ -1011,10 +1012,37 @@ html[data-scrolling="1"] .blur-xl {
   z-index: -10;
   pointer-events: none;
   background:
-    radial-gradient(60% 45% at 15% 10%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%),
-    radial-gradient(55% 40% at 85% 20%, color-mix(in oklab, var(--accent, var(--primary)) 12%, transparent), transparent 70%),
-    radial-gradient(70% 50% at 50% 100%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 70%);
+    radial-gradient(58% 44% at 12% 6%,  color-mix(in oklab, var(--stage-purple) 20%, transparent), transparent 68%),
+    radial-gradient(52% 40% at 88% 12%, color-mix(in oklab, var(--stage-blue) 16%, transparent), transparent 70%),
+    radial-gradient(48% 38% at 78% 62%, color-mix(in oklab, var(--stage-magenta) 15%, transparent), transparent 70%),
+    radial-gradient(62% 46% at 22% 88%, color-mix(in oklab, var(--stage-orange) 14%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 50% 100%, color-mix(in oklab, var(--stage-gold) 12%, transparent), transparent 72%);
 }
+
+/* Slow-moving light beams — one transform-animated layer, GPU only. */
+.ambient-backdrop::after {
+  content: "";
+  position: fixed;
+  inset: -25%;
+  z-index: -9;
+  pointer-events: none;
+  opacity: 0.5;
+  background:
+    conic-gradient(from 210deg at 30% 20%, color-mix(in oklab, var(--stage-magenta) 22%, transparent), transparent 28%),
+    conic-gradient(from 20deg at 75% 70%, color-mix(in oklab, var(--stage-cyan) 20%, transparent), transparent 26%);
+  filter: blur(70px);
+  will-change: transform;
+  animation: stage-drift 34s ease-in-out infinite alternate;
+}
+@keyframes stage-drift {
+  from { transform: translate3d(-2%, -1%, 0) rotate(0deg) scale(1); }
+  to   { transform: translate3d(2%, 2%, 0) rotate(6deg) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+  .ambient-backdrop::after { animation: none !important; opacity: 0.35; }
+}
+html[data-scrolling="1"] .ambient-backdrop::after { animation-play-state: paused; }
+
 
 /* ---------------------------------------------------------------
    Performance guard: blend modes force the compositor to read back
