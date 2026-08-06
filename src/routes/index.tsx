@@ -48,6 +48,15 @@ const FeaturedPerformances = lazy(() =>
 const SignatureProgramsGrid = lazy(() =>
   import("@/components/site/HomeSectionCards").then((m) => ({ default: m.SignatureProgramsGrid }))
 );
+const StyleAnimation = lazy(() =>
+  import("@/components/site/StyleAnimation").then((m) => ({ default: m.StyleAnimation }))
+);
+const StackedDeckLazy = lazy(() =>
+  import("@/components/site/StackedDeck").then((m) => ({ default: m.StackedDeck }))
+);
+
+
+
 
 
 
