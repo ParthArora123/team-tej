@@ -217,6 +217,9 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
         );
       })}
 
+      {/* Scene-change grade — brief cinematic dim that ties screens together */}
+      {grade > 0 && <div key={grade} aria-hidden className="pager-grade pager-grade-on" />}
+
       {/* Fixed navigation arrows */}
       <button
         type="button"
