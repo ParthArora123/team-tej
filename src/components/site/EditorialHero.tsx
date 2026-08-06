@@ -66,8 +66,12 @@ export function EditorialHero({
         <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
           {name.toUpperCase()}
         </h1>
-        <p className="ed-rise mt-3 text-[10px] sm:text-xs uppercase tracking-[0.4em] text-muted-foreground" style={{ animationDelay: "90ms" }}>
-          Dance Educator <span className="text-primary">•</span> Performer <span className="text-primary">•</span> Choreographer
+        <p className="ed-rise mt-2.5 flex items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.2em]" style={{ animationDelay: "90ms" }}>
+          <span className="role-educator">Dance Educator</span>
+          <span className="text-muted-foreground text-[0.75rem]">•</span>
+          <span className="role-performer">Performer</span>
+          <span className="text-muted-foreground text-[0.75rem]">•</span>
+          <span className="role-choreographer">Choreographer</span>
         </p>
         <p className="ed-rise mt-2 text-sm sm:text-base text-muted-foreground" style={{ animationDelay: "150ms" }}>
           Transforming passion into performance.
