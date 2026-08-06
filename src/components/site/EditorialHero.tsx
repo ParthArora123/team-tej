@@ -156,15 +156,16 @@ export function EditorialHero({
 
 
           {/* CTAs */}
-          <div className="ed-rise mt-6 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
+          <div className="ed-rise mt-7 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
             <button
               type="button"
               onClick={onExplore}
-              className="ed-cta group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em]"
+              className="ed-cta group inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
             >
               Explore Workshops
               <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>
+
             <button
               type="button"
               onClick={onWatch}
