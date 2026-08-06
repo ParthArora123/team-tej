@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, Calendar, Instagram, MapPin, Play, Youtube } from "lucide-react";
+import { ArrowUpRight, Calendar, Flame, Instagram, MapPin, Play, Sparkles, Trophy, Users, Youtube } from "lucide-react";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
 /**
