@@ -742,9 +742,9 @@ function Index() {
       <Chapter index={3} total={5} kicker="How We Teach — Mindset & Movement">
       <section id="method" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
         <div className="text-center">
-          <p className="text-xs uppercase tracking-widest text-primary font-bold">How We Teach</p>
+          <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">How We Teach</p>
           <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold uppercase tracking-wide leading-[1.05]">
-            Mindset &amp; Movement
+            Mindset &amp; <span className="df-gradient-text">Movement</span>
           </h2>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
             A 4-pillar learning system designed to help absolute beginners and seasoned dancers express, grow, and feel alive.
@@ -757,7 +757,7 @@ function Index() {
             {["Come move with us", "Come express with us", "Come grow with us"].map((step, i) => (
               <div key={step} className="flex items-center gap-3 lg:gap-5">
                 <div className="ed-pill flex items-center gap-2 text-sm font-semibold">
-                  <span className="font-display text-primary tabular-nums">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="font-display df-gradient-text tabular-nums">{String(i + 1).padStart(2, "0")}</span>
                   {step}
                 </div>
                 {i < 2 && <span aria-hidden className="text-muted-foreground">&rarr;</span>}
@@ -772,10 +772,10 @@ function Index() {
         {/* 4 pillars */}
         <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
           {[
-            { icon: Target, title: "1. Technique", desc: "Mastering posture, footwork, core balance, and body mechanics for effortless execution.", tone: "var(--jet)" },
-            { icon: Heart, title: "2. Expression", desc: "Connecting emotion to motion, bringing authenticity and storytelling to every choreography.", tone: "var(--role-choreographer)" },
-            { icon: Music2, title: "3. Musicality", desc: "Deepening rhythm control, tempo changes, and beat timing across diverse global sounds.", tone: "var(--role-educator)" },
-            { icon: Users2, title: "4. Stage Presence", desc: "Building commanding charisma, spatial control, and authentic connection with audiences.", tone: "var(--role-performer)" },
+            { icon: Target, title: "1. Technique", desc: "Mastering posture, footwork, core balance, and body mechanics for effortless execution.", tone: "var(--df-1)" },
+            { icon: Heart, title: "2. Expression", desc: "Connecting emotion to motion, bringing authenticity and storytelling to every choreography.", tone: "var(--df-2)" },
+            { icon: Music2, title: "3. Musicality", desc: "Deepening rhythm control, tempo changes, and beat timing across diverse global sounds.", tone: "var(--df-3)" },
+            { icon: Users2, title: "4. Stage Presence", desc: "Building commanding charisma, spatial control, and authentic connection with audiences.", tone: "var(--df-5)" },
           ].map((p, pi) => (
             <div key={p.title} className="reveal-up" style={revealDelay(pi)}>
               <div className="group relative block h-full ed-card p-4 lg:p-6 overflow-hidden transition-transform duration-300 hover:-translate-y-1">
@@ -823,9 +823,9 @@ function Index() {
       <Chapter index={4} total={5} kicker="Programs & Formats — Ways to Train">
       <section id="programs" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
         <div>
-          <p className="text-xs uppercase tracking-widest text-primary font-bold">Programs &amp; Formats</p>
+          <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Programs &amp; Formats</p>
           <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-            Ways to <span className="italic font-light">train.</span>
+            Ways to <span className="italic font-light df-gradient-text">train.</span>
           </h2>
           <p className="mt-3 text-muted-foreground max-w-xl">
             Signature movement experiences tailored for all levels.
@@ -834,33 +834,56 @@ function Index() {
 
         <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5">
           {[
-            { icon: "✨", title: "Workshops & Events", desc: "High-energy live sessions combining choreography and community energy." },
-            { icon: "🎗️", title: "Nritya Sadhana", desc: "A meditative movement exploration focusing on stillness and breath." },
-            { icon: "👥", title: "DanceFit App & Online", desc: "Structured online learning, live feedback, and dance fitness anywhere.", href: "https://dancefitstudio.app", cta: "Download App & Register" },
-            { icon: "⚡", title: "The Tej Method", desc: "Core philosophy integrating body awareness and confidence." },
-            { icon: "🚀", title: "Zero to Hero", desc: "Step-by-step beginner program to eliminate stage fear.", to: "/zero-to-hero" },
-            { icon: "🪔", title: "Bhakti Experience", desc: "A spiritual blend of grace, devotion, and movement." },
+            { icon: "✨", title: "Workshops & Events", desc: "High-energy live sessions combining choreography and community energy.", tone: "var(--df-1)" },
+            { icon: "🎗️", title: "Nritya Sadhana", desc: "A meditative movement exploration focusing on stillness and breath.", tone: "var(--df-2)" },
+            { icon: "👥", title: "DanceFit App & Online", desc: "Structured online learning, live feedback, and dance fitness anywhere.", href: "https://dancefitstudio.app", cta: "Download App & Register", tone: "var(--df-3)" },
+            { icon: "⚡", title: "The Tej Method", desc: "Core philosophy integrating body awareness and confidence.", tone: "var(--df-4)" },
+            { icon: "🚀", title: "Zero to Hero", desc: "Step-by-step beginner program to eliminate stage fear.", to: "/zero-to-hero", tone: "var(--df-5)" },
+            { icon: "🪔", title: "Bhakti Experience", desc: "A spiritual blend of grace, devotion, and movement.", tone: "var(--df-2)" },
           ].map((p, pi) => (
             <article
               key={p.title}
               style={revealDelay(pi)}
-              className="reveal-up ed-card p-4 lg:p-5 transition-transform duration-300 hover:-translate-y-1"
+              className="reveal-up ed-card relative overflow-hidden p-4 lg:p-5 transition-transform duration-300 hover:-translate-y-1"
             >
-              <div className="text-2xl leading-none">{p.icon}</div>
-              <h3 className="mt-3 font-display text-lg font-bold">{p.title}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 h-0.5"
+                style={{ background: `linear-gradient(90deg, ${p.tone}, transparent)` }}
+              />
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full blur-2xl"
+                style={{ background: `color-mix(in oklab, ${p.tone} 30%, transparent)` }}
+              />
+              <div
+                className="relative grid h-11 w-11 place-items-center rounded-xl text-2xl leading-none"
+                style={{
+                  background: `color-mix(in oklab, ${p.tone} 12%, transparent)`,
+                  border: `1px solid color-mix(in oklab, ${p.tone} 30%, transparent)`,
+                }}
+              >
+                {p.icon}
+              </div>
+              <h3 className="relative mt-3 font-display text-lg font-bold">{p.title}</h3>
+              <p className="relative mt-1.5 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
               {p.href && (
                 <a
                   href={p.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all"
+                  className="relative mt-3 inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
+                  style={{ color: p.tone }}
                 >
                   {p.cta} <ArrowUpRight size={14} />
                 </a>
               )}
               {p.to && (
-                <Link to={p.to} className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:gap-3 transition-all">
+                <Link
+                  to={p.to}
+                  className="relative mt-3 inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
+                  style={{ color: p.tone }}
+                >
                   Explore program <ArrowUpRight size={14} />
                 </Link>
               )}
