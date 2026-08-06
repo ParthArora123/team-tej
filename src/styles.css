@@ -1123,3 +1123,76 @@ main section:first-of-type {
   .pager-grade { display: none; }
   .reveal-up, .modal-fade, .modal-pop { animation: none !important; opacity: 1; transform: none; }
 }
+
+/* ============================================================
+   Editorial cinematic design language (homepage reference)
+   Soft off-white surfaces, hairline borders, whisper shadows.
+   ============================================================ */
+@utility ed-eyebrow {
+  font-size: 0.625rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--muted-foreground) 85%, transparent);
+}
+
+@utility ed-card {
+  position: relative;
+  border-radius: 1.1rem;
+  background: color-mix(in oklab, var(--card) 92%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  box-shadow: 0 1px 2px oklch(0 0 0 / 4%), 0 18px 40px -34px oklch(0 0 0 / 45%);
+  backdrop-filter: blur(6px);
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms ease, border-color 320ms ease;
+  &:hover {
+    transform: translate3d(0, -2px, 0);
+    border-color: color-mix(in oklab, var(--primary) 22%, transparent);
+    box-shadow: 0 1px 2px oklch(0 0 0 / 5%), 0 26px 56px -34px oklch(0 0 0 / 55%);
+  }
+}
+
+@utility ed-pill {
+  border-radius: 0.9rem;
+  padding: 0.5rem 0.85rem;
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 65%, transparent);
+  box-shadow: 0 10px 30px -22px oklch(0 0 0 / 55%);
+  backdrop-filter: blur(8px);
+}
+
+@utility ed-cta {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 14px 34px -18px oklch(0 0 0 / 60%);
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease, opacity 200ms ease;
+  &:hover {
+    transform: translate3d(0, -2px, 0);
+    box-shadow: 0 20px 44px -18px oklch(0 0 0 / 65%);
+  }
+}
+
+@utility ed-frame {
+  overflow: hidden;
+  border-radius: 1.4rem;
+  background: color-mix(in oklab, var(--surface) 90%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+  box-shadow: 0 2px 6px oklch(0 0 0 / 5%), 0 40px 90px -60px oklch(0 0 0 / 60%);
+}
+
+@keyframes ed-rise {
+  from { opacity: 0; transform: translate3d(0, 22px, 0) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.ed-rise { animation: ed-rise 760ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes ed-kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+.ed-kenburns { animation: ed-kenburns 22s ease-in-out infinite alternate; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ed-rise { animation: none !important; opacity: 1; transform: none; }
+  .ed-kenburns { animation: none !important; }
+}
