@@ -45,9 +45,9 @@ export function EditorialHero({
   const hasMore = Boolean(biography || achievements.length);
 
   const columns = [
-    { k: "Philosophy", t: "Our Belief", v: belief },
-    { k: "Purpose", t: "Our Vision", v: vision },
-    { k: "Mission", t: "Our Mission", v: mission },
+    { k: "Philosophy", t: "Belief", v: belief },
+    { k: "Purpose", t: "Vision", v: vision },
+    { k: "Mission", t: "Mission", v: mission },
   ];
 
 
