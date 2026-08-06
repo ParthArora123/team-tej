@@ -56,12 +56,19 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
         if (!el || typeof el.animate !== "function") return;
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
         setAnimating(true);
+        setGrade((g) => g + 1);
+        // Cinematic scene change: the incoming screen slides in from the
+        // travel direction with a slight depth push, easing out slowly so the
+        // story "cuts" instead of snapping.
         const anim = el.animate(
           [
-            { transform: `translate3d(${p.dir >= 0 ? 100 : -100}%,0,0)`, opacity: 0 },
-            { transform: "translate3d(0,0,0)", opacity: 1 },
+            {
+              transform: `translate3d(${p.dir >= 0 ? 70 : -70}%,0,0) scale(0.965)`,
+              opacity: 0,
+            },
+            { transform: "translate3d(0,0,0) scale(1)", opacity: 1 },
           ],
-          { duration: 480, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+          { duration: 720, easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
         );
         // Drop the promoted layer as soon as the transition is over — a
         // permanent `will-change` keeps a viewport-sized texture alive.
