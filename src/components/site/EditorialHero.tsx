@@ -330,13 +330,24 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   // A new source starts as "not loaded" again so the blurred placeholder
-  // covers the swap instead of flashing an empty box.
+  // covers the swap instead of flashing an empty box. Images that were already
+  // in cache (or decoded during SSR hydration) never fire `load`, so check
+  // `complete` right after mount too.
   useEffect(() => {
+    const el = imgRef.current;
+    if (el && el.complete && el.naturalWidth > 0) {
+      setLoaded(true);
+      setFailed(false);
+      onReady?.();
+      return;
+    }
     setLoaded(false);
     setFailed(false);
   }, [image]);
+
 
 
   useEffect(() => {
