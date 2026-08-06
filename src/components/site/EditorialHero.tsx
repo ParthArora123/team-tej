@@ -285,42 +285,94 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   }, [idx, clips.length]);
 
   const clip = clips[idx];
+  const frameRef = useRef<HTMLDivElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
+
+  // Subtle GPU-only pointer parallax on the hero media.
+  useEffect(() => {
+    const frame = frameRef.current;
+    const media = mediaRef.current;
+    if (!frame || !media) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(hover: none)").matches) return;
+    let raf = 0;
+    const onMove = (e: PointerEvent) => {
+      const r = frame.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        media.style.transform = `translate3d(${x * -14}px, ${y * -14}px, 0) scale(1.04)`;
+      });
+    };
+    const onLeave = () => {
+      cancelAnimationFrame(raf);
+      media.style.transform = "translate3d(0,0,0) scale(1)";
+    };
+    frame.addEventListener("pointermove", onMove);
+    frame.addEventListener("pointerleave", onLeave);
+    return () => {
+      cancelAnimationFrame(raf);
+      frame.removeEventListener("pointermove", onMove);
+      frame.removeEventListener("pointerleave", onLeave);
+    };
+  }, []);
 
   return (
-    <div className="ed-rise ed-frame relative mx-auto aspect-[4/5] w-full max-w-[26rem] sm:max-w-[30rem] lg:aspect-auto lg:h-[42svh] lg:max-w-none" style={{ animationDelay: "180ms" }}>
+    <div
+      ref={frameRef}
+      className="ed-rise ed-frame relative mx-auto aspect-[4/5] w-full max-w-[30rem] sm:max-w-[34rem] lg:aspect-auto lg:h-[62svh] lg:max-w-none"
+      style={{ animationDelay: "180ms" }}
+    >
       <img
         src={image}
         alt=""
         aria-hidden
-        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-45 blur-2xl"
+        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
         draggable={false}
       />
-      {clip ? (
-        <video
-          ref={videoRef}
-          key={clip}
-          src={clip}
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster={image}
-          disablePictureInPicture
-          className="absolute inset-0 h-full w-full object-contain"
-          onLoadedData={onReady}
-        />
-      ) : (
-        <img
-          src={image}
-          alt={alt}
-          fetchPriority="high"
-          decoding="async"
-          className="ed-kenburns absolute inset-0 h-full w-full object-contain"
-          onLoad={onReady}
-          onError={onReady}
-          draggable={false}
-        />
-      )}
+      <div
+        ref={mediaRef}
+        className="absolute inset-0 will-change-transform"
+        style={{ transition: "transform 420ms cubic-bezier(0.22,1,0.36,1)" }}
+      >
+        {clip ? (
+          <video
+            ref={videoRef}
+            key={clip}
+            src={clip}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={image}
+            disablePictureInPicture
+            className="absolute inset-0 h-full w-full object-contain"
+            onLoadedData={onReady}
+          />
+        ) : (
+          <img
+            src={image}
+            alt={alt}
+            fetchPriority="high"
+            decoding="async"
+            className="ed-kenburns absolute inset-0 h-full w-full object-contain"
+            onLoad={onReady}
+            onError={onReady}
+            draggable={false}
+          />
+        )}
+      </div>
+      {/* cinematic vignette + top light falloff */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 70% at 50% 40%, transparent 55%, oklch(0 0 0 / 45%) 100%)",
+        }}
+      />
     </div>
   );
+
 }
