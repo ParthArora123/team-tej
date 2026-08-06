@@ -624,15 +624,10 @@ function Index() {
         />
       </Chapter>
 
-      {/* SCREEN 2 — Meet Tejas: mindset & movement */}
-      <Chapter index={2} total={5} kicker="The Origin — Meet Tejas">
-        <FounderSection founder={founder} />
-      </Chapter>
-
-
-      {/* SCREEN 3 — Most Viral Choreographies */}
-      <Chapter index={3} total={5} kicker="The Proof — Viral Choreographies">
+      {/* SCREEN 2 — Iconic Work: Choreographies & World Tour */}
+      <Chapter index={2} total={5} kicker="Iconic Work — Choreographies & World Tour">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
+
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
 
         {brands.length > 0 && (
