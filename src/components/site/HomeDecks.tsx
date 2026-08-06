@@ -3,6 +3,7 @@ import { Calendar, MapPin, ArrowUpRight, Play } from "lucide-react";
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { useEffect, useRef, useState } from "react";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
+import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
 function ReelVideo({ src, poster, active, title }: { src: string; poster?: string | null; active: boolean; title: string }) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -40,7 +41,7 @@ function ReelVideo({ src, poster, active, title }: { src: string; poster?: strin
 
 /* ------------------------------ WORKSHOPS ------------------------------ */
 
-function WorkshopCard({ w }: { w: any }) {
+function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void }) {
   const hasImage = !!w.banner_url;
 
   return (
@@ -92,30 +93,60 @@ function WorkshopCard({ w }: { w: any }) {
 
         <div className="mt-auto pt-4 flex items-end justify-between gap-3">
           <p className="font-display text-xl font-bold">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
-          <Link
-            to="/workshops/$id"
-            params={{ id: w.id }}
-            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground transition-all hover:gap-2"
-          >
-            Details <ArrowUpRight size={13} />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/workshops/$id"
+              params={{ id: w.id }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wider transition-all hover:gap-2"
+            >
+              Details <ArrowUpRight size={13} />
+            </Link>
+            <button
+              type="button"
+              onClick={() => onRegister(w)}
+              className="inline-flex items-center rounded-full bg-primary px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground transition-all hover:opacity-90"
+            >
+              Register
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
+
 export function WorkshopDeck({ workshops }: { workshops: any[] }) {
+  const [sel, setSel] = useState<EnrollClass | null>(null);
   if (!workshops.length) return null;
 
+  const toEnroll = (w: any): EnrollClass => ({
+    id: w.id,
+    name: w.name,
+    price: Number(w.price_inr),
+    duration: w.duration ?? "",
+    silverSeatEnabled: !!w.silver_seat_enabled,
+    silverSeatPrice: w.silver_seat_price ?? 1000,
+    allowSingle: w.allow_single !== false,
+    allowBoth: !!w.allow_both,
+    bothPrice: w.both_price ?? null,
+    workshop1Name: w.workshop1_name ?? null,
+    workshop2Name: w.workshop2_name ?? null,
+    eventTime: w.event_time ?? null,
+  });
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-      {workshops.map((w) => (
-        <WorkshopCard key={w.id} w={w} />
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {workshops.map((w) => (
+          <WorkshopCard key={w.id} w={w} onRegister={(ws) => setSel(toEnroll(ws))} />
+        ))}
+      </div>
+      <EnrollDialog klass={sel} onClose={() => setSel(null)} />
+    </>
   );
 }
+
 
 /* -------------------------------- REELS -------------------------------- */
 
