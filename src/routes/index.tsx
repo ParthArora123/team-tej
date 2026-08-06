@@ -817,8 +817,6 @@ function Index() {
           </div>
         </div>
       </section>
-
-      <FounderSection founder={founder} />
       </Chapter>
 
       {/* SCREEN 4 — Programs & Styles */}
