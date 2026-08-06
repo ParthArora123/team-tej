@@ -92,18 +92,28 @@ function WorkshopCard({ w }: { w: any }) {
 
         <div className="mt-auto pt-4 flex items-end justify-between gap-3">
           <p className="font-display text-xl font-bold">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
-          <Link
-            to="/workshops/$id"
-            params={{ id: w.id }}
-            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground transition-all hover:gap-2"
-          >
-            Details <ArrowUpRight size={13} />
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/workshops/$id"
+              params={{ id: w.id }}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wider transition-all hover:gap-2"
+            >
+              Details <ArrowUpRight size={13} />
+            </Link>
+            <button
+              type="button"
+              onClick={() => onRegister(w)}
+              className="inline-flex items-center rounded-full bg-primary px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground transition-all hover:opacity-90"
+            >
+              Register
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+
 
 export function WorkshopDeck({ workshops }: { workshops: any[] }) {
   if (!workshops.length) return null;
