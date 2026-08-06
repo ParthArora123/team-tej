@@ -395,8 +395,10 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
       className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:aspect-auto lg:h-[48svh] lg:max-w-[92%]"
       style={{ animationDelay: "180ms" }}
     >
+      {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
+          painted before the real portrait arrives. */}
       <img
-        src={image}
+        src={HERO_LQIP}
         alt=""
         aria-hidden
         className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
@@ -407,6 +409,17 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
         className="absolute inset-0 will-change-transform"
         style={{ transition: "transform 420ms cubic-bezier(0.22,1,0.36,1)" }}
       >
+        {/* Premium blurred placeholder: visible until the portrait (or video
+            poster) has decoded, and it stays put if the source ever fails —
+            the browser's broken-image glyph is never shown. */}
+        <img
+          src={HERO_LQIP}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full object-contain blur-xl saturate-125 transition-opacity duration-500"
+          style={{ opacity: loaded ? 0 : 1 }}
+          draggable={false}
+        />
         {clip ? (
           <video
             ref={videoRef}
@@ -418,21 +431,38 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             preload="metadata"
             poster={image}
             disablePictureInPicture
-            className="absolute inset-0 h-full w-full object-contain"
-            onLoadedData={onReady}
+            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
+            style={{ opacity: loaded ? 1 : 0 }}
+            onLoadedData={() => {
+              setLoaded(true);
+              onReady?.();
+            }}
           />
         ) : (
           <img
             src={image}
             alt={alt}
+            width={1066}
+            height={1600}
             fetchPriority="high"
             decoding="async"
-            className="ed-kenburns absolute inset-0 h-full w-full object-contain"
-            onLoad={onReady}
-            onError={onReady}
+            className="ed-kenburns absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
+            style={{ opacity: loaded && !failed ? 1 : 0 }}
+            ref={(el) => {
+              if (el && el.complete && el.naturalWidth > 0 && !loaded) setLoaded(true);
+            }}
+            onLoad={() => {
+              setLoaded(true);
+              onReady?.();
+            }}
+            onError={() => {
+              setFailed(true);
+              onReady?.();
+            }}
             draggable={false}
           />
         )}
+
       </div>
       {/* cinematic vignette + top light falloff */}
       <div
