@@ -93,9 +93,10 @@
   --gradient-royal: linear-gradient(135deg, oklch(0.55 0.006 60) 0%, oklch(0.25 0.006 60) 50%, oklch(0.05 0.002 60) 100%);
   --gradient-aurora: linear-gradient(120deg, oklch(0.99 0.002 60), oklch(0.96 0.004 60) 45%, oklch(0.97 0.003 60));
   --gradient-hero:
-    radial-gradient(ellipse 90% 65% at 15% 0%,  color-mix(in oklab, var(--primary) 10%, transparent), transparent 62%),
-    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, var(--accent) 9%, transparent), transparent 65%),
-    radial-gradient(ellipse 80% 60% at 50% 100%,color-mix(in oklab, var(--accent-gold) 12%, transparent), transparent 60%);
+    radial-gradient(ellipse 90% 65% at 15% 0%,  color-mix(in oklab, #7B2FF7 12%, transparent), transparent 62%),
+    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, #2D6BFF 11%, transparent), transparent 65%),
+    radial-gradient(ellipse 60% 45% at 80% 70%, color-mix(in oklab, #E0219B 10%, transparent), transparent 66%),
+    radial-gradient(ellipse 80% 60% at 50% 100%,color-mix(in oklab, #FFC93C 13%, transparent), transparent 60%);
   --shadow-soft:
     0 1px 2px color-mix(in oklab, var(--accent-gold) 8%, transparent),
     0 16px 40px -14px color-mix(in oklab, var(--accent-gold) 18%, transparent),
@@ -110,6 +111,24 @@
   --df-4: #B4288F;
   --df-5: #8E2DA8;
   --gradient-dancefit: linear-gradient(135deg, var(--df-1) 0%, var(--df-2) 32%, var(--df-3) 66%, var(--df-5) 100%);
+
+  /* ---- Stage-lighting palette (premium performing-arts identity) ---- */
+  --stage-purple: #7B2FF7;
+  --stage-magenta: #E0219B;
+  --stage-pink: #FF5FA2;
+  --stage-blue: #2D6BFF;
+  --stage-cyan: #29D3F5;
+  --stage-orange: #FF7A29;
+  --stage-gold: #FFC93C;
+
+  --gradient-stage: linear-gradient(120deg, var(--stage-purple) 0%, var(--stage-magenta) 34%, var(--stage-orange) 68%, var(--stage-gold) 100%);
+  --gradient-stage-cool: linear-gradient(120deg, var(--stage-blue) 0%, var(--stage-purple) 45%, var(--stage-magenta) 100%);
+  --gradient-stage-warm: linear-gradient(120deg, var(--stage-magenta) 0%, var(--stage-orange) 55%, var(--stage-gold) 100%);
+  --glow-stage: 0 18px 48px -18px color-mix(in oklab, var(--stage-magenta) 60%, transparent);
+  --glow-stage-strong:
+    0 10px 26px -12px color-mix(in oklab, var(--stage-purple) 55%, transparent),
+    0 26px 70px -26px color-mix(in oklab, var(--stage-magenta) 65%, transparent);
+
 
   /* Reference palette — Warm Alabaster Studio */
   --alabaster: #F3F2EE;
@@ -984,8 +1003,9 @@ html[data-scrolling="1"] .blur-xl {
   filter: none !important;
 }
 
-/* Static ambient backdrop replacing the permanently-animating scene layer.
-   Same mood, zero per-frame paint cost. */
+/* Ambient stage-lighting backdrop — layered coloured beams behind the whole
+   site. Static gradients (zero per-frame paint) + one slow, compositor-only
+   drift layer for life. */
 .ambient-backdrop::before {
   content: "";
   position: fixed;
@@ -993,10 +1013,37 @@ html[data-scrolling="1"] .blur-xl {
   z-index: -10;
   pointer-events: none;
   background:
-    radial-gradient(60% 45% at 15% 10%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%),
-    radial-gradient(55% 40% at 85% 20%, color-mix(in oklab, var(--accent, var(--primary)) 12%, transparent), transparent 70%),
-    radial-gradient(70% 50% at 50% 100%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 70%);
+    radial-gradient(58% 44% at 12% 6%,  color-mix(in oklab, var(--stage-purple) 20%, transparent), transparent 68%),
+    radial-gradient(52% 40% at 88% 12%, color-mix(in oklab, var(--stage-blue) 16%, transparent), transparent 70%),
+    radial-gradient(48% 38% at 78% 62%, color-mix(in oklab, var(--stage-magenta) 15%, transparent), transparent 70%),
+    radial-gradient(62% 46% at 22% 88%, color-mix(in oklab, var(--stage-orange) 14%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 50% 100%, color-mix(in oklab, var(--stage-gold) 12%, transparent), transparent 72%);
 }
+
+/* Slow-moving light beams — one transform-animated layer, GPU only. */
+.ambient-backdrop::after {
+  content: "";
+  position: fixed;
+  inset: -25%;
+  z-index: -9;
+  pointer-events: none;
+  opacity: 0.5;
+  background:
+    conic-gradient(from 210deg at 30% 20%, color-mix(in oklab, var(--stage-magenta) 22%, transparent), transparent 28%),
+    conic-gradient(from 20deg at 75% 70%, color-mix(in oklab, var(--stage-cyan) 20%, transparent), transparent 26%);
+  filter: blur(70px);
+  will-change: transform;
+  animation: stage-drift 34s ease-in-out infinite alternate;
+}
+@keyframes stage-drift {
+  from { transform: translate3d(-2%, -1%, 0) rotate(0deg) scale(1); }
+  to   { transform: translate3d(2%, 2%, 0) rotate(6deg) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+  .ambient-backdrop::after { animation: none !important; opacity: 0.35; }
+}
+html[data-scrolling="1"] .ambient-backdrop::after { animation-play-state: paused; }
+
 
 /* ---------------------------------------------------------------
    Performance guard: blend modes force the compositor to read back
@@ -1199,57 +1246,115 @@ main section:first-of-type {
   color: color-mix(in oklab, var(--muted-foreground) 85%, transparent);
 }
 
+/* Glass card with a live gradient hairline border (mask trick keeps the
+   interior clean glass) and a coloured stage glow on hover. */
 @utility ed-card {
   position: relative;
-  border-radius: 1.125rem;
-  background: oklch(1 0 0 / 92%);
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 24px oklch(0.18 0.002 60 / 4%);
-  backdrop-filter: blur(20px);
-  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms ease, border-color 320ms ease;
-  &:hover {
-    transform: translate3d(0, -2px, 0);
-    border-color: var(--primary);
-    box-shadow: 0 12px 30px oklch(0.18 0.002 60 / 8%);
+  border-radius: 1.75rem;
+  background: oklch(1 0 0 / 78%);
+  border: 1px solid color-mix(in oklab, var(--stage-purple) 12%, var(--border));
+  box-shadow:
+    0 10px 30px oklch(0.18 0.002 60 / 6%),
+    inset 0 1px 0 oklch(1 0 0 / 60%);
+  backdrop-filter: blur(20px) saturate(150%);
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 380ms ease, border-color 380ms ease;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-stage);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 380ms ease;
+    pointer-events: none;
   }
+  &:hover {
+    transform: translate3d(0, -4px, 0);
+    border-color: transparent;
+    box-shadow: var(--glow-stage-strong), inset 0 1px 0 oklch(1 0 0 / 70%);
+  }
+  &:hover::before { opacity: 1; }
 }
 
 @utility ed-pill {
-  border-radius: 0.875rem;
+  position: relative;
+  border-radius: 1rem;
   padding: 0.5rem 1rem;
   text-align: center;
-  background: oklch(1 0 0 / 94%);
-  border: 1px solid var(--border);
+  background: oklch(1 0 0 / 88%);
+  border: 1px solid color-mix(in oklab, var(--stage-magenta) 14%, var(--border));
   box-shadow: 0 8px 24px oklch(0.18 0.002 60 / 8%);
-  backdrop-filter: blur(16px);
-  transition: transform 300ms ease, border-color 300ms ease;
+  backdrop-filter: blur(16px) saturate(150%);
+  transition: transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
   &:hover {
     transform: translate3d(0, -4px, 0) scale(1.05);
-    border-color: var(--primary);
+    border-color: color-mix(in oklab, var(--stage-magenta) 55%, transparent);
+    box-shadow: var(--glow-stage);
   }
 }
 
+/* Primary CTA — vibrant stage gradient with an animated light sweep. */
 @utility ed-cta {
-  background: var(--primary);
-  color: var(--primary-foreground);
-  box-shadow: 0 10px 26px -14px oklch(0.18 0.002 60 / 65%);
-  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease, background 260ms ease;
-  &:hover {
-    transform: translate3d(0, -2px, 0);
-    background: oklch(0.26 0.002 60);
-    box-shadow: 0 16px 34px -14px oklch(0.18 0.002 60 / 70%);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--gradient-stage);
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+  color: #fff;
+  border: 0;
+  box-shadow: var(--glow-stage);
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease, background-position 600ms ease;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(100deg, transparent 20%, oklch(1 0 0 / 45%) 50%, transparent 80%);
+    transform: translate3d(-120%, 0, 0);
+    transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
   }
+  &:hover {
+    transform: translate3d(0, -3px, 0);
+    background-position: 100% 50%;
+    box-shadow: var(--glow-stage-strong);
+  }
+  &:hover::after { transform: translate3d(120%, 0, 0); }
 }
 
+/* Media frame — coloured edge glow + soft stage-light overlay on the image. */
 @utility ed-frame {
+  position: relative;
   overflow: hidden;
-  border-radius: 1.5rem;
+  border-radius: 2rem;
   background: var(--primary);
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 50px oklch(0.18 0.002 60 / 10%);
-  transition: transform 400ms ease;
-  &:hover { transform: scale(1.02); }
+  border: 1px solid color-mix(in oklab, var(--stage-purple) 18%, var(--border));
+  box-shadow:
+    0 20px 50px oklch(0.18 0.002 60 / 12%),
+    0 0 0 1px oklch(1 0 0 / 30%),
+    var(--glow-stage);
+  transition: transform 400ms ease, box-shadow 400ms ease;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+    opacity: 0.55;
+    background:
+      radial-gradient(60% 45% at 12% 8%, color-mix(in oklab, var(--stage-magenta) 55%, transparent), transparent 70%),
+      radial-gradient(55% 45% at 88% 92%, color-mix(in oklab, var(--stage-blue) 50%, transparent), transparent 70%);
+  }
+  &:hover { transform: scale(1.02); box-shadow: var(--glow-stage-strong); }
 }
+
 
 @keyframes ed-rise {
   from { opacity: 0; transform: translate3d(0, 22px, 0) scale(0.985); }
@@ -1279,28 +1384,141 @@ main section:first-of-type {
   pointer-events: none;
   z-index: -1;
   background:
-    radial-gradient(ellipse 46% 60% at 50% 34%, color-mix(in oklab, var(--secondary) 85%, transparent), transparent 70%),
-    radial-gradient(ellipse 70% 78% at 50% 45%, color-mix(in oklab, var(--accent) 55%, transparent), transparent 72%);
-  filter: blur(30px);
+    radial-gradient(ellipse 40% 55% at 50% 30%, color-mix(in oklab, var(--stage-gold) 45%, transparent), transparent 68%),
+    radial-gradient(ellipse 55% 65% at 22% 55%, color-mix(in oklab, var(--stage-purple) 42%, transparent), transparent 70%),
+    radial-gradient(ellipse 55% 65% at 78% 50%, color-mix(in oklab, var(--stage-blue) 38%, transparent), transparent 70%),
+    radial-gradient(ellipse 70% 78% at 50% 78%, color-mix(in oklab, var(--stage-magenta) 32%, transparent), transparent 72%);
+  filter: blur(38px);
   animation: cine-breathe 9s ease-in-out infinite alternate;
 }
 @keyframes cine-breathe {
-  from { opacity: 0.6; transform: scale(1); }
-  to   { opacity: 0.9; transform: scale(1.05); }
+  from { opacity: 0.55; transform: scale(1); }
+  to   { opacity: 0.9; transform: scale(1.06); }
 }
 
-/* Jet-black display type */
+/* Cinematic display type — jet black with a stage-gradient wash. */
 @utility cine-title {
-  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 0.02em;
+  background-image: linear-gradient(
+    100deg,
+    var(--primary) 0%,
+    var(--primary) 34%,
+    var(--stage-purple) 58%,
+    var(--stage-magenta) 78%,
+    var(--stage-orange) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: cine-title-sweep 14s ease-in-out infinite alternate;
+}
+@keyframes cine-title-sweep {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+
+/* Reusable gradient accent for highlighted words in headings. */
+@utility stage-text {
+  background-image: var(--gradient-stage);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Section-level colour identity: drop `stage-aura` on a <section> for a soft
+   coloured wash. Variants shift the hue so each section reads differently. */
+@utility stage-aura {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -10% -5%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(50% 45% at 18% 12%, color-mix(in oklab, var(--stage-purple) 16%, transparent), transparent 70%),
+      radial-gradient(45% 42% at 84% 78%, color-mix(in oklab, var(--stage-orange) 14%, transparent), transparent 70%);
+    filter: blur(20px);
+  }
+}
+@utility stage-aura-cool {
+  &::before {
+    background:
+      radial-gradient(50% 45% at 82% 10%, color-mix(in oklab, var(--stage-blue) 18%, transparent), transparent 70%),
+      radial-gradient(45% 42% at 12% 82%, color-mix(in oklab, var(--stage-cyan) 14%, transparent), transparent 70%);
+  }
+}
+@utility stage-aura-warm {
+  &::before {
+    background:
+      radial-gradient(50% 45% at 15% 15%, color-mix(in oklab, var(--stage-magenta) 18%, transparent), transparent 70%),
+      radial-gradient(48% 42% at 85% 80%, color-mix(in oklab, var(--stage-gold) 16%, transparent), transparent 70%);
+  }
+}
+
+/* Animated light sweep for any surface (hero frames, banners). */
+@utility light-sweep {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    bottom: -50%;
+    left: -40%;
+    width: 30%;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent, oklch(1 0 0 / 32%), transparent);
+    transform: skewX(-14deg) translate3d(0, 0, 0);
+    will-change: transform;
+    animation: light-sweep-move 7s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  }
+}
+@keyframes light-sweep-move {
+  0%   { transform: skewX(-14deg) translate3d(0, 0, 0); }
+  60%, 100% { transform: skewX(-14deg) translate3d(560%, 0, 0); }
+}
+
+/* Site-wide button lift: any solid primary button becomes a stage-gradient
+   CTA with glow. Purely visual — markup and behaviour untouched. */
+button.bg-primary,
+a.bg-primary,
+.bg-primary[role="button"] {
+  background-image: var(--gradient-stage);
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+  border-color: transparent;
+  box-shadow: var(--glow-stage);
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease, background-position 600ms ease;
+}
+button.bg-primary:hover,
+a.bg-primary:hover,
+.bg-primary[role="button"]:hover {
+  background-position: 100% 50%;
+  box-shadow: var(--glow-stage-strong);
+  transform: translate3d(0, -2px, 0);
 }
 
 /* Distinct role colours from the reference */
-.role-educator { color: #2563EB; }
-.role-performer { color: #059669; }
-.role-choreographer { color: #D946EF; }
+.role-educator { color: var(--stage-blue); }
+.role-performer { color: var(--stage-orange); }
+.role-choreographer { color: var(--stage-magenta); }
 
 @media (prefers-reduced-motion: reduce) {
   .cine-spot { animation: none !important; }
+  .cine-title { animation: none !important; }
+  .light-sweep::after { animation: none !important; opacity: 0; }
 }
+
+/* Low-power / touch: keep the vibrance, drop the per-frame work. */
+@media (hover: none), (pointer: coarse) {
+  .light-sweep::after { animation-duration: 12s; }
+  .cine-title { animation: none; }
+}
+html[data-scrolling="1"] .light-sweep::after,
+html[data-scrolling="1"] .cine-spot { animation-play-state: paused; }
+
