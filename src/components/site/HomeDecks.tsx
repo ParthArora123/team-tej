@@ -85,10 +85,28 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
             </p>
           )}
           {w.venue && (
-            <p className="flex items-center gap-1.5">
-              <MapPin size={12} /> {w.venue}
-            </p>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <a
+                href={buildMapsUrl(w.venue) ?? undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1.5 underline-offset-2 transition hover:text-primary hover:underline"
+              >
+                <MapPin size={12} /> {w.venue}
+              </a>
+              <a
+                href={buildMapsUrl(w.venue) ?? undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition hover:text-primary"
+              >
+                <Navigation size={10} /> Get Directions
+              </a>
+            </div>
           )}
+
         </div>
 
         <div className="mt-auto pt-4 flex items-end justify-between gap-3">
