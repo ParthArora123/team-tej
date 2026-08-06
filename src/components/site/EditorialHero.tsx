@@ -61,17 +61,98 @@ export function EditorialHero({
     { k: "Mission", t: "Movement that Transforms", v: mission },
   ];
 
-  return (
-    <section className="relative w-full min-h-[100svh] px-3 sm:px-6 lg:px-10 pt-24 pb-6 lg:pt-22 lg:pb-8">
-      <div className="mx-auto grid w-full max-w-[92rem] gap-5 lg:grid-cols-[minmax(0,67fr)_minmax(0,33fr)] lg:gap-8 lg:items-stretch">
+  const workshopPanel = (
+    <article className="ed-rise ed-card group flex h-full flex-col overflow-hidden p-0 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_28px_70px_-30px_color-mix(in_oklab,var(--foreground)_45%,transparent)]" style={{ animationDelay: "300ms" }}>
+      {next?.banner_url && (
+        <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden lg:aspect-auto lg:min-h-[34%] lg:flex-1">
+          <img src={next.banner_url} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover opacity-60 blur-2xl" />
+          <img
+            src={next.banner_url}
+            alt={next.name}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-contain transition-transform duration-700 group-hover:scale-[1.03]"
+          />
+        </div>
+      )}
 
-        {/* LEFT — title, portrait, CTAs, then belief/vision/mission */}
-        <div className="order-1 flex flex-col justify-center">
-          <header className="relative z-10 w-full text-center">
-            <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
+      <div className={`flex flex-col p-5 ${next?.banner_url ? "" : "flex-1 justify-center"}`}>
+        <p className="ed-eyebrow">Next Studio Day{next?.city ? ` · ${next.city}` : ""}</p>
+        <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold leading-snug">
+          {next ? next.name : "New dates dropping soon"}
+        </h2>
+
+        {next && (
+          <div className="mt-3 grid gap-2 text-[12.5px] text-muted-foreground">
+            <span className="inline-flex items-center gap-2">
+              <Calendar size={13} className="shrink-0 text-primary" />
+              {new Date(next.event_date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "long", year: "numeric" })}
+            </span>
+            {next.event_time && (
+              <span className="inline-flex items-center gap-2">
+                <Clock size={13} className="shrink-0 text-primary" /> {next.event_time}
+              </span>
+            )}
+            {next.venue && (
+              <a
+                href={buildMapsUrl(next.venue) ?? undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-start gap-2 underline-offset-2 transition hover:text-primary hover:underline"
+              >
+                <MapPin size={13} className="mt-0.5 shrink-0 text-primary" /> <span className="min-w-0">{next.venue}</span>
+              </a>
+            )}
+          </div>
+        )}
+
+        {next?.description && (
+          <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground line-clamp-3">{next.description}</p>
+        )}
+
+        {next?.venue && (
+          <a
+            href={buildMapsUrl(next.venue) ?? undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition hover:border-primary hover:text-primary"
+          >
+            <NavigationIcon size={11} /> Get Directions
+          </a>
+        )}
+
+        {next ? (
+          <Link
+            to="/workshops/$id"
+            params={{ id: String(next.id) }}
+            className="ed-cta mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]"
+          >
+            Register Now <ArrowUpRight size={13} />
+          </Link>
+        ) : (
+          <Link
+            to="/workshops"
+            className="ed-cta mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]"
+          >
+            See all workshops <ArrowUpRight size={13} />
+          </Link>
+        )}
+      </div>
+    </article>
+  );
+
+  return (
+    <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-8 lg:pt-24 lg:pb-10">
+      {/* ROW 1 — HERO: 7fr / 3fr on desktop */}
+      <div className="mx-auto grid w-full max-w-[92rem] gap-5 lg:min-h-[calc(100svh-8rem)] lg:grid-cols-[7fr_3fr] lg:items-stretch lg:gap-8">
+
+        {/* LEFT (70%) — title · subtitle · media · CTAs */}
+        <div className="flex min-w-0 flex-col justify-center">
+          <header className="relative z-10 text-center lg:text-left">
+            <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6.5rem] font-bold tracking-[-0.03em]">
               {name.toUpperCase()}
             </h1>
-            <p className="ed-rise mt-2.5 flex items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.2em]" style={{ animationDelay: "90ms" }}>
+            <p className="ed-rise mt-2.5 flex items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.2em] lg:justify-start" style={{ animationDelay: "90ms" }}>
               <span className="role-educator">Dance Educator</span>
               <span className="text-muted-foreground text-[0.75rem]">•</span>
               <span className="role-performer">Performer</span>
@@ -83,14 +164,13 @@ export function EditorialHero({
             </p>
           </header>
 
-          <div className="relative z-30 mt-4">
+          <div className="relative z-30 mt-4 lg:mt-5">
             <div className="relative isolate z-30">
               <div aria-hidden className="cine-spot" />
               <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
             </div>
 
-            {/* CTAs */}
-            <div className="ed-rise mt-5 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
+            <div className="ed-rise mt-5 flex flex-wrap items-center justify-center gap-3 lg:justify-start" style={{ animationDelay: "520ms" }}>
               <button
                 type="button"
                 onClick={onExplore}
@@ -109,9 +189,18 @@ export function EditorialHero({
               </button>
             </div>
           </div>
+        </div>
 
-          {/* Belief · Vision · Mission — below the hero content */}
-          <div className="mt-6 grid content-start gap-2.5 sm:grid-cols-3">
+        {/* RIGHT (30%) — upcoming workshop card, full hero height */}
+        <div className="min-w-0 lg:h-full">
+          {workshopPanel}
+        </div>
+      </div>
+
+      {/* ROW 2 — Belief / Vision / Mission + featured workshop panel */}
+      <div className="mx-auto mt-6 grid w-full max-w-[92rem] gap-5 lg:mt-8 lg:grid-cols-[7fr_3fr] lg:items-stretch lg:gap-8">
+        <div className="flex min-w-0 flex-col gap-3">
+          <div className="grid flex-1 content-stretch gap-3 sm:grid-cols-3">
             {columns.map((c, i) => (
               <article key={c.t} className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: `${220 + i * 80}ms` }}>
                 <p className="ed-eyebrow">{c.k}</p>
@@ -122,7 +211,7 @@ export function EditorialHero({
           </div>
 
           {(hasMore || socials.instagram || socials.youtube) && (
-            <div className="ed-rise mt-3 flex items-center justify-center gap-2 lg:justify-start" style={{ animationDelay: "460ms" }}>
+            <div className="ed-rise flex items-center justify-center gap-2 lg:justify-start" style={{ animationDelay: "460ms" }}>
               {hasMore && (
                 <button
                   onClick={() => setOpen(true)}
@@ -147,117 +236,59 @@ export function EditorialHero({
           )}
         </div>
 
-        {/* RIGHT — sticky premium workshop card */}
-        <div className="order-2 lg:h-full">
-          <div className="lg:sticky lg:top-24 flex flex-col gap-4">
-            <article className="ed-rise ed-card group overflow-hidden p-0 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_28px_70px_-30px_color-mix(in_oklab,var(--foreground)_45%,transparent)]" style={{ animationDelay: "300ms" }}>
-              {next?.banner_url && (
-                <div className="relative aspect-[16/10] w-full overflow-hidden">
-                  <img src={next.banner_url} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-60" />
-                  <img
-                    src={next.banner_url}
-                    alt={next.name}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 h-full w-full object-contain transition-transform duration-700 group-hover:scale-[1.03]"
-                  />
-                </div>
-              )}
-
-              <div className="p-5">
-                <p className="ed-eyebrow">Next Studio Day{next?.city ? ` · ${next.city}` : ""}</p>
-                <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold leading-snug">
-                  {next ? next.name : "New dates dropping soon"}
-                </h2>
-
-                {next && (
-                  <div className="mt-3 grid gap-2 text-[12.5px] text-muted-foreground">
-                    <span className="inline-flex items-center gap-2">
-                      <Calendar size={13} className="shrink-0 text-primary" />
-                      {new Date(next.event_date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "long", year: "numeric" })}
-                    </span>
-                    {next.event_time && (
-                      <span className="inline-flex items-center gap-2">
-                        <Clock size={13} className="shrink-0 text-primary" /> {next.event_time}
+        <div className="min-w-0">
+          {tour.length > 0 ? (
+            <article className="ed-rise ed-card flex h-full flex-col p-4.5 lg:p-5" style={{ animationDelay: "380ms" }}>
+              <p className="ed-eyebrow inline-flex items-center gap-1.5">
+                <Calendar size={11} /> Upcoming Tour
+              </p>
+              <ul className="mt-3 divide-y divide-border">
+                {tour.map((w) => (
+                  <li key={w.id} className="py-2.5 first:pt-0">
+                    <Link
+                      to="/workshops/$id"
+                      params={{ id: String(w.id) }}
+                      className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-[13px] font-semibold transition group-hover:text-primary">
+                          {w.city || w.name}
+                        </span>
+                        <span className="block truncate text-[11px] text-muted-foreground">{w.name}</span>
                       </span>
-                    )}
-                    {next.venue && (
-                      <a
-                        href={buildMapsUrl(next.venue) ?? undefined}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-start gap-2 underline-offset-2 transition hover:text-primary hover:underline"
-                      >
-                        <MapPin size={13} className="mt-0.5 shrink-0 text-primary" /> <span className="min-w-0">{next.venue}</span>
-                      </a>
-                    )}
-                  </div>
-                )}
-
-                {next?.description && (
-                  <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground line-clamp-3">{next.description}</p>
-                )}
-
-                {next?.venue && (
-                  <a
-                    href={buildMapsUrl(next.venue) ?? undefined}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition hover:border-primary hover:text-primary"
-                  >
-                    <NavigationIcon size={11} /> Get Directions
-                  </a>
-                )}
-
-                {next ? (
-                  <Link
-                    to="/workshops/$id"
-                    params={{ id: String(next.id) }}
-                    className="ed-cta mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]"
-                  >
-                    Register Now <ArrowUpRight size={13} />
-                  </Link>
-                ) : (
-                  <Link
-                    to="/workshops"
-                    className="ed-cta mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]"
-                  >
-                    See all workshops <ArrowUpRight size={13} />
-                  </Link>
-                )}
-              </div>
+                      <span className="shrink-0 text-[11px] text-muted-foreground">
+                        {new Date(w.event_date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                to="/workshops"
+                className="ed-cta mt-auto inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]"
+              >
+                Register for a Workshop <ArrowUpRight size={13} />
+              </Link>
             </article>
-
-            {tour.length > 0 && (
-              <article className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: "380ms" }}>
-                <p className="ed-eyebrow inline-flex items-center gap-1.5">
-                  <Calendar size={11} /> Upcoming Tour
+          ) : (
+            <article className="ed-rise ed-card flex h-full flex-col justify-between p-5" style={{ animationDelay: "380ms" }}>
+              <div>
+                <p className="ed-eyebrow">Registration</p>
+                <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold">Reserve your spot</h2>
+                <p className="mt-2.5 text-[13px] leading-relaxed text-muted-foreground">
+                  Studio days fill fast. Browse the calendar and lock your seat.
                 </p>
-                <ul className="mt-3 divide-y divide-border">
-                  {tour.map((w) => (
-                    <li key={w.id} className="py-2.5 first:pt-0 last:pb-0">
-                      <Link
-                        to="/workshops/$id"
-                        params={{ id: String(w.id) }}
-                        className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"
-                      >
-                        <span className="min-w-0">
-                          <span className="block truncate text-[13px] font-semibold transition group-hover:text-primary">
-                            {w.city || w.name}
-                          </span>
-                          <span className="block truncate text-[11px] text-muted-foreground">{w.name}</span>
-                        </span>
-                        <span className="shrink-0 text-[11px] text-muted-foreground">
-                          {new Date(w.event_date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            )}
-          </div>
+              </div>
+              <Link
+                to="/workshops"
+                className="ed-cta mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]"
+              >
+                Register for a Workshop <ArrowUpRight size={13} />
+              </Link>
+            </article>
+          )}
         </div>
+
       </div>
 
 
