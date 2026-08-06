@@ -1084,7 +1084,7 @@ main section:first-of-type {
 .chapter-body.chapter-stagger.chapter-in > *:nth-child(4) { animation-delay: 410ms; }
 .chapter-body.chapter-stagger.chapter-in > *:nth-child(5) { animation-delay: 490ms; }
 .chapter-body.chapter-stagger.chapter-in > *:nth-child(n + 6) { animation-delay: 560ms; }
-.chapter-body.chapter-stagger.chapter-done > * { animation: none; opacity: 1; transform: none; }
+/* children keep their `both` fill state; no truncation when the body finishes */
 
 /* Scene-to-scene grade: a brief cinematic dim between screens. */
 .pager-grade {
