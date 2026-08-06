@@ -163,9 +163,12 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
             aria-hidden={!active}
             style={
               active
-                ? { willChange: "transform, opacity" }
+                ? animating
+                  ? { willChange: "transform, opacity" }
+                  : undefined
                 : { display: "none", contentVisibility: "hidden" }
             }
+
           >
             {slide}
           </div>
