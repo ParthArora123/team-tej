@@ -4,6 +4,49 @@ import { ArrowUpRight, Play, ChevronDown } from "lucide-react";
 import { MagneticButton } from "@/components/site/MagneticButton";
 import { playHomepageVideo, pauseHomepageVideo } from "@/lib/home-video-playback";
 
+/** Counts 0 → target once, using a single rAF chain (no per-frame React churn beyond setState). */
+function HeroCounter({ value, suffix, delay = 0 }: { value: number; suffix: string; delay?: number }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setN(value);
+      return;
+    }
+    let raf = 0;
+    let start = 0;
+    const dur = 1400;
+    const tick = (now: number) => {
+      if (!start) start = now;
+      const t = Math.min(1, (now - start) / dur);
+      setN(Math.round((1 - Math.pow(1 - t, 3)) * value));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    const timer = setTimeout(() => {
+      raf = requestAnimationFrame(tick);
+    }, delay);
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(raf);
+    };
+  }, [value, delay]);
+  return (
+    <>
+      {n >= 1000 ? `${Math.round(n / 1000)}k` : n}
+      {suffix}
+    </>
+  );
+}
+
+/** "1000+" → { value: 1000, suffix: "+" }, "100k+" → { value: 100000, suffix: "+" } */
+function parseStat(raw: string) {
+  const m = raw.match(/^([\d.]+)\s*([kKmM]?)\s*(.*)$/);
+  if (!m) return null;
+  const base = parseFloat(m[1]);
+  if (!isFinite(base)) return null;
+  const mult = m[2].toLowerCase() === "k" ? 1000 : m[2].toLowerCase() === "m" ? 1_000_000 : 1;
+  return { value: Math.round(base * mult), suffix: m[3] ?? "" };
+}
+
 export function CinematicHero({
   backgroundImage,
   badges,
@@ -66,7 +109,6 @@ export function CinematicHero({
     setFailed(false);
   }, [backgroundImage, onReady]);
 
-
   return (
     <section
       id="hero"
@@ -75,34 +117,49 @@ export function CinematicHero({
       style={{ background: "var(--surface)" }}
     >
       <style>{`
-        /* Ken-burns zoom is a full-screen repaint every frame — desktop only. */
-        @media (max-width: 1024px), (hover: none), (pointer: coarse) {
-          .hero-zoom-layer { animation: none !important; }
-          /* Four permanently floating cards over a full-bleed photo means the
-             whole hero repaints continuously on devices without a spare GPU
-             budget. Keep the cards, drop the motion. */
-          .hero-float-card { animation: none !important; }
+        /* Every hero animation below is compositor-only (transform/opacity) and
+           disabled on touch / reduced-motion so mobile stays at 60fps. */
+        @media (max-width: 1024px), (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+          .hero-kenburns, .hero-float-card, .hero-ray, .hero-mote { animation: none !important; }
         }
-        /* The stat cards no longer float forever: an endless transform over a
-           full-bleed photo forced a continuous repaint of the entire hero on
-           every device (measured: 8fps -> 51fps once removed). They still
-           animate in on mount. */
-        @keyframes heroZoom { from { transform: scale(1.0); } to { transform: scale(1.12); } }
-        @keyframes heroClipDrift { from { transform: scale(1.04); } to { transform: scale(1.14); } }
+        @keyframes heroKenBurns {
+          0%   { transform: scale(1) translate3d(0,0,0); }
+          100% { transform: scale(1.07) translate3d(0,-1.2%,0); }
+        }
+        @keyframes heroFloat {
+          0%,100% { transform: translate3d(0,0,0); }
+          50%     { transform: translate3d(0,-7px,0); }
+        }
+        @keyframes heroRay {
+          0%,100% { opacity: .18; transform: translate3d(0,0,0) rotate(var(--ray-rot)); }
+          50%     { opacity: .34; transform: translate3d(0,-2%,0) rotate(var(--ray-rot)); }
+        }
+        @keyframes heroMote {
+          0%   { opacity: 0; transform: translate3d(0, 20px, 0); }
+          20%  { opacity: .7; }
+          100% { opacity: 0; transform: translate3d(0, -120px, 0); }
+        }
+        .hero-kenburns { animation: heroKenBurns 26s ease-in-out infinite alternate; }
+        .hero-float-card { animation: heroFloat 7s ease-in-out infinite; }
+        .hero-ray { animation: heroRay 11s ease-in-out infinite; }
+        .hero-mote { animation: heroMote 12s linear infinite; }
+        .hero-title-grad {
+          background: linear-gradient(178deg, #ffffff 22%, color-mix(in oklab, var(--accent-gold) 92%, #fff) 96%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+        }
       `}</style>
 
-      {/* Blurred backdrop — static (never animated) so the expensive blur is
-          rasterised once instead of every frame of the ken-burns zoom. */}
+      {/* Blurred backdrop fill — static so the expensive blur rasterises once. */}
       {backgroundImage && !failed ? (
         <img
           src={backgroundImage}
           alt=""
           aria-hidden
-          className="blur-backdrop opacity-80"
+          className="blur-backdrop opacity-70"
           style={{
             visibility: loaded ? "visible" : "hidden",
-            // Promote to its own compositor layer so the expensive blur is
-            // rasterised once instead of on every frame of the hero zoom.
             willChange: "transform",
             contain: "paint",
           }}
@@ -112,15 +169,46 @@ export function CinematicHero({
         />
       ) : null}
 
-      {/* Static background — Tejas D Dhoke photo, full-bleed, single image */}
+      {/* Spotlight behind Tejas — pure gradient, no runtime blur filter. */}
       <div
-        className="hero-zoom-layer absolute inset-0 w-full h-full transform-gpu"
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
         style={{
-          // Ken-burns removed: scaling a full-bleed portrait re-rasterises the
-          // whole hero every frame on every device. Static framing instead.
-          animation: "none",
-          visibility: loaded && !failed && backgroundImage ? "visible" : "hidden",
+          background:
+            "radial-gradient(46% 62% at 50% 46%, color-mix(in oklab, var(--accent-gold) 26%, transparent) 0%, color-mix(in oklab, var(--accent-gold) 9%, transparent) 38%, transparent 72%)",
         }}
+      />
+
+      {/* Soft light rays */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden hidden md:block">
+        {[
+          { left: "26%", rot: "-14deg", w: "180px", d: "0s" },
+          { left: "48%", rot: "4deg", w: "240px", d: "-3.5s" },
+          { left: "70%", rot: "13deg", w: "160px", d: "-7s" },
+        ].map((r) => (
+          <span
+            key={r.left}
+            className="hero-ray absolute -top-[20%] h-[150%] origin-top"
+            style={
+              {
+                left: r.left,
+                width: r.w,
+                animationDelay: r.d,
+                "--ray-rot": r.rot,
+                transform: `rotate(${r.rot})`,
+                background:
+                  "linear-gradient(180deg, color-mix(in oklab, var(--accent-gold) 30%, transparent) 0%, transparent 78%)",
+                filter: "blur(22px)",
+              } as React.CSSProperties
+            }
+          />
+        ))}
+      </div>
+
+      {/* Portrait — Ken Burns on desktop only, never cropped on large screens */}
+      <div
+        className="hero-kenburns absolute inset-0 w-full h-full transform-gpu"
+        style={{ visibility: loaded && !failed && backgroundImage ? "visible" : "hidden" }}
       >
         {backgroundImage && !failed ? (
           <img
@@ -150,7 +238,6 @@ export function CinematicHero({
           />
         ) : null}
       </div>
-
 
       {/* Cinematic clip montage — crossfades over the portrait on desktop */}
       {cinemaOn && activeClip && (
@@ -191,49 +278,62 @@ export function CinematicHero({
               if (clips.length > 1) setClipIdx((i) => (i + 1) % clips.length);
             }}
             className="absolute inset-0 h-full w-full object-contain transform-gpu z-[1]"
-            style={{
-              opacity: clipReady ? 1 : 0,
-              transition: "opacity 1.4s ease",
-            }}
+            style={{ opacity: clipReady ? 1 : 0, transition: "opacity 1.4s ease" }}
           />
         </>
       )}
 
-      {/* Cinematic grading — mobile only. On desktop/laptop the dark vignette
-          read as a black shadow over the design, so it's hidden there. */}
+      {/* Cinematic grading — 40–50% dark wash for text legibility, everywhere. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 lg:hidden"
+        className="pointer-events-none absolute inset-0 z-[2]"
         style={{
           background:
-            "linear-gradient(180deg, oklch(0 0 0 / 25%) 0%, oklch(0 0 0 / 10%) 40%, oklch(0 0 0 / 55%) 100%)",
+            "linear-gradient(180deg, oklch(0 0 0 / 42%) 0%, oklch(0 0 0 / 14%) 38%, oklch(0 0 0 / 68%) 100%)",
         }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-70 lg:hidden"
+        className="pointer-events-none absolute inset-0 z-[2] opacity-80"
         style={{
           background:
-            "radial-gradient(80% 60% at 50% 80%, oklch(0 0 0 / 60%) 0%, transparent 60%)",
+            "radial-gradient(90% 70% at 50% 88%, oklch(0 0 0 / 62%) 0%, transparent 62%)",
         }}
       />
 
+      {/* Ambient floating motes */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 z-[3] hidden md:block overflow-hidden">
+        {[8, 19, 31, 44, 58, 67, 79, 91].map((left, i) => (
+          <span
+            key={left}
+            className="hero-mote absolute bottom-[18%] rounded-full"
+            style={{
+              left: `${left}%`,
+              width: i % 3 === 0 ? 4 : 2.5,
+              height: i % 3 === 0 ? 4 : 2.5,
+              background: "color-mix(in oklab, var(--accent-gold) 85%, white)",
+              boxShadow: "0 0 10px color-mix(in oklab, var(--accent-gold) 70%, transparent)",
+              animationDelay: `${i * 1.5}s`,
+            }}
+          />
+        ))}
+      </div>
 
       <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-10 flex flex-col items-center text-center pointer-events-none justify-end pb-[12vh] sm:pb-[14vh]">
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.7 }}
-          className="text-[10px] sm:text-xs uppercase tracking-[0.45em] text-white/80"
+          className="text-[10px] sm:text-xs uppercase tracking-[0.5em] text-white/75"
         >
           Dance Educator • Performer • Choreographer
         </motion.p>
 
         <motion.h1
-          initial={{ opacity: 0, y: 26 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-3 font-display font-bold uppercase leading-[0.92] text-white text-[clamp(2.2rem,8vw,6.5rem)] tracking-tight drop-shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
+          initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ delay: 0.05, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+          className="hero-title-grad mt-5 font-display font-bold uppercase leading-[0.9] text-[clamp(2.4rem,8.6vw,7rem)] tracking-[-0.02em] drop-shadow-[0_14px_50px_rgba(0,0,0,0.55)]"
         >
           Tejas D Dhoke
         </motion.h1>
@@ -242,7 +342,7 @@ export function CinematicHero({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="mt-3 text-sm sm:text-lg text-white/85 max-w-xl"
+          className="mt-5 text-sm sm:text-lg text-white/85 max-w-xl"
         >
           Transforming passion into performance.
         </motion.p>
@@ -251,28 +351,24 @@ export function CinematicHero({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.8 }}
-          className="mt-7 flex flex-wrap items-center justify-center gap-3 pointer-events-auto"
+          className="mt-9 flex flex-wrap items-center justify-center gap-3 sm:gap-4 pointer-events-auto"
         >
           <MagneticButton>
             <a
               href="#workshops"
               onClick={(e) => {
                 e.preventDefault();
-                document
-                  .getElementById("workshops")
-                  ?.scrollIntoView({ behavior: "smooth" });
+                document.getElementById("workshops")?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-primary-foreground text-[11px] font-bold uppercase tracking-[0.22em]"
-              style={{
-                background: "var(--gradient-primary)",
-                boxShadow: "var(--shadow-glow)",
-              }}
+              className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full px-9 py-4 sm:px-11 sm:py-[1.15rem] text-primary-foreground text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.22em] transition-transform duration-300 hover:scale-[1.04]"
+              style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
             >
-              Explore Workshops
-              <ArrowUpRight
-                size={14}
-                className="group-hover:rotate-45 transition-transform"
+              <span
+                aria-hidden
+                className="absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/25 opacity-0 transition-all duration-700 group-hover:left-[110%] group-hover:opacity-100"
               />
+              <span className="relative">Explore Workshops</span>
+              <ArrowUpRight size={16} className="relative transition-transform group-hover:rotate-45" />
             </a>
           </MagneticButton>
           <MagneticButton>
@@ -280,51 +376,46 @@ export function CinematicHero({
               href="#showcase"
               onClick={(e) => {
                 e.preventDefault();
-                document
-                  .getElementById("showcase")
-                  ?.scrollIntoView({ behavior: "smooth" });
+                document.getElementById("showcase")?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.22em] text-white border border-white/25 bg-white/15 hover:bg-white/25 transition-colors"
+              className="group inline-flex items-center gap-2.5 rounded-full px-8 py-4 sm:px-9 sm:py-[1.15rem] text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.22em] text-white border border-white/25 bg-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:scale-[1.03]"
             >
-              <Play size={13} /> Watch Performances
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 transition-transform group-hover:scale-110">
+                <Play size={12} className="translate-x-[1px]" fill="currentColor" />
+              </span>
+              Watch Showreel
             </a>
           </MagneticButton>
         </motion.div>
       </div>
 
-      {/* Floating achievement badges */}
-      <div
-        aria-hidden={false}
-        className="absolute inset-0 z-20 hidden lg:block pointer-events-none"
-      >
+      {/* Floating achievement cards — premium glass */}
+      <div aria-hidden={false} className="absolute inset-0 z-20 hidden lg:block pointer-events-none">
         {badges.slice(0, 4).map((b, idx) => {
           const spots = [
-            "left-[4%] top-[48%]",
-            "right-[4%] top-[56%]",
-            "left-[7%] bottom-[14%]",
-            "right-[7%] bottom-[18%]",
+            "left-[4%] top-[46%]",
+            "right-[4%] top-[54%]",
+            "left-[7%] bottom-[15%]",
+            "right-[7%] bottom-[19%]",
           ];
+          const stat = parseStat(b.value);
           return (
             <motion.div
               key={b.label}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6 + idx * 0.12, duration: 0.7 }}
-              className={`hero-float-card absolute ${spots[idx]} rounded-2xl border border-white/15 bg-black/45 px-5 py-3 text-left shadow-[0_10px_40px_rgba(0,0,0,0.4)] lg:shadow-none`}
+              initial={{ opacity: 0, y: 18, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.7 + idx * 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className={`hero-float-card absolute ${spots[idx]} rounded-2xl border border-white/20 bg-white/10 px-6 py-4 text-left backdrop-blur-xl`}
               style={{
-                // Static by default: four cards floating forever over a
-                // full-bleed photo repaint the whole hero every frame. The
-                // desktop-only rule below re-enables a gentle drift.
-                willChange: "auto",
+                animationDelay: `${idx * 0.9}s`,
+                boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.18)",
                 backfaceVisibility: "hidden",
               }}
             >
-              <p className="font-display text-2xl font-bold text-white leading-none">
-                {b.value}
+              <p className="font-display text-[1.75rem] font-bold text-white leading-none">
+                {stat ? <HeroCounter value={stat.value} suffix={stat.suffix} delay={700 + idx * 120} /> : b.value}
               </p>
-              <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-white/70">
-                {b.label}
-              </p>
+              <p className="mt-1.5 text-[10px] uppercase tracking-[0.22em] text-white/70">{b.label}</p>
             </motion.div>
           );
         })}
@@ -333,11 +424,12 @@ export function CinematicHero({
       {/* Scroll indicator */}
       <motion.div
         aria-hidden
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 text-white/70"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, y: [0, 8, 0] }}
+        transition={{ opacity: { delay: 1.2, duration: 0.6 }, y: { duration: 2.4, repeat: Infinity, ease: "easeInOut" } }}
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1.5 text-white/70"
       >
-        <span className="text-[9px] uppercase tracking-[0.35em]">Scroll</span>
+        <span className="text-[9px] uppercase tracking-[0.35em]">Scroll to Explore</span>
         <ChevronDown size={16} />
       </motion.div>
     </section>
