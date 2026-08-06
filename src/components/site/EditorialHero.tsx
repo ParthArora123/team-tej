@@ -53,17 +53,16 @@ export function EditorialHero({
 
   return (
     <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-8 lg:pt-20 lg:pb-10">
-      {/* ROW 1 — HERO: 7fr / 3fr on desktop */}
-      <div className="mx-auto grid w-full max-w-[92rem] gap-5 lg:h-[calc(100svh-6.5rem)] lg:grid-cols-[7fr_3fr] lg:items-stretch lg:gap-8">
+      {/* ROW 1 — HERO: full-width cinematic portrait */}
+      <div className="mx-auto flex w-full max-w-[92rem] flex-col justify-center gap-5">
 
-        {/* LEFT (70%) — title · subtitle · media · CTAs */}
-        <div className="flex min-w-0 flex-col justify-center lg:h-full lg:min-h-0">
-          <header className="relative z-10 shrink-0 text-center lg:text-left">
-            <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-6xl xl:text-[5rem] font-bold tracking-[-0.03em]">
+        <div className="flex min-w-0 flex-col justify-center">
+          <header className="relative z-10 shrink-0 text-center">
+            <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
 
               {name.toUpperCase()}
             </h1>
-            <p className="ed-rise mt-2.5 flex items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.2em] lg:justify-start" style={{ animationDelay: "90ms" }}>
+            <p className="ed-rise mt-2.5 flex items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.2em]" style={{ animationDelay: "90ms" }}>
               <span className="role-educator">Dance Educator</span>
               <span className="text-muted-foreground text-[0.75rem]">•</span>
               <span className="role-performer">Performer</span>
@@ -75,14 +74,14 @@ export function EditorialHero({
             </p>
           </header>
 
-          <div className="relative z-30 mt-4 flex flex-col lg:mt-4">
+          <div className="relative z-30 mt-4 flex flex-col lg:mt-6">
             <div className="relative isolate z-30">
 
               <div aria-hidden className="cine-spot" />
               <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
             </div>
 
-            <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3 lg:mt-4 lg:justify-start" style={{ animationDelay: "520ms" }}>
+            <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3 lg:mt-6" style={{ animationDelay: "520ms" }}>
 
               <button
                 type="button"
@@ -103,28 +102,23 @@ export function EditorialHero({
             </div>
           </div>
         </div>
-
-        {/* RIGHT (30%) — upcoming workshop card, full hero height */}
-        <div className="min-w-0 lg:h-full">
-          {workshopPanel}
-        </div>
       </div>
 
-      {/* ROW 2 — Belief / Vision / Mission + featured workshop panel */}
-      <div className="mx-auto mt-6 grid w-full max-w-[92rem] gap-5 lg:mt-8 lg:grid-cols-[7fr_3fr] lg:items-stretch lg:gap-8">
-        <div className="flex min-w-0 flex-col gap-3">
-          <div className="grid flex-1 content-stretch gap-3 sm:grid-cols-3">
+      {/* ROW 2 — Belief & Vision */}
+      <div className="mx-auto mt-8 w-full max-w-[92rem] lg:mt-12">
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             {columns.map((c, i) => (
-              <article key={c.t} className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: `${220 + i * 80}ms` }}>
+              <article key={c.t} className="ed-rise ed-card p-5 lg:p-7" style={{ animationDelay: `${220 + i * 80}ms` }}>
                 <p className="ed-eyebrow">{c.k}</p>
-                <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold">{c.t}</h2>
-                <p className={`mt-2.5 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line ${c.k === "Mission" ? "max-h-32 overflow-y-auto pr-1" : "line-clamp-5"}`}>{c.v}</p>
+                <h2 className="mt-1.5 font-display text-xl lg:text-2xl font-bold">{c.t}</h2>
+                <p className="mt-2.5 text-[14px] leading-relaxed text-muted-foreground whitespace-pre-line">{c.v}</p>
               </article>
             ))}
           </div>
 
           {(hasMore || socials.instagram || socials.youtube) && (
-            <div className="ed-rise flex items-center justify-center gap-2 lg:justify-start" style={{ animationDelay: "460ms" }}>
+            <div className="ed-rise flex items-center justify-center gap-2" style={{ animationDelay: "460ms" }}>
               {hasMore && (
                 <button
                   onClick={() => setOpen(true)}
@@ -148,61 +142,8 @@ export function EditorialHero({
             </div>
           )}
         </div>
-
-        <div className="min-w-0">
-          {tour.length > 0 ? (
-            <article className="ed-rise ed-card flex h-full flex-col p-4.5 lg:p-5" style={{ animationDelay: "380ms" }}>
-              <p className="ed-eyebrow inline-flex items-center gap-1.5">
-                <Calendar size={11} /> Upcoming Tour
-              </p>
-              <ul className="mt-3 divide-y divide-border">
-                {tour.map((w) => (
-                  <li key={w.id} className="py-2.5 first:pt-0">
-                    <Link
-                      to="/workshops/$id"
-                      params={{ id: String(w.id) }}
-                      className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"
-                    >
-                      <span className="min-w-0">
-                        <span className="block truncate text-[13px] font-semibold transition group-hover:text-primary">
-                          {w.city || w.name}
-                        </span>
-                        <span className="block truncate text-[11px] text-muted-foreground">{w.name}</span>
-                      </span>
-                      <span className="shrink-0 text-[11px] text-muted-foreground">
-                        {new Date(w.event_date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to="/workshops"
-                className="ed-cta mt-auto inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]"
-              >
-                Register for a Workshop <ArrowUpRight size={13} />
-              </Link>
-            </article>
-          ) : (
-            <article className="ed-rise ed-card flex h-full flex-col justify-between p-5" style={{ animationDelay: "380ms" }}>
-              <div>
-                <p className="ed-eyebrow">Registration</p>
-                <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold">Reserve your spot</h2>
-                <p className="mt-2.5 text-[13px] leading-relaxed text-muted-foreground">
-                  Studio days fill fast. Browse the calendar and lock your seat.
-                </p>
-              </div>
-              <Link
-                to="/workshops"
-                className="ed-cta mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.16em]"
-              >
-                Register for a Workshop <ArrowUpRight size={13} />
-              </Link>
-            </article>
-          )}
-        </div>
-
       </div>
+
 
 
       {open && (
