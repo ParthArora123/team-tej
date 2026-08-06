@@ -79,10 +79,10 @@ export function EditorialHero({
       </header>
 
       {/* Three editorial columns */}
-      <div className="relative z-10 mx-auto mt-5 lg:mt-6 grid w-full max-w-[92rem] gap-5 lg:gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.75fr)_minmax(0,0.86fr)] items-stretch">
+      <div className="relative z-10 mx-auto mt-3 lg:mt-4 grid w-full max-w-[92rem] gap-3 lg:gap-6 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.85fr)_minmax(0,0.84fr)] items-stretch">
 
         {/* Left — philosophy stack */}
-        <div className="order-2 lg:order-1 grid content-start gap-3.5 sm:grid-cols-3 lg:grid-cols-1">
+        <div className="order-2 lg:order-1 grid content-start gap-2.5 sm:grid-cols-3 lg:grid-cols-1">
           {columns.map((c, i) => (
             <article key={c.t} className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: `${220 + i * 80}ms` }}>
               <p className="ed-eyebrow">{c.k}</p>
