@@ -602,24 +602,6 @@ function Index() {
       {/* SCREEN 2 — Meet Tejas: mindset & movement */}
       <Chapter index={2} total={5} kicker="Meet Tejas">
         <FounderSection founder={founder} />
-      {/* STATS / ACHIEVEMENTS — immediately after India to the Globe */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-7 lg:py-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
-          {stats.map((s) => (
-            <div key={s.label} className="reveal-up relative border-t border-border pt-6" style={revealDelay(stats.indexOf(s))}>
-              <div
-                aria-hidden
-                className="absolute -top-px left-0 h-px w-16"
-                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
-              />
-              <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
-                {s.value}{s.suffix ?? ""}
-              </p>
-              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
       </Chapter>
 
       {/* SCREEN 3 — Most Viral Choreographies */}
@@ -715,6 +697,23 @@ function Index() {
             </div>
           );
         })()}
+
+        {/* RHYTHM & COUNTING — animated stats, immediately after the globe */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+          {stats.map((s, si) => (
+            <div key={s.label} className="reveal-up relative border-t border-border pt-6" style={revealDelay(si)}>
+              <div
+                aria-hidden
+                className="absolute -top-px left-0 h-px w-16"
+                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
+              />
+              <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
+                {s.value}{s.suffix ?? ""}
+              </p>
+              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
+            </div>
+          ))}
+        </div>
       </section>
       </Chapter>
 
