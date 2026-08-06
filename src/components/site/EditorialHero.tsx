@@ -66,8 +66,12 @@ export function EditorialHero({
         <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
           {name.toUpperCase()}
         </h1>
-        <p className="ed-rise mt-3 text-[10px] sm:text-xs uppercase tracking-[0.4em] text-muted-foreground" style={{ animationDelay: "90ms" }}>
-          Dance Educator <span className="text-primary">•</span> Performer <span className="text-primary">•</span> Choreographer
+        <p className="ed-rise mt-2.5 flex items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.2em]" style={{ animationDelay: "90ms" }}>
+          <span className="role-educator">Dance Educator</span>
+          <span className="text-muted-foreground text-[0.75rem]">•</span>
+          <span className="role-performer">Performer</span>
+          <span className="text-muted-foreground text-[0.75rem]">•</span>
+          <span className="role-choreographer">Choreographer</span>
         </p>
         <p className="ed-rise mt-2 text-sm sm:text-base text-muted-foreground" style={{ animationDelay: "150ms" }}>
           Transforming passion into performance.
@@ -113,20 +117,20 @@ export function EditorialHero({
         </div>
 
         {/* Center — framed media + floating stat pills */}
-        <div className="order-1 lg:order-2">
-          <div className="relative isolate">
+        <div className="order-1 lg:order-2 relative z-30">
+          <div className="relative isolate z-30">
             <div aria-hidden className="cine-spot" />
             <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
 
             {/* Floating stats — corner pills, as in the reference */}
-            <div className="pointer-events-none absolute inset-0 hidden sm:block">
+            <div className="pointer-events-none absolute inset-0 z-40 hidden sm:block">
               {badges.slice(0, 4).map((b, i) => {
                 const Icon = [Sparkles, Users, Flame, Trophy][i] ?? Sparkles;
                 return (
                   <div
                     key={b.label}
                     className={`ed-rise ed-pill absolute flex items-center gap-2.5 ${
-                      ["-left-6 top-8", "-right-6 top-24", "-left-5 bottom-24", "-right-5 bottom-8"][i]
+                      ["top-[12%] -left-10", "top-[12%] -right-10", "bottom-[15%] -left-10", "bottom-[15%] -right-10"][i]
                     }`}
                     style={{ animationDelay: `${420 + i * 90}ms` }}
                   >

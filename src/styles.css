@@ -39,45 +39,46 @@
 }
 
 
-/* Light theme — Monochrome Premium: true white & obsidian black, a
-   whisper of warmth in the grays (graphite, not flat digital gray) so it
-   reads as premium/onyx rather than plain "grayscale placeholder". */
+/* Light theme — Warm Alabaster Studio: alabaster canvas (#F3F2EE), soft
+   tailored beige borders (#E7DFCE), silk jet-black accent (#121212),
+   cool slate text (#7C8089) and metallic platinum highlights (#D0D3D6). */
 :root {
   --radius: 0.75rem;
 
-  --background: oklch(1 0 0);                   /* pure white */
-  --foreground: oklch(0.12 0.004 60);            /* obsidian black */
-  --surface: oklch(0.97 0.003 60);               /* soft graphite-white */
+  --background: oklch(0.955 0.006 85);           /* warm alabaster */
+  --foreground: oklch(0.18 0.002 60);            /* silk jet black */
+  --surface: oklch(0.935 0.012 85);              /* tailored beige tint */
 
-  --card: oklch(0.995 0.002 60);
-  --card-foreground: oklch(0.12 0.004 60);
-  --popover: oklch(0.995 0.002 60);
-  --popover-foreground: oklch(0.12 0.004 60);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.002 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.002 60);
 
-  --primary: oklch(0.10 0.004 60);               /* deep true black */
-  --primary-foreground: oklch(1 0 0);            /* pure white */
+  --primary: oklch(0.18 0.002 60);               /* silk jet black */
+  --primary-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.95 0.004 60);             /* refined light graphite */
-  --secondary-foreground: oklch(0.12 0.004 60);
+  --secondary: oklch(0.905 0.018 85);            /* soft tailored beige */
+  --secondary-foreground: oklch(0.18 0.002 60);
 
-  --muted: oklch(0.94 0.004 60);
-  --muted-foreground: oklch(0.40 0.006 60);      /* graphite gray */
+  --muted: oklch(0.925 0.012 85);
+  --muted-foreground: oklch(0.60 0.012 250);     /* cool slate grey */
 
-  --accent: oklch(0.20 0.006 60);                /* charcoal */
-  --accent-foreground: oklch(1 0 0);
+  --accent: oklch(0.86 0.006 250);               /* metallic platinum */
+  --accent-foreground: oklch(0.18 0.002 60);
 
   --destructive: oklch(0.55 0.18 25);
   --destructive-foreground: oklch(0.99 0.005 250);
 
-  --border: oklch(0.88 0.005 60);                /* crisp, thin graphite border */
-  --input: oklch(0.95 0.004 60);
-  --ring: oklch(0.10 0.004 60);
+  --border: oklch(0.905 0.018 85);               /* soft beige hairline */
+  --input: oklch(0.925 0.012 85);
+  --ring: oklch(0.18 0.002 60);
 
-  --accent-cyan: oklch(0.18 0.005 60);
-  --accent-pink: oklch(0.45 0.007 60);
-  --accent-blue: oklch(0.12 0.004 60);
-  --accent-emerald: oklch(0.30 0.006 60);
-  --accent-gold: oklch(0.35 0.007 60);            /* soft platinum-graphite */
+  --accent-cyan: oklch(0.86 0.006 250);
+  --accent-pink: oklch(0.60 0.012 250);
+  --accent-blue: oklch(0.18 0.002 60);
+  --accent-emerald: oklch(0.60 0.012 250);
+  --accent-gold: oklch(0.86 0.014 85);            /* platinum / beige sheen */
+
 
   --gradient-primary: linear-gradient(135deg, oklch(0.20 0.006 60), oklch(0.04 0.002 60));
   --gradient-royal: linear-gradient(135deg, oklch(0.55 0.006 60) 0%, oklch(0.25 0.006 60) 50%, oklch(0.05 0.002 60) 100%);
@@ -172,15 +173,14 @@
   }
 }
 
-/* Luxury light-theme atmosphere — layered warm gradients + faint grain.
-   Scoped to :root (light) only; dark mode keeps its own background. */
+/* Studio atmosphere — the reference's twin radial washes over a warm
+   alabaster-to-beige diagonal, plus a whisper of paper grain. */
 :root body {
   background-color: var(--background);
   background-image:
-    radial-gradient(ellipse 60% 50% at 8% 0%,    color-mix(in oklab, var(--primary) 14%, transparent), transparent 62%),
-    radial-gradient(ellipse 55% 45% at 100% 12%, color-mix(in oklab, var(--accent-cyan) 14%, transparent), transparent 65%),
-    radial-gradient(ellipse 70% 55% at 50% 100%, color-mix(in oklab, var(--accent) 20%, transparent), transparent 62%),
-    linear-gradient(180deg, oklch(0.97 0.014 85) 0%, oklch(0.94 0.018 70) 55%, oklch(0.90 0.020 65) 100%);
+    radial-gradient(circle at 15% 20%, color-mix(in oklab, var(--secondary) 70%, transparent) 0%, transparent 45%),
+    radial-gradient(circle at 85% 80%, color-mix(in oklab, var(--accent) 55%, transparent) 0%, transparent 50%),
+    linear-gradient(135deg, oklch(0.972 0.005 85) 0%, oklch(0.928 0.012 85) 100%);
   background-attachment: fixed;
   position: relative;
 }
@@ -190,7 +190,7 @@
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.22;
+  opacity: 0.12;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16  0 0 0 0 0.20  0 0 0 0 0.28  0 0 0 0.05 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
@@ -1139,45 +1139,54 @@ main section:first-of-type {
 
 @utility ed-card {
   position: relative;
-  border-radius: 1.1rem;
-  background: color-mix(in oklab, var(--card) 92%, transparent);
-  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
-  box-shadow: 0 1px 2px oklch(0 0 0 / 4%), 0 18px 40px -34px oklch(0 0 0 / 45%);
-  backdrop-filter: blur(6px);
+  border-radius: 1.125rem;
+  background: oklch(1 0 0 / 92%);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px oklch(0.18 0.002 60 / 4%);
+  backdrop-filter: blur(20px);
   transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 320ms ease, border-color 320ms ease;
   &:hover {
     transform: translate3d(0, -2px, 0);
-    border-color: color-mix(in oklab, var(--primary) 22%, transparent);
-    box-shadow: 0 1px 2px oklch(0 0 0 / 5%), 0 26px 56px -34px oklch(0 0 0 / 55%);
+    border-color: var(--primary);
+    box-shadow: 0 12px 30px oklch(0.18 0.002 60 / 8%);
   }
 }
 
 @utility ed-pill {
-  border-radius: 0.9rem;
-  padding: 0.5rem 0.85rem;
-  background: color-mix(in oklab, var(--card) 88%, transparent);
-  border: 1px solid color-mix(in oklab, var(--border) 65%, transparent);
-  box-shadow: 0 10px 30px -22px oklch(0 0 0 / 55%);
-  backdrop-filter: blur(8px);
+  border-radius: 0.875rem;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  background: oklch(1 0 0 / 94%);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 24px oklch(0.18 0.002 60 / 8%);
+  backdrop-filter: blur(16px);
+  transition: transform 300ms ease, border-color 300ms ease;
+  &:hover {
+    transform: translate3d(0, -4px, 0) scale(1.05);
+    border-color: var(--primary);
+  }
 }
 
 @utility ed-cta {
   background: var(--primary);
   color: var(--primary-foreground);
-  box-shadow: 0 14px 34px -18px oklch(0 0 0 / 60%);
-  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease, opacity 200ms ease;
+  box-shadow: 0 10px 26px -14px oklch(0.18 0.002 60 / 65%);
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease, background 260ms ease;
   &:hover {
     transform: translate3d(0, -2px, 0);
-    box-shadow: 0 20px 44px -18px oklch(0 0 0 / 65%);
+    background: oklch(0.26 0.002 60);
+    box-shadow: 0 16px 34px -14px oklch(0.18 0.002 60 / 70%);
   }
 }
 
 @utility ed-frame {
   overflow: hidden;
-  border-radius: 1.4rem;
-  background: color-mix(in oklab, var(--surface) 90%, transparent);
-  border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
-  box-shadow: 0 2px 6px oklch(0 0 0 / 5%), 0 40px 90px -60px oklch(0 0 0 / 60%);
+  border-radius: 1.5rem;
+  background: var(--primary);
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 50px oklch(0.18 0.002 60 / 10%);
+  transition: transform 400ms ease;
+  &:hover { transform: scale(1.02); }
 }
 
 @keyframes ed-rise {
@@ -1198,112 +1207,37 @@ main section:first-of-type {
 }
 
 /* ============================================================
-   Cinematic homepage theme — charcoal → black with warm gold.
-   Scoped to <html class="cine-home"> (mounted only by the homepage),
-   so every other route keeps the existing light identity.
+   Studio hero accents (light alabaster identity)
    ============================================================ */
-html.cine-home {
-  color-scheme: dark;
 
-  --background: oklch(0.16 0.008 70);
-  --foreground: oklch(0.96 0.014 85);
-  --surface: oklch(0.21 0.010 70);
-
-  --card: oklch(0.22 0.011 70);
-  --card-foreground: oklch(0.96 0.014 85);
-  --popover: oklch(0.20 0.010 70);
-  --popover-foreground: oklch(0.96 0.014 85);
-
-  --primary: oklch(0.80 0.132 82);
-  --primary-foreground: oklch(0.17 0.012 70);
-
-  --secondary: oklch(0.26 0.012 70);
-  --secondary-foreground: oklch(0.95 0.012 85);
-
-  --muted: oklch(0.25 0.010 70);
-  --muted-foreground: oklch(0.76 0.018 82);
-
-  --accent: oklch(0.72 0.120 78);
-  --accent-foreground: oklch(0.17 0.012 70);
-
-  --border: oklch(0.36 0.020 78);
-  --input: oklch(0.28 0.012 70);
-  --ring: oklch(0.80 0.132 82);
-
-  --accent-gold: oklch(0.80 0.132 82);
-
-  --gradient-primary: linear-gradient(135deg, oklch(0.88 0.11 92), oklch(0.72 0.14 70));
-  --shadow-gold: 0 18px 56px -18px color-mix(in oklab, var(--accent-gold) 55%, transparent);
-  --shadow-glow: 0 26px 80px -24px color-mix(in oklab, var(--accent-gold) 45%, transparent);
-}
-
-html.cine-home body {
-  background-color: oklch(0.13 0.008 70);
-  background-image:
-    radial-gradient(ellipse 70% 55% at 50% -5%, color-mix(in oklab, var(--accent-gold) 16%, transparent), transparent 65%),
-    radial-gradient(ellipse 60% 50% at 8% 20%, color-mix(in oklab, var(--accent-gold) 9%, transparent), transparent 62%),
-    radial-gradient(ellipse 60% 50% at 96% 30%, color-mix(in oklab, var(--accent-gold) 8%, transparent), transparent 62%),
-    linear-gradient(180deg, oklch(0.19 0.010 70) 0%, oklch(0.13 0.008 70) 55%, oklch(0.09 0.006 70) 100%);
-  background-attachment: fixed;
-}
-html.cine-home body::before { opacity: 0.14; mix-blend-mode: screen; }
-
-/* Glass panels get a warm hairline + deeper depth in the cinematic theme */
-html.cine-home .ed-card,
-html.cine-home .ed-pill {
-  background:
-    linear-gradient(160deg, color-mix(in oklab, var(--accent-gold) 7%, transparent), transparent 55%),
-    color-mix(in oklab, oklch(0.24 0.012 70) 78%, transparent);
-  border-color: color-mix(in oklab, var(--accent-gold) 26%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--accent-gold) 14%, transparent),
-              0 26px 60px -34px oklch(0 0 0 / 85%);
-  backdrop-filter: blur(14px) saturate(130%);
-}
-html.cine-home .ed-card:hover {
-  border-color: color-mix(in oklab, var(--accent-gold) 55%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--accent-gold) 22%, transparent),
-              0 34px 80px -30px oklch(0 0 0 / 90%),
-              0 0 34px -14px color-mix(in oklab, var(--accent-gold) 45%, transparent);
-}
-html.cine-home .ed-frame {
-  background: oklch(0.11 0.006 70);
-  border-color: color-mix(in oklab, var(--accent-gold) 24%, transparent);
-  box-shadow: 0 0 0 1px oklch(0 0 0 / 40%), 0 60px 140px -60px oklch(0 0 0 / 95%),
-              0 0 120px -40px color-mix(in oklab, var(--accent-gold) 40%, transparent);
-}
-html.cine-home .ed-cta {
-  background: linear-gradient(135deg, oklch(0.90 0.10 95), oklch(0.75 0.14 72));
-  color: oklch(0.16 0.012 70);
-  box-shadow: 0 16px 40px -16px color-mix(in oklab, var(--accent-gold) 65%, transparent);
-}
-html.cine-home .ed-cta:hover {
-  box-shadow: 0 24px 60px -16px color-mix(in oklab, var(--accent-gold) 80%, transparent);
-}
-
-/* Volumetric spotlight behind the hero subject */
+/* Soft platinum halo behind the hero subject */
 @utility cine-spot {
   position: absolute;
   inset: -18% -12% -22% -12%;
   pointer-events: none;
   z-index: -1;
   background:
-    radial-gradient(ellipse 46% 60% at 50% 34%, color-mix(in oklab, var(--accent-gold) 30%, transparent), transparent 70%),
-    radial-gradient(ellipse 70% 78% at 50% 45%, color-mix(in oklab, var(--accent-gold) 12%, transparent), transparent 72%);
-  filter: blur(28px);
+    radial-gradient(ellipse 46% 60% at 50% 34%, color-mix(in oklab, var(--secondary) 85%, transparent), transparent 70%),
+    radial-gradient(ellipse 70% 78% at 50% 45%, color-mix(in oklab, var(--accent) 55%, transparent), transparent 72%);
+  filter: blur(30px);
   animation: cine-breathe 9s ease-in-out infinite alternate;
 }
 @keyframes cine-breathe {
-  from { opacity: 0.72; transform: scale(1); }
-  to   { opacity: 1;    transform: scale(1.05); }
+  from { opacity: 0.6; transform: scale(1); }
+  to   { opacity: 0.9; transform: scale(1.05); }
 }
 
-/* Gold gradient display type */
+/* Jet-black display type */
 @utility cine-title {
-  background-image: linear-gradient(180deg, oklch(0.99 0.012 90) 8%, oklch(0.86 0.10 88) 58%, oklch(0.70 0.13 70) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
+
+/* Distinct role colours from the reference */
+.role-educator { color: #2563EB; }
+.role-performer { color: #059669; }
+.role-choreographer { color: #D946EF; }
 
 @media (prefers-reduced-motion: reduce) {
   .cine-spot { animation: none !important; }
