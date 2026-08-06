@@ -633,6 +633,9 @@ export type Database = {
           id: string
           instructor: string | null
           kind: Database["public"]["Enums"]["program_kind"]
+          latitude: number | null
+          longitude: number | null
+          maps_url: string | null
           name: string
           price_inr: number
           published: boolean
@@ -647,6 +650,7 @@ export type Database = {
           style: string | null
           upi_id_encrypted: string | null
           venue: string | null
+          venue_address: string | null
           workshop1_name: string | null
           workshop2_name: string | null
         }
@@ -671,6 +675,9 @@ export type Database = {
           id?: string
           instructor?: string | null
           kind: Database["public"]["Enums"]["program_kind"]
+          latitude?: number | null
+          longitude?: number | null
+          maps_url?: string | null
           name: string
           price_inr: number
           published?: boolean
@@ -685,6 +692,7 @@ export type Database = {
           style?: string | null
           upi_id_encrypted?: string | null
           venue?: string | null
+          venue_address?: string | null
           workshop1_name?: string | null
           workshop2_name?: string | null
         }
@@ -709,6 +717,9 @@ export type Database = {
           id?: string
           instructor?: string | null
           kind?: Database["public"]["Enums"]["program_kind"]
+          latitude?: number | null
+          longitude?: number | null
+          maps_url?: string | null
           name?: string
           price_inr?: number
           published?: boolean
@@ -723,6 +734,7 @@ export type Database = {
           style?: string | null
           upi_id_encrypted?: string | null
           venue?: string | null
+          venue_address?: string | null
           workshop1_name?: string | null
           workshop2_name?: string | null
         }
@@ -1069,6 +1081,9 @@ export type Database = {
           id: string | null
           instructor: string | null
           kind: Database["public"]["Enums"]["program_kind"] | null
+          latitude: number | null
+          longitude: number | null
+          maps_url: string | null
           name: string | null
           price_inr: number | null
           published: boolean | null
@@ -1080,6 +1095,7 @@ export type Database = {
           silver_seat_price: number | null
           style: string | null
           venue: string | null
+          venue_address: string | null
           workshop1_name: string | null
           workshop2_name: string | null
         }
@@ -1103,6 +1119,9 @@ export type Database = {
           id?: string | null
           instructor?: string | null
           kind?: Database["public"]["Enums"]["program_kind"] | null
+          latitude?: number | null
+          longitude?: number | null
+          maps_url?: string | null
           name?: string | null
           price_inr?: number | null
           published?: boolean | null
@@ -1114,6 +1133,7 @@ export type Database = {
           silver_seat_price?: number | null
           style?: string | null
           venue?: string | null
+          venue_address?: string | null
           workshop1_name?: string | null
           workshop2_name?: string | null
         }
@@ -1137,6 +1157,9 @@ export type Database = {
           id?: string | null
           instructor?: string | null
           kind?: Database["public"]["Enums"]["program_kind"] | null
+          latitude?: number | null
+          longitude?: number | null
+          maps_url?: string | null
           name?: string | null
           price_inr?: number | null
           published?: boolean | null
@@ -1148,6 +1171,7 @@ export type Database = {
           silver_seat_price?: number | null
           style?: string | null
           venue?: string | null
+          venue_address?: string | null
           workshop1_name?: string | null
           workshop2_name?: string | null
         }
