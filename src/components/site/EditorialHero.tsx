@@ -60,22 +60,23 @@ export function EditorialHero({
   ];
 
   return (
-    <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-5 sm:px-8 lg:px-10 pt-24 pb-14 lg:pt-24 lg:pb-10">
+    <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-5 sm:px-8 lg:px-10 pt-24 pb-12 lg:pt-24 lg:pb-8">
       {/* Title block */}
-      <header className="relative z-10 mx-auto w-full max-w-7xl text-center">
-        <h1 className="ed-rise font-display text-[2.4rem] leading-[0.95] sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight">
+      <header className="relative z-10 mx-auto w-full max-w-[92rem] text-center">
+        <h1 className="ed-rise cine-title font-display text-[2.9rem] leading-[0.92] sm:text-7xl lg:text-8xl xl:text-[7.5rem] font-bold tracking-[-0.03em]">
           {name.toUpperCase()}
         </h1>
-        <p className="ed-rise mt-3 text-[10px] sm:text-xs uppercase tracking-[0.32em] text-muted-foreground" style={{ animationDelay: "90ms" }}>
+        <p className="ed-rise mt-4 text-[11px] sm:text-sm uppercase tracking-[0.42em] text-muted-foreground" style={{ animationDelay: "90ms" }}>
           Dance Educator <span className="text-primary">•</span> Performer <span className="text-primary">•</span> Choreographer
         </p>
-        <p className="ed-rise mt-2 text-sm sm:text-base text-muted-foreground" style={{ animationDelay: "150ms" }}>
+        <p className="ed-rise mt-2 text-sm sm:text-lg text-muted-foreground" style={{ animationDelay: "150ms" }}>
           Transforming passion into performance.
         </p>
       </header>
 
       {/* Three editorial columns */}
-      <div className="relative z-10 mx-auto mt-6 lg:mt-7 grid w-full max-w-7xl gap-5 lg:gap-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.35fr)_minmax(0,0.95fr)] items-start">
+      <div className="relative z-10 mx-auto mt-6 lg:mt-8 grid w-full max-w-[92rem] gap-5 lg:gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.75fr)_minmax(0,0.86fr)] items-stretch">
+
         {/* Left — philosophy stack */}
         <div className="order-2 lg:order-1 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
           {columns.map((c, i) => (
