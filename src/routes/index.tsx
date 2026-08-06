@@ -623,6 +623,7 @@ function Index() {
           onExplore={() => goToHomeSection("workshops", "/workshops")}
           onWatch={() => goToHomeSection("showcase", "/#showcase")}
         />
+        <FounderSection founder={founder} />
       </Chapter>
 
       {/* SCREEN 2 — Iconic Work: Choreographies & World Tour */}
