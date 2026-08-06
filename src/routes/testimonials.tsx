@@ -217,7 +217,7 @@ function Testimonials() {
               <video
                 src={video}
                 controls
-                className="mt-3 w-full max-h-64 rounded-lg bg-black"
+                className="mt-3 w-full max-h-64 rounded-lg bg-jet"
               />
             )}
           </div>
@@ -255,7 +255,7 @@ function Testimonials() {
                 <video
                   src={t.video}
                   controls
-                  className="w-full aspect-video bg-black object-contain"
+                  className="w-full aspect-video bg-jet object-contain"
                 />
               ) : (
                 <div className="w-full aspect-video bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">

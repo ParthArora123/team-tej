@@ -342,7 +342,7 @@ function ZeroToHeroPage() {
                       }`}
                     >
                       {/* Image panel */}
-                      <div className="media relative overflow-hidden rounded-[2rem] border border-white/10 bg-card">
+                      <div className="media relative overflow-hidden rounded-[2rem] border border-alabaster/10 bg-card">
                         <div
                           aria-hidden
                           className={`absolute -inset-px rounded-[2rem] bg-gradient-to-br ${s.accent} opacity-40 blur-2xl pointer-events-none group-hover:opacity-70 transition-opacity duration-700`}
@@ -365,21 +365,21 @@ function ZeroToHeroPage() {
                             >
                               {s.n}
                             </span>
-                            <span className="px-3 py-1 rounded-full bg-foreground/40 backdrop-blur-md border border-white/15 text-[10px] uppercase tracking-[0.3em] text-white">
+                            <span className="px-3 py-1 rounded-full bg-foreground/40 backdrop-blur-md border border-alabaster/15 text-[10px] uppercase tracking-[0.3em] text-alabaster">
                               {s.chapter}
                             </span>
                           </div>
 
                           {/* Corner icon */}
-                          <div className="absolute bottom-5 right-5 h-14 w-14 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 grid place-items-center">
-                            <s.icon size={26} className="text-white" />
+                          <div className="absolute bottom-5 right-5 h-14 w-14 rounded-2xl bg-alabaster/10 backdrop-blur-xl border border-alabaster/20 grid place-items-center">
+                            <s.icon size={26} className="text-alabaster" />
                           </div>
                         </div>
                       </div>
 
                       {/* Copy panel — glass card */}
                       <div className="relative">
-                        <div className="relative h-full rounded-[2rem] border border-white/10 bg-card/50 backdrop-blur-xl p-8 sm:p-10 overflow-hidden">
+                        <div className="relative h-full rounded-[2rem] border border-alabaster/10 bg-card/50 backdrop-blur-xl p-8 sm:p-10 overflow-hidden">
                           <div
                             aria-hidden
                             className={`absolute -top-24 -right-24 h-64 w-64 rounded-full bg-gradient-to-br ${s.accent} opacity-25 blur-3xl`}
@@ -681,7 +681,7 @@ function ZeroToHeroGallery() {
               )}
               {m.caption && (
                 <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-foreground/70 to-transparent">
-                  <p className="text-xs sm:text-sm text-white/95">{m.caption}</p>
+                  <p className="text-xs sm:text-sm text-alabaster/95">{m.caption}</p>
                 </div>
               )}
             </div>

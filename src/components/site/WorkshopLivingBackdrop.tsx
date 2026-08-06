@@ -64,7 +64,7 @@ export function WorkshopLivingBackdrop() {
         {particles.map((p, i) => (
           <span
             key={i}
-            className="absolute rounded-full bg-amber-200/80 shadow-[0_0_10px_rgba(255,215,140,0.35)] wlb2-particle"
+            className="absolute rounded-full bg-beige/80 shadow-[0_0_10px_rgba(231,223,206,0.35)] wlb2-particle"
             style={{
               left: `${p.x}%`,
               top: `${p.y}%`,
