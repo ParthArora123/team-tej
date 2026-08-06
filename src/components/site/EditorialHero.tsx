@@ -142,14 +142,15 @@ export function EditorialHero({
   );
 
   return (
-    <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-8 lg:pt-24 lg:pb-10">
+    <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-8 lg:pt-20 lg:pb-10">
       {/* ROW 1 — HERO: 7fr / 3fr on desktop */}
-      <div className="mx-auto grid w-full max-w-[92rem] gap-5 lg:min-h-[calc(100svh-8rem)] lg:grid-cols-[7fr_3fr] lg:items-stretch lg:gap-8">
+      <div className="mx-auto grid w-full max-w-[92rem] gap-5 lg:h-[calc(100svh-6.5rem)] lg:grid-cols-[7fr_3fr] lg:items-stretch lg:gap-8">
 
         {/* LEFT (70%) — title · subtitle · media · CTAs */}
-        <div className="flex min-w-0 flex-col justify-center">
-          <header className="relative z-10 text-center lg:text-left">
-            <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6.5rem] font-bold tracking-[-0.03em]">
+        <div className="flex min-w-0 flex-col justify-center lg:h-full lg:min-h-0">
+          <header className="relative z-10 shrink-0 text-center lg:text-left">
+            <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-6xl xl:text-[5rem] font-bold tracking-[-0.03em]">
+
               {name.toUpperCase()}
             </h1>
             <p className="ed-rise mt-2.5 flex items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.2em] lg:justify-start" style={{ animationDelay: "90ms" }}>
