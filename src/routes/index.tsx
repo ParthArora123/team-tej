@@ -782,6 +782,19 @@ function Index() {
             }
           />
         </LazySection>
+
+        <ul className="mt-5 flex flex-wrap justify-center gap-2">
+          {((danceStyles ?? []).length > 0
+            ? (danceStyles ?? []).map((s: any) => String(s.name ?? "").trim()).filter(Boolean)
+            : defaultStyles.map((s) => s.name)
+          ).map((name: string) => (
+            <li key={name}>
+              <span className="inline-flex items-center rounded-full border border-border/70 bg-card/60 px-4 py-2 text-xs font-medium uppercase tracking-widest text-foreground/80 backdrop-blur-sm transition-colors hover:border-primary/60 hover:text-primary">
+                {name}
+              </span>
+            </li>
+          ))}
+        </ul>
       </section>
       </Chapter>
 
