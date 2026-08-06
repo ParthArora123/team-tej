@@ -628,7 +628,7 @@ function Index() {
       {/* SCREEN 2 — Iconic Work: Choreographies & World Tour */}
       <Chapter index={2} total={5} kicker="Iconic Work — Choreographies & World Tour">
         <FounderSection founder={founder} />
-        <CinematicShowreel choreos={choreos} workshops={workshops} />
+        <CinematicShowreel choreos={choreos} workshops={workshops} youtube={founder?.socials?.youtube} />
 
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
 
@@ -1199,7 +1199,7 @@ function SprocketStrip() {
   );
 }
 
-function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshops: any[] }) {
+function CinematicShowreel({ choreos, workshops, youtube }: { choreos: Choreo[]; workshops: any[]; youtube?: string }) {
   const items = useMemo(() => buildReelItems(choreos, workshops), [choreos, workshops]);
 
   if (!items.length) return null;
@@ -1235,6 +1235,19 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
           interval={5000}
         />
       </LazySection>
+
+      {youtube && (
+        <div className="mt-10 flex justify-center">
+          <a
+            href={youtube}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ed-cta inline-flex items-center gap-2 rounded-full px-8 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
+          >
+            Watch More Choreographies <ArrowUpRight size={16} />
+          </a>
+        </div>
+      )}
 
     </section>
   );
