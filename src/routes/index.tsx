@@ -298,14 +298,10 @@ type Choreo = {
 
 
 
-const stagger = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" as const } },
-};
+/** Staggered CSS reveal — replaces the per-element Framer Motion runtime
+ *  that used to ship (and tick) on the homepage. Pure compositor work. */
+const revealDelay = (i: number) => ({ animationDelay: `${100 + i * 80}ms` });
+
 
 function Index() {
   const loaderData = Route.useLoaderData() as HomeLoaderData;
