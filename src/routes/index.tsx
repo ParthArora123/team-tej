@@ -823,9 +823,9 @@ function Index() {
       <Chapter index={4} total={5} kicker="Programs & Formats — Ways to Train">
       <section id="programs" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
         <div>
-          <p className="text-xs uppercase tracking-widest text-primary font-bold">Programs &amp; Formats</p>
+          <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Programs &amp; Formats</p>
           <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-            Ways to <span className="italic font-light">train.</span>
+            Ways to <span className="italic font-light df-gradient-text">train.</span>
           </h2>
           <p className="mt-3 text-muted-foreground max-w-xl">
             Signature movement experiences tailored for all levels.
