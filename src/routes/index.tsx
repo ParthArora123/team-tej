@@ -611,7 +611,6 @@ function Index() {
 
       <HorizontalPager>
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
-
       <Chapter index={1} total={5} bleed>
         <EditorialHero
           founder={founder}
@@ -624,9 +623,12 @@ function Index() {
           onWatch={() => goToHomeSection("showcase", "/#showcase")}
         />
       </Chapter>
-
-      {/* SCREEN 2 — Iconic Work: Choreographies & World Tour */}
-      <Chapter index={2} total={5} kicker="Iconic Work — Choreographies & World Tour">
+      {/* SCREEN 2 — Meet Tejas */}
+      <Chapter index={2} total={5} kicker="Meet Tejas — Founder">
+      <FounderSection founder={founder} />
+      </Chapter>
+      {/* SCREEN 3 — Our Most Viral Choreographies */}
+      <Chapter index={3} total={5} kicker="Our Most Viral Choreographies">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
 
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
@@ -738,9 +740,114 @@ function Index() {
         </div>
       </section>
       </Chapter>
+      {/* SCREEN 4 — Register Workshop */}
+      <Chapter index={4} total={5} kicker="Start Moving — Book Your Experience">
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+              <Calendar size={12} /> Start Moving
+            </p>
+            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
+              Book your <span className="italic font-light">experience.</span>
+            </h2>
+            <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
+              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
+            </p>
+          </div>
+          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
+            See all workshops <ArrowUpRight size={14} />
+          </Link>
+        </div>
 
-      {/* SCREEN 3 — Mindset & Movement (How We Teach) */}
-      <Chapter index={3} total={5} kicker="How We Teach — Mindset & Movement">
+        {workshops.length === 0 && !workshopsLoaded ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+          </div>
+        ) : workshops.length === 0 ? (
+          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
+            <p className="font-display text-2xl">Coming Soon</p>
+            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+          </div>
+        ) : (
+          <LazySection minHeight={520}>
+            <WorkshopDeck workshops={workshops} />
+          </LazySection>
+        )}
+      </section>
+
+
+
+      {/* FINAL CTA */}
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-6 lg:py-10">
+        <div
+          className="reveal-up relative overflow-hidden rounded-[2.5rem] border border-border/60 p-8 lg:p-14 text-center"
+          style={{ background: "var(--gradient-jet)" }}
+        >
+          {/* Floating orbs — CSS-driven (compositor only). Framer's rAF loops
+              kept ticking even while this slide was hidden. */}
+          <div
+            aria-hidden
+            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-40 transform-gpu animate-[cta-orb-a_8s_ease-in-out_infinite] motion-reduce:animate-none"
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%)" }}
+          />
+          <div
+            aria-hidden
+            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-30 transform-gpu animate-[cta-orb-b_10s_ease-in-out_infinite] motion-reduce:animate-none"
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.28) 0%, transparent 70%)" }}
+          />
+          <div
+            aria-hidden
+            className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/20 transform-gpu animate-[cta-orb-spin_60s_linear_infinite] motion-reduce:animate-none"
+          />
+
+
+          <p className="relative text-xs uppercase tracking-[0.4em] text-alabaster/80">The stage is set</p>
+          <h2 className="relative mt-3 font-display text-3xl lg:text-6xl font-bold text-alabaster text-balance leading-[1.02]">
+            Your journey <span className="italic font-light text-alabaster/80">begins now.</span>
+          </h2>
+          <p className="relative mt-5 text-alabaster/80 max-w-xl mx-auto text-base lg:text-lg">
+            Step in. Move freely. Leave transformed.
+          </p>
+
+          <div className="relative mt-7 flex justify-center">
+            <MagneticButton strength={0.5}>
+              <a
+                href="/zero-to-hero"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const go = () => window.location.assign("/zero-to-hero");
+                  try {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    setTimeout(go, 350);
+                  } catch { go(); }
+                }}
+                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-alabaster bg-alabaster/10 backdrop-blur-sm border border-alabaster/25 overflow-hidden hover:bg-alabaster/20 transition-colors"
+                style={{
+                  boxShadow: "0 24px 70px -22px color-mix(in oklab, var(--accent-gold) 30%, transparent)",
+                }}
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Start Your Dance Journey
+                  <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
+                </span>
+                <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out bg-gradient-to-r from-transparent via-alabaster/40 to-transparent" />
+              </a>
+            </MagneticButton>
+          </div>
+
+          <p className="relative mt-5 text-sm text-alabaster/70">
+            Not ready to register today?{" "}
+            <Link to="/contact" className="text-alabaster font-medium underline underline-offset-4 hover:text-alabaster/80 transition-colors">
+              Get in touch and we'll notify you about the next batch
+            </Link>.
+          </p>
+
+        </div>
+      </section>
+      </Chapter>
+      {/* SCREEN 5 — How We Teach */}
+      <Chapter index={5} total={5} kicker="How We Teach — Mindset & Movement">
       <section id="method" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
         <div className="text-center">
           <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">How We Teach</p>
@@ -817,11 +924,6 @@ function Index() {
         </div>
       </section>
 
-      <FounderSection founder={founder} />
-      </Chapter>
-
-      {/* SCREEN 4 — Programs & Styles */}
-      <Chapter index={4} total={5} kicker="Programs & Formats — Ways to Train">
       <section id="programs" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
         <div>
           <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Programs &amp; Formats</p>
@@ -959,116 +1061,6 @@ function Index() {
         </div>
       </section>
       </Chapter>
-
-
-      {/* SCREEN 5 — Register & Book Your Experience */}
-      <Chapter index={5} total={5} kicker="Start Moving — Book Your Experience">
-      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
-        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-              <Calendar size={12} /> Start Moving
-            </p>
-            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-              Book your <span className="italic font-light">experience.</span>
-            </h2>
-            <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
-              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
-            </p>
-          </div>
-          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
-            See all workshops <ArrowUpRight size={14} />
-          </Link>
-        </div>
-
-        {workshops.length === 0 && !workshopsLoaded ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
-          </div>
-        ) : workshops.length === 0 ? (
-          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
-            <p className="font-display text-2xl">Coming Soon</p>
-            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
-          </div>
-        ) : (
-          <LazySection minHeight={520}>
-            <WorkshopDeck workshops={workshops} />
-          </LazySection>
-        )}
-      </section>
-
-
-
-      {/* FINAL CTA */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-6 lg:py-10">
-        <div
-          className="reveal-up relative overflow-hidden rounded-[2.5rem] border border-border/60 p-8 lg:p-14 text-center"
-          style={{ background: "var(--gradient-jet)" }}
-        >
-          {/* Floating orbs — CSS-driven (compositor only). Framer's rAF loops
-              kept ticking even while this slide was hidden. */}
-          <div
-            aria-hidden
-            className="absolute top-10 left-10 h-40 w-40 rounded-full blur-3xl opacity-40 transform-gpu animate-[cta-orb-a_8s_ease-in-out_infinite] motion-reduce:animate-none"
-            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%)" }}
-          />
-          <div
-            aria-hidden
-            className="absolute bottom-10 right-10 h-56 w-56 rounded-full blur-3xl opacity-30 transform-gpu animate-[cta-orb-b_10s_ease-in-out_infinite] motion-reduce:animate-none"
-            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.28) 0%, transparent 70%)" }}
-          />
-          <div
-            aria-hidden
-            className="absolute -top-32 -right-32 h-[28rem] w-[28rem] rounded-full border border-white/20 transform-gpu animate-[cta-orb-spin_60s_linear_infinite] motion-reduce:animate-none"
-          />
-
-
-          <p className="relative text-xs uppercase tracking-[0.4em] text-alabaster/80">The stage is set</p>
-          <h2 className="relative mt-3 font-display text-3xl lg:text-6xl font-bold text-alabaster text-balance leading-[1.02]">
-            Your journey <span className="italic font-light text-alabaster/80">begins now.</span>
-          </h2>
-          <p className="relative mt-5 text-alabaster/80 max-w-xl mx-auto text-base lg:text-lg">
-            Step in. Move freely. Leave transformed.
-          </p>
-
-          <div className="relative mt-7 flex justify-center">
-            <MagneticButton strength={0.5}>
-              <a
-                href="/zero-to-hero"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const go = () => window.location.assign("/zero-to-hero");
-                  try {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                    setTimeout(go, 350);
-                  } catch { go(); }
-                }}
-                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-alabaster bg-alabaster/10 backdrop-blur-sm border border-alabaster/25 overflow-hidden hover:bg-alabaster/20 transition-colors"
-                style={{
-                  boxShadow: "0 24px 70px -22px color-mix(in oklab, var(--accent-gold) 30%, transparent)",
-                }}
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  Start Your Dance Journey
-                  <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
-                </span>
-                <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out bg-gradient-to-r from-transparent via-alabaster/40 to-transparent" />
-              </a>
-            </MagneticButton>
-          </div>
-
-          <p className="relative mt-5 text-sm text-alabaster/70">
-            Not ready to register today?{" "}
-            <Link to="/contact" className="text-alabaster font-medium underline underline-offset-4 hover:text-alabaster/80 transition-colors">
-              Get in touch and we'll notify you about the next batch
-            </Link>.
-          </p>
-
-        </div>
-      </section>
-      </Chapter>
-
-
       </HorizontalPager>
     </>
   );
@@ -1209,10 +1201,10 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
       <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
         <div>
           <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-            <Play size={12} /> Iconic Work
+            <Play size={12} /> Our Most Viral
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
-            Choreographies & <span className="italic font-light">World Tour.</span>
+            Our Most Viral <span className="italic font-light">Choreographies.</span>
           </h2>
         </div>
 
