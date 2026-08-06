@@ -178,7 +178,7 @@ export function EditorialHero({
 
         {/* Right — next studio day + tour */}
         <div className="order-3 grid gap-3">
-          <article className="ed-rise ed-card p-4 lg:p-5" style={{ animationDelay: "300ms" }}>
+          <article className="ed-rise ed-card p-5 lg:p-6" style={{ animationDelay: "300ms" }}>
             <p className="ed-eyebrow">Next Studio Day{next?.city ? ` · ${next.city}` : ""}</p>
             <h2 className="mt-1 font-display text-base lg:text-lg font-bold">
               {next
@@ -212,7 +212,7 @@ export function EditorialHero({
           </article>
 
           {tour.length > 0 && (
-            <article className="ed-rise ed-card p-4 lg:p-5" style={{ animationDelay: "380ms" }}>
+            <article className="ed-rise ed-card p-5 lg:p-6" style={{ animationDelay: "380ms" }}>
               <p className="ed-eyebrow inline-flex items-center gap-1.5">
                 <Calendar size={11} /> Upcoming Tour
               </p>
