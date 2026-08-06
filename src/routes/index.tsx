@@ -21,7 +21,7 @@ import { MagneticButton } from "@/components/site/MagneticButton";
 import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { MouseParallax } from "@/components/site/MouseParallax";
-import { CinematicHero } from "@/components/site/CinematicHero";
+import { EditorialHero } from "@/components/site/EditorialHero";
 import { HorizontalPager } from "@/components/site/HorizontalPager";
 import { Chapter } from "@/components/site/Chapter";
 
@@ -67,6 +67,24 @@ const defaultStyles = [
 ];
 
 const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
+
+/** Smooth-scroll (and pager-jump) to a homepage section, with a page fallback. */
+function goToHomeSection(id: string, fallbackHref: string) {
+  if (typeof document === "undefined") return;
+  if (window.location.pathname !== "/") {
+    window.location.href = fallbackHref;
+    return;
+  }
+  const target = document.getElementById(id);
+  if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.dispatchEvent(new CustomEvent("pager:goto", { detail: { id } }));
+  if (!target) {
+    window.setTimeout(() => {
+      if (!document.getElementById(id)) window.location.href = fallbackHref;
+    }, 700);
+  }
+}
+
 
 type HeroSlide = {
   id?: string | null;
@@ -588,11 +606,15 @@ function Index() {
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
 
       <Chapter index={1} total={5} bleed>
-        <CinematicHero
-          backgroundImage={heroPhoto ?? uploadedHeroImg.url}
+        <EditorialHero
+          founder={founder}
+          workshops={workshops}
+          image={heroPhoto ?? uploadedHeroImg.url}
           clips={heroClips}
           badges={heroBadges}
           onReady={() => setHeroReady(true)}
+          onExplore={() => goToHomeSection("workshops", "/workshops")}
+          onWatch={() => goToHomeSection("showcase", "/#showcase")}
         />
       </Chapter>
 
@@ -600,6 +622,7 @@ function Index() {
       <Chapter index={2} total={5} kicker="The Origin — Meet Tejas">
         <FounderSection founder={founder} />
       </Chapter>
+
 
       {/* SCREEN 3 — Most Viral Choreographies */}
       <Chapter index={3} total={5} kicker="The Proof — Viral Choreographies">
@@ -776,7 +799,7 @@ function Index() {
             <article
               key={s.name}
               style={revealDelay(si)}
-              className="reveal-up group relative overflow-hidden rounded-2xl border border-border/70 bg-card/70 backdrop-blur-sm p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+              className="reveal-up ed-card group relative overflow-hidden p-5 lg:p-6"
             >
               {s.image_url && (
                 <img
@@ -1263,19 +1286,19 @@ function FounderSection({ founder }: { founder: any | null }) {
               {(belief || vision || mission) && (
                 <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {belief && (
-                    <div className="rounded-2xl border border-border bg-background p-5">
+                    <div className="ed-card p-5">
                       <p className="text-xs uppercase tracking-widest text-primary">Belief</p>
                       <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{belief}</p>
                     </div>
                   )}
                   {vision && (
-                    <div className="rounded-2xl border border-border bg-background p-5">
+                    <div className="ed-card p-5">
                       <p className="text-xs uppercase tracking-widest text-primary">Vision</p>
                       <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{vision}</p>
                     </div>
                   )}
                   {mission && (
-                    <div className="rounded-2xl border border-border bg-background p-5">
+                    <div className="ed-card p-5">
                       <p className="text-xs uppercase tracking-widest text-primary">Mission</p>
                       <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{mission}</p>
                     </div>
