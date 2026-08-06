@@ -47,6 +47,28 @@ function parseStat(raw: string) {
   return { value: Math.round(base * mult), suffix: m[3] ?? "" };
 }
 
+/**
+ * Smooth-scrolls (or pages) to an on-page section when it exists on this page;
+ * otherwise falls back to a normal navigation to `fallbackHref`.
+ */
+function goToSection(e: React.MouseEvent<HTMLAnchorElement>, id: string, fallbackHref: string) {
+  if (typeof document === "undefined") return;
+  const onHome = window.location.pathname === "/";
+  if (!onHome) return; // let the browser follow the href
+  e.preventDefault();
+  const target = document.getElementById(id);
+  if (target) {
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  // Also ask the horizontal pager to bring the owning slide into view.
+  window.dispatchEvent(new CustomEvent("pager:goto", { detail: { id } }));
+  if (!target) {
+    window.setTimeout(() => {
+      if (!document.getElementById(id)) window.location.href = fallbackHref;
+    }, 700);
+  }
+}
+
 export function CinematicHero({
   backgroundImage,
   badges,
