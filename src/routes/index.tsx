@@ -1212,10 +1212,10 @@ function FounderSection({ founder }: { founder: any | null }) {
                 </div>
               )}
 
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
+
     </section>
   );
 }
