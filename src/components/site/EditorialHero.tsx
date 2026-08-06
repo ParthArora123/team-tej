@@ -112,24 +112,27 @@ export function EditorialHero({
         </div>
 
         {/* Center — framed media + floating stat pills */}
-        <div className="order-1 lg:order-2 relative">
-          <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
+        <div className="order-1 lg:order-2">
+          <div className="relative">
+            <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
 
-          {/* Floating stats — corner pills, as in the reference */}
-          <div className="pointer-events-none absolute inset-0 hidden sm:block">
-            {badges.slice(0, 4).map((b, i) => (
-              <div
-                key={b.label}
-                className={`ed-rise ed-pill absolute ${
-                  ["-left-3 top-6", "-right-3 top-16", "-left-2 bottom-16", "-right-2 bottom-6"][i]
-                }`}
-                style={{ animationDelay: `${420 + i * 90}ms` }}
-              >
-                <p className="font-display text-base lg:text-xl font-bold leading-none">{b.value}</p>
-                <p className="mt-1 text-[9px] uppercase tracking-[0.16em] text-muted-foreground">{b.label}</p>
-              </div>
-            ))}
+            {/* Floating stats — corner pills, as in the reference */}
+            <div className="pointer-events-none absolute inset-0 hidden sm:block">
+              {badges.slice(0, 4).map((b, i) => (
+                <div
+                  key={b.label}
+                  className={`ed-rise ed-pill absolute ${
+                    ["-left-4 top-6", "-right-4 top-20", "-left-3 bottom-20", "-right-3 bottom-6"][i]
+                  }`}
+                  style={{ animationDelay: `${420 + i * 90}ms` }}
+                >
+                  <p className="font-display text-base lg:text-xl font-bold leading-none">{b.value}</p>
+                  <p className="mt-1 text-[9px] uppercase tracking-[0.16em] text-muted-foreground">{b.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
+
 
           {/* Mobile stat row */}
           <div className="mt-3 grid grid-cols-4 gap-2 sm:hidden">
