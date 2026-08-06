@@ -57,7 +57,7 @@ export function Header() {
         {/* Brand pill */}
         <Link
           to="/"
-          className="group flex items-center gap-2.5 rounded-full border border-white/10 bg-background/60 backdrop-blur-xl px-4 h-11 shadow-[0_8px_30px_-12px_rgb(0_0_0_/_0.35)]"
+          className="group flex items-center gap-2.5 rounded-full border border-white/10 bg-background/55 backdrop-blur-2xl backdrop-saturate-150 px-4 h-11 shadow-[0_10px_36px_-16px_rgb(0_0_0_/_0.45)]"
         >
           <span
             aria-hidden
@@ -76,7 +76,7 @@ export function Header() {
         </Link>
 
         {/* Nav pill */}
-        <nav className="hidden lg:flex items-center gap-0.5 rounded-full border border-white/10 bg-background/60 backdrop-blur-xl px-1.5 h-11 shadow-[0_8px_30px_-12px_rgb(0_0_0_/_0.35)]">
+        <nav className="hidden lg:flex items-center gap-0.5 rounded-full border border-white/10 bg-background/55 backdrop-blur-2xl backdrop-saturate-150 px-1.5 h-11 shadow-[0_10px_36px_-16px_rgb(0_0_0_/_0.45)]">
           {links.map((l) => {
             const active = isActive(l.to);
             return (
@@ -104,7 +104,7 @@ export function Header() {
         </nav>
 
         {/* Actions pill */}
-        <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-background/60 backdrop-blur-xl px-1.5 h-11 shadow-[0_8px_30px_-12px_rgb(0_0_0_/_0.35)]">
+        <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-background/55 backdrop-blur-2xl backdrop-saturate-150 px-1.5 h-11 shadow-[0_10px_36px_-16px_rgb(0_0_0_/_0.45)]">
           {signedIn ? (
             <Link
               to="/dashboard"
