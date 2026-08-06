@@ -78,12 +78,12 @@ export function EditorialHero({
       <div className="relative z-10 mx-auto mt-6 lg:mt-8 grid w-full max-w-[92rem] gap-5 lg:gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.75fr)_minmax(0,0.86fr)] items-stretch">
 
         {/* Left — philosophy stack */}
-        <div className="order-2 lg:order-1 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+        <div className="order-2 lg:order-1 grid content-start gap-4 sm:grid-cols-3 lg:grid-cols-1">
           {columns.map((c, i) => (
-            <article key={c.t} className="ed-rise ed-card p-4 lg:p-5" style={{ animationDelay: `${220 + i * 80}ms` }}>
+            <article key={c.t} className="ed-rise ed-card p-5 lg:p-6" style={{ animationDelay: `${220 + i * 80}ms` }}>
               <p className="ed-eyebrow">{c.k}</p>
-              <h2 className="mt-1 font-display text-base lg:text-lg font-bold">{c.t}</h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground line-clamp-5 whitespace-pre-line">{c.v}</p>
+              <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold">{c.t}</h2>
+              <p className="mt-2.5 text-[13.5px] leading-relaxed text-muted-foreground line-clamp-5 whitespace-pre-line">{c.v}</p>
             </article>
           ))}
           {(hasMore || socials.instagram || socials.youtube) && (
@@ -114,36 +114,46 @@ export function EditorialHero({
 
         {/* Center — framed media + floating stat pills */}
         <div className="order-1 lg:order-2">
-          <div className="relative">
+          <div className="relative isolate">
+            <div aria-hidden className="cine-spot" />
             <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
 
             {/* Floating stats — corner pills, as in the reference */}
             <div className="pointer-events-none absolute inset-0 hidden sm:block">
-              {badges.slice(0, 4).map((b, i) => (
-                <div
-                  key={b.label}
-                  className={`ed-rise ed-pill absolute ${
-                    ["-left-4 top-6", "-right-4 top-20", "-left-3 bottom-20", "-right-3 bottom-6"][i]
-                  }`}
-                  style={{ animationDelay: `${420 + i * 90}ms` }}
-                >
-                  <p className="font-display text-base lg:text-xl font-bold leading-none">{b.value}</p>
-                  <p className="mt-1 text-[9px] uppercase tracking-[0.16em] text-muted-foreground">{b.label}</p>
-                </div>
-              ))}
+              {badges.slice(0, 4).map((b, i) => {
+                const Icon = [Sparkles, Users, Flame, Trophy][i] ?? Sparkles;
+                return (
+                  <div
+                    key={b.label}
+                    className={`ed-rise ed-pill absolute flex items-center gap-2.5 ${
+                      ["-left-6 top-8", "-right-6 top-24", "-left-5 bottom-24", "-right-5 bottom-8"][i]
+                    }`}
+                    style={{ animationDelay: `${420 + i * 90}ms` }}
+                  >
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-primary/35 bg-primary/10 text-primary">
+                      <Icon size={14} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-display text-lg lg:text-2xl font-bold leading-none">{b.value}</span>
+                      <span className="mt-1 block text-[9px] uppercase tracking-[0.18em] text-muted-foreground">{b.label}</span>
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
 
           {/* Mobile stat row */}
-          <div className="mt-3 grid grid-cols-4 gap-2 sm:hidden">
+          <div className="mt-4 grid grid-cols-4 gap-2 sm:hidden">
             {badges.slice(0, 4).map((b) => (
-              <div key={b.label} className="ed-card px-2 py-2 text-center">
+              <div key={b.label} className="ed-card px-2 py-2.5 text-center">
                 <p className="font-display text-sm font-bold leading-none">{b.value}</p>
                 <p className="mt-1 text-[8px] uppercase tracking-[0.12em] text-muted-foreground">{b.label}</p>
               </div>
             ))}
           </div>
+
 
           {/* CTAs */}
           <div className="ed-rise mt-6 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
