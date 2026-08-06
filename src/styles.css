@@ -36,6 +36,15 @@
   --color-accent-gold: var(--accent-gold);
   --color-accent-emerald: var(--accent-emerald);
   --color-accent-cyan: var(--accent-cyan);
+  --color-alabaster: var(--alabaster);
+  --color-beige: var(--beige);
+  --color-jet: var(--jet);
+  --color-slate-cool: var(--slate-cool);
+  --color-platinum: var(--platinum);
+  --color-role-educator: var(--role-educator);
+  --color-role-performer: var(--role-performer);
+  --color-role-choreographer: var(--role-choreographer);
+
 }
 
 
@@ -102,7 +111,20 @@
   --df-5: #8E2DA8;
   --gradient-dancefit: linear-gradient(135deg, var(--df-1) 0%, var(--df-2) 32%, var(--df-3) 66%, var(--df-5) 100%);
 
+  /* Reference palette — Warm Alabaster Studio */
+  --alabaster: #F3F2EE;
+  --beige: #E7DFCE;
+  --jet: #121212;
+  --slate-cool: #7C8089;
+  --platinum: #D0D3D6;
+  --role-educator: #2563EB;
+  --role-performer: #059669;
+  --role-choreographer: #D946EF;
+  --gradient-jet: linear-gradient(135deg, #1D1D1B 0%, #121212 55%, #0A0A0A 100%);
+  --gradient-beige-wash: linear-gradient(135deg, color-mix(in oklab, var(--beige) 55%, transparent), color-mix(in oklab, var(--platinum) 40%, transparent) 60%, transparent);
+
 }
+
 
 @utility df-gradient-text {
   background-image: var(--gradient-dancefit);

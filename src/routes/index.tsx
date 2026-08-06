@@ -772,14 +772,26 @@ function Index() {
         {/* 4 pillars */}
         <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
           {[
-            { icon: Target, title: "1. Technique", desc: "Mastering posture, footwork, core balance, and body mechanics for effortless execution." },
-            { icon: Heart, title: "2. Expression", desc: "Connecting emotion to motion, bringing authenticity and storytelling to every choreography." },
-            { icon: Music2, title: "3. Musicality", desc: "Deepening rhythm control, tempo changes, and beat timing across diverse global sounds." },
-            { icon: Users2, title: "4. Stage Presence", desc: "Building commanding charisma, spatial control, and authentic connection with audiences." },
+            { icon: Target, title: "1. Technique", desc: "Mastering posture, footwork, core balance, and body mechanics for effortless execution.", tone: "var(--jet)" },
+            { icon: Heart, title: "2. Expression", desc: "Connecting emotion to motion, bringing authenticity and storytelling to every choreography.", tone: "var(--role-choreographer)" },
+            { icon: Music2, title: "3. Musicality", desc: "Deepening rhythm control, tempo changes, and beat timing across diverse global sounds.", tone: "var(--role-educator)" },
+            { icon: Users2, title: "4. Stage Presence", desc: "Building commanding charisma, spatial control, and authentic connection with audiences.", tone: "var(--role-performer)" },
           ].map((p, pi) => (
             <div key={p.title} className="reveal-up" style={revealDelay(pi)}>
               <div className="group relative block h-full ed-card p-4 lg:p-6 overflow-hidden transition-transform duration-300 hover:-translate-y-1">
-                <div className="relative h-11 w-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 top-0 h-0.5"
+                  style={{ background: `linear-gradient(90deg, ${p.tone}, transparent)` }}
+                />
+                <div
+                  className="relative h-11 w-11 rounded-xl flex items-center justify-center"
+                  style={{
+                    background: `color-mix(in oklab, ${p.tone} 12%, transparent)`,
+                    color: p.tone,
+                    border: `1px solid color-mix(in oklab, ${p.tone} 28%, transparent)`,
+                  }}
+                >
                   <p.icon size={20} />
                 </div>
                 <p className="relative mt-4 font-display text-lg lg:text-xl font-bold">{p.title}</p>
@@ -787,6 +799,7 @@ function Index() {
               </div>
             </div>
           ))}
+
         </div>
 
         {/* Designed for */}
@@ -899,7 +912,7 @@ function Index() {
               <span
                 aria-hidden
                 className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{ background: "linear-gradient(135deg, rgba(249,178,51,0.10), rgba(238,61,139,0.10) 55%, rgba(142,45,168,0.12))" }}
+                style={{ background: "var(--gradient-beige-wash)" }}
               />
               <div className="relative flex items-baseline gap-4">
                 <span className="font-display text-sm text-primary/70 tabular-nums">
@@ -965,7 +978,8 @@ function Index() {
       {/* FINAL CTA */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 py-6 lg:py-10">
         <div
-          className="reveal-up df-gradient-bg relative overflow-hidden rounded-[2.5rem] border-0 p-8 lg:p-14 text-center"
+          className="reveal-up relative overflow-hidden rounded-[2.5rem] border border-border/60 p-8 lg:p-14 text-center"
+          style={{ background: "var(--gradient-jet)" }}
         >
           {/* Floating orbs — CSS-driven (compositor only). Framer's rAF loops
               kept ticking even while this slide was hidden. */}
@@ -985,11 +999,11 @@ function Index() {
           />
 
 
-          <p className="relative text-xs uppercase tracking-[0.4em] text-white/80">The stage is set</p>
-          <h2 className="relative mt-3 font-display text-3xl lg:text-6xl font-bold text-white text-balance leading-[1.02]">
-            Your journey <span className="italic font-light text-white/80">begins now.</span>
+          <p className="relative text-xs uppercase tracking-[0.4em] text-alabaster/80">The stage is set</p>
+          <h2 className="relative mt-3 font-display text-3xl lg:text-6xl font-bold text-alabaster text-balance leading-[1.02]">
+            Your journey <span className="italic font-light text-alabaster/80">begins now.</span>
           </h2>
-          <p className="relative mt-5 text-white/80 max-w-xl mx-auto text-base lg:text-lg">
+          <p className="relative mt-5 text-alabaster/80 max-w-xl mx-auto text-base lg:text-lg">
             Step in. Move freely. Leave transformed.
           </p>
 
@@ -1005,7 +1019,7 @@ function Index() {
                     setTimeout(go, 350);
                   } catch { go(); }
                 }}
-                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-white bg-white/10 backdrop-blur-sm border border-white/30 overflow-hidden hover:bg-white/20 transition-colors"
+                className="group relative inline-flex items-center gap-3 px-9 py-5 rounded-full font-medium text-base lg:text-lg text-alabaster bg-alabaster/10 backdrop-blur-sm border border-alabaster/25 overflow-hidden hover:bg-alabaster/20 transition-colors"
                 style={{
                   boxShadow: "0 24px 70px -22px color-mix(in oklab, var(--accent-gold) 30%, transparent)",
                 }}
@@ -1014,14 +1028,14 @@ function Index() {
                   Start Your Dance Journey
                   <ArrowUpRight size={20} className="group-hover:rotate-45 transition-transform" />
                 </span>
-                <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+                <span aria-hidden className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out bg-gradient-to-r from-transparent via-alabaster/40 to-transparent" />
               </a>
             </MagneticButton>
           </div>
 
-          <p className="relative mt-5 text-sm text-white/70">
+          <p className="relative mt-5 text-sm text-alabaster/70">
             Not ready to register today?{" "}
-            <Link to="/contact" className="text-white font-medium underline underline-offset-4 hover:text-white/90 transition-colors">
+            <Link to="/contact" className="text-alabaster font-medium underline underline-offset-4 hover:text-alabaster/80 transition-colors">
               Get in touch and we'll notify you about the next batch
             </Link>.
           </p>
