@@ -52,9 +52,6 @@ const StylesDeck = lazy(() =>
   import("@/components/site/StylesDeck").then((m) => ({ default: m.StylesDeck }))
 );
 
-const StylesDeck = lazy(() =>
-  import("@/components/site/StylesDeck").then((m) => ({ default: m.StylesDeck }))
-);
 
 
 
