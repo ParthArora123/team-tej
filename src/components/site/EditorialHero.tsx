@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, Calendar, Instagram, MapPin, Play, Youtube } from "lucide-react";
+import { ArrowUpRight, Calendar, Flame, Instagram, MapPin, Play, Sparkles, Trophy, Users, Youtube } from "lucide-react";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
 /**
@@ -60,13 +60,13 @@ export function EditorialHero({
   ];
 
   return (
-    <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-5 sm:px-8 lg:px-10 pt-24 pb-14 lg:pt-24 lg:pb-10">
+    <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-5 sm:px-8 lg:px-10 pt-24 pb-10 lg:pt-22 lg:pb-6">
       {/* Title block */}
-      <header className="relative z-10 mx-auto w-full max-w-7xl text-center">
-        <h1 className="ed-rise font-display text-[2.4rem] leading-[0.95] sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight">
+      <header className="relative z-10 mx-auto w-full max-w-[92rem] text-center">
+        <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
           {name.toUpperCase()}
         </h1>
-        <p className="ed-rise mt-3 text-[10px] sm:text-xs uppercase tracking-[0.32em] text-muted-foreground" style={{ animationDelay: "90ms" }}>
+        <p className="ed-rise mt-3 text-[10px] sm:text-xs uppercase tracking-[0.4em] text-muted-foreground" style={{ animationDelay: "90ms" }}>
           Dance Educator <span className="text-primary">•</span> Performer <span className="text-primary">•</span> Choreographer
         </p>
         <p className="ed-rise mt-2 text-sm sm:text-base text-muted-foreground" style={{ animationDelay: "150ms" }}>
@@ -75,14 +75,15 @@ export function EditorialHero({
       </header>
 
       {/* Three editorial columns */}
-      <div className="relative z-10 mx-auto mt-6 lg:mt-7 grid w-full max-w-7xl gap-5 lg:gap-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.35fr)_minmax(0,0.95fr)] items-start">
+      <div className="relative z-10 mx-auto mt-5 lg:mt-6 grid w-full max-w-[92rem] gap-5 lg:gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.75fr)_minmax(0,0.86fr)] items-stretch">
+
         {/* Left — philosophy stack */}
-        <div className="order-2 lg:order-1 grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+        <div className="order-2 lg:order-1 grid content-start gap-3.5 sm:grid-cols-3 lg:grid-cols-1">
           {columns.map((c, i) => (
-            <article key={c.t} className="ed-rise ed-card p-4 lg:p-5" style={{ animationDelay: `${220 + i * 80}ms` }}>
+            <article key={c.t} className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: `${220 + i * 80}ms` }}>
               <p className="ed-eyebrow">{c.k}</p>
-              <h2 className="mt-1 font-display text-base lg:text-lg font-bold">{c.t}</h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground line-clamp-5 whitespace-pre-line">{c.v}</p>
+              <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold">{c.t}</h2>
+              <p className="mt-2.5 text-[13.5px] leading-relaxed text-muted-foreground line-clamp-5 whitespace-pre-line">{c.v}</p>
             </article>
           ))}
           {(hasMore || socials.instagram || socials.youtube) && (
@@ -113,47 +114,58 @@ export function EditorialHero({
 
         {/* Center — framed media + floating stat pills */}
         <div className="order-1 lg:order-2">
-          <div className="relative">
+          <div className="relative isolate">
+            <div aria-hidden className="cine-spot" />
             <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
 
             {/* Floating stats — corner pills, as in the reference */}
             <div className="pointer-events-none absolute inset-0 hidden sm:block">
-              {badges.slice(0, 4).map((b, i) => (
-                <div
-                  key={b.label}
-                  className={`ed-rise ed-pill absolute ${
-                    ["-left-4 top-6", "-right-4 top-20", "-left-3 bottom-20", "-right-3 bottom-6"][i]
-                  }`}
-                  style={{ animationDelay: `${420 + i * 90}ms` }}
-                >
-                  <p className="font-display text-base lg:text-xl font-bold leading-none">{b.value}</p>
-                  <p className="mt-1 text-[9px] uppercase tracking-[0.16em] text-muted-foreground">{b.label}</p>
-                </div>
-              ))}
+              {badges.slice(0, 4).map((b, i) => {
+                const Icon = [Sparkles, Users, Flame, Trophy][i] ?? Sparkles;
+                return (
+                  <div
+                    key={b.label}
+                    className={`ed-rise ed-pill absolute flex items-center gap-2.5 ${
+                      ["-left-6 top-8", "-right-6 top-24", "-left-5 bottom-24", "-right-5 bottom-8"][i]
+                    }`}
+                    style={{ animationDelay: `${420 + i * 90}ms` }}
+                  >
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-primary/35 bg-primary/10 text-primary">
+                      <Icon size={14} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-display text-lg lg:text-2xl font-bold leading-none">{b.value}</span>
+                      <span className="mt-1 block text-[9px] uppercase tracking-[0.18em] text-muted-foreground">{b.label}</span>
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
 
           {/* Mobile stat row */}
-          <div className="mt-3 grid grid-cols-4 gap-2 sm:hidden">
+          <div className="mt-4 grid grid-cols-4 gap-2 sm:hidden">
             {badges.slice(0, 4).map((b) => (
-              <div key={b.label} className="ed-card px-2 py-2 text-center">
+              <div key={b.label} className="ed-card px-2 py-2.5 text-center">
                 <p className="font-display text-sm font-bold leading-none">{b.value}</p>
                 <p className="mt-1 text-[8px] uppercase tracking-[0.12em] text-muted-foreground">{b.label}</p>
               </div>
             ))}
           </div>
 
+
           {/* CTAs */}
-          <div className="ed-rise mt-6 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
+          <div className="ed-rise mt-5 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
             <button
               type="button"
               onClick={onExplore}
-              className="ed-cta group inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em]"
+              className="ed-cta group inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
             >
               Explore Workshops
               <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>
+
             <button
               type="button"
               onClick={onWatch}
@@ -165,8 +177,8 @@ export function EditorialHero({
         </div>
 
         {/* Right — next studio day + tour */}
-        <div className="order-3 grid gap-3">
-          <article className="ed-rise ed-card p-4 lg:p-5" style={{ animationDelay: "300ms" }}>
+        <div className="order-3 grid content-start gap-4">
+          <article className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: "300ms" }}>
             <p className="ed-eyebrow">Next Studio Day{next?.city ? ` · ${next.city}` : ""}</p>
             <h2 className="mt-1 font-display text-base lg:text-lg font-bold">
               {next
@@ -200,7 +212,7 @@ export function EditorialHero({
           </article>
 
           {tour.length > 0 && (
-            <article className="ed-rise ed-card p-4 lg:p-5" style={{ animationDelay: "380ms" }}>
+            <article className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: "380ms" }}>
               <p className="ed-eyebrow inline-flex items-center gap-1.5">
                 <Calendar size={11} /> Upcoming Tour
               </p>
@@ -273,42 +285,94 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   }, [idx, clips.length]);
 
   const clip = clips[idx];
+  const frameRef = useRef<HTMLDivElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
+
+  // Subtle GPU-only pointer parallax on the hero media.
+  useEffect(() => {
+    const frame = frameRef.current;
+    const media = mediaRef.current;
+    if (!frame || !media) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (window.matchMedia("(hover: none)").matches) return;
+    let raf = 0;
+    const onMove = (e: PointerEvent) => {
+      const r = frame.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        media.style.transform = `translate3d(${x * -14}px, ${y * -14}px, 0) scale(1.04)`;
+      });
+    };
+    const onLeave = () => {
+      cancelAnimationFrame(raf);
+      media.style.transform = "translate3d(0,0,0) scale(1)";
+    };
+    frame.addEventListener("pointermove", onMove);
+    frame.addEventListener("pointerleave", onLeave);
+    return () => {
+      cancelAnimationFrame(raf);
+      frame.removeEventListener("pointermove", onMove);
+      frame.removeEventListener("pointerleave", onLeave);
+    };
+  }, []);
 
   return (
-    <div className="ed-rise ed-frame relative mx-auto aspect-[4/5] w-full max-w-[26rem] sm:max-w-[30rem] lg:aspect-auto lg:h-[42svh] lg:max-w-none" style={{ animationDelay: "180ms" }}>
+    <div
+      ref={frameRef}
+      className="ed-rise ed-frame relative mx-auto aspect-[4/5] w-full max-w-[30rem] sm:max-w-[34rem] lg:aspect-auto lg:h-[46svh] lg:max-w-none"
+      style={{ animationDelay: "180ms" }}
+    >
       <img
         src={image}
         alt=""
         aria-hidden
-        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-45 blur-2xl"
+        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
         draggable={false}
       />
-      {clip ? (
-        <video
-          ref={videoRef}
-          key={clip}
-          src={clip}
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster={image}
-          disablePictureInPicture
-          className="absolute inset-0 h-full w-full object-contain"
-          onLoadedData={onReady}
-        />
-      ) : (
-        <img
-          src={image}
-          alt={alt}
-          fetchPriority="high"
-          decoding="async"
-          className="ed-kenburns absolute inset-0 h-full w-full object-contain"
-          onLoad={onReady}
-          onError={onReady}
-          draggable={false}
-        />
-      )}
+      <div
+        ref={mediaRef}
+        className="absolute inset-0 will-change-transform"
+        style={{ transition: "transform 420ms cubic-bezier(0.22,1,0.36,1)" }}
+      >
+        {clip ? (
+          <video
+            ref={videoRef}
+            key={clip}
+            src={clip}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={image}
+            disablePictureInPicture
+            className="absolute inset-0 h-full w-full object-contain"
+            onLoadedData={onReady}
+          />
+        ) : (
+          <img
+            src={image}
+            alt={alt}
+            fetchPriority="high"
+            decoding="async"
+            className="ed-kenburns absolute inset-0 h-full w-full object-contain"
+            onLoad={onReady}
+            onError={onReady}
+            draggable={false}
+          />
+        )}
+      </div>
+      {/* cinematic vignette + top light falloff */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 70% at 50% 40%, transparent 55%, oklch(0 0 0 / 45%) 100%)",
+        }}
+      />
     </div>
   );
+
 }
