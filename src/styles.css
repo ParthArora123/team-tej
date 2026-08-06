@@ -124,10 +124,10 @@
   --gradient-stage: linear-gradient(120deg, var(--stage-purple) 0%, var(--stage-magenta) 34%, var(--stage-orange) 68%, var(--stage-gold) 100%);
   --gradient-stage-cool: linear-gradient(120deg, var(--stage-blue) 0%, var(--stage-purple) 45%, var(--stage-magenta) 100%);
   --gradient-stage-warm: linear-gradient(120deg, var(--stage-magenta) 0%, var(--stage-orange) 55%, var(--stage-gold) 100%);
-  --glow-stage: 0 18px 48px -18px color-mix(in oklab, var(--stage-magenta) 60%, transparent);
+  --glow-stage: 0 18px 48px -18px color-mix(in oklab, var(--accent-gold) 60%, transparent);
   --glow-stage-strong:
-    0 10px 26px -12px color-mix(in oklab, var(--stage-purple) 55%, transparent),
-    0 26px 70px -26px color-mix(in oklab, var(--stage-magenta) 65%, transparent);
+    0 10px 26px -12px color-mix(in oklab, var(--accent-gold) 55%, transparent),
+    0 26px 70px -26px color-mix(in oklab, var(--accent-gold) 65%, transparent);
 
 
   /* Reference palette — Warm Alabaster Studio */
