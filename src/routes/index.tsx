@@ -1061,7 +1061,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
   if (!items.length) return null;
 
   return (
-    <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+    <section id="showcase" className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
       <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
         <div>
           <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
