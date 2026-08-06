@@ -51,9 +51,10 @@ const SignatureProgramsGrid = lazy(() =>
 const StyleAnimation = lazy(() =>
   import("@/components/site/StyleAnimation").then((m) => ({ default: m.StyleAnimation }))
 );
-const StackedDeckLazy = lazy(() =>
-  import("@/components/site/StackedDeck").then((m) => ({ default: m.StackedDeck }))
+const StylesDeck = lazy(() =>
+  import("@/components/site/StylesDeck").then((m) => ({ default: m.StylesDeck }))
 );
+
 
 
 
