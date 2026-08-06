@@ -742,9 +742,9 @@ function Index() {
       <Chapter index={3} total={5} kicker="How We Teach — Mindset & Movement">
       <section id="method" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
         <div className="text-center">
-          <p className="text-xs uppercase tracking-widest text-primary font-bold">How We Teach</p>
+          <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">How We Teach</p>
           <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold uppercase tracking-wide leading-[1.05]">
-            Mindset &amp; Movement
+            Mindset &amp; <span className="df-gradient-text">Movement</span>
           </h2>
           <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
             A 4-pillar learning system designed to help absolute beginners and seasoned dancers express, grow, and feel alive.
