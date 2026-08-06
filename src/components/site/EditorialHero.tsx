@@ -130,7 +130,7 @@ export function EditorialHero({
                   <div
                     key={b.label}
                     className={`ed-rise ed-pill absolute flex items-center gap-2.5 ${
-                      ["-left-6 top-8", "-right-6 top-24", "-left-5 bottom-24", "-right-5 bottom-8"][i]
+                      ["top-[12%] -left-14", "top-[12%] -right-14", "bottom-[15%] -left-14", "bottom-[15%] -right-14"][i]
                     }`}
                     style={{ animationDelay: `${420 + i * 90}ms` }}
                   >
