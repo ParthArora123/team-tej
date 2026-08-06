@@ -42,6 +42,8 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
   const jumpTo = useCallback((target: number) => navigate(target, target > index ? 1 : -1), [navigate, index]);
 
   const [animating, setAnimating] = useState(false);
+  // Bumped on every scene change to replay the cinematic grade sweep.
+  const [grade, setGrade] = useState(0);
 
   // Commit the pending slide one frame after it has been mounted (hidden), so
   // the mount cost never lands inside the transition.
