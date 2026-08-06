@@ -76,7 +76,7 @@ export function EditorialHero({
         </div>
       )}
 
-      <div className="flex flex-col p-5">
+      <div className={`flex flex-col p-5 ${next?.banner_url ? "" : "flex-1 justify-center"}`}>
         <p className="ed-eyebrow">Next Studio Day{next?.city ? ` · ${next.city}` : ""}</p>
         <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold leading-snug">
           {next ? next.name : "New dates dropping soon"}
