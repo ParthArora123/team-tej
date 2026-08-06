@@ -1055,8 +1055,8 @@ main section:first-of-type {
 .chapter-rail.chapter-in {
   will-change: transform, opacity;
 }
-.chapter-body.chapter-in { animation: chapter-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) 90ms forwards; }
-.chapter-rail.chapter-in { animation: chapter-rise 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.chapter-body.chapter-in { animation: chapter-rise 760ms cubic-bezier(0.16, 1, 0.3, 1) 80ms forwards; }
+.chapter-rail.chapter-in { animation: chapter-rail-in 620ms cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .chapter-body.chapter-done,
 .chapter-rail.chapter-done {
   will-change: auto;
@@ -1065,7 +1065,41 @@ main section:first-of-type {
   animation: none;
 }
 @keyframes chapter-rise {
-  to { opacity: 1; transform: translate3d(0, 0, 0); }
+  from { opacity: 0; transform: translate3d(0, 22px, 0) scale(0.988); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes chapter-rail-in {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Cinematic staggered reveal for the direct blocks of a chapter, so a screen
+   "plays" top-to-bottom instead of appearing all at once. Compositor-only. */
+.chapter-body.chapter-stagger.chapter-in > * {
+  animation: reveal-up 720ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.chapter-body.chapter-stagger.chapter-in > *:nth-child(1) { animation-delay: 120ms; }
+.chapter-body.chapter-stagger.chapter-in > *:nth-child(2) { animation-delay: 220ms; }
+.chapter-body.chapter-stagger.chapter-in > *:nth-child(3) { animation-delay: 320ms; }
+.chapter-body.chapter-stagger.chapter-in > *:nth-child(4) { animation-delay: 410ms; }
+.chapter-body.chapter-stagger.chapter-in > *:nth-child(5) { animation-delay: 490ms; }
+.chapter-body.chapter-stagger.chapter-in > *:nth-child(n + 6) { animation-delay: 560ms; }
+.chapter-body.chapter-stagger.chapter-done > * { animation: none; opacity: 1; transform: none; }
+
+/* Scene-to-scene grade: a brief cinematic dim between screens. */
+.pager-grade {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(120% 100% at 50% 50%, transparent 30%, oklch(0 0 0 / 55%) 100%);
+}
+.pager-grade.pager-grade-on { animation: pager-grade 620ms ease-out both; }
+@keyframes pager-grade {
+  0% { opacity: 0; }
+  38% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 @keyframes reveal-up {
@@ -1073,6 +1107,7 @@ main section:first-of-type {
   to { opacity: 1; transform: none; }
 }
 .reveal-up { animation: reveal-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
 
 @keyframes modal-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes modal-pop {
