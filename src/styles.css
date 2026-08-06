@@ -36,6 +36,15 @@
   --color-accent-gold: var(--accent-gold);
   --color-accent-emerald: var(--accent-emerald);
   --color-accent-cyan: var(--accent-cyan);
+  --color-alabaster: var(--alabaster);
+  --color-beige: var(--beige);
+  --color-jet: var(--jet);
+  --color-slate-cool: var(--slate-cool);
+  --color-platinum: var(--platinum);
+  --color-role-educator: var(--role-educator);
+  --color-role-performer: var(--role-performer);
+  --color-role-choreographer: var(--role-choreographer);
+
 }
 
 
