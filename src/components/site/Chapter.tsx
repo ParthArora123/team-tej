@@ -82,7 +82,7 @@ export function Chapter({
       )}
 
       <div
-        className={`chapter-body relative ${state}`}
+        className={`chapter-body chapter-stagger relative ${state}`}
         onAnimationEnd={(e) => {
           if (e.target === e.currentTarget) setDone(true);
         }}
