@@ -627,8 +627,7 @@ function Index() {
 
       {/* SCREEN 2 — Iconic Work: Choreographies & World Tour */}
       <Chapter index={2} total={5} kicker="Iconic Work — Choreographies & World Tour">
-        <FounderSection founder={founder} />
-        <CinematicShowreel choreos={choreos} workshops={workshops} youtube={founder?.socials?.youtube} />
+        <CinematicShowreel choreos={choreos} workshops={workshops} />
 
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
 
@@ -818,6 +817,7 @@ function Index() {
         </div>
       </section>
 
+      <FounderSection founder={founder} />
       </Chapter>
 
       {/* SCREEN 4 — Programs & Styles */}
@@ -1199,7 +1199,7 @@ function SprocketStrip() {
   );
 }
 
-function CinematicShowreel({ choreos, workshops, youtube }: { choreos: Choreo[]; workshops: any[]; youtube?: string }) {
+function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshops: any[] }) {
   const items = useMemo(() => buildReelItems(choreos, workshops), [choreos, workshops]);
 
   if (!items.length) return null;
@@ -1212,7 +1212,7 @@ function CinematicShowreel({ choreos, workshops, youtube }: { choreos: Choreo[];
             <Play size={12} /> Iconic Work
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
-            Our Most Viral <span className="italic font-light">Choreographies.</span>
+            Choreographies & <span className="italic font-light">World Tour.</span>
           </h2>
         </div>
 
@@ -1235,19 +1235,6 @@ function CinematicShowreel({ choreos, workshops, youtube }: { choreos: Choreo[];
           interval={5000}
         />
       </LazySection>
-
-      {youtube && (
-        <div className="mt-10 flex justify-center">
-          <a
-            href={youtube}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ed-cta inline-flex items-center gap-2 rounded-full px-8 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
-          >
-            Watch More Choreographies <ArrowUpRight size={16} />
-          </a>
-        </div>
-      )}
 
     </section>
   );
@@ -1327,14 +1314,21 @@ function FounderSection({ founder }: { founder: any | null }) {
               Meet <span className="italic font-light">{name}.</span>
             </h2>
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
-            {biography && (
-              <p className="mt-4 text-muted-foreground leading-relaxed max-w-2xl whitespace-pre-line line-clamp-6">
-                {biography}
-              </p>
-            )}
           </div>
 
-
+          {/* Belief · Vision · Mission — always visible */}
+          <div className="grid sm:grid-cols-3 gap-3">
+            {[
+              { k: "Belief", v: belief || "Anyone can dance. It only takes the courage to begin." },
+              { k: "Vision", v: vision || "To make India's movement culture felt on every global stage." },
+              { k: "Mission", v: mission || "Build dancers with craft, confidence and character." },
+            ].map((c) => (
+              <div key={c.k} className="rounded-2xl border border-border bg-card/60 p-5">
+                <p className="text-xs uppercase tracking-widest text-primary">{c.k}</p>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{c.v}</p>
+              </div>
+            ))}
+          </div>
 
 
 
@@ -1344,7 +1338,7 @@ function FounderSection({ founder }: { founder: any | null }) {
                 onClick={() => setOpen(true)}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border hover:border-primary hover:text-primary font-medium transition"
               >
-                Know My Journey <ArrowUpRight size={18} />
+                Know more <ArrowUpRight size={18} />
               </button>
             )}
           </div>
