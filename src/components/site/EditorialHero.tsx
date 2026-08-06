@@ -117,7 +117,7 @@ export function EditorialHero({
         </div>
 
         {/* Center — framed media + floating stat pills */}
-        <div className="order-1 lg:order-2">
+        <div className="order-1 lg:order-2 relative z-30">
           <div className="relative isolate z-30">
             <div aria-hidden className="cine-spot" />
             <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
