@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, Calendar, Flame, Instagram, MapPin, Play, Sparkles, Trophy, Users, Youtube } from "lucide-react";
+import { ArrowUpRight, Calendar, Flame, Instagram, MapPin, Navigation as NavigationIcon, Play, Sparkles, Trophy, Users, Youtube } from "lucide-react";
+import { buildMapsUrl } from "@/lib/maps-link";
+
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
 /**
@@ -190,10 +192,26 @@ export function EditorialHero({
                 : "New dates dropping soon"}
             </h2>
             {next?.venue && (
-              <p className="mt-1 inline-flex items-center gap-1 text-[12px] text-muted-foreground">
-                <MapPin size={11} /> {next.venue}
-              </p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-muted-foreground">
+                <a
+                  href={buildMapsUrl(next.venue) ?? undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 underline-offset-2 transition hover:text-primary hover:underline"
+                >
+                  <MapPin size={11} /> {next.venue}
+                </a>
+                <a
+                  href={buildMapsUrl(next.venue) ?? undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider transition hover:text-primary"
+                >
+                  <NavigationIcon size={10} /> Get Directions
+                </a>
+              </div>
             )}
+
             {next?.description && (
               <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground line-clamp-3">{next.description}</p>
             )}
