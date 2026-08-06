@@ -60,7 +60,7 @@ export function EditorialHero({
   ];
 
   return (
-    <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-5 sm:px-8 lg:px-10 pt-24 pb-10 lg:pt-22 lg:pb-6">
+    <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-3 sm:px-6 lg:px-10 pt-24 pb-6 lg:pt-22 lg:pb-5">
       {/* Title block */}
       <header className="relative z-10 mx-auto w-full max-w-[92rem] text-center">
         <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
@@ -79,10 +79,10 @@ export function EditorialHero({
       </header>
 
       {/* Three editorial columns */}
-      <div className="relative z-10 mx-auto mt-5 lg:mt-6 grid w-full max-w-[92rem] gap-5 lg:gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.75fr)_minmax(0,0.86fr)] items-stretch">
+      <div className="relative z-10 mx-auto mt-3 lg:mt-4 grid w-full max-w-[92rem] gap-3 lg:gap-6 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.85fr)_minmax(0,0.84fr)] items-stretch">
 
         {/* Left — philosophy stack */}
-        <div className="order-2 lg:order-1 grid content-start gap-3.5 sm:grid-cols-3 lg:grid-cols-1">
+        <div className="order-2 lg:order-1 grid content-start gap-2.5 sm:grid-cols-3 lg:grid-cols-1">
           {columns.map((c, i) => (
             <article key={c.t} className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: `${220 + i * 80}ms` }}>
               <p className="ed-eyebrow">{c.k}</p>
@@ -122,7 +122,7 @@ export function EditorialHero({
             <div aria-hidden className="cine-spot" />
             <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
 
-            {/* Floating stats — corner pills, as in the reference */}
+            {/* Floating stats — corner pills, now tucked inside the frame edges */}
             <div className="pointer-events-none absolute inset-0 z-40 hidden sm:block">
               {badges.slice(0, 4).map((b, i) => {
                 const Icon = [Sparkles, Users, Flame, Trophy][i] ?? Sparkles;
@@ -130,7 +130,7 @@ export function EditorialHero({
                   <div
                     key={b.label}
                     className={`ed-rise ed-pill absolute flex items-center gap-2.5 ${
-                      ["top-[12%] -left-10", "top-[12%] -right-10", "bottom-[15%] -left-10", "bottom-[15%] -right-10"][i]
+                      ["top-[12%] left-4", "top-[12%] right-4", "bottom-[15%] left-4", "bottom-[15%] right-4"][i]
                     }`}
                     style={{ animationDelay: `${420 + i * 90}ms` }}
                   >
@@ -325,7 +325,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame relative mx-auto aspect-[4/5] w-full max-w-[30rem] sm:max-w-[34rem] lg:aspect-auto lg:h-[46svh] lg:max-w-none"
+      className="ed-rise ed-frame relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:aspect-auto lg:h-[60svh] lg:max-w-[92%]"
       style={{ animationDelay: "180ms" }}
     >
       <img
