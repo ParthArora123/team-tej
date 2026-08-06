@@ -543,6 +543,14 @@ function Index() {
   const heroSectionRef = useRef<HTMLElement>(null);
   const [heroVisible, setHeroVisible] = useState(true);
 
+  // Cinematic charcoal + gold identity, scoped to the homepage only.
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.add("cine-home");
+    return () => root.classList.remove("cine-home");
+  }, []);
+
+
   useEffect(() => {
     const el = heroSectionRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
