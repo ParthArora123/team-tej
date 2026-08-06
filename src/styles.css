@@ -39,45 +39,46 @@
 }
 
 
-/* Light theme — Monochrome Premium: true white & obsidian black, a
-   whisper of warmth in the grays (graphite, not flat digital gray) so it
-   reads as premium/onyx rather than plain "grayscale placeholder". */
+/* Light theme — Warm Alabaster Studio: alabaster canvas (#F3F2EE), soft
+   tailored beige borders (#E7DFCE), silk jet-black accent (#121212),
+   cool slate text (#7C8089) and metallic platinum highlights (#D0D3D6). */
 :root {
   --radius: 0.75rem;
 
-  --background: oklch(1 0 0);                   /* pure white */
-  --foreground: oklch(0.12 0.004 60);            /* obsidian black */
-  --surface: oklch(0.97 0.003 60);               /* soft graphite-white */
+  --background: oklch(0.955 0.006 85);           /* warm alabaster */
+  --foreground: oklch(0.18 0.002 60);            /* silk jet black */
+  --surface: oklch(0.935 0.012 85);              /* tailored beige tint */
 
-  --card: oklch(0.995 0.002 60);
-  --card-foreground: oklch(0.12 0.004 60);
-  --popover: oklch(0.995 0.002 60);
-  --popover-foreground: oklch(0.12 0.004 60);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.002 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.002 60);
 
-  --primary: oklch(0.10 0.004 60);               /* deep true black */
-  --primary-foreground: oklch(1 0 0);            /* pure white */
+  --primary: oklch(0.18 0.002 60);               /* silk jet black */
+  --primary-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.95 0.004 60);             /* refined light graphite */
-  --secondary-foreground: oklch(0.12 0.004 60);
+  --secondary: oklch(0.905 0.018 85);            /* soft tailored beige */
+  --secondary-foreground: oklch(0.18 0.002 60);
 
-  --muted: oklch(0.94 0.004 60);
-  --muted-foreground: oklch(0.40 0.006 60);      /* graphite gray */
+  --muted: oklch(0.925 0.012 85);
+  --muted-foreground: oklch(0.60 0.012 250);     /* cool slate grey */
 
-  --accent: oklch(0.20 0.006 60);                /* charcoal */
-  --accent-foreground: oklch(1 0 0);
+  --accent: oklch(0.86 0.006 250);               /* metallic platinum */
+  --accent-foreground: oklch(0.18 0.002 60);
 
   --destructive: oklch(0.55 0.18 25);
   --destructive-foreground: oklch(0.99 0.005 250);
 
-  --border: oklch(0.88 0.005 60);                /* crisp, thin graphite border */
-  --input: oklch(0.95 0.004 60);
-  --ring: oklch(0.10 0.004 60);
+  --border: oklch(0.905 0.018 85);               /* soft beige hairline */
+  --input: oklch(0.925 0.012 85);
+  --ring: oklch(0.18 0.002 60);
 
-  --accent-cyan: oklch(0.18 0.005 60);
-  --accent-pink: oklch(0.45 0.007 60);
-  --accent-blue: oklch(0.12 0.004 60);
-  --accent-emerald: oklch(0.30 0.006 60);
-  --accent-gold: oklch(0.35 0.007 60);            /* soft platinum-graphite */
+  --accent-cyan: oklch(0.86 0.006 250);
+  --accent-pink: oklch(0.60 0.012 250);
+  --accent-blue: oklch(0.18 0.002 60);
+  --accent-emerald: oklch(0.60 0.012 250);
+  --accent-gold: oklch(0.86 0.014 85);            /* platinum / beige sheen */
+
 
   --gradient-primary: linear-gradient(135deg, oklch(0.20 0.006 60), oklch(0.04 0.002 60));
   --gradient-royal: linear-gradient(135deg, oklch(0.55 0.006 60) 0%, oklch(0.25 0.006 60) 50%, oklch(0.05 0.002 60) 100%);
