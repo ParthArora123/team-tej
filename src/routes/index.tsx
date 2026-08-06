@@ -48,9 +48,6 @@ const FeaturedPerformances = lazy(() =>
 const SignatureProgramsGrid = lazy(() =>
   import("@/components/site/HomeSectionCards").then((m) => ({ default: m.SignatureProgramsGrid }))
 );
-const StylesDeck = lazy(() =>
-  import("@/components/site/StylesDeck").then((m) => ({ default: m.StylesDeck }))
-);
 
 
 
