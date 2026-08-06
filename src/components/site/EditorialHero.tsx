@@ -104,10 +104,10 @@ export function EditorialHero({
         </div>
       </div>
 
-      {/* ROW 2 — Vision & Mission */}
+      {/* ROW 2 — Belief, Vision & Mission */}
       <div className="mx-auto mt-8 w-full max-w-[92rem] lg:mt-12">
         <div className="flex min-w-0 flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {columns.map((c, i) => (
               <article key={c.t} className="ed-rise ed-card p-5 lg:p-7" style={{ animationDelay: `${220 + i * 80}ms` }}>
                 <p className="ed-eyebrow">{c.k}</p>
