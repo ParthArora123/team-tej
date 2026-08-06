@@ -63,24 +63,24 @@ export function EditorialHero({
     <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-5 sm:px-8 lg:px-10 pt-24 pb-12 lg:pt-24 lg:pb-8">
       {/* Title block */}
       <header className="relative z-10 mx-auto w-full max-w-[92rem] text-center">
-        <h1 className="ed-rise cine-title font-display text-[2.9rem] leading-[0.92] sm:text-7xl lg:text-8xl xl:text-[7.5rem] font-bold tracking-[-0.03em]">
+        <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
           {name.toUpperCase()}
         </h1>
-        <p className="ed-rise mt-4 text-[11px] sm:text-sm uppercase tracking-[0.42em] text-muted-foreground" style={{ animationDelay: "90ms" }}>
+        <p className="ed-rise mt-3 text-[10px] sm:text-xs uppercase tracking-[0.4em] text-muted-foreground" style={{ animationDelay: "90ms" }}>
           Dance Educator <span className="text-primary">•</span> Performer <span className="text-primary">•</span> Choreographer
         </p>
-        <p className="ed-rise mt-2 text-sm sm:text-lg text-muted-foreground" style={{ animationDelay: "150ms" }}>
+        <p className="ed-rise mt-2 text-sm sm:text-base text-muted-foreground" style={{ animationDelay: "150ms" }}>
           Transforming passion into performance.
         </p>
       </header>
 
       {/* Three editorial columns */}
-      <div className="relative z-10 mx-auto mt-6 lg:mt-8 grid w-full max-w-[92rem] gap-5 lg:gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.75fr)_minmax(0,0.86fr)] items-stretch">
+      <div className="relative z-10 mx-auto mt-5 lg:mt-6 grid w-full max-w-[92rem] gap-5 lg:gap-8 lg:grid-cols-[minmax(0,0.78fr)_minmax(0,1.75fr)_minmax(0,0.86fr)] items-stretch">
 
         {/* Left — philosophy stack */}
-        <div className="order-2 lg:order-1 grid content-start gap-4 sm:grid-cols-3 lg:grid-cols-1">
+        <div className="order-2 lg:order-1 grid content-start gap-3.5 sm:grid-cols-3 lg:grid-cols-1">
           {columns.map((c, i) => (
-            <article key={c.t} className="ed-rise ed-card p-5 lg:p-6" style={{ animationDelay: `${220 + i * 80}ms` }}>
+            <article key={c.t} className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: `${220 + i * 80}ms` }}>
               <p className="ed-eyebrow">{c.k}</p>
               <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold">{c.t}</h2>
               <p className="mt-2.5 text-[13.5px] leading-relaxed text-muted-foreground line-clamp-5 whitespace-pre-line">{c.v}</p>
@@ -156,7 +156,7 @@ export function EditorialHero({
 
 
           {/* CTAs */}
-          <div className="ed-rise mt-7 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
+          <div className="ed-rise mt-5 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
             <button
               type="button"
               onClick={onExplore}
@@ -178,7 +178,7 @@ export function EditorialHero({
 
         {/* Right — next studio day + tour */}
         <div className="order-3 grid gap-3">
-          <article className="ed-rise ed-card p-5 lg:p-6" style={{ animationDelay: "300ms" }}>
+          <article className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: "300ms" }}>
             <p className="ed-eyebrow">Next Studio Day{next?.city ? ` · ${next.city}` : ""}</p>
             <h2 className="mt-1 font-display text-base lg:text-lg font-bold">
               {next
@@ -212,7 +212,7 @@ export function EditorialHero({
           </article>
 
           {tour.length > 0 && (
-            <article className="ed-rise ed-card p-5 lg:p-6" style={{ animationDelay: "380ms" }}>
+            <article className="ed-rise ed-card p-4.5 lg:p-5" style={{ animationDelay: "380ms" }}>
               <p className="ed-eyebrow inline-flex items-center gap-1.5">
                 <Calendar size={11} /> Upcoming Tour
               </p>
@@ -321,7 +321,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame relative mx-auto aspect-[4/5] w-full max-w-[30rem] sm:max-w-[34rem] lg:aspect-auto lg:h-[62svh] lg:max-w-none"
+      className="ed-rise ed-frame relative mx-auto aspect-[4/5] w-full max-w-[30rem] sm:max-w-[34rem] lg:aspect-auto lg:h-[50svh] lg:max-w-none"
       style={{ animationDelay: "180ms" }}
     >
       <img
