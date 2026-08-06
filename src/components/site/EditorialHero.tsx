@@ -122,7 +122,7 @@ export function EditorialHero({
             <div aria-hidden className="cine-spot" />
             <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
 
-            {/* Floating stats — corner pills, as in the reference */}
+            {/* Floating stats — corner pills, now tucked inside the frame edges */}
             <div className="pointer-events-none absolute inset-0 z-40 hidden sm:block">
               {badges.slice(0, 4).map((b, i) => {
                 const Icon = [Sparkles, Users, Flame, Trophy][i] ?? Sparkles;
@@ -130,7 +130,7 @@ export function EditorialHero({
                   <div
                     key={b.label}
                     className={`ed-rise ed-pill absolute flex items-center gap-2.5 ${
-                      ["top-[12%] -left-10", "top-[12%] -right-10", "bottom-[15%] -left-10", "bottom-[15%] -right-10"][i]
+                      ["top-[12%] left-4", "top-[12%] right-4", "bottom-[15%] left-4", "bottom-[15%] right-4"][i]
                     }`}
                     style={{ animationDelay: `${420 + i * 90}ms` }}
                   >
