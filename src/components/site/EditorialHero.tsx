@@ -1,7 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUpRight, Calendar, Clock, Flame, Instagram, MapPin, Navigation as NavigationIcon, Play, Sparkles, Trophy, Users, Youtube } from "lucide-react";
-import { buildMapsUrl } from "@/lib/maps-link";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight, Instagram, Play, Youtube } from "lucide-react";
 
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
@@ -37,23 +35,12 @@ export function EditorialHero({
     "Beyond the steps and choreography, dance is a spark that makes us feel alive.";
   const vision = founder?.vision ||
     "To create a space where everyone — from absolute beginners to artists — can say, \u201CI belong here.\u201D";
-  const mission = founder?.mission ||
-    "Building dancers with craft, confidence and character — one honest rehearsal at a time.";
   const biography = founder?.biography || "";
   const achievements: string[] = Array.isArray(founder?.achievements) ? founder.achievements : [];
   const socials = founder?.socials || {};
   const [open, setOpen] = useState(false);
   const hasMore = Boolean(biography || achievements.length);
 
-  const upcoming = useMemo(() => {
-    const today = new Date(new Date().toDateString());
-    return (workshops || [])
-      .filter((w) => w.event_date && new Date(w.event_date) >= today)
-      .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
-  }, [workshops]);
-
-  const next = upcoming[0] ?? null;
-  const tour = upcoming.slice(1, 4);
 
   const columns = [
     { k: "Philosophy", t: "Our Belief", v: belief },
@@ -258,7 +245,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:aspect-auto lg:h-[48svh] lg:max-w-[92%]"
+      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[36rem] sm:max-w-[44rem] lg:aspect-[16/9] lg:h-[68svh] lg:max-w-[80rem]"
       style={{ animationDelay: "180ms" }}
     >
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
