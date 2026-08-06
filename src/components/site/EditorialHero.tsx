@@ -60,7 +60,7 @@ export function EditorialHero({
   ];
 
   return (
-    <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-5 sm:px-8 lg:px-10 pt-24 pb-10 lg:pt-22 lg:pb-6">
+    <section className="relative w-full min-h-[100svh] flex flex-col justify-center px-3 sm:px-6 lg:px-10 pt-24 pb-6 lg:pt-22 lg:pb-5">
       {/* Title block */}
       <header className="relative z-10 mx-auto w-full max-w-[92rem] text-center">
         <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
