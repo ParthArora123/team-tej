@@ -597,12 +597,12 @@ function Index() {
       </Chapter>
 
       {/* SCREEN 2 — Meet Tejas: mindset & movement */}
-      <Chapter index={2} total={5} kicker="Meet Tejas">
+      <Chapter index={2} total={5} kicker="The Origin — Meet Tejas">
         <FounderSection founder={founder} />
       </Chapter>
 
       {/* SCREEN 3 — Most Viral Choreographies */}
-      <Chapter index={3} total={5} kicker="Most Viral Choreographies">
+      <Chapter index={3} total={5} kicker="The Proof — Viral Choreographies">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
 
@@ -715,7 +715,7 @@ function Index() {
       </Chapter>
 
       {/* SCREEN 4 — Register Workshop */}
-      <Chapter index={4} total={5} kicker="Register Workshop">
+      <Chapter index={4} total={5} kicker="The Invitation — Register">
       <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
@@ -817,7 +817,7 @@ function Index() {
 
 
       {/* SCREEN 5 — How We Teach + Final Call */}
-      <Chapter index={5} total={5} kicker="How We Teach">
+      <Chapter index={5} total={5} kicker="The Method — How We Teach">
       <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 lg:pt-10">
         <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
           <div>
