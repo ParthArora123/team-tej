@@ -772,14 +772,26 @@ function Index() {
         {/* 4 pillars */}
         <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
           {[
-            { icon: Target, title: "1. Technique", desc: "Mastering posture, footwork, core balance, and body mechanics for effortless execution." },
-            { icon: Heart, title: "2. Expression", desc: "Connecting emotion to motion, bringing authenticity and storytelling to every choreography." },
-            { icon: Music2, title: "3. Musicality", desc: "Deepening rhythm control, tempo changes, and beat timing across diverse global sounds." },
-            { icon: Users2, title: "4. Stage Presence", desc: "Building commanding charisma, spatial control, and authentic connection with audiences." },
+            { icon: Target, title: "1. Technique", desc: "Mastering posture, footwork, core balance, and body mechanics for effortless execution.", tone: "var(--jet)" },
+            { icon: Heart, title: "2. Expression", desc: "Connecting emotion to motion, bringing authenticity and storytelling to every choreography.", tone: "var(--role-choreographer)" },
+            { icon: Music2, title: "3. Musicality", desc: "Deepening rhythm control, tempo changes, and beat timing across diverse global sounds.", tone: "var(--role-educator)" },
+            { icon: Users2, title: "4. Stage Presence", desc: "Building commanding charisma, spatial control, and authentic connection with audiences.", tone: "var(--role-performer)" },
           ].map((p, pi) => (
             <div key={p.title} className="reveal-up" style={revealDelay(pi)}>
               <div className="group relative block h-full ed-card p-4 lg:p-6 overflow-hidden transition-transform duration-300 hover:-translate-y-1">
-                <div className="relative h-11 w-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 top-0 h-0.5"
+                  style={{ background: `linear-gradient(90deg, ${p.tone}, transparent)` }}
+                />
+                <div
+                  className="relative h-11 w-11 rounded-xl flex items-center justify-center"
+                  style={{
+                    background: `color-mix(in oklab, ${p.tone} 12%, transparent)`,
+                    color: p.tone,
+                    border: `1px solid color-mix(in oklab, ${p.tone} 28%, transparent)`,
+                  }}
+                >
                   <p.icon size={20} />
                 </div>
                 <p className="relative mt-4 font-display text-lg lg:text-xl font-bold">{p.title}</p>
@@ -787,6 +799,7 @@ function Index() {
               </div>
             </div>
           ))}
+
         </div>
 
         {/* Designed for */}
