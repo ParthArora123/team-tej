@@ -1316,18 +1316,8 @@ function FounderSection({ founder }: { founder: any | null }) {
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
           </div>
 
-          {/* Vision · Mission — always visible */}
-          <div className="grid sm:grid-cols-2 gap-3">
-            {[
-              { k: "Vision", v: vision || "To make India's movement culture felt on every global stage." },
-              { k: "Mission", v: mission || "Build dancers with craft, confidence and character." },
-            ].map((c) => (
-              <div key={c.k} className="rounded-2xl border border-border bg-card/60 p-5">
-                <p className="text-xs uppercase tracking-widest text-primary">{c.k}</p>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{c.v}</p>
-              </div>
-            ))}
-          </div>
+
+
 
 
 
