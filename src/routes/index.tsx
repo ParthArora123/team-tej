@@ -1248,10 +1248,10 @@ function FounderSection({ founder }: { founder: any | null }) {
   const image = founder?.image_url || "";
   const biography = founder?.biography || "";
   const achievements: string[] = Array.isArray(founder?.achievements) ? founder.achievements : [];
-  const belief = founder?.belief || founder?.philosophy || "";
   const vision = founder?.vision || "";
   const mission = founder?.mission || "";
   const socials = founder?.socials || {};
+
 
   const hasMore = Boolean(biography || achievements.length || vision || mission);
 
