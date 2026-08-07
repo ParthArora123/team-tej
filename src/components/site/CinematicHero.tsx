@@ -379,8 +379,7 @@ export function CinematicHero({
             <a
               href="/workshops"
               onClick={(e) => goToSection(e, "workshops", "/workshops")}
-              className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full px-9 py-4 sm:px-11 sm:py-[1.15rem] text-primary-foreground text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.22em] transition-transform duration-300 hover:scale-[1.04]"
-              style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-glow)" }}
+              className="btn-premium-black group relative inline-flex items-center gap-2.5 overflow-hidden rounded-2xl px-9 py-4 sm:px-11 sm:py-[1.15rem] text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.22em]"
             >
               <span
                 aria-hidden
