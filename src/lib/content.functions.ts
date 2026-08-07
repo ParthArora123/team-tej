@@ -56,7 +56,7 @@ export const adminListCelebrities = createServerFn({ method: "GET" })
 
 const celebSchema = z.object({
   id: z.string().uuid().optional(),
-  name: z.string().min(1).max(120),
+  name: z.string().max(120).optional().nullable(),
   role: z.string().max(160).optional().nullable(),
   photo_url: z.string().max(1000).optional().nullable(),
   photo_path: z.string().max(500).optional().nullable(),
