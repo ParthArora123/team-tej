@@ -93,10 +93,10 @@
   --gradient-royal: linear-gradient(135deg, oklch(0.55 0.006 60) 0%, oklch(0.25 0.006 60) 50%, oklch(0.05 0.002 60) 100%);
   --gradient-aurora: linear-gradient(120deg, oklch(0.99 0.002 60), oklch(0.96 0.004 60) 45%, oklch(0.97 0.003 60));
   --gradient-hero:
-    radial-gradient(ellipse 90% 65% at 15% 0%,  color-mix(in oklab, #7B2FF7 12%, transparent), transparent 62%),
-    radial-gradient(ellipse 70% 55% at 92% 15%, color-mix(in oklab, #2D6BFF 11%, transparent), transparent 65%),
-    radial-gradient(ellipse 60% 45% at 80% 70%, color-mix(in oklab, #E0219B 10%, transparent), transparent 66%),
-    radial-gradient(ellipse 80% 60% at 50% 100%,color-mix(in oklab, #FFC93C 13%, transparent), transparent 60%);
+    radial-gradient(ellipse 90% 65% at 15% 0%,  rgba(0, 0, 0, 0.04), transparent 62%),
+    radial-gradient(ellipse 70% 55% at 92% 15%, rgba(0, 0, 0, 0.03), transparent 65%),
+    radial-gradient(ellipse 60% 45% at 80% 70%,  rgba(0, 0, 0, 0.04), transparent 66%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(0, 0, 0, 0.05), transparent 60%);
   --shadow-soft:
     0 1px 2px color-mix(in oklab, var(--accent-gold) 8%, transparent),
     0 16px 40px -14px color-mix(in oklab, var(--accent-gold) 18%, transparent),
