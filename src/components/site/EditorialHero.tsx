@@ -425,7 +425,7 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[32rem] sm:max-w-[40rem] lg:aspect-[4/5] lg:max-w-[58rem] lg:max-h-[86svh]"
+      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[46rem] lg:aspect-[4/5] lg:max-w-[64rem] lg:max-h-[88svh] xl:max-w-[70rem]"
       style={{ animationDelay: "180ms" }}
     >
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
