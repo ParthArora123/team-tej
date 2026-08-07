@@ -449,7 +449,7 @@ function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: 
   return (
     <div
       ref={frameRef}
-      className={["ed-rise light-sweep relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[3/2] max-h-[85vh] sm:max-h-[80vh] lg:max-h-[75vh]", className].filter(Boolean).join(" ")}
+      className={["ed-rise light-sweep relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[3/2] max-h-none sm:max-h-[80vh] lg:max-h-[75vh]", className].filter(Boolean).join(" ")}
       style={{ animationDelay: "180ms" }}
     >
       {/* Soft bottom wave overlay for a polished edge transition. */}
