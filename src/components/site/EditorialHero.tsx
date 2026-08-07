@@ -131,7 +131,6 @@ export function EditorialHero({
             {c.v}
           </p>
         </article>
-        </article>
       ))}
     </div>
   );
