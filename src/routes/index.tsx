@@ -575,6 +575,9 @@ function Index() {
         />
         <FounderSection founder={founder} />
         <CinematicShowreel choreos={choreos} workshops={workshops} />
+        <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
+          <IndiaToGlobeAndCounting globe={globe} stats={stats} />
+        </section>
       </Chapter>
 
       {/* SCREEN 2 — Register & Book Your Experience */}
@@ -963,57 +966,7 @@ function Index() {
         )}
 
 
-        {globe.length > 0 && (() => {
-          const conducted = globe.filter((g) => g.status === "conducted");
-          const upcoming = globe.filter((g) => g.status === "upcoming");
-          
-          return (
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-6 lg:p-12">
-              <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
-              <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
-              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
-              {conducted.length > 0 && (
-                <div className="mt-8">
-                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
-                  <div className="flex flex-wrap gap-2">
-                    {conducted.map((g) => (
-                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{g.city}, {g.country}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {upcoming.length > 0 && (
-                <div className="mt-6">
-                  <p className="text-[11px] uppercase tracking-widest text-primary mb-3">Upcoming</p>
-                  <div className="flex flex-wrap gap-2">
-                    {upcoming.map((g) => (
-                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
-                        {g.city}, {g.country}{g.event_date ? ` · ${new Date(g.event_date).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : ""}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })()}
-
-        {/* RHYTHM & COUNTING — animated stats, immediately after the globe */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
-          {stats.map((s, si) => (
-            <div key={s.label} className="reveal-up relative border-t border-border pt-6" style={revealDelay(si)}>
-              <div
-                aria-hidden
-                className="absolute -top-px left-0 h-px w-16"
-                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
-              />
-              <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
-                {s.value}{s.suffix ?? ""}
-              </p>
-              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
-            </div>
-          ))}
-        </div>
+        <IndiaToGlobeAndCounting globe={globe} stats={stats} />
       </section>
       </Chapter>
 
@@ -1186,6 +1139,68 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
       </LazySection>
 
     </section>
+  );
+}
+
+function IndiaToGlobeAndCounting({
+  globe,
+  stats,
+}: {
+  globe: any[];
+  stats: { value: number; suffix: string; label: string }[];
+}) {
+  const conducted = globe.filter((g) => g.status === "conducted");
+  const upcoming = globe.filter((g) => g.status === "upcoming");
+
+  return (
+    <div className="space-y-7 lg:space-y-10">
+      {globe.length > 0 && (
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-6 lg:p-12">
+          <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
+          <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
+          <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
+          {conducted.length > 0 && (
+            <div className="mt-8">
+              <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
+              <div className="flex flex-wrap gap-2">
+                {conducted.map((g) => (
+                  <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{g.city}, {g.country}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          {upcoming.length > 0 && (
+            <div className="mt-6">
+              <p className="text-[11px] uppercase tracking-widest text-primary mb-3">Upcoming</p>
+              <div className="flex flex-wrap gap-2">
+                {upcoming.map((g) => (
+                  <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
+                    {g.city}, {g.country}{g.event_date ? ` · ${new Date(g.event_date).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : ""}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* RHYTHM & COUNTING — animated stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+        {stats.map((s, si) => (
+          <div key={s.label} className="reveal-up relative border-t border-border pt-6" style={revealDelay(si)}>
+            <div
+              aria-hidden
+              className="absolute -top-px left-0 h-px w-16"
+              style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
+            />
+            <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
+              {s.value}{s.suffix ?? ""}
+            </p>
+            <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
