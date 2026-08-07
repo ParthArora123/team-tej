@@ -19,20 +19,20 @@ import { listPublicTestimonials } from "./testimonials.functions";
 import { listPerformances, listSignaturePrograms } from "./home-sections.functions";
 
 export type HomeBundle = {
-  heroSlides: unknown[];
-  heroPortrait: unknown;
-  workshops: unknown[];
-  featured: unknown;
-  celebrities: unknown[];
-  brands: unknown[];
-  globe: unknown[];
-  gallery: unknown[];
-  danceStyles: unknown[];
-  choreos: unknown[];
-  founder: unknown;
-  testimonials: unknown[];
-  performances: unknown[];
-  sigPrograms: unknown[];
+  heroSlides: any[];
+  heroPortrait: any;
+  workshops: any[];
+  featured: any;
+  celebrities: any[];
+  brands: any[];
+  globe: any[];
+  gallery: any[];
+  danceStyles: any[];
+  choreos: any[];
+  founder: any;
+  testimonials: any[];
+  performances: any[];
+  sigPrograms: any[];
 };
 
 const TTL_MS = 60_000;
