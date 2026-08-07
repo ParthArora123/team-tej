@@ -273,17 +273,21 @@ export function EditorialHero({
                   <h3 className="mt-3 font-display text-lg font-bold">{r.t}</h3>
                   <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{r.d}</p>
 
-                  {r.stat.label && (
-                    <p className="mt-4 flex items-baseline gap-2">
-                      <AnimatedCounter
-                        value={r.stat.n}
-                        suffix={r.stat.suffix}
-                        className="font-display text-2xl font-bold text-primary"
-                      />
-                      <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                        {r.stat.label}
-                      </span>
-                    </p>
+                  {r.stats.length > 0 && (
+                    <div className="mt-4 flex flex-wrap items-baseline gap-x-5 gap-y-2">
+                      {r.stats.map((s) => (
+                        <p key={s.label} className="flex items-baseline gap-2">
+                          <AnimatedCounter
+                            value={s.n}
+                            suffix={s.suffix}
+                            className="font-display text-2xl font-bold text-primary"
+                          />
+                          <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                            {s.label}
+                          </span>
+                        </p>
+                      ))}
+                    </div>
                   )}
 
                   {r.action && (
