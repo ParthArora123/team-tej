@@ -136,23 +136,22 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise ed-card group/card flex h-[7.5rem] flex-col overflow-hidden rounded-[16px] p-3 transition-transform duration-300 hover:-translate-y-1"
+            className="ed-rise group/card flex h-[5.5rem] sm:h-[6rem] flex-col overflow-hidden rounded-[14px] border border-white/40 bg-white/45 p-2 sm:p-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-1"
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
-            <div className="flex shrink-0 items-center gap-2 border-b border-border/40 pb-2">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[10px] border border-border/60 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
-                <c.Icon size={13} />
+            <div className="flex shrink-0 items-center gap-1.5 border-b border-border/30 pb-1.5">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] border border-white/50 bg-white/40 text-primary transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={12} />
               </span>
               <div className="min-w-0">
-                <p className="ed-eyebrow text-[8px]">{c.k}</p>
-                <h2 className="font-display text-[13px] font-bold leading-tight">{c.t}</h2>
+                <p className="ed-eyebrow text-[7px] sm:text-[8px]">{c.k}</p>
+                <h2 className="font-display text-[11px] sm:text-[12px] font-bold leading-tight">{c.t}</h2>
               </div>
             </div>
-            <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[11px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="ed-scroll mt-1.5 min-h-0 flex-1 overflow-y-auto pr-1 text-[9px] sm:text-[10px] leading-relaxed text-muted-foreground whitespace-pre-line">
               {c.v}
             </p>
           </article>
-
         </div>
       ))}
     </div>
