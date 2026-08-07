@@ -453,8 +453,8 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
         <>
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
-            style={{ background: "linear-gradient(to top, oklch(0 0 0 / 62%), transparent)" }}
+            className="pointer-events-none absolute inset-x-0 top-0 h-2/5"
+            style={{ background: "linear-gradient(to bottom, oklch(0 0 0 / 62%), transparent)" }}
           />
           {overlay}
         </>
