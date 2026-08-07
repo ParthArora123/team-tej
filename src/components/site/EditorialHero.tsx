@@ -115,7 +115,7 @@ export function EditorialHero({
       {columns.map((c, i) => (
         <article
           key={c.t}
-          className="ed-rise ed-card group/card p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+          className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
           style={{ animationDelay: `${260 + i * 110}ms` }}
         >
           <div className="flex items-center gap-3">
@@ -127,13 +127,10 @@ export function EditorialHero({
               <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
             </div>
           </div>
-          <p
-            className={`mt-3 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line ${
-              c.t === "Mission" ? "ed-scroll max-h-[9.5rem] overflow-y-auto pr-2" : ""
-            }`}
-          >
+          <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
             {c.v}
           </p>
+        </article>
         </article>
       ))}
     </div>
