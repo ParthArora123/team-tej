@@ -58,9 +58,24 @@ export function EditorialHero({
   const hasMore = Boolean(biography || achievements.length);
 
   const columns = [
-    { k: "Philosophy", t: "Belief", v: belief, Icon: Flame },
-    { k: "Purpose", t: "Vision", v: vision, Icon: Compass },
-    { k: "Mission", t: "Mission", v: mission, Icon: Target },
+    {
+      k: "About",
+      t: "Visionary Choreographer",
+      v: "A celebrated choreographer, dance educator, entrepreneur and founder of DanceFit Live — known for high-energy choreography and a teaching style that makes dance accessible, joyful and inclusive for every age and skill level, across Bollywood, Hip-Hop, Salsa and Contemporary.",
+      Icon: Flame,
+    },
+    {
+      k: "About",
+      t: "Inspiring Mentor",
+      v: "Thousands of students trained, hundreds of masterclasses delivered, and collaborations with leading Bollywood and music-industry professionals — simplifying complex choreography into easy-to-follow steps that build confidence while keeping the joy alive.",
+      Icon: Compass,
+    },
+    {
+      k: "About",
+      t: "Founder of DanceFit Live",
+      v: "Dance is a powerful medium for self-expression, confidence, fitness and personal transformation. Through DanceFit Live, workshops and digital platforms, Tejas keeps inspiring a global dance community and making quality dance education accessible to everyone.",
+      Icon: Target,
+    },
   ];
 
   const stat = (needle: string) => {
