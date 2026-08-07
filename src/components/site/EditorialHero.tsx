@@ -244,43 +244,47 @@ export function EditorialHero({
 
           {/* ROLE CARDS */}
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {roles.map((r, i) => (
-              <article
-                key={r.t}
-                className="ed-rise ed-card group/role flex flex-col p-5 transition-transform duration-300 hover:-translate-y-1.5"
-                style={{ animationDelay: `${620 + i * 110}ms` }}
-              >
-                <span className="grid h-10 w-10 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/role:scale-110">
-                  <r.Icon size={18} />
-                </span>
-                <h3 className="mt-3 font-display text-lg font-bold">{r.t}</h3>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{r.d}</p>
-
-                {r.stat.label && (
-                  <p className="mt-4 flex items-baseline gap-2">
-                    <AnimatedCounter
-                      value={r.stat.n}
-                      suffix={r.stat.suffix}
-                      className="font-display text-2xl font-bold text-primary"
-                    />
-                    <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                      {r.stat.label}
-                    </span>
-                  </p>
-                )}
-
-                {r.action && (
-                  <button
-                    type="button"
-                    onClick={r.action.onClick}
-                    className="ed-ghost mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em]"
+            {roles.map((r, i) => {
+              const floatClass = i % 3 === 0 ? "float-1" : i % 3 === 1 ? "float-2" : "float-3";
+              return (
+                <div key={r.t} className={floatClass}>
+                  <article
+                    className="ed-rise ed-card group/role flex flex-col p-5 transition-transform duration-300 hover:-translate-y-1.5"
+                    style={{ animationDelay: `${620 + i * 110}ms` }}
                   >
-                    {r.action.icon === "play" ? <Play size={12} /> : <ArrowUpRight size={13} />}
-                    {r.action.label}
-                  </button>
-                )}
-              </article>
-            ))}
+                    <span className="grid h-10 w-10 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/role:scale-110">
+                      <r.Icon size={18} />
+                    </span>
+                    <h3 className="mt-3 font-display text-lg font-bold">{r.t}</h3>
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{r.d}</p>
+
+                    {r.stat.label && (
+                      <p className="mt-4 flex items-baseline gap-2">
+                        <AnimatedCounter
+                          value={r.stat.n}
+                          suffix={r.stat.suffix}
+                          className="font-display text-2xl font-bold text-primary"
+                        />
+                        <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                          {r.stat.label}
+                        </span>
+                      </p>
+                    )}
+
+                    {r.action && (
+                      <button
+                        type="button"
+                        onClick={r.action.onClick}
+                        className="ed-ghost mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em]"
+                      >
+                        {r.action.icon === "play" ? <Play size={12} /> : <ArrowUpRight size={13} />}
+                        {r.action.label}
+                      </button>
+                    )}
+                  </article>
+                </div>
+              );
+            })}
           </div>
 
           {(hasMore || socials.instagram || socials.youtube) && (
