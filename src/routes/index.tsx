@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { cachedCall } from "@/lib/public-data-cache";
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
-import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
+import { listPublicCelebrities, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
 import { listDanceStyles, getSiteContent } from "@/lib/site-content.functions";
 import { listChoreographies } from "@/lib/choreographies.functions";
@@ -12,9 +12,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
-import heroImg from "@/assets/tejasdhoke.jpg";
 import uploadedHeroImg from "@/assets/tejasdhoke-hero.webp.asset.json";
-import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
 import { MagneticButton } from "@/components/site/MagneticButton";
@@ -301,12 +299,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const stats: { value: number; suffix: string; label: string }[] = [
-  { value: 100, suffix: "k+", label: "Dancers Trained" },
-  { value: 300, suffix: "+", label: "Live Performances" },
-  { value: 1000, suffix: "+", label: "Workshops" },
-  { value: 16, suffix: "+", label: "Years of Experience" },
-];
 
 type Choreo = {
   id: string;
@@ -340,7 +332,6 @@ function Index() {
   // tasks + video re-mount flicker on mid/low-end phones).
   const [deferred, setDeferred] = useState<{
     celebrities: any[];
-    brands: any[];
     globe: any[];
     gallery: any[];
     danceStyles: any[] | null;
@@ -351,7 +342,6 @@ function Index() {
     sigPrograms: HomeCard[];
   }>({
     celebrities: [],
-    brands: [],
     globe: [],
     gallery: [],
     danceStyles: null,
@@ -363,7 +353,6 @@ function Index() {
   });
   const {
     celebrities,
-    brands,
     globe,
     gallery,
     danceStyles,
@@ -405,7 +394,7 @@ function Index() {
   // Safety net: hero images cached before hydration never fire onLoad, so
   // ensure heroReady flips true shortly after mount even if the media
   // callback is missed. Without this, deferred sections (celebrities,
-  // brands, gallery, choreographies, founder, etc.) never load.
+  // gallery, choreographies, founder, etc.) never load.
   useEffect(() => {
     const t = setTimeout(() => setHeroReady(true), 400);
     return () => clearTimeout(t);
@@ -496,7 +485,6 @@ function Index() {
           .catch(() => commit({ [field]: empty }));
 
       load("celebrities", "celebrities", () => listPublicCelebrities(), []);
-      load("brands", "brands", () => listPublicBrands(), []);
       load("globe", "globe", () => listPublicGlobe(), []);
       load("gallery", "gallery", () => listGalleryItems(), []);
       load("danceStyles", "danceStyles", () => listDanceStyles(), []);
@@ -1013,20 +1001,6 @@ function Index() {
 
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
 
-        {brands.length > 0 && (
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
-            <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">Trusted partners</h2>
-            <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-              {brands.map((b) => (
-                <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
-                  {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {celebrities.length > 0 && (
 
           <div>
@@ -1066,143 +1040,6 @@ function Index() {
           </div>
         )}
 
-
-        {(() => {
-          const conducted = globe.filter((g) => g.status === "conducted");
-          const upcoming = globe.filter((g) => g.status === "upcoming");
-          const allCities = [...new Set([...conducted, ...upcoming].map((g) => g.city).filter(Boolean))];
-          const tourCards = choreos.slice(0, 3);
-
-          return (
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card via-background to-muted border border-border p-6 lg:p-12">
-              {/* Header */}
-              <div className="text-center">
-                <p className="text-xs uppercase tracking-widest text-primary">Iconic Work</p>
-                <h2 className="font-display text-3xl lg:text-5xl font-bold mt-2 tracking-tight">
-                  Choreographies &amp; <span className="italic font-light">World Tour.</span>
-                </h2>
-                <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-                  A showcase of viral choreographies and world tour destinations.
-                </p>
-              </div>
-
-              {/* Choreography Cards */}
-              <div className="mt-8 lg:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-                {tourCards.map((c, ci) => (
-                  <article
-                    key={c.id}
-                    style={revealDelay(ci)}
-                    className="reveal-up group relative overflow-hidden rounded-2xl lg:rounded-3xl bg-card border border-border shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-xl"
-                  >
-                    <div className="relative aspect-[3/4] overflow-hidden">
-                      {/* Backdrop fill */}
-                      {c.thumbnail_url && (
-                        <img
-                          src={c.thumbnail_url}
-                          alt=""
-                          aria-hidden
-                          loading="lazy"
-                          className="absolute inset-0 h-full w-full object-cover blur-xl scale-110 opacity-60"
-                        />
-                      )}
-                      {/* Main image / video */}
-                      {c.video_url ? (
-                        <video
-                          src={c.video_url}
-                          poster={c.thumbnail_url ?? undefined}
-                          muted
-                          loop
-                          playsInline
-                          preload="metadata"
-                          className="absolute inset-0 h-full w-full object-contain transform-gpu transition-transform duration-700 group-hover:scale-105"
-                          onMouseEnter={(e) => playHomepageVideo(e.currentTarget)}
-                          onMouseLeave={(e) => pauseHomepageVideo(e.currentTarget)}
-                          onFocus={(e) => playHomepageVideo(e.currentTarget)}
-                          onBlur={(e) => pauseHomepageVideo(e.currentTarget)}
-                        />
-                      ) : (
-                        <img
-                          src={c.thumbnail_url || classesImg}
-                          alt={c.title}
-                          loading="lazy"
-                          decoding="async"
-                          className="absolute inset-0 h-full w-full object-contain transform-gpu transition-transform duration-700 group-hover:scale-105"
-                        />
-                      )}
-
-                      {/* Bottom gradient + title */}
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 lg:p-6">
-                        <h3 className="font-display text-lg lg:text-xl font-bold text-white drop-shadow-md">
-                          {c.title}
-                        </h3>
-                        <p className="mt-1 text-sm text-white/80">Choreography</p>
-                      </div>
-
-                      {/* Shine sweep */}
-                      <div
-                        aria-hidden
-                        className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
-                        style={{
-                          background:
-                            "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%)",
-                        }}
-                      />
-                    </div>
-                  </article>
-                ))}
-              </div>
-
-              {/* Tour Destinations */}
-              {(allCities.length > 0 || true) && (
-                <div className="mt-8 lg:mt-10">
-                  <p className="text-center text-xs uppercase tracking-widest text-muted-foreground mb-4">
-                    Tour Destinations
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-3">
-                    {allCities.length > 0 ? (
-                      allCities.map((city) => (
-                        <span
-                          key={city}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-background/80 border border-border hover:border-primary/40 hover:text-primary transition-colors"
-                        >
-                          <MapPin size={14} className="text-primary" />
-                          {city}
-                        </span>
-                      ))
-                    ) : (
-                      ["Mumbai", "Delhi", "Bengaluru", "Dubai", "London", "New York", "Singapore"].map((city) => (
-                        <span
-                          key={city}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-background/80 border border-border hover:border-primary/40 hover:text-primary transition-colors"
-                        >
-                          <MapPin size={14} className="text-primary" />
-                          {city}
-                        </span>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })()}
-
-        {/* RHYTHM & COUNTING — animated stats, immediately after the globe */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
-          {stats.map((s, si) => (
-            <div key={s.label} className="reveal-up relative border-t border-border pt-6" style={revealDelay(si)}>
-              <div
-                aria-hidden
-                className="absolute -top-px left-0 h-px w-16"
-                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
-              />
-              <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
-                {s.value}{s.suffix ?? ""}
-              </p>
-              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
-            </div>
-          ))}
-        </div>
       </section>
       </Chapter>
 
