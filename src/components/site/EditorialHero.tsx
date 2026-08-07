@@ -193,8 +193,11 @@ export function EditorialHero({
     <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-6 lg:pt-24 lg:pb-10">
       <div className="mx-auto w-full max-w-[96rem]">
         <div className="mb-4 text-center">
+          <h1 className="ed-rise font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground" style={{ animationDelay: "120ms" }}>
+            {name}
+          </h1>
           <p
-            className="ed-rise mx-auto max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
+            className="ed-rise mx-auto mt-3 max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
             style={{ animationDelay: "190ms" }}
           >
             Transforming passion into performance.
