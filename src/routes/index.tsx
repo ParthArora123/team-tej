@@ -1316,10 +1316,9 @@ function FounderSection({ founder }: { founder: any | null }) {
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
           </div>
 
-          {/* Belief · Vision · Mission — always visible */}
-          <div className="grid sm:grid-cols-3 gap-3">
+          {/* Vision · Mission — always visible */}
+          <div className="grid sm:grid-cols-2 gap-3">
             {[
-              { k: "Belief", v: belief || "Anyone can dance. It only takes the courage to begin." },
               { k: "Vision", v: vision || "To make India's movement culture felt on every global stage." },
               { k: "Mission", v: mission || "Build dancers with craft, confidence and character." },
             ].map((c) => (
@@ -1329,6 +1328,7 @@ function FounderSection({ founder }: { founder: any | null }) {
               </div>
             ))}
           </div>
+
 
 
 
