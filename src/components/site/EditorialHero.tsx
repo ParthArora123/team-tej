@@ -302,7 +302,9 @@ export function EditorialHero({
         </div>
 
         {/* RIGHT — Visionary Choreographer · Inspiring Mentor · Founder of DanceFit Live */}
-        <aside className="order-3 lg:order-3 lg:sticky lg:top-24">{aboutCards}</aside>
+        <aside className="order-3 lg:order-3 lg:sticky lg:top-24 lg:z-40">
+          <div className="lg:pl-2 lg:-ml-10 xl:-ml-16">{aboutCards}</div>
+        </aside>
       </div>
 
       {open && (
