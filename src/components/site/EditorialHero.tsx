@@ -60,8 +60,10 @@ export function EditorialHero({
 
   
 
-  const aboutCards = (
-    <div className="flex w-full min-w-0 flex-col gap-2.5 sm:gap-3">
+  const cardWrap = "flex w-full min-w-0 flex-col gap-2.5 sm:gap-3";
+
+  const renderAboutCards = (wrapClass = cardWrap) => (
+    <div className={wrapClass}>
       {[
         {
           k: "About",
