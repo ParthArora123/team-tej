@@ -1,5 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Instagram, Play, Youtube } from "lucide-react";
+import {
+  ArrowUpRight,
+  Compass,
+  Flame,
+  GraduationCap,
+  Instagram,
+  Music4,
+  Play,
+  Sparkles,
+  Target,
+  Youtube,
+} from "lucide-react";
+import { AnimatedCounter } from "@/components/site/AnimatedCounter";
+
 
 
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
