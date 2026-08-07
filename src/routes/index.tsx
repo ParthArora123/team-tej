@@ -496,7 +496,6 @@ function Index() {
           .catch(() => commit({ [field]: empty }));
 
       load("celebrities", "celebrities", () => listPublicCelebrities(), []);
-      load("brands", "brands", () => listPublicBrands(), []);
       load("globe", "globe", () => listPublicGlobe(), []);
       load("gallery", "gallery", () => listGalleryItems(), []);
       load("danceStyles", "danceStyles", () => listDanceStyles(), []);
