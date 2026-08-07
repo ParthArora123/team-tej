@@ -111,8 +111,9 @@ export function EditorialHero({
   );
 
 
-  const bvmCards = (
-    <div className="flex w-full min-w-0 flex-col gap-2.5 sm:gap-3">
+  const renderBvmCards = (wrapClass = cardWrap) => (
+    <div className={wrapClass}>
+
       {[
         {
           k: "Philosophy",
