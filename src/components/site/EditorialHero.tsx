@@ -86,7 +86,7 @@ export function EditorialHero({
               <button
                 type="button"
                 onClick={onExplore}
-                className="ed-cta group inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
+                className="ed-cta group inline-flex items-center gap-2 px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
               >
                 Explore Workshops
                 <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

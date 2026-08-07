@@ -393,7 +393,7 @@ export function CinematicHero({
             <a
               href="/#showcase"
               onClick={(e) => goToSection(e, "showcase", "/#showcase")}
-              className="group inline-flex items-center gap-2.5 rounded-full px-8 py-4 sm:px-9 sm:py-[1.15rem] text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.22em] text-white border border-white/25 bg-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:scale-[1.03]"
+              className="btn-premium-black group inline-flex items-center gap-2.5 rounded-2xl px-8 py-4 sm:px-9 sm:py-[1.15rem] text-[12px] sm:text-[13px] font-bold uppercase tracking-[0.22em]"
             >
               <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 transition-transform group-hover:scale-110">
                 <Play size={12} className="translate-x-[1px]" fill="currentColor" />
