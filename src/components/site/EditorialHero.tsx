@@ -314,7 +314,7 @@ export function EditorialHero({
 
         {/* RIGHT — Visionary Choreographer · Inspiring Mentor · Founder of DanceFit Live */}
         <aside className="order-3 lg:order-3 lg:sticky lg:top-24 lg:z-40">
-          <div className="lg:pl-2 lg:-ml-6 xl:-ml-14">{aboutCards}</div>
+          <div className="lg:pl-2 lg:-ml-16 xl:-ml-24">{aboutCards}</div>
         </aside>
       </div>
 
