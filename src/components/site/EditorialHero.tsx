@@ -61,7 +61,7 @@ export function EditorialHero({
   
 
   const aboutCards = (
-    <div className="flex w-full min-w-0 flex-col gap-4">
+    <div className="flex w-full min-w-0 flex-col gap-2.5 sm:gap-3">
       {[
         {
           k: "About",
@@ -87,19 +87,19 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise ed-card group/card flex h-[10.5rem] flex-col overflow-hidden rounded-[18px] p-4 transition-transform duration-300 hover:-translate-y-1"
+            className="ed-rise group/card flex h-[5.5rem] sm:h-[6rem] flex-col overflow-hidden rounded-[14px] border border-white/40 bg-white/45 p-2 sm:p-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-1"
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
-            <div className="flex shrink-0 items-center gap-2.5 border-b border-border/40 pb-2.5">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[12px] border border-border/60 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
-                <c.Icon size={14} />
+            <div className="flex shrink-0 items-center gap-1.5 border-b border-border/30 pb-1.5">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] border border-white/50 bg-white/40 text-primary transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={12} />
               </span>
               <div className="min-w-0">
-                <p className="ed-eyebrow text-[9px]">{c.k}</p>
-                <h2 className="font-display text-[15px] font-bold leading-tight">{c.t}</h2>
+                <p className="ed-eyebrow text-[7px] sm:text-[8px]">{c.k}</p>
+                <h2 className="font-display text-[11px] sm:text-[12px] font-bold leading-tight">{c.t}</h2>
               </div>
             </div>
-            <p className="ed-scroll mt-2.5 min-h-0 flex-1 overflow-y-auto pr-2 text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="ed-scroll mt-1.5 min-h-0 flex-1 overflow-y-auto pr-1 text-[9px] sm:text-[10px] leading-relaxed text-muted-foreground whitespace-pre-line">
               {c.v}
             </p>
           </article>
@@ -110,7 +110,7 @@ export function EditorialHero({
 
 
   const bvmCards = (
-    <div className="flex w-full min-w-0 flex-col gap-4">
+    <div className="flex w-full min-w-0 flex-col gap-2.5 sm:gap-3">
       {[
         {
           k: "Philosophy",
@@ -136,23 +136,22 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise ed-card group/card flex h-[10.5rem] flex-col overflow-hidden rounded-[18px] p-4 transition-transform duration-300 hover:-translate-y-1"
+            className="ed-rise group/card flex h-[5.5rem] sm:h-[6rem] flex-col overflow-hidden rounded-[14px] border border-white/40 bg-white/45 p-2 sm:p-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-1"
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
-            <div className="flex shrink-0 items-center gap-2.5 border-b border-border/40 pb-2.5">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[12px] border border-border/60 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
-                <c.Icon size={14} />
+            <div className="flex shrink-0 items-center gap-1.5 border-b border-border/30 pb-1.5">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] border border-white/50 bg-white/40 text-primary transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={12} />
               </span>
               <div className="min-w-0">
-                <p className="ed-eyebrow text-[9px]">{c.k}</p>
-                <h2 className="font-display text-[15px] font-bold leading-tight">{c.t}</h2>
+                <p className="ed-eyebrow text-[7px] sm:text-[8px]">{c.k}</p>
+                <h2 className="font-display text-[11px] sm:text-[12px] font-bold leading-tight">{c.t}</h2>
               </div>
             </div>
-            <p className="ed-scroll mt-2.5 min-h-0 flex-1 overflow-y-auto pr-2 text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="ed-scroll mt-1.5 min-h-0 flex-1 overflow-y-auto pr-1 text-[9px] sm:text-[10px] leading-relaxed text-muted-foreground whitespace-pre-line">
               {c.v}
             </p>
           </article>
-
         </div>
       ))}
     </div>
@@ -192,8 +191,8 @@ export function EditorialHero({
 
   return (
     <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-6 lg:pt-24 lg:pb-10">
-      <div className="mx-auto grid w-full max-w-[96rem] items-start gap-4 lg:grid-cols-[minmax(140px,1fr)_minmax(0,56%)_minmax(140px,1fr)] xl:grid-cols-[minmax(160px,1fr)_minmax(0,58%)_minmax(160px,1fr)] lg:gap-3 xl:gap-4">
-        <div className="col-span-full mb-1 text-center">
+      <div className="mx-auto w-full max-w-[96rem]">
+        <div className="mb-4 text-center">
           <p
             className="ed-rise mx-auto max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
             style={{ animationDelay: "190ms" }}
@@ -202,120 +201,125 @@ export function EditorialHero({
           </p>
         </div>
 
-        {/* LEFT — Belief · Vision · Mission */}
-        <aside className="order-2 lg:order-1 lg:sticky lg:top-24 lg:z-40">
-          <div className="lg:pr-2 lg:-mr-16 xl:-mr-24">{bvmCards}</div>
-        </aside>
+        {/* Full-width hero image with floating corner cards */}
+        <div className="relative">
+          <HeroFrame
+            image={image}
+            clips={clips}
+            alt={name}
+            onReady={onReady}
+            className="w-full"
+          />
 
+          {/* LEFT — floating Belief · Vision · Mission cards */}
+          <aside className="pointer-events-none absolute left-2 sm:left-4 lg:left-6 xl:left-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[7.5rem] sm:w-[8.5rem] lg:w-[10rem] xl:w-[11rem] flex-col gap-2 sm:gap-2.5 lg:flex">
+            <div className="pointer-events-auto">{bvmCards}</div>
+          </aside>
 
-        {/* CENTER — portrait, CTAs, role cards */}
-        <div className="order-1 flex min-w-0 flex-col justify-center lg:order-2">
-          <div className="relative z-30 flex flex-col">
-            <div className="ed-float relative isolate z-30">
-              <div aria-hidden className="cine-spot" />
-              <HeroFrame
-                image={image}
-                clips={clips}
-                alt={name}
-                onReady={onReady}
-              />
-            </div>
-          </div>
-
-          <div className="ed-rise mt-6 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "560ms" }}>
-            <button
-              type="button"
-              onClick={onExplore}
-              className="ed-cta group inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
-            >
-              Explore Workshops
-              <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </button>
-
-            <button
-              type="button"
-              onClick={onWatch}
-              className="ed-ghost group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em]"
-            >
-              <Play size={13} className="transition-transform group-hover:scale-110" /> Watch Performances
-            </button>
-          </div>
-
-          {/* ROLE CARDS */}
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {roles.map((r, i) => {
-              const floatClass = i % 3 === 0 ? "float-1" : i % 3 === 1 ? "float-2" : "float-3";
-              return (
-                <div key={r.t} className={floatClass}>
-                  <article
-                    className="ed-rise ed-card group/role flex flex-col p-5 transition-transform duration-300 hover:-translate-y-1.5"
-                    style={{ animationDelay: `${620 + i * 110}ms` }}
-                  >
-                    <span className="grid h-10 w-10 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/role:scale-110">
-                      <r.Icon size={18} />
-                    </span>
-                    <h3 className="mt-3 font-display text-lg font-bold">{r.t}</h3>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{r.d}</p>
-
-                    {r.stat.label && (
-                      <p className="mt-4 flex items-baseline gap-2">
-                        <AnimatedCounter
-                          value={r.stat.n}
-                          suffix={r.stat.suffix}
-                          className="font-display text-2xl font-bold text-primary"
-                        />
-                        <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                          {r.stat.label}
-                        </span>
-                      </p>
-                    )}
-
-                    {r.action && (
-                      <button
-                        type="button"
-                        onClick={r.action.onClick}
-                        className="ed-ghost mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em]"
-                      >
-                        {r.action.icon === "play" ? <Play size={12} /> : <ArrowUpRight size={13} />}
-                        {r.action.label}
-                      </button>
-                    )}
-                  </article>
-                </div>
-              );
-            })}
-          </div>
-
-          {(hasMore || socials.instagram || socials.youtube) && (
-            <div className="ed-rise mt-6 flex items-center justify-center gap-2" style={{ animationDelay: "620ms" }}>
-              {hasMore && (
-                <button
-                  onClick={() => setOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-medium transition hover:border-primary hover:text-primary"
-                >
-                  Know more <ArrowUpRight size={14} />
-                </button>
-              )}
-              {socials.instagram && (
-                <a href={socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-                  className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
-                  <Instagram size={15} />
-                </a>
-              )}
-              {socials.youtube && (
-                <a href={socials.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
-                  className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
-                  <Youtube size={15} />
-                </a>
-              )}
-            </div>
-          )}
+          {/* RIGHT — floating About cards */}
+          <aside className="pointer-events-none absolute right-2 sm:right-4 lg:right-6 xl:right-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[7.5rem] sm:w-[8.5rem] lg:w-[10rem] xl:w-[11rem] flex-col gap-2 sm:gap-2.5 lg:flex">
+            <div className="pointer-events-auto">{aboutCards}</div>
+          </aside>
         </div>
 
-        {/* RIGHT — Visionary Choreographer · Inspiring Mentor · Founder of DanceFit Live */}
-        <aside className="order-3 lg:order-3 lg:sticky lg:top-24 lg:z-40">
-          <div className="lg:pl-2 lg:-ml-16 xl:-ml-24">{aboutCards}</div>
-        </aside>
+        {/* Mobile / tablet cards below the image */}
+        <div className="mt-6 grid gap-4 lg:hidden">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {bvmCards}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {aboutCards}
+          </div>
+        </div>
+
+        <div className="ed-rise mt-6 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "560ms" }}>
+          <button
+            type="button"
+            onClick={onExplore}
+            className="ed-cta group inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
+          >
+            Explore Workshops
+            <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={onWatch}
+            className="ed-ghost group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em]"
+          >
+            <Play size={13} className="transition-transform group-hover:scale-110" /> Watch Performances
+          </button>
+        </div>
+
+        {/* ROLE CARDS */}
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {roles.map((r, i) => {
+            const floatClass = i % 3 === 0 ? "float-1" : i % 3 === 1 ? "float-2" : "float-3";
+            return (
+              <div key={r.t} className={floatClass}>
+                <article
+                  className="ed-rise ed-card group/role flex flex-col p-5 transition-transform duration-300 hover:-translate-y-1.5"
+                  style={{ animationDelay: `${620 + i * 110}ms` }}
+                >
+                  <span className="grid h-10 w-10 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/role:scale-110">
+                    <r.Icon size={18} />
+                  </span>
+                  <h3 className="mt-3 font-display text-lg font-bold">{r.t}</h3>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{r.d}</p>
+
+                  {r.stat.label && (
+                    <p className="mt-4 flex items-baseline gap-2">
+                      <AnimatedCounter
+                        value={r.stat.n}
+                        suffix={r.stat.suffix}
+                        className="font-display text-2xl font-bold text-primary"
+                      />
+                      <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                        {r.stat.label}
+                      </span>
+                    </p>
+                  )}
+
+                  {r.action && (
+                    <button
+                      type="button"
+                      onClick={r.action.onClick}
+                      className="ed-ghost mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em]"
+                    >
+                      {r.action.icon === "play" ? <Play size={12} /> : <ArrowUpRight size={13} />}
+                      {r.action.label}
+                    </button>
+                  )}
+                </article>
+              </div>
+            );
+          })}
+        </div>
+
+        {(hasMore || socials.instagram || socials.youtube) && (
+          <div className="ed-rise mt-6 flex items-center justify-center gap-2" style={{ animationDelay: "620ms" }}>
+            {hasMore && (
+              <button
+                onClick={() => setOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-medium transition hover:border-primary hover:text-primary"
+              >
+                Know more <ArrowUpRight size={14} />
+              </button>
+            )}
+            {socials.instagram && (
+              <a href={socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
+                <Instagram size={15} />
+              </a>
+            )}
+            {socials.youtube && (
+              <a href={socials.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
+                className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
+                <Youtube size={15} />
+              </a>
+            )}
+          </div>
+        )}
       </div>
 
       {open && (
@@ -348,11 +352,12 @@ export function EditorialHero({
 const HERO_LQIP =
   "data:image/webp;base64,UklGRsgAAABXRUJQVlA4ILwAAACQBgCdASoYACQAPrVUoUynJKMiKrgKAOAWiWcAzu2LGOrXCeLgFuSrTZX4ZknjnbfTfw2jufWLM6VDyckAAP6XxzNOFXdGBWxS/37jYN0Ut0kY9HXKco15NJdq83Y3DXreKaIuN4vcj+lzSgD60F/11m/O5PAATv7ZaRuI4ILkFtjLpDZROCvVVqWEbKCS8GsqMa5zvRRjzdY8X52uq7T8zMJUW3OXI2Fmjl5nY5xzkxtEhNKzfOSJySIAAA==";
 
-function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; clips: string[]; alt: string; onReady?: () => void; overlay?: React.ReactNode }) {
+function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: string; clips: string[]; alt: string; onReady?: () => void; overlay?: React.ReactNode; className?: string }) {
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
   // A new source starts as "not loaded" again so the blurred placeholder
@@ -379,11 +384,16 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
 
   useEffect(() => {
     const v = videoRef.current;
+    const bg = bgVideoRef.current;
     if (!v) return;
-    const raf = requestAnimationFrame(() => void playHomepageVideo(v));
+    const raf = requestAnimationFrame(() => {
+      void playHomepageVideo(v);
+      if (bg) void playHomepageVideo(bg);
+    });
     return () => {
       cancelAnimationFrame(raf);
       pauseHomepageVideo(v);
+      if (bg) pauseHomepageVideo(bg);
     };
   }, [idx, clips.length]);
 
@@ -424,18 +434,32 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative aspect-[3/4] w-full max-w-[46rem] sm:max-w-[58rem] lg:aspect-[4/5] lg:max-w-none lg:max-h-[100svh] xl:max-h-[100svh]"
+      className={["ed-rise relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[9/16]", className].filter(Boolean).join(" ")}
       style={{ animationDelay: "180ms" }}
     >
-      {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
-          painted before the real portrait arrives. */}
-      <img
-        src={HERO_LQIP}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
-        draggable={false}
-      />
+      {/* Current media used as a blurred edge-fill so the hero never shows a
+          mismatched empty frame, regardless of the active clip or portrait. */}
+      {clip ? (
+        <video
+          ref={bgVideoRef}
+          src={clip}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          disablePictureInPicture
+          className="absolute inset-0 h-full w-full scale-105 object-cover opacity-70 blur-2xl"
+        />
+      ) : (
+        <img
+          src={image}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full scale-105 object-cover opacity-70 blur-2xl"
+          draggable={false}
+        />
+      )}
+
       <div
         ref={mediaRef}
         className="absolute inset-0 will-change-transform"
@@ -493,15 +517,6 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
           />
         )}
       </div>
-      {/* cinematic vignette + top light falloff */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 70% at 50% 40%, transparent 55%, oklch(0 0 0 / 45%) 100%)",
-        }}
-      />
       {overlay ? (
         <>
           <div
