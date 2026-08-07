@@ -358,6 +358,7 @@ function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: 
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
   // A new source starts as "not loaded" again so the blurred placeholder
