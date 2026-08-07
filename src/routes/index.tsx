@@ -375,27 +375,6 @@ function Index() {
   } = deferred;
 
 
-  // Admin-managed homepage hero photo. The bundled portrait paints immediately
-  // (it is preloaded in <head>); the CMS photo swaps in only once it has fully
-  // decoded, so the hero is never blocked on a network round-trip.
-  useEffect(() => {
-    let cancelled = false;
-    cachedCall("siteContent:hero_portrait", () => getSiteContent({ data: { key: "hero_portrait" } }))
-      .then((r: any) => {
-        const url = r?.image_url;
-        if (!url || cancelled || url === uploadedHeroImg.url) return;
-        const img = new Image();
-        img.decoding = "async";
-        const swap = () => { if (!cancelled) setHeroPhoto(url); };
-        img.onload = swap;
-        img.onerror = () => {};
-        img.src = url;
-        img.decode?.().then(swap).catch(() => {});
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
   const [slideIdx, setSlideIdx] = useState(0);
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
@@ -404,114 +383,89 @@ function Index() {
 
   // Safety net: hero images cached before hydration never fire onLoad, so
   // ensure heroReady flips true shortly after mount even if the media
-  // callback is missed. Without this, deferred sections (celebrities,
-  // brands, gallery, choreographies, founder, etc.) never load.
+  // callback is missed.
   useEffect(() => {
     const t = setTimeout(() => setHeroReady(true), 400);
     return () => clearTimeout(t);
   }, []);
-  const fetchHeroSlides = useServerFn(listHeroSlides);
-  const fetchPrograms = useServerFn(listPrograms);
 
+  const fetchHomeBundle = useServerFn(getHomeBundle);
+
+  // ONE request for the whole homepage. Everything below the fold used to be
+  // 13 separate server-function round-trips (browser-capped at ~6 parallel),
+  // each triggering its own React commit. Now the server fans out the reads in
+  // parallel, caches them briefly, and the client commits in two batches:
+  // above-the-fold first, everything else on the next frame.
   useEffect(() => {
     if (!heroReady) return;
     let cancelled = false;
+    let frame = 0;
 
-    const hydrateSlides = () => {
-      cachedCall("heroSlides", () => fetchHeroSlides())
-        .then((rows: any) => {
-          if (cancelled || !Array.isArray(rows) || rows.length === 0) return;
-          const next = rows as HeroSlide[];
-          const first = next[0]?.image_url;
-          if (!first || isVideoUrl(first)) {
-            setHeroSlides(next);
-            return;
-          }
+    cachedCall("homeBundle", () => fetchHomeBundle() as Promise<any>)
+      .then((b: any) => {
+        if (cancelled || !b) return;
+
+        // Above-the-fold commit.
+        if (Array.isArray(b.workshops)) setWorkshops(b.workshops);
+        setWorkshopsLoaded(true);
+        setFeatured(b.featured ?? null);
+
+        const portrait = b.heroPortrait?.image_url;
+        if (portrait && portrait !== uploadedHeroImg.url) {
           const img = new Image();
           img.decoding = "async";
-          (img as any).fetchPriority = "high";
-          img.onload = () => {
-            if (!cancelled) setHeroSlides(next);
-          };
-          img.onerror = () => {
-            if (!cancelled) setHeroSlides(next);
-          };
-          img.src = first;
-          img.decode?.().then(() => {
-            if (!cancelled) setHeroSlides(next);
-          }).catch(() => {});
-        })
-        .catch(() => {});
-    };
+          const swap = () => { if (!cancelled) setHeroPhoto(portrait); };
+          img.onload = swap;
+          img.onerror = () => {};
+          img.src = portrait;
+          img.decode?.().then(swap).catch(() => {});
+        }
 
-    const raf = requestAnimationFrame(() => setTimeout(hydrateSlides, 0));
+        const slides: HeroSlide[] = Array.isArray(b.heroSlides) ? b.heroSlides : [];
+        if (slides.length) {
+          const first = slides[0]?.image_url;
+          if (!first || isVideoUrl(first)) {
+            setHeroSlides(slides);
+          } else {
+            const img = new Image();
+            img.decoding = "async";
+            (img as any).fetchPriority = "high";
+            const commitSlides = () => { if (!cancelled) setHeroSlides(slides); };
+            img.onload = commitSlides;
+            img.onerror = commitSlides;
+            img.src = first;
+            img.decode?.().then(commitSlides).catch(() => {});
+          }
+        }
+
+        // Below-the-fold commit — one setState for ten datasets, on the next
+        // frame so it never lands inside the same long task as the hero.
+        frame = requestAnimationFrame(() => {
+          if (cancelled) return;
+          setDeferred({
+            celebrities: b.celebrities ?? [],
+            brands: b.brands ?? [],
+            globe: b.globe ?? [],
+            gallery: b.gallery ?? [],
+            danceStyles: b.danceStyles ?? [],
+            choreos: b.choreos ?? [],
+            founder: b.founder ?? null,
+            testimonials: b.testimonials ?? [],
+            performances: b.performances ?? [],
+            sigPrograms: b.sigPrograms ?? [],
+          });
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setWorkshopsLoaded(true);
+      });
+
     return () => {
       cancelled = true;
-      cancelAnimationFrame(raf);
+      if (frame) cancelAnimationFrame(frame);
     };
-  }, [fetchHeroSlides, heroReady]);
-  useEffect(() => {
-    if (!heroReady) return;
+  }, [fetchHomeBundle, heroReady]);
 
-    // Highest priority — Upcoming Workshops is the #1 business section and
-    // Featured Experience sits right below it. Fetch these immediately,
-    // with no idle-callback wait at all, so they're never the reason a
-    // visitor sees blank sections.
-    cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
-      .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
-      .catch(() => setWorkshops([]))
-      .finally(() => setWorkshopsLoaded(true));
-    cachedCall("featuredExperience", () => getFeaturedExperience()).then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
-
-    // Everything else — still non-blocking, but the previous 1800ms idle
-    // timeout meant browsers under any load could legitimately wait nearly
-    // 2 full seconds before even starting these fetches. Capped much lower
-    // now so it fires almost immediately in practice while still yielding
-    // to the very first paint.
-    const loadDeferred = () => {
-      // Results are accumulated and committed in a single rAF-scheduled
-      // setState, so ten network responses cost one render, not ten.
-      let pending: Record<string, unknown> | null = null;
-      let frame = 0;
-      const commit = (patch: Record<string, unknown>) => {
-        pending = { ...(pending ?? {}), ...patch };
-        if (frame) return;
-        frame = requestAnimationFrame(() => {
-          frame = 0;
-          const next = pending;
-          pending = null;
-          if (next) setDeferred((prev) => ({ ...prev, ...next }));
-        });
-      };
-      const load = (key: string, field: string, fn: () => Promise<any>, empty: any) =>
-        cachedCall(key, fn)
-          .then((r: any) => commit({ [field]: r ?? empty }))
-          .catch(() => commit({ [field]: empty }));
-
-      load("celebrities", "celebrities", () => listPublicCelebrities(), []);
-      load("brands", "brands", () => listPublicBrands(), []);
-      load("globe", "globe", () => listPublicGlobe(), []);
-      load("gallery", "gallery", () => listGalleryItems(), []);
-      load("danceStyles", "danceStyles", () => listDanceStyles(), []);
-      load("choreographies", "choreos", () => listChoreographies(), []);
-      load("siteContent:founder", "founder", () => getSiteContent({ data: { key: "founder" } }), null);
-      load("testimonials", "testimonials", () => listPublicTestimonials(), []);
-      load("homePerformances", "performances", () => listPerformances(), []);
-      load("signaturePrograms", "sigPrograms", () => listSignaturePrograms(), []);
-    };
-
-    const ric: any = (window as any).requestIdleCallback;
-    let timeout: ReturnType<typeof setTimeout> | undefined;
-    let idleId: number | undefined;
-    if (typeof ric === "function") idleId = ric(loadDeferred, { timeout: 200 });
-    else timeout = setTimeout(loadDeferred, 100);
-    return () => {
-      if (timeout) clearTimeout(timeout);
-      if (typeof (window as any).cancelIdleCallback === "function" && idleId) {
-        (window as any).cancelIdleCallback(idleId);
-      }
-    };
-  }, [fetchPrograms, heroReady]);
 
   useEffect(() => {
     if (!heroReady) return;
