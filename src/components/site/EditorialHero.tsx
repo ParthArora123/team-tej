@@ -87,19 +87,19 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise group/card flex h-[5.5rem] sm:h-[6rem] flex-col overflow-hidden rounded-[14px] border border-white/40 bg-white/45 p-2 sm:p-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-1"
+            className="ed-rise group/card flex h-[7rem] sm:h-[8rem] flex-col overflow-hidden rounded-[18px] border border-white/15 bg-black/60 p-3 shadow-[0_10px_40px_rgba(0,0,0,0.25)] backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-1"
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
-            <div className="flex shrink-0 items-center gap-1.5 border-b border-border/30 pb-1.5">
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] border border-white/50 bg-white/40 text-primary transition-transform duration-300 group-hover/card:scale-110">
-                <c.Icon size={12} />
+            <div className="flex shrink-0 items-center gap-2 border-b border-white/15 pb-2">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[10px] border border-white/20 bg-white/10 text-white transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={13} />
               </span>
               <div className="min-w-0">
-                <p className="ed-eyebrow text-[7px] sm:text-[8px]">{c.k}</p>
-                <h2 className="font-display text-[11px] sm:text-[12px] font-bold leading-tight">{c.t}</h2>
+                <p className="ed-eyebrow text-[8px] sm:text-[9px] text-white/60">{c.k}</p>
+                <h2 className="font-display text-[13px] sm:text-[14px] font-bold leading-tight text-white">{c.t}</h2>
               </div>
             </div>
-            <p className="ed-scroll mt-1.5 min-h-0 flex-1 overflow-y-auto pr-1 text-[9px] sm:text-[10px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[11px] sm:text-[12px] leading-relaxed text-white/70 whitespace-pre-line">
               {c.v}
             </p>
           </article>
@@ -136,19 +136,19 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise group/card flex h-[5.5rem] sm:h-[6rem] flex-col overflow-hidden rounded-[14px] border border-white/40 bg-white/45 p-2 sm:p-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-1"
+            className="ed-rise group/card flex h-[7rem] sm:h-[8rem] flex-col overflow-hidden rounded-[18px] border border-white/15 bg-black/60 p-3 shadow-[0_10px_40px_rgba(0,0,0,0.25)] backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-1"
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
-            <div className="flex shrink-0 items-center gap-1.5 border-b border-border/30 pb-1.5">
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-[8px] border border-white/50 bg-white/40 text-primary transition-transform duration-300 group-hover/card:scale-110">
-                <c.Icon size={12} />
+            <div className="flex shrink-0 items-center gap-2 border-b border-white/15 pb-2">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[10px] border border-white/20 bg-white/10 text-white transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={13} />
               </span>
               <div className="min-w-0">
-                <p className="ed-eyebrow text-[7px] sm:text-[8px]">{c.k}</p>
-                <h2 className="font-display text-[11px] sm:text-[12px] font-bold leading-tight">{c.t}</h2>
+                <p className="ed-eyebrow text-[8px] sm:text-[9px] text-white/60">{c.k}</p>
+                <h2 className="font-display text-[13px] sm:text-[14px] font-bold leading-tight text-white">{c.t}</h2>
               </div>
             </div>
-            <p className="ed-scroll mt-1.5 min-h-0 flex-1 overflow-y-auto pr-1 text-[9px] sm:text-[10px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[11px] sm:text-[12px] leading-relaxed text-white/70 whitespace-pre-line">
               {c.v}
             </p>
           </article>
@@ -212,12 +212,12 @@ export function EditorialHero({
           />
 
           {/* LEFT — floating Belief · Vision · Mission cards */}
-          <aside className="pointer-events-none absolute left-2 sm:left-4 lg:left-6 xl:left-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[7.5rem] sm:w-[8.5rem] lg:w-[10rem] xl:w-[11rem] flex-col gap-2 sm:gap-2.5 lg:flex">
+          <aside className="pointer-events-none absolute left-2 sm:left-4 lg:left-6 xl:left-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[9.5rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2.5 sm:gap-3 lg:flex">
             <div className="pointer-events-auto">{bvmCards}</div>
           </aside>
 
           {/* RIGHT — floating About cards */}
-          <aside className="pointer-events-none absolute right-2 sm:right-4 lg:right-6 xl:right-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[7.5rem] sm:w-[8.5rem] lg:w-[10rem] xl:w-[11rem] flex-col gap-2 sm:gap-2.5 lg:flex">
+          <aside className="pointer-events-none absolute right-2 sm:right-4 lg:right-6 xl:right-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[9.5rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2.5 sm:gap-3 lg:flex">
             <div className="pointer-events-auto">{aboutCards}</div>
           </aside>
         </div>
