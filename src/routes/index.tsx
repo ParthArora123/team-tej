@@ -458,7 +458,14 @@ function Index() {
     // with no idle-callback wait at all, so they're never the reason a
     // visitor sees blank sections.
     cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
-      .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
+      .then((rows: any) => {
+        const sorted = (rows ?? []).sort((a: any, b: any) => {
+          const ad = a?.event_date ? new Date(a.event_date).getTime() : Infinity;
+          const bd = b?.event_date ? new Date(b.event_date).getTime() : Infinity;
+          return ad - bd;
+        });
+        setWorkshops(sorted);
+      })
       .catch(() => setWorkshops([]))
       .finally(() => setWorkshopsLoaded(true));
     cachedCall("featuredExperience", () => getFeaturedExperience()).then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
