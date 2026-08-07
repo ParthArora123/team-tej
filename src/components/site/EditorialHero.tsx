@@ -61,7 +61,7 @@ export function EditorialHero({
   
 
   const aboutCards = (
-    <div className="flex w-full min-w-0 flex-col gap-4">
+    <div className="flex w-full min-w-0 flex-col gap-2.5 sm:gap-3">
       {[
         {
           k: "About",
@@ -87,19 +87,19 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise ed-card group/card flex h-[10.5rem] flex-col overflow-hidden rounded-[18px] p-4 transition-transform duration-300 hover:-translate-y-1"
+            className="ed-rise ed-card group/card flex h-[7.5rem] flex-col overflow-hidden rounded-[16px] p-3 transition-transform duration-300 hover:-translate-y-1"
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
-            <div className="flex shrink-0 items-center gap-2.5 border-b border-border/40 pb-2.5">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[12px] border border-border/60 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
-                <c.Icon size={14} />
+            <div className="flex shrink-0 items-center gap-2 border-b border-border/40 pb-2">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[10px] border border-border/60 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={13} />
               </span>
               <div className="min-w-0">
-                <p className="ed-eyebrow text-[9px]">{c.k}</p>
-                <h2 className="font-display text-[15px] font-bold leading-tight">{c.t}</h2>
+                <p className="ed-eyebrow text-[8px]">{c.k}</p>
+                <h2 className="font-display text-[13px] font-bold leading-tight">{c.t}</h2>
               </div>
             </div>
-            <p className="ed-scroll mt-2.5 min-h-0 flex-1 overflow-y-auto pr-2 text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[11px] leading-relaxed text-muted-foreground whitespace-pre-line">
               {c.v}
             </p>
           </article>
