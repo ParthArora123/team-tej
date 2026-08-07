@@ -819,142 +819,139 @@ function Index() {
 
       {/* SCREEN 4 — Programs & Styles */}
       <Chapter index={4} total={5} kicker="Programs & Formats — Ways to Train">
-      <section id="programs" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
-        <div>
-          <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Programs &amp; Formats</p>
-          <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-            Ways to <span className="italic font-light df-gradient-text">train.</span>
-          </h2>
-          <p className="mt-3 text-muted-foreground max-w-xl">
-            Signature movement experiences tailored for all levels.
-          </p>
-        </div>
+      <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-7 lg:pt-10 lg:pb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 lg:gap-12 items-start">
+          {/* LEFT — Ways to train */}
+          <div id="programs">
+            <div>
+              <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Programs &amp; Formats</p>
+              <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
+                Ways to <span className="italic font-light df-gradient-text">train.</span>
+              </h2>
+              <p className="mt-3 text-muted-foreground max-w-xl">
+                Signature movement experiences tailored for all levels.
+              </p>
+            </div>
 
-        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5">
-          {[
-            { icon: "✨", title: "Workshops & Events", desc: "High-energy live sessions combining choreography and community energy.", tone: "var(--df-1)" },
-            { icon: "🎗️", title: "Nritya Sadhana", desc: "A meditative movement exploration focusing on stillness and breath.", tone: "var(--df-2)" },
-            { icon: "👥", title: "DanceFit App & Online", desc: "Structured online learning, live feedback, and dance fitness anywhere.", href: "https://dancefitstudio.app", cta: "Download App & Register", tone: "var(--df-3)" },
-            { icon: "⚡", title: "The Tej Method", desc: "Core philosophy integrating body awareness and confidence.", tone: "var(--df-4)" },
-            { icon: "🚀", title: "Zero to Hero", desc: "Step-by-step beginner program to eliminate stage fear.", to: "/zero-to-hero", tone: "var(--df-5)" },
-            { icon: "🪔", title: "Bhakti Experience", desc: "A spiritual blend of grace, devotion, and movement.", tone: "var(--df-2)" },
-          ].map((p, pi) => (
-            <article
-              key={p.title}
-              style={revealDelay(pi)}
-              className="reveal-up ed-card relative overflow-hidden p-4 lg:p-5 transition-transform duration-300 hover:-translate-y-1"
-            >
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 top-0 h-0.5"
-                style={{ background: `linear-gradient(90deg, ${p.tone}, transparent)` }}
-              />
-              <span
-                aria-hidden
-                className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full blur-2xl"
-                style={{ background: `color-mix(in oklab, ${p.tone} 30%, transparent)` }}
-              />
-              <div
-                className="relative grid h-11 w-11 place-items-center rounded-xl text-2xl leading-none"
-                style={{
-                  background: `color-mix(in oklab, ${p.tone} 12%, transparent)`,
-                  border: `1px solid color-mix(in oklab, ${p.tone} 30%, transparent)`,
-                }}
-              >
-                {p.icon}
-              </div>
-              <h3 className="relative mt-3 font-display text-lg font-bold">{p.title}</h3>
-              <p className="relative mt-1.5 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
-              {p.href && (
-                <a
-                  href={p.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="relative mt-3 inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
-                  style={{ color: p.tone }}
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-5">
+              {[
+                { icon: "✨", title: "Workshops & Events", desc: "High-energy live sessions combining choreography and community energy.", tone: "var(--df-1)" },
+                { icon: "🎗️", title: "Nritya Sadhana", desc: "A meditative movement exploration focusing on stillness and breath.", tone: "var(--df-2)" },
+                { icon: "👥", title: "DanceFit App & Online", desc: "Structured online learning, live feedback, and dance fitness anywhere.", href: "https://dancefitstudio.app", cta: "Download App & Register", tone: "var(--df-3)" },
+                { icon: "⚡", title: "The Tej Method", desc: "Core philosophy integrating body awareness and confidence.", tone: "var(--df-4)" },
+                { icon: "🚀", title: "Zero to Hero", desc: "Step-by-step beginner program to eliminate stage fear.", to: "/zero-to-hero", tone: "var(--df-5)" },
+                { icon: "🪔", title: "Bhakti Experience", desc: "A spiritual blend of grace, devotion, and movement.", tone: "var(--df-2)" },
+              ].map((p, pi) => (
+                <article
+                  key={p.title}
+                  style={revealDelay(pi)}
+                  className="reveal-up ed-card relative overflow-hidden p-4 lg:p-5 transition-transform duration-300 hover:-translate-y-1"
                 >
-                  {p.cta} <ArrowUpRight size={14} />
-                </a>
-              )}
-              {p.to && (
-                <Link
-                  to={p.to}
-                  className="relative mt-3 inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
-                  style={{ color: p.tone }}
-                >
-                  Explore program <ArrowUpRight size={14} />
-                </Link>
-              )}
-            </article>
-          ))}
-        </div>
-      </section>
-
-
-
-      {/* DANCE STYLES — premium two-column grid */}
-      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 pt-5 pb-7 lg:pt-6 lg:pb-8">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
-            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold text-balance leading-[1.02]">
-              Styles on the <span className="italic font-light">floor.</span>
-            </h2>
-          </div>
-          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
-            Many vocabularies. One fusion.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-5">
-          {((danceStyles ?? []).length > 0
-            ? (danceStyles ?? []).map((s: any) => ({
-                name: String(s.name ?? "Dance Style").trim() || "Dance Style",
-                tagline: String(s.tagline ?? "").trim(),
-                image_url: s.image_url ?? null,
-              }))
-            : defaultStyles.map((s) => ({ name: s.name, tagline: s.tagline, image_url: null }))
-          ).map((s, si) => (
-            <article
-              key={s.name}
-              style={revealDelay(si)}
-              className="reveal-up ed-card group relative overflow-hidden p-5 lg:p-6"
-            >
-              {s.image_url && (
-                <img
-                  src={s.image_url}
-                  alt=""
-                  aria-hidden
-                  loading="lazy"
-                  decoding="async"
-                  className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-15 transition-opacity duration-500 group-hover:opacity-25"
-                />
-              )}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                style={{ background: "var(--gradient-beige-wash)" }}
-              />
-              <div className="relative flex items-baseline gap-4">
-                <span className="font-display text-sm text-primary/70 tabular-nums">
-                  {String(si + 1).padStart(2, "0")}
-                </span>
-                <div className="min-w-0">
-                  <h3 className="font-display text-xl lg:text-2xl font-bold truncate">{s.name}</h3>
-                  {s.tagline && (
-                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{s.tagline}</p>
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-0 top-0 h-0.5"
+                    style={{ background: `linear-gradient(90deg, ${p.tone}, transparent)` }}
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full blur-2xl"
+                    style={{ background: `color-mix(in oklab, ${p.tone} 30%, transparent)` }}
+                  />
+                  <div
+                    className="relative grid h-11 w-11 place-items-center rounded-xl text-2xl leading-none"
+                    style={{
+                      background: `color-mix(in oklab, ${p.tone} 12%, transparent)`,
+                      border: `1px solid color-mix(in oklab, ${p.tone} 30%, transparent)`,
+                    }}
+                  >
+                    {p.icon}
+                  </div>
+                  <h3 className="relative mt-3 font-display text-lg font-bold">{p.title}</h3>
+                  <p className="relative mt-1.5 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+                  {p.href && (
+                    <a
+                      href={p.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="relative mt-3 inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
+                      style={{ color: p.tone }}
+                    >
+                      {p.cta} <ArrowUpRight size={14} />
+                    </a>
                   )}
-                </div>
-              </div>
-              <span
-                aria-hidden
-                className="pointer-events-none absolute bottom-0 left-0 h-px w-0 group-hover:w-full transition-[width] duration-500"
-                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
-              />
-            </article>
-          ))}
+                  {p.to && (
+                    <Link
+                      to={p.to}
+                      className="relative mt-3 inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
+                      style={{ color: p.tone }}
+                    >
+                      Explore program <ArrowUpRight size={14} />
+                    </Link>
+                  )}
+                </article>
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT — Styles on floor (compact list) */}
+          <div id="classes" className="lg:sticky lg:top-24">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
+              <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold text-balance leading-[1.02]">
+                Styles on the <span className="italic font-light">floor.</span>
+              </h2>
+              <p className="mt-3 text-muted-foreground">
+                Core styles taught in studio masterclasses &amp; online modules.
+              </p>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-2.5">
+              {((danceStyles ?? []).length > 0
+                ? (danceStyles ?? []).map((s: any) => ({
+                    name: String(s.name ?? "Dance Style").trim() || "Dance Style",
+                    tagline: String(s.tagline ?? "").trim(),
+                    image_url: s.image_url ?? null,
+                  }))
+                : defaultStyles.map((s) => ({ name: s.name, tagline: s.tagline, image_url: null }))
+              ).map((s, si) => (
+                <article
+                  key={s.name}
+                  style={revealDelay(si)}
+                  className="reveal-up ed-card group relative overflow-hidden px-4 py-3 transition-transform duration-300 hover:translate-x-1"
+                >
+                  {s.image_url && (
+                    <img
+                      src={s.image_url}
+                      alt=""
+                      aria-hidden
+                      loading="lazy"
+                      decoding="async"
+                      className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-10 transition-opacity duration-500 group-hover:opacity-20"
+                    />
+                  )}
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{ background: "var(--gradient-beige-wash)" }}
+                  />
+                  <div className="relative flex items-center gap-3">
+                    <span className="font-display text-xs text-primary/70 tabular-nums">
+                      {String(si + 1).padStart(2, "0")}
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="font-display text-base lg:text-lg font-semibold truncate">{s.name}</h3>
+                      {s.tagline && (
+                        <p className="text-xs text-muted-foreground truncate">{s.tagline}</p>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
+
       </Chapter>
 
 
