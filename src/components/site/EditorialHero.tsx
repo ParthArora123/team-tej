@@ -170,21 +170,24 @@ export function EditorialHero({
       t: "Dance Educator",
       Icon: GraduationCap,
       d: "Structured, joyful training that turns absolute beginners into confident movers.",
-      stat: { n: 16, suffix: "k+", label: "Experience" },
+      stats: [
+        { n: 16, suffix: "k+", label: "Experience" },
+        { n: 100, suffix: "k+", label: "Dancers Trained" },
+      ],
       action: null as null | { label: string; onClick: () => void; icon: "play" | "arrow" },
     },
     {
       t: "Performer",
       Icon: Sparkles,
       d: "Sixteen years on stage — live shows, tours and screens across the world.",
-      stat: stat("performance"),
+      stats: [stat("performance")],
       action: { label: "Watch Performances", onClick: onWatch, icon: "play" as const },
     },
     {
       t: "Choreographer",
       Icon: Music4,
       d: "Signature choreographies and workshops crafted for artists at every level.",
-      stat: stat("workshop"),
+      stats: [stat("workshop")],
       action: { label: "Explore Workshops", onClick: onExplore, icon: "arrow" as const },
     },
   ];
