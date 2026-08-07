@@ -42,6 +42,32 @@ export const listWorkshopMedia = createServerFn({ method: "GET" })
     return Promise.all((rows ?? []).map(decorate));
   });
 
+/**
+ * Bulk variant — the workshops listing renders one gallery per workshop, which
+ * previously issued one request per card (16 round-trips on a 16-workshop
+ * page). Callers batch their ids and fetch everything in a single request.
+ */
+export const listWorkshopMediaBulk = createServerFn({ method: "GET" })
+  .inputValidator((i) => z.object({ programIds: z.array(z.string().uuid()).max(100) }).parse(i))
+  .handler(async ({ data }) => {
+    if (data.programIds.length === 0) return {} as Record<string, any[]>;
+    const { data: rows, error } = await (pub() as any)
+      .from("workshop_media")
+      .select("id, program_id, media_kind, media_path, poster_path, caption, sort_order")
+      .in("program_id", data.programIds)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    const decorated = await Promise.all((rows ?? []).map(decorate));
+    const grouped: Record<string, any[]> = {};
+    for (const id of data.programIds) grouped[id] = [];
+    for (const row of decorated) {
+      (grouped[row.program_id] ??= []).push(row);
+    }
+    return grouped;
+  });
+
+
+
 export const adminListWorkshopMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i) => z.object({ programId: z.string().uuid() }).parse(i))

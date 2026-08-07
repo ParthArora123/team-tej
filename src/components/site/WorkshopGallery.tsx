@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { motion } from "motion/react";
 import { X, Play } from "lucide-react";
-import { listWorkshopMedia } from "@/lib/workshop-media.functions";
+import { loadWorkshopMedia } from "@/lib/workshop-media-batch";
 
 type MediaItem = {
   id: string;
@@ -13,13 +12,19 @@ type MediaItem = {
 };
 
 export function WorkshopGallery({ programId }: { programId: string }) {
-  const fetch = useServerFn(listWorkshopMedia);
   const [rows, setRows] = useState<MediaItem[]>([]);
   const [active, setActive] = useState<MediaItem | null>(null);
 
   useEffect(() => {
-    fetch({ data: { programId } }).then((r: any[]) => setRows(r as MediaItem[])).catch(() => {});
+    let alive = true;
+    loadWorkshopMedia(programId).then((r) => {
+      if (alive) setRows(r as MediaItem[]);
+    });
+    return () => {
+      alive = false;
+    };
   }, [programId]);
+
 
   if (rows.length === 0) return null;
 
