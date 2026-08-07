@@ -2,13 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { cachedCall } from "@/lib/public-data-cache";
 import { CardSkeleton } from "@/components/site/Skeletons";
-import { listPrograms } from "@/lib/catalog.functions";
-import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
-import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
-import { listDanceStyles, getSiteContent } from "@/lib/site-content.functions";
-import { listChoreographies } from "@/lib/choreographies.functions";
-import { listPublicTestimonials } from "@/lib/testimonials.functions";
+import { getHomeBundle } from "@/lib/home-bundle.functions";
 import { useServerFn } from "@tanstack/react-start";
+
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
