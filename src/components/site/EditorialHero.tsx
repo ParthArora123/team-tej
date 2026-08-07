@@ -117,7 +117,7 @@ export function EditorialHero({
           </header>
 
           <div className="relative z-30 mt-6 flex flex-col lg:mt-8">
-            <div className="relative isolate z-30">
+            <div className="ed-float relative isolate z-30">
               <div aria-hidden className="cine-spot" />
               <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
             </div>
@@ -261,7 +261,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-float ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[30rem] sm:max-w-[36rem] lg:aspect-[4/5] lg:max-w-[52rem] lg:max-h-[80svh]"
+      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[30rem] sm:max-w-[36rem] lg:aspect-[4/5] lg:max-w-[52rem] lg:max-h-[80svh]"
       style={{ animationDelay: "180ms" }}
     >
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
