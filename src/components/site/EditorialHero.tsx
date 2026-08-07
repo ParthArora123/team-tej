@@ -385,11 +385,16 @@ function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: 
 
   useEffect(() => {
     const v = videoRef.current;
+    const bg = bgVideoRef.current;
     if (!v) return;
-    const raf = requestAnimationFrame(() => void playHomepageVideo(v));
+    const raf = requestAnimationFrame(() => {
+      void playHomepageVideo(v);
+      if (bg) void playHomepageVideo(bg);
+    });
     return () => {
       cancelAnimationFrame(raf);
       pauseHomepageVideo(v);
+      if (bg) pauseHomepageVideo(bg);
     };
   }, [idx, clips.length]);
 
