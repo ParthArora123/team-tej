@@ -191,8 +191,8 @@ export function EditorialHero({
   ];
 
   return (
-    <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-10 lg:pt-24 lg:pb-16">
-      <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 lg:grid-cols-[minmax(160px,12.5rem)_1fr_minmax(160px,12.5rem)] xl:grid-cols-[minmax(180px,13.5rem)_1fr_minmax(180px,13.5rem)] lg:gap-4 xl:gap-6">
+    <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-6 lg:pt-24 lg:pb-10">
+      <div className="mx-auto grid w-full max-w-[96rem] items-start gap-4 lg:grid-cols-[minmax(140px,1fr)_minmax(0,56%)_minmax(140px,1fr)] xl:grid-cols-[minmax(160px,1fr)_minmax(0,58%)_minmax(160px,1fr)] lg:gap-3 xl:gap-4">
         <div className="col-span-full mb-1 text-center">
           <p
             className="ed-rise mx-auto max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
