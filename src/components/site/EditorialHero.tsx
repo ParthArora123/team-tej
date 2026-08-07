@@ -58,9 +58,24 @@ export function EditorialHero({
   const hasMore = Boolean(biography || achievements.length);
 
   const columns = [
-    { k: "Philosophy", t: "Belief", v: belief, Icon: Flame },
-    { k: "Purpose", t: "Vision", v: vision, Icon: Compass },
-    { k: "Mission", t: "Mission", v: mission, Icon: Target },
+    {
+      k: "About",
+      t: "Visionary Choreographer",
+      v: "A celebrated choreographer, dance educator, entrepreneur and founder of DanceFit Live — known for high-energy choreography and a teaching style that makes dance accessible, joyful and inclusive for every age and skill level, across Bollywood, Hip-Hop, Salsa and Contemporary.",
+      Icon: Flame,
+    },
+    {
+      k: "About",
+      t: "Inspiring Mentor",
+      v: "Thousands of students trained, hundreds of masterclasses delivered, and collaborations with leading Bollywood and music-industry professionals — simplifying complex choreography into easy-to-follow steps that build confidence while keeping the joy alive.",
+      Icon: Compass,
+    },
+    {
+      k: "About",
+      t: "Founder of DanceFit Live",
+      v: "Dance is a powerful medium for self-expression, confidence, fitness and personal transformation. Through DanceFit Live, workshops and digital platforms, Tejas keeps inspiring a global dance community and making quality dance education accessible to everyone.",
+      Icon: Target,
+    },
   ];
 
   const stat = (needle: string) => {
@@ -100,7 +115,7 @@ export function EditorialHero({
       {columns.map((c, i) => (
         <article
           key={c.t}
-          className="ed-rise ed-card group/card p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+          className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
           style={{ animationDelay: `${260 + i * 110}ms` }}
         >
           <div className="flex items-center gap-3">
@@ -112,11 +127,7 @@ export function EditorialHero({
               <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
             </div>
           </div>
-          <p
-            className={`mt-3 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line ${
-              c.t === "Mission" ? "ed-scroll max-h-[9.5rem] overflow-y-auto pr-2" : ""
-            }`}
-          >
+          <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
             {c.v}
           </p>
         </article>
@@ -141,14 +152,14 @@ export function EditorialHero({
                 alt={name}
                 onReady={onReady}
                 overlay={
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 px-5 pb-7 text-center sm:px-8 sm:pb-10">
+                  <div className="pointer-events-none absolute inset-x-0 top-0 z-20 px-5 pt-8 text-center sm:px-8 sm:pt-12">
                     <h1
-                      className="ed-rise cine-title font-display text-[2.6rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[5.6rem] font-bold tracking-[-0.035em] [text-shadow:0_6px_40px_oklch(0_0_0/55%)]"
+                      className="ed-rise cine-title font-display text-[2.4rem] leading-[0.94] sm:text-5xl lg:text-6xl xl:text-[4.8rem] font-bold tracking-[-0.035em] [text-shadow:0_6px_40px_oklch(0_0_0/60%)]"
                     >
                       {name.toUpperCase()}
                     </h1>
                     <p
-                      className="ed-rise mx-auto mt-2 max-w-xl text-sm sm:text-lg font-medium text-foreground/85 [text-shadow:0_2px_18px_oklch(0_0_0/60%)]"
+                      className="ed-rise mx-auto mt-3 max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85 [text-shadow:0_2px_18px_oklch(0_0_0/65%)]"
                       style={{ animationDelay: "190ms" }}
                     >
                       Transforming passion into performance.
@@ -442,8 +453,8 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
         <>
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
-            style={{ background: "linear-gradient(to top, oklch(0 0 0 / 62%), transparent)" }}
+            className="pointer-events-none absolute inset-x-0 top-0 h-2/5"
+            style={{ background: "linear-gradient(to bottom, oklch(0 0 0 / 62%), transparent)" }}
           />
           {overlay}
         </>
