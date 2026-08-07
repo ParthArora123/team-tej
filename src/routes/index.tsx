@@ -12,9 +12,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
-import heroImg from "@/assets/tejasdhoke.jpg";
 import uploadedHeroImg from "@/assets/tejasdhoke-hero.webp.asset.json";
-import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
 import { MagneticButton } from "@/components/site/MagneticButton";
@@ -301,12 +299,6 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const stats: { value: number; suffix: string; label: string }[] = [
-  { value: 100, suffix: "k+", label: "Dancers Trained" },
-  { value: 300, suffix: "+", label: "Live Performances" },
-  { value: 1000, suffix: "+", label: "Workshops" },
-  { value: 16, suffix: "+", label: "Years of Experience" },
-];
 
 type Choreo = {
   id: string;
@@ -340,7 +332,6 @@ function Index() {
   // tasks + video re-mount flicker on mid/low-end phones).
   const [deferred, setDeferred] = useState<{
     celebrities: any[];
-    brands: any[];
     globe: any[];
     gallery: any[];
     danceStyles: any[] | null;
@@ -351,7 +342,6 @@ function Index() {
     sigPrograms: HomeCard[];
   }>({
     celebrities: [],
-    brands: [],
     globe: [],
     gallery: [],
     danceStyles: null,
@@ -363,7 +353,6 @@ function Index() {
   });
   const {
     celebrities,
-    brands,
     globe,
     gallery,
     danceStyles,
