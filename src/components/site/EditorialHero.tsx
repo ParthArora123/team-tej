@@ -51,29 +51,52 @@ export function EditorialHero({
   ];
 
 
+  const cards = (
+    <div className="flex w-full min-w-0 flex-col gap-4">
+      {columns.map((c, i) => (
+        <article
+          key={c.t}
+          className="ed-rise ed-card group/card p-5 lg:p-6"
+          style={{ animationDelay: `${260 + i * 110}ms` }}
+        >
+          <p className="ed-eyebrow">{c.k}</p>
+          <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold">{c.t}</h2>
+          <p
+            className={`mt-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line ${
+              c.t === "Mission" ? "ed-scroll max-h-[9.5rem] overflow-y-auto pr-2" : ""
+            }`}
+          >
+            {c.v}
+          </p>
+        </article>
+      ))}
+    </div>
+  );
+
   return (
-    <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-8 lg:pt-20 lg:pb-10">
-      {/* ROW 1 — HERO: full-width cinematic portrait */}
-      <div className="mx-auto flex w-full max-w-[92rem] flex-col justify-center gap-5">
+    <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-10 lg:pt-24 lg:pb-16">
+      <div className="mx-auto grid w-full max-w-[92rem] items-center gap-8 lg:grid-cols-[minmax(280px,22rem)_1fr] lg:gap-12">
+        {/* LEFT — Belief · Vision · Mission (below hero on mobile via order) */}
+        <aside className="order-2 lg:order-1">{cards}</aside>
 
-        <div className="flex min-w-0 flex-col justify-center">
+        {/* RIGHT — headline, portrait, CTAs */}
+        <div className="order-1 flex min-w-0 flex-col justify-center lg:order-2">
           <header className="relative z-10 shrink-0 text-center">
-            <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
-
+            <h1 className="ed-rise cine-title font-display text-[2.9rem] leading-[0.9] sm:text-6xl lg:text-7xl xl:text-[6.5rem] font-bold tracking-[-0.035em]">
               {name.toUpperCase()}
             </h1>
-            <p className="ed-rise mt-2.5 flex items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.2em]" style={{ animationDelay: "90ms" }}>
+            <p className="ed-rise mt-3 flex flex-wrap items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.24em]" style={{ animationDelay: "110ms" }}>
               <span className="role-educator">Dance Educator</span>
               <span className="text-muted-foreground text-[0.75rem]">•</span>
               <span className="role-performer">Performer</span>
               <span className="text-muted-foreground text-[0.75rem]">•</span>
               <span className="role-choreographer">Choreographer</span>
             </p>
-            <p className="ed-rise mt-2 text-sm sm:text-base text-muted-foreground" style={{ animationDelay: "150ms" }}>
+            <p className="ed-rise mx-auto mt-3 max-w-xl text-sm sm:text-lg text-muted-foreground" style={{ animationDelay: "190ms" }}>
               Transforming passion into performance.
             </p>
 
-            <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
+            <div className="ed-rise mt-6 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "560ms" }}>
               <button
                 type="button"
                 onClick={onExplore}
@@ -86,38 +109,22 @@ export function EditorialHero({
               <button
                 type="button"
                 onClick={onWatch}
-                className="inline-flex items-center gap-2 rounded-full px-5 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] text-foreground/80 transition hover:text-primary"
+                className="ed-ghost group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em]"
               >
-                <Play size={13} /> Watch Performances
+                <Play size={13} className="transition-transform group-hover:scale-110" /> Watch Performances
               </button>
             </div>
           </header>
 
-          <div className="relative z-30 mt-4 flex flex-col lg:mt-6">
-            <div className="relative isolate z-30">
-
+          <div className="relative z-30 mt-6 flex flex-col lg:mt-8">
+            <div className="ed-float relative isolate z-30">
               <div aria-hidden className="cine-spot" />
               <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* ROW 2 — Belief, Vision & Mission */}
-      <div className="mx-auto mt-8 w-full max-w-[92rem] lg:mt-12">
-        <div className="flex min-w-0 flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {columns.map((c, i) => (
-              <article key={c.t} className="ed-rise ed-card p-5 lg:p-7" style={{ animationDelay: `${220 + i * 80}ms` }}>
-                <p className="ed-eyebrow">{c.k}</p>
-                <h2 className="mt-1.5 font-display text-xl lg:text-2xl font-bold">{c.t}</h2>
-                <p className="mt-2.5 text-[14px] leading-relaxed text-muted-foreground whitespace-pre-line">{c.v}</p>
-              </article>
-            ))}
-          </div>
 
           {(hasMore || socials.instagram || socials.youtube) && (
-            <div className="ed-rise flex items-center justify-center gap-2" style={{ animationDelay: "460ms" }}>
+            <div className="ed-rise mt-6 flex items-center justify-center gap-2" style={{ animationDelay: "620ms" }}>
               {hasMore && (
                 <button
                   onClick={() => setOpen(true)}
@@ -142,6 +149,7 @@ export function EditorialHero({
           )}
         </div>
       </div>
+
 
 
 
@@ -253,7 +261,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[28rem] sm:max-w-[34rem] lg:aspect-[2/3] lg:max-w-[40rem] lg:max-h-[72svh]"
+      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[30rem] sm:max-w-[36rem] lg:aspect-[4/5] lg:max-w-[52rem] lg:max-h-[80svh]"
       style={{ animationDelay: "180ms" }}
     >
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
