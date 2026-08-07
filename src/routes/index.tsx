@@ -623,6 +623,10 @@ function Index() {
           onExplore={() => goToHomeSection("workshops", "/workshops")}
           onWatch={() => goToHomeSection("showcase", "/#showcase")}
         />
+      </Chapter>
+
+      {/* SCREEN 2 — Viral Choreographies + Register & Book Your Experience */}
+      <Chapter index={2} total={5} kicker="Start Moving — Book Your Experience">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
 
         {/* Upcoming Workshops — merged into the same cinematic section */}
@@ -659,10 +663,8 @@ function Index() {
             </LazySection>
           )}
         </section>
-      </Chapter>
 
-      {/* SCREEN 2 — Register & Book Your Experience */}
-      <Chapter index={2} total={5} kicker="Start Moving — Book Your Experience">
+
 
 
 
