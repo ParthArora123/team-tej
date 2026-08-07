@@ -171,7 +171,7 @@ export function EditorialHero({
       Icon: GraduationCap,
       d: "Structured, joyful training that turns absolute beginners into confident movers.",
       stats: [
-        { n: 16, suffix: "k+", label: "Experience" },
+        { n: 16, suffix: "+", label: "Experience" },
         { n: 100, suffix: "k+", label: "Dancers Trained" },
       ],
       action: null as null | { label: string; onClick: () => void; icon: "play" | "arrow" },
