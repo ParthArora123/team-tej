@@ -905,7 +905,7 @@ function Index() {
               </p>
             </div>
 
-            <div className="mt-5 flex flex-col gap-2.5">
+            <div className="mt-5 grid grid-cols-2 gap-2.5 lg:gap-3">
               {((danceStyles ?? []).length > 0
                 ? (danceStyles ?? []).map((s: any) => ({
                     name: String(s.name ?? "Dance Style").trim() || "Dance Style",
@@ -917,7 +917,7 @@ function Index() {
                 <article
                   key={s.name}
                   style={revealDelay(si)}
-                  className="reveal-up ed-card group relative overflow-hidden px-4 py-3 transition-transform duration-300 hover:translate-x-1"
+                  className="reveal-up ed-card group relative overflow-hidden px-3 py-3 transition-transform duration-300 hover:translate-x-1"
                 >
                   {s.image_url && (
                     <img
@@ -934,14 +934,14 @@ function Index() {
                     className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{ background: "var(--gradient-beige-wash)" }}
                   />
-                  <div className="relative flex items-center gap-3">
-                    <span className="font-display text-xs text-primary/70 tabular-nums">
+                  <div className="relative flex flex-col gap-1">
+                    <span className="font-display text-[10px] text-primary/70 tabular-nums">
                       {String(si + 1).padStart(2, "0")}
                     </span>
                     <div className="min-w-0">
-                      <h3 className="font-display text-base lg:text-lg font-semibold truncate">{s.name}</h3>
+                      <h3 className="font-display text-sm lg:text-base font-semibold truncate">{s.name}</h3>
                       {s.tagline && (
-                        <p className="text-xs text-muted-foreground truncate">{s.tagline}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{s.tagline}</p>
                       )}
                     </div>
                   </div>
