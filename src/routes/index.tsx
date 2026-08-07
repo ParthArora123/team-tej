@@ -1248,12 +1248,13 @@ function FounderSection({ founder }: { founder: any | null }) {
   const image = founder?.image_url || "";
   const biography = founder?.biography || "";
   const achievements: string[] = Array.isArray(founder?.achievements) ? founder.achievements : [];
-  const belief = founder?.belief || founder?.philosophy || "";
   const vision = founder?.vision || "";
   const mission = founder?.mission || "";
   const socials = founder?.socials || {};
 
+
   const hasMore = Boolean(biography || achievements.length || vision || mission);
+
 
   return (
     <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
@@ -1315,10 +1316,9 @@ function FounderSection({ founder }: { founder: any | null }) {
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
           </div>
 
-          {/* Belief · Vision · Mission — always visible */}
-          <div className="grid sm:grid-cols-3 gap-3">
+          {/* Vision · Mission — always visible */}
+          <div className="grid sm:grid-cols-2 gap-3">
             {[
-              { k: "Belief", v: belief || "Anyone can dance. It only takes the courage to begin." },
               { k: "Vision", v: vision || "To make India's movement culture felt on every global stage." },
               { k: "Mission", v: mission || "Build dancers with craft, confidence and character." },
             ].map((c) => (
@@ -1328,6 +1328,7 @@ function FounderSection({ founder }: { founder: any | null }) {
               </div>
             ))}
           </div>
+
 
 
 
@@ -1403,14 +1404,8 @@ function FounderSection({ founder }: { founder: any | null }) {
                 </div>
               )}
 
-              {(belief || vision || mission) && (
-                <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {belief && (
-                    <div className="ed-card p-5">
-                      <p className="text-xs uppercase tracking-widest text-primary">Belief</p>
-                      <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{belief}</p>
-                    </div>
-                  )}
+              {(vision || mission) && (
+                <div className="mt-6 grid sm:grid-cols-2 gap-4">
                   {vision && (
                     <div className="ed-card p-5">
                       <p className="text-xs uppercase tracking-widest text-primary">Vision</p>
@@ -1425,6 +1420,7 @@ function FounderSection({ founder }: { founder: any | null }) {
                   )}
                 </div>
               )}
+
 
           </div>
         </div>
