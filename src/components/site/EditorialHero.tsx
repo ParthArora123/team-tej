@@ -206,7 +206,7 @@ export function EditorialHero({
 
         {/* LEFT — Belief · Vision · Mission */}
         <aside className="order-2 lg:order-1 lg:sticky lg:top-24 lg:z-40">
-          <div className="lg:pr-2 lg:-mr-10 xl:-mr-16">{bvmCards}</div>
+          <div className="lg:pr-2 lg:-mr-6 xl:-mr-14">{bvmCards}</div>
         </aside>
 
         {/* CENTER — portrait, CTAs, role cards */}
