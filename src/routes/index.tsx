@@ -623,45 +623,47 @@ function Index() {
           onExplore={() => goToHomeSection("workshops", "/workshops")}
           onWatch={() => goToHomeSection("showcase", "/#showcase")}
         />
-        <FounderSection founder={founder} />
         <CinematicShowreel choreos={choreos} workshops={workshops} />
+
+        {/* Upcoming Workshops — merged into the same cinematic section */}
+        <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-2 pb-10 lg:pt-4 lg:pb-16">
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+                <Calendar size={12} /> Start Moving
+              </p>
+              <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
+                Upcoming <span className="italic font-light">Workshops.</span>
+              </h2>
+              <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
+                Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
+              </p>
+            </div>
+            <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
+              See all workshops <ArrowUpRight size={14} />
+            </Link>
+          </div>
+
+          {workshops.length === 0 && !workshopsLoaded ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+            </div>
+          ) : workshops.length === 0 ? (
+            <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
+              <p className="font-display text-2xl">Coming Soon</p>
+              <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+            </div>
+          ) : (
+            <LazySection minHeight={520}>
+              <WorkshopDeck workshops={workshops} />
+            </LazySection>
+          )}
+        </section>
       </Chapter>
 
       {/* SCREEN 2 — Register & Book Your Experience */}
       <Chapter index={2} total={5} kicker="Start Moving — Book Your Experience">
-      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
-        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-              <Calendar size={12} /> Start Moving
-            </p>
-            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-              Book your <span className="italic font-light">experience.</span>
-            </h2>
-            <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
-              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
-            </p>
-          </div>
-          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
-            See all workshops <ArrowUpRight size={14} />
-          </Link>
-        </div>
 
-        {workshops.length === 0 && !workshopsLoaded ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
-          </div>
-        ) : workshops.length === 0 ? (
-          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
-            <p className="font-display text-2xl">Coming Soon</p>
-            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
-          </div>
-        ) : (
-          <LazySection minHeight={520}>
-            <WorkshopDeck workshops={workshops} />
-          </LazySection>
-        )}
-      </section>
 
 
 
