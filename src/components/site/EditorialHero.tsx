@@ -89,19 +89,19 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className={`ed-rise ed-card !bg-white group/card flex ${hClass} flex-col overflow-hidden rounded-[18px] p-3 transition-transform duration-300 hover:-translate-y-1`}
+            className={`ed-rise ed-card !bg-white group/card flex ${hClass} flex-col overflow-hidden rounded-[18px] p-2.5 sm:p-3 transition-transform duration-300 hover:-translate-y-1`}
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
             <div className="flex shrink-0 items-center gap-2 border-b border-border/60 pb-2">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[10px] border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+              <span className="grid h-6 w-6 sm:h-7 sm:w-7 shrink-0 place-items-center rounded-[10px] border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
                 <c.Icon size={13} />
               </span>
               <div className="min-w-0">
-                <p className="ed-eyebrow text-[8px] sm:text-[9px] text-muted-foreground">{c.k}</p>
-                <h2 className="font-display text-[13px] sm:text-[14px] font-bold leading-tight text-foreground">{c.t}</h2>
+                <p className="ed-eyebrow text-[7px] sm:text-[9px] text-muted-foreground">{c.k}</p>
+                <h2 className="font-display text-[10.5px] sm:text-[14px] font-bold leading-tight text-foreground">{c.t}</h2>
               </div>
             </div>
-            <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[11px] sm:text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[9.5px] sm:text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
               {c.v}
             </p>
           </article>
@@ -139,19 +139,19 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className={`ed-rise ed-card !bg-white group/card flex ${hClass} flex-col overflow-hidden rounded-[18px] p-3 transition-transform duration-300 hover:-translate-y-1`}
+            className={`ed-rise ed-card !bg-white group/card flex ${hClass} flex-col overflow-hidden rounded-[18px] p-2.5 sm:p-3 transition-transform duration-300 hover:-translate-y-1`}
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
             <div className="flex shrink-0 items-center gap-2 border-b border-border/60 pb-2">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[10px] border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+              <span className="grid h-6 w-6 sm:h-7 sm:w-7 shrink-0 place-items-center rounded-[10px] border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
                 <c.Icon size={13} />
               </span>
               <div className="min-w-0">
-                <p className="ed-eyebrow text-[8px] sm:text-[9px] text-muted-foreground">{c.k}</p>
-                <h2 className="font-display text-[13px] sm:text-[14px] font-bold leading-tight text-foreground">{c.t}</h2>
+                <p className="ed-eyebrow text-[7px] sm:text-[9px] text-muted-foreground">{c.k}</p>
+                <h2 className="font-display text-[10.5px] sm:text-[14px] font-bold leading-tight text-foreground">{c.t}</h2>
               </div>
             </div>
-            <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[11px] sm:text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[9.5px] sm:text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
               {c.v}
             </p>
           </article>
