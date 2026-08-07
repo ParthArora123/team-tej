@@ -242,8 +242,8 @@ export function EditorialHero({
 
         {/* Mobile / tablet cards below the image */}
         <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 lg:hidden">
-          {renderBvmCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4", "h-auto min-h-[6.5rem] sm:h-[8rem]")}
-          {renderAboutCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4", "h-auto min-h-[6.5rem] sm:h-[8rem]")}
+          {renderBvmCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 [&_.ed-scroll]:overflow-visible [&_article]:h-auto", "h-auto min-h-[6.5rem] sm:h-[8rem]")}
+          {renderAboutCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 [&_.ed-scroll]:overflow-visible [&_article]:h-auto", "h-auto min-h-[6.5rem] sm:h-[8rem]")}
         </div>
 
         <div
