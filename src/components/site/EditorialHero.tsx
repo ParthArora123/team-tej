@@ -1,5 +1,18 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Instagram, Play, Youtube } from "lucide-react";
+import {
+  ArrowUpRight,
+  Compass,
+  Flame,
+  GraduationCap,
+  Instagram,
+  Music4,
+  Play,
+  Sparkles,
+  Target,
+  Youtube,
+} from "lucide-react";
+import { AnimatedCounter } from "@/components/site/AnimatedCounter";
+
 
 
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
@@ -45,24 +58,62 @@ export function EditorialHero({
   const hasMore = Boolean(biography || achievements.length);
 
   const columns = [
-    { k: "Philosophy", t: "Belief", v: belief },
-    { k: "Purpose", t: "Vision", v: vision },
-    { k: "Mission", t: "Mission", v: mission },
+    { k: "Philosophy", t: "Belief", v: belief, Icon: Flame },
+    { k: "Purpose", t: "Vision", v: vision, Icon: Compass },
+    { k: "Mission", t: "Mission", v: mission, Icon: Target },
   ];
 
+  const stat = (needle: string) => {
+    const b = badges?.find((x) => x.label.toLowerCase().includes(needle));
+    const raw = b?.value ?? "0";
+    const n = parseInt(raw.replace(/[^0-9]/g, ""), 10) || 0;
+    const suffix = raw.replace(/[0-9]/g, "");
+    return { n, suffix, label: b?.label ?? "" };
+  };
+
+  const roles = [
+    {
+      t: "Dance Educator",
+      Icon: GraduationCap,
+      d: "Structured, joyful training that turns absolute beginners into confident movers.",
+      stat: stat("dancer"),
+      action: null as null | { label: string; onClick: () => void; icon: "play" | "arrow" },
+    },
+    {
+      t: "Performer",
+      Icon: Sparkles,
+      d: "Sixteen years on stage — live shows, tours and screens across the world.",
+      stat: stat("performance"),
+      action: { label: "Watch Performances", onClick: onWatch, icon: "play" as const },
+    },
+    {
+      t: "Choreographer",
+      Icon: Music4,
+      d: "Signature choreographies and workshops crafted for artists at every level.",
+      stat: stat("workshop"),
+      action: { label: "Explore Workshops", onClick: onExplore, icon: "arrow" as const },
+    },
+  ];
 
   const cards = (
     <div className="flex w-full min-w-0 flex-col gap-4">
       {columns.map((c, i) => (
         <article
           key={c.t}
-          className="ed-rise ed-card group/card p-5 lg:p-6"
+          className="ed-rise ed-card group/card p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
           style={{ animationDelay: `${260 + i * 110}ms` }}
         >
-          <p className="ed-eyebrow">{c.k}</p>
-          <h2 className="mt-1.5 font-display text-lg lg:text-xl font-bold">{c.t}</h2>
+          <div className="flex items-center gap-3">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+              <c.Icon size={16} />
+            </span>
+            <div className="min-w-0">
+              <p className="ed-eyebrow">{c.k}</p>
+              <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+            </div>
+          </div>
           <p
-            className={`mt-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line ${
+            className={`mt-3 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line ${
               c.t === "Mission" ? "ed-scroll max-h-[9.5rem] overflow-y-auto pr-2" : ""
             }`}
           >
@@ -75,53 +126,99 @@ export function EditorialHero({
 
   return (
     <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-10 lg:pt-24 lg:pb-16">
-      <div className="mx-auto grid w-full max-w-[92rem] items-center gap-8 lg:grid-cols-[minmax(280px,22rem)_1fr] lg:gap-12">
-        {/* LEFT — Belief · Vision · Mission (below hero on mobile via order) */}
-        <aside className="order-2 lg:order-1">{cards}</aside>
+      <div className="mx-auto grid w-full max-w-[92rem] items-start gap-8 lg:grid-cols-[minmax(280px,21rem)_1fr] lg:gap-12">
+        {/* LEFT — About: Belief · Vision · Mission (below hero on mobile via order) */}
+        <aside className="order-2 lg:order-1 lg:sticky lg:top-24">{cards}</aside>
 
-        {/* RIGHT — headline, portrait, CTAs */}
+        {/* RIGHT — portrait with overlay headline, CTAs, role cards */}
         <div className="order-1 flex min-w-0 flex-col justify-center lg:order-2">
-          <header className="relative z-10 shrink-0 text-center">
-            <h1 className="ed-rise cine-title font-display text-[2.9rem] leading-[0.9] sm:text-6xl lg:text-7xl xl:text-[6.5rem] font-bold tracking-[-0.035em]">
-              {name.toUpperCase()}
-            </h1>
-            <p className="ed-rise mt-3 flex flex-wrap items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.24em]" style={{ animationDelay: "110ms" }}>
-              <span className="role-educator">Dance Educator</span>
-              <span className="text-muted-foreground text-[0.75rem]">•</span>
-              <span className="role-performer">Performer</span>
-              <span className="text-muted-foreground text-[0.75rem]">•</span>
-              <span className="role-choreographer">Choreographer</span>
-            </p>
-            <p className="ed-rise mx-auto mt-3 max-w-xl text-sm sm:text-lg text-muted-foreground" style={{ animationDelay: "190ms" }}>
-              Transforming passion into performance.
-            </p>
-
-            <div className="ed-rise mt-6 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "560ms" }}>
-              <button
-                type="button"
-                onClick={onExplore}
-                className="ed-cta group inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
-              >
-                Explore Workshops
-                <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </button>
-
-              <button
-                type="button"
-                onClick={onWatch}
-                className="ed-ghost group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em]"
-              >
-                <Play size={13} className="transition-transform group-hover:scale-110" /> Watch Performances
-              </button>
-            </div>
-          </header>
-
-          <div className="relative z-30 mt-6 flex flex-col lg:mt-8">
+          <div className="relative z-30 flex flex-col">
             <div className="ed-float relative isolate z-30">
               <div aria-hidden className="cine-spot" />
-              <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
+              <HeroFrame
+                image={image}
+                clips={clips}
+                alt={name}
+                onReady={onReady}
+                overlay={
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 px-5 pb-7 text-center sm:px-8 sm:pb-10">
+                    <h1
+                      className="ed-rise cine-title font-display text-[2.6rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[5.6rem] font-bold tracking-[-0.035em] [text-shadow:0_6px_40px_oklch(0_0_0/55%)]"
+                    >
+                      {name.toUpperCase()}
+                    </h1>
+                    <p
+                      className="ed-rise mx-auto mt-2 max-w-xl text-sm sm:text-lg font-medium text-foreground/85 [text-shadow:0_2px_18px_oklch(0_0_0/60%)]"
+                      style={{ animationDelay: "190ms" }}
+                    >
+                      Transforming passion into performance.
+                    </p>
+                  </div>
+                }
+              />
             </div>
           </div>
+
+          <div className="ed-rise mt-6 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "560ms" }}>
+            <button
+              type="button"
+              onClick={onExplore}
+              className="ed-cta group inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
+            >
+              Explore Workshops
+              <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </button>
+
+            <button
+              type="button"
+              onClick={onWatch}
+              className="ed-ghost group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em]"
+            >
+              <Play size={13} className="transition-transform group-hover:scale-110" /> Watch Performances
+            </button>
+          </div>
+
+          {/* ROLE CARDS */}
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {roles.map((r, i) => (
+              <article
+                key={r.t}
+                className="ed-rise ed-card group/role flex flex-col p-5 transition-transform duration-300 hover:-translate-y-1.5"
+                style={{ animationDelay: `${620 + i * 110}ms` }}
+              >
+                <span className="grid h-10 w-10 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/role:scale-110">
+                  <r.Icon size={18} />
+                </span>
+                <h3 className="mt-3 font-display text-lg font-bold">{r.t}</h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{r.d}</p>
+
+                {r.stat.label && (
+                  <p className="mt-4 flex items-baseline gap-2">
+                    <AnimatedCounter
+                      value={r.stat.n}
+                      suffix={r.stat.suffix}
+                      className="font-display text-2xl font-bold text-primary"
+                    />
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                      {r.stat.label}
+                    </span>
+                  </p>
+                )}
+
+                {r.action && (
+                  <button
+                    type="button"
+                    onClick={r.action.onClick}
+                    className="ed-ghost mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em]"
+                  >
+                    {r.action.icon === "play" ? <Play size={12} /> : <ArrowUpRight size={13} />}
+                    {r.action.label}
+                  </button>
+                )}
+              </article>
+            ))}
+          </div>
+
 
           {(hasMore || socials.instagram || socials.youtube) && (
             <div className="ed-rise mt-6 flex items-center justify-center gap-2" style={{ animationDelay: "620ms" }}>
@@ -183,7 +280,7 @@ export function EditorialHero({
 const HERO_LQIP =
   "data:image/webp;base64,UklGRsgAAABXRUJQVlA4ILwAAACQBgCdASoYACQAPrVUoUynJKMiKrgKAOAWiWcAzu2LGOrXCeLgFuSrTZX4ZknjnbfTfw2jufWLM6VDyckAAP6XxzNOFXdGBWxS/37jYN0Ut0kY9HXKco15NJdq83Y3DXreKaIuN4vcj+lzSgD60F/11m/O5PAATv7ZaRuI4ILkFtjLpDZROCvVVqWEbKCS8GsqMa5zvRRjzdY8X52uq7T8zMJUW3OXI2Fmjl5nY5xzkxtEhNKzfOSJySIAAA==";
 
-function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: string[]; alt: string; onReady?: () => void }) {
+function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; clips: string[]; alt: string; onReady?: () => void; overlay?: React.ReactNode }) {
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -261,7 +358,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[30rem] sm:max-w-[36rem] lg:aspect-[4/5] lg:max-w-[52rem] lg:max-h-[80svh]"
+      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[32rem] sm:max-w-[40rem] lg:aspect-[4/5] lg:max-w-[58rem] lg:max-h-[86svh]"
       style={{ animationDelay: "180ms" }}
     >
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
@@ -341,7 +438,18 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             "radial-gradient(ellipse 80% 70% at 50% 40%, transparent 55%, oklch(0 0 0 / 45%) 100%)",
         }}
       />
+      {overlay ? (
+        <>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
+            style={{ background: "linear-gradient(to top, oklch(0 0 0 / 62%), transparent)" }}
+          />
+          {overlay}
+        </>
+      ) : null}
     </div>
+
   );
 
 }
