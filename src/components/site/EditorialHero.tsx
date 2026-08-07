@@ -212,12 +212,12 @@ export function EditorialHero({
           />
 
           {/* LEFT — floating Belief · Vision · Mission cards */}
-          <aside className="pointer-events-none absolute left-2 sm:left-4 lg:left-6 xl:left-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[7.5rem] sm:w-[8.5rem] lg:w-[10rem] xl:w-[11rem] flex-col gap-2 sm:gap-2.5 lg:flex">
+          <aside className="pointer-events-none absolute left-2 sm:left-4 lg:left-6 xl:left-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[9.5rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2.5 sm:gap-3 lg:flex">
             <div className="pointer-events-auto">{bvmCards}</div>
           </aside>
 
           {/* RIGHT — floating About cards */}
-          <aside className="pointer-events-none absolute right-2 sm:right-4 lg:right-6 xl:right-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[7.5rem] sm:w-[8.5rem] lg:w-[10rem] xl:w-[11rem] flex-col gap-2 sm:gap-2.5 lg:flex">
+          <aside className="pointer-events-none absolute right-2 sm:right-4 lg:right-6 xl:right-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[9.5rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2.5 sm:gap-3 lg:flex">
             <div className="pointer-events-auto">{aboutCards}</div>
           </aside>
         </div>
