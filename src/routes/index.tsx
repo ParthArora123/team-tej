@@ -1014,34 +1014,119 @@ function Index() {
         )}
 
 
-        {globe.length > 0 && (() => {
+        {(() => {
           const conducted = globe.filter((g) => g.status === "conducted");
           const upcoming = globe.filter((g) => g.status === "upcoming");
-          
+          const allCities = [...new Set([...conducted, ...upcoming].map((g) => g.city).filter(Boolean))];
+          const tourCards = choreos.slice(0, 3);
+
           return (
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-6 lg:p-12">
-              <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
-              <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
-              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
-              {conducted.length > 0 && (
-                <div className="mt-8">
-                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
-                  <div className="flex flex-wrap gap-2">
-                    {conducted.map((g) => (
-                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{g.city}, {g.country}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {upcoming.length > 0 && (
-                <div className="mt-6">
-                  <p className="text-[11px] uppercase tracking-widest text-primary mb-3">Upcoming</p>
-                  <div className="flex flex-wrap gap-2">
-                    {upcoming.map((g) => (
-                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
-                        {g.city}, {g.country}{g.event_date ? ` · ${new Date(g.event_date).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : ""}
-                      </span>
-                    ))}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card via-background to-muted border border-border p-6 lg:p-12">
+              {/* Header */}
+              <div className="text-center">
+                <p className="text-xs uppercase tracking-widest text-primary">Iconic Work</p>
+                <h2 className="font-display text-3xl lg:text-5xl font-bold mt-2 tracking-tight">
+                  Choreographies &amp; <span className="italic font-light">World Tour.</span>
+                </h2>
+                <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+                  A showcase of viral choreographies and world tour destinations.
+                </p>
+              </div>
+
+              {/* Choreography Cards */}
+              <div className="mt-8 lg:mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+                {tourCards.map((c, ci) => (
+                  <article
+                    key={c.id}
+                    style={revealDelay(ci)}
+                    className="reveal-up group relative overflow-hidden rounded-2xl lg:rounded-3xl bg-card border border-border shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-xl"
+                  >
+                    <div className="relative aspect-[3/4] overflow-hidden">
+                      {/* Backdrop fill */}
+                      {c.thumbnail_url && (
+                        <img
+                          src={c.thumbnail_url}
+                          alt=""
+                          aria-hidden
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover blur-xl scale-110 opacity-60"
+                        />
+                      )}
+                      {/* Main image / video */}
+                      {c.video_url ? (
+                        <video
+                          src={c.video_url}
+                          poster={c.thumbnail_url ?? undefined}
+                          muted
+                          loop
+                          playsInline
+                          preload="metadata"
+                          className="absolute inset-0 h-full w-full object-contain transform-gpu transition-transform duration-700 group-hover:scale-105"
+                          onMouseEnter={(e) => playHomepageVideo(e.currentTarget)}
+                          onMouseLeave={(e) => pauseHomepageVideo(e.currentTarget)}
+                          onFocus={(e) => playHomepageVideo(e.currentTarget)}
+                          onBlur={(e) => pauseHomepageVideo(e.currentTarget)}
+                        />
+                      ) : (
+                        <img
+                          src={c.thumbnail_url || classesImg}
+                          alt={c.title}
+                          loading="lazy"
+                          decoding="async"
+                          className="absolute inset-0 h-full w-full object-contain transform-gpu transition-transform duration-700 group-hover:scale-105"
+                        />
+                      )}
+
+                      {/* Bottom gradient + title */}
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 lg:p-6">
+                        <h3 className="font-display text-lg lg:text-xl font-bold text-white drop-shadow-md">
+                          {c.title}
+                        </h3>
+                        <p className="mt-1 text-sm text-white/80">Choreography</p>
+                      </div>
+
+                      {/* Shine sweep */}
+                      <div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[900ms] ease-out"
+                        style={{
+                          background:
+                            "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%)",
+                        }}
+                      />
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {/* Tour Destinations */}
+              {(allCities.length > 0 || true) && (
+                <div className="mt-8 lg:mt-10">
+                  <p className="text-center text-xs uppercase tracking-widest text-muted-foreground mb-4">
+                    Tour Destinations
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    {allCities.length > 0 ? (
+                      allCities.map((city) => (
+                        <span
+                          key={city}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-background/80 border border-border hover:border-primary/40 hover:text-primary transition-colors"
+                        >
+                          <MapPin size={14} className="text-primary" />
+                          {city}
+                        </span>
+                      ))
+                    ) : (
+                      ["Mumbai", "Delhi", "Bengaluru", "Dubai", "London", "New York", "Singapore"].map((city) => (
+                        <span
+                          key={city}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-background/80 border border-border hover:border-primary/40 hover:text-primary transition-colors"
+                        >
+                          <MapPin size={14} className="text-primary" />
+                          {city}
+                        </span>
+                      ))
+                    )}
                   </div>
                 </div>
               )}
