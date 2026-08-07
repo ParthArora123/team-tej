@@ -62,7 +62,7 @@ export function EditorialHero({
 
   const cardWrap = "flex w-full min-w-0 flex-col gap-2.5 sm:gap-3";
 
-  const renderAboutCards = (wrapClass = cardWrap) => (
+  const renderAboutCards = (wrapClass = cardWrap, hClass = "h-[7rem] sm:h-[8rem]") => (
     <div className={wrapClass}>
       {[
         {
@@ -89,7 +89,7 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise ed-card !bg-white group/card flex h-[7rem] sm:h-[8rem] flex-col overflow-hidden rounded-[18px] p-3 transition-transform duration-300 hover:-translate-y-1"
+            className={`ed-rise ed-card !bg-white group/card flex ${hClass} flex-col overflow-hidden rounded-[18px] p-3 transition-transform duration-300 hover:-translate-y-1`}
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
             <div className="flex shrink-0 items-center gap-2 border-b border-border/60 pb-2">
@@ -111,7 +111,7 @@ export function EditorialHero({
   );
 
 
-  const renderBvmCards = (wrapClass = cardWrap) => (
+  const renderBvmCards = (wrapClass = cardWrap, hClass = "h-[7rem] sm:h-[8rem]") => (
     <div className={wrapClass}>
 
       {[
@@ -139,7 +139,7 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise ed-card !bg-white group/card flex h-[7rem] sm:h-[8rem] flex-col overflow-hidden rounded-[18px] p-3 transition-transform duration-300 hover:-translate-y-1"
+            className={`ed-rise ed-card !bg-white group/card flex ${hClass} flex-col overflow-hidden rounded-[18px] p-3 transition-transform duration-300 hover:-translate-y-1`}
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
             <div className="flex shrink-0 items-center gap-2 border-b border-border/60 pb-2">
@@ -242,8 +242,8 @@ export function EditorialHero({
 
         {/* Mobile / tablet cards below the image */}
         <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 lg:hidden">
-          {renderBvmCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4")}
-          {renderAboutCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4")}
+          {renderBvmCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4", "h-auto min-h-[6.5rem] sm:h-[8rem]")}
+          {renderAboutCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4", "h-auto min-h-[6.5rem] sm:h-[8rem]")}
         </div>
 
         <div
