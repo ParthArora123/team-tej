@@ -72,17 +72,8 @@ export function EditorialHero({
             <p className="ed-rise mt-2 text-sm sm:text-base text-muted-foreground" style={{ animationDelay: "150ms" }}>
               Transforming passion into performance.
             </p>
-          </header>
 
-          <div className="relative z-30 mt-4 flex flex-col lg:mt-6">
-            <div className="relative isolate z-30">
-
-              <div aria-hidden className="cine-spot" />
-              <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
-            </div>
-
-            <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3 lg:mt-6" style={{ animationDelay: "520ms" }}>
-
+            <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
               <button
                 type="button"
                 onClick={onExplore}
@@ -99,6 +90,14 @@ export function EditorialHero({
               >
                 <Play size={13} /> Watch Performances
               </button>
+            </div>
+          </header>
+
+          <div className="relative z-30 mt-4 flex flex-col lg:mt-6">
+            <div className="relative isolate z-30">
+
+              <div aria-hidden className="cine-spot" />
+              <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
             </div>
           </div>
         </div>
@@ -254,7 +253,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:aspect-[16/10] lg:h-[68svh] lg:max-w-[80rem]"
+      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:aspect-[2/3] lg:w-full lg:max-w-none"
       style={{ animationDelay: "180ms" }}
     >
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
