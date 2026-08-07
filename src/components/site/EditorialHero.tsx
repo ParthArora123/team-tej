@@ -491,15 +491,6 @@ function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: 
           />
         )}
       </div>
-      {/* cinematic vignette + top light falloff */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 70% at 50% 40%, transparent 55%, oklch(0 0 0 / 45%) 100%)",
-        }}
-      />
       {overlay ? (
         <>
           <div
