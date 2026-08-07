@@ -965,8 +965,6 @@ function Index() {
           </div>
         )}
 
-
-        <IndiaToGlobeAndCounting globe={globe} stats={stats} />
       </section>
       </Chapter>
 
