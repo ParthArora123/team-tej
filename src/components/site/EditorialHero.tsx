@@ -192,8 +192,8 @@ export function EditorialHero({
 
   return (
     <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-6 lg:pt-24 lg:pb-10">
-      <div className="mx-auto grid w-full max-w-[96rem] items-start gap-4 lg:grid-cols-[minmax(140px,1fr)_minmax(0,56%)_minmax(140px,1fr)] xl:grid-cols-[minmax(160px,1fr)_minmax(0,58%)_minmax(160px,1fr)] lg:gap-3 xl:gap-4">
-        <div className="col-span-full mb-1 text-center">
+      <div className="mx-auto w-full max-w-[96rem]">
+        <div className="mb-4 text-center">
           <p
             className="ed-rise mx-auto max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
             style={{ animationDelay: "190ms" }}
@@ -202,120 +202,125 @@ export function EditorialHero({
           </p>
         </div>
 
-        {/* LEFT — Belief · Vision · Mission */}
-        <aside className="order-2 lg:order-1 lg:sticky lg:top-24 lg:z-40">
-          <div className="lg:pr-2 lg:-mr-16 xl:-mr-24">{bvmCards}</div>
-        </aside>
+        {/* Full-width hero image with floating corner cards */}
+        <div className="relative">
+          <HeroFrame
+            image={image}
+            clips={clips}
+            alt={name}
+            onReady={onReady}
+            className="w-full"
+          />
 
+          {/* LEFT — floating Belief · Vision · Mission cards */}
+          <aside className="pointer-events-none absolute left-2 sm:left-4 lg:left-6 xl:left-8 top-4 sm:top-6 lg:top-8 xl:top-10 z-40 hidden w-[9.5rem] sm:w-[11rem] lg:w-[13rem] xl:w-[15rem] flex-col gap-2 sm:gap-3 lg:flex">
+            <div className="pointer-events-auto">{bvmCards}</div>
+          </aside>
 
-        {/* CENTER — portrait, CTAs, role cards */}
-        <div className="order-1 flex min-w-0 flex-col justify-center lg:order-2">
-          <div className="relative z-30 flex flex-col">
-            <div className="ed-float relative isolate z-30">
-              <div aria-hidden className="cine-spot" />
-              <HeroFrame
-                image={image}
-                clips={clips}
-                alt={name}
-                onReady={onReady}
-              />
-            </div>
-          </div>
-
-          <div className="ed-rise mt-6 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "560ms" }}>
-            <button
-              type="button"
-              onClick={onExplore}
-              className="ed-cta group inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
-            >
-              Explore Workshops
-              <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </button>
-
-            <button
-              type="button"
-              onClick={onWatch}
-              className="ed-ghost group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em]"
-            >
-              <Play size={13} className="transition-transform group-hover:scale-110" /> Watch Performances
-            </button>
-          </div>
-
-          {/* ROLE CARDS */}
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {roles.map((r, i) => {
-              const floatClass = i % 3 === 0 ? "float-1" : i % 3 === 1 ? "float-2" : "float-3";
-              return (
-                <div key={r.t} className={floatClass}>
-                  <article
-                    className="ed-rise ed-card group/role flex flex-col p-5 transition-transform duration-300 hover:-translate-y-1.5"
-                    style={{ animationDelay: `${620 + i * 110}ms` }}
-                  >
-                    <span className="grid h-10 w-10 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/role:scale-110">
-                      <r.Icon size={18} />
-                    </span>
-                    <h3 className="mt-3 font-display text-lg font-bold">{r.t}</h3>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{r.d}</p>
-
-                    {r.stat.label && (
-                      <p className="mt-4 flex items-baseline gap-2">
-                        <AnimatedCounter
-                          value={r.stat.n}
-                          suffix={r.stat.suffix}
-                          className="font-display text-2xl font-bold text-primary"
-                        />
-                        <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                          {r.stat.label}
-                        </span>
-                      </p>
-                    )}
-
-                    {r.action && (
-                      <button
-                        type="button"
-                        onClick={r.action.onClick}
-                        className="ed-ghost mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em]"
-                      >
-                        {r.action.icon === "play" ? <Play size={12} /> : <ArrowUpRight size={13} />}
-                        {r.action.label}
-                      </button>
-                    )}
-                  </article>
-                </div>
-              );
-            })}
-          </div>
-
-          {(hasMore || socials.instagram || socials.youtube) && (
-            <div className="ed-rise mt-6 flex items-center justify-center gap-2" style={{ animationDelay: "620ms" }}>
-              {hasMore && (
-                <button
-                  onClick={() => setOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-medium transition hover:border-primary hover:text-primary"
-                >
-                  Know more <ArrowUpRight size={14} />
-                </button>
-              )}
-              {socials.instagram && (
-                <a href={socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-                  className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
-                  <Instagram size={15} />
-                </a>
-              )}
-              {socials.youtube && (
-                <a href={socials.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
-                  className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
-                  <Youtube size={15} />
-                </a>
-              )}
-            </div>
-          )}
+          {/* RIGHT — floating About cards */}
+          <aside className="pointer-events-none absolute right-2 sm:right-4 lg:right-6 xl:right-8 top-4 sm:top-6 lg:top-8 xl:top-10 z-40 hidden w-[9.5rem] sm:w-[11rem] lg:w-[13rem] xl:w-[15rem] flex-col gap-2 sm:gap-3 lg:flex">
+            <div className="pointer-events-auto">{aboutCards}</div>
+          </aside>
         </div>
 
-        {/* RIGHT — Visionary Choreographer · Inspiring Mentor · Founder of DanceFit Live */}
-        <aside className="order-3 lg:order-3 lg:sticky lg:top-24 lg:z-40">
-          <div className="lg:pl-2 lg:-ml-16 xl:-ml-24">{aboutCards}</div>
-        </aside>
+        {/* Mobile / tablet cards below the image */}
+        <div className="mt-6 grid gap-4 lg:hidden">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {bvmCards}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {aboutCards}
+          </div>
+        </div>
+
+        <div className="ed-rise mt-6 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "560ms" }}>
+          <button
+            type="button"
+            onClick={onExplore}
+            className="ed-cta group inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
+          >
+            Explore Workshops
+            <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={onWatch}
+            className="ed-ghost group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em]"
+          >
+            <Play size={13} className="transition-transform group-hover:scale-110" /> Watch Performances
+          </button>
+        </div>
+
+        {/* ROLE CARDS */}
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {roles.map((r, i) => {
+            const floatClass = i % 3 === 0 ? "float-1" : i % 3 === 1 ? "float-2" : "float-3";
+            return (
+              <div key={r.t} className={floatClass}>
+                <article
+                  className="ed-rise ed-card group/role flex flex-col p-5 transition-transform duration-300 hover:-translate-y-1.5"
+                  style={{ animationDelay: `${620 + i * 110}ms` }}
+                >
+                  <span className="grid h-10 w-10 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/role:scale-110">
+                    <r.Icon size={18} />
+                  </span>
+                  <h3 className="mt-3 font-display text-lg font-bold">{r.t}</h3>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{r.d}</p>
+
+                  {r.stat.label && (
+                    <p className="mt-4 flex items-baseline gap-2">
+                      <AnimatedCounter
+                        value={r.stat.n}
+                        suffix={r.stat.suffix}
+                        className="font-display text-2xl font-bold text-primary"
+                      />
+                      <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                        {r.stat.label}
+                      </span>
+                    </p>
+                  )}
+
+                  {r.action && (
+                    <button
+                      type="button"
+                      onClick={r.action.onClick}
+                      className="ed-ghost mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em]"
+                    >
+                      {r.action.icon === "play" ? <Play size={12} /> : <ArrowUpRight size={13} />}
+                      {r.action.label}
+                    </button>
+                  )}
+                </article>
+              </div>
+            );
+          })}
+        </div>
+
+        {(hasMore || socials.instagram || socials.youtube) && (
+          <div className="ed-rise mt-6 flex items-center justify-center gap-2" style={{ animationDelay: "620ms" }}>
+            {hasMore && (
+              <button
+                onClick={() => setOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-medium transition hover:border-primary hover:text-primary"
+              >
+                Know more <ArrowUpRight size={14} />
+              </button>
+            )}
+            {socials.instagram && (
+              <a href={socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
+                <Instagram size={15} />
+              </a>
+            )}
+            {socials.youtube && (
+              <a href={socials.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
+                className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
+                <Youtube size={15} />
+              </a>
+            )}
+          </div>
+        )}
       </div>
 
       {open && (
