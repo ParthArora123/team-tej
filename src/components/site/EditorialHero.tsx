@@ -190,7 +190,7 @@ export function EditorialHero({
 
   return (
     <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-10 lg:pt-24 lg:pb-16">
-      <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 lg:grid-cols-[minmax(220px,17rem)_1fr_minmax(220px,17rem)] lg:gap-4 xl:gap-6">
+      <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 lg:grid-cols-[minmax(190px,15rem)_1fr_minmax(190px,15rem)] xl:grid-cols-[minmax(220px,17rem)_1fr_minmax(220px,17rem)] lg:gap-4 xl:gap-6">
         {/* Heading — centered above the image and both side card sections */}
         <div className="col-span-full mb-2 text-center">
           <h1 className="ed-rise cine-title font-display text-[2rem] leading-[0.94] sm:text-5xl lg:text-6xl xl:text-[4.2rem] font-bold tracking-[-0.035em]">
