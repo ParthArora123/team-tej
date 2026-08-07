@@ -68,38 +68,42 @@ export function EditorialHero({
           t: "Visionary Choreographer",
           v: "A celebrated choreographer, dance educator, entrepreneur and founder of DanceFit Live — known for high-energy choreography and a teaching style that makes dance accessible, joyful and inclusive for every age and skill level, across Bollywood, Hip-Hop, Salsa and Contemporary.",
           Icon: Flame,
+          float: "float-2",
         },
         {
           k: "About",
           t: "Inspiring Mentor",
           v: "Thousands of students trained, hundreds of masterclasses delivered, and collaborations with leading Bollywood and music-industry professionals — simplifying complex choreography into easy-to-follow steps that build confidence while keeping the joy alive.",
           Icon: Compass,
+          float: "float-3",
         },
         {
           k: "About",
           t: "Founder of DanceFit Live",
           v: "Dance is a powerful medium for self-expression, confidence, fitness and personal transformation. Through DanceFit Live, workshops and digital platforms, Tejas keeps inspiring a global dance community and making quality dance education accessible to everyone.",
           Icon: Target,
+          float: "float-1",
         },
       ].map((c, i) => (
-        <article
-          key={c.t}
-          className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
-          style={{ animationDelay: `${260 + i * 110}ms` }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
-              <c.Icon size={16} />
-            </span>
-            <div className="min-w-0">
-              <p className="ed-eyebrow">{c.k}</p>
-              <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+        <div key={c.t} className={c.float}>
+          <article
+            className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+            style={{ animationDelay: `${260 + i * 110}ms` }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={16} />
+              </span>
+              <div className="min-w-0">
+                <p className="ed-eyebrow">{c.k}</p>
+                <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+              </div>
             </div>
-          </div>
-          <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
-            {c.v}
-          </p>
-        </article>
+            <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
+              {c.v}
+            </p>
+          </article>
+        </div>
       ))}
     </div>
   );
@@ -112,38 +116,42 @@ export function EditorialHero({
           t: "Belief",
           v: belief,
           Icon: Heart,
+          float: "float-1",
         },
         {
           k: "Purpose",
           t: "Vision",
           v: vision,
           Icon: Eye,
+          float: "float-2",
         },
         {
           k: "Mission",
           t: "Mission",
           v: mission,
           Icon: Rocket,
+          float: "float-3",
         },
       ].map((c, i) => (
-        <article
-          key={c.t}
-          className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
-          style={{ animationDelay: `${260 + i * 110}ms` }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
-              <c.Icon size={16} />
-            </span>
-            <div className="min-w-0">
-              <p className="ed-eyebrow">{c.k}</p>
-              <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+        <div key={c.t} className={c.float}>
+          <article
+            className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+            style={{ animationDelay: `${260 + i * 110}ms` }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={16} />
+              </span>
+              <div className="min-w-0">
+                <p className="ed-eyebrow">{c.k}</p>
+                <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+              </div>
             </div>
-          </div>
-          <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
-            {c.v}
-          </p>
-        </article>
+            <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
+              {c.v}
+            </p>
+          </article>
+        </div>
       ))}
     </div>
   );
@@ -181,10 +189,10 @@ export function EditorialHero({
   ];
 
   return (
-    <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-10 lg:pt-24 lg:pb-16">
-      <div className="mx-auto grid w-full max-w-[92rem] items-start gap-8 lg:grid-cols-[minmax(280px,21rem)_1fr_minmax(280px,21rem)] lg:gap-12">
+    <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-10 lg:pt-24 lg:pb-16">
+      <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 lg:grid-cols-[minmax(190px,15rem)_1fr_minmax(190px,15rem)] xl:grid-cols-[minmax(220px,17rem)_1fr_minmax(220px,17rem)] lg:gap-4 xl:gap-6">
         {/* Heading — centered above the image and both side card sections */}
-        <div className="col-span-full text-center">
+        <div className="col-span-full mb-2 text-center">
           <h1 className="ed-rise cine-title font-display text-[2rem] leading-[0.94] sm:text-5xl lg:text-6xl xl:text-[4.2rem] font-bold tracking-[-0.035em]">
             {heading}
           </h1>
@@ -197,7 +205,9 @@ export function EditorialHero({
         </div>
 
         {/* LEFT — Belief · Vision · Mission */}
-        <aside className="order-2 lg:order-1 lg:sticky lg:top-24">{bvmCards}</aside>
+        <aside className="order-2 lg:order-1 lg:sticky lg:top-24 lg:z-40">
+          <div className="lg:pr-2 lg:-mr-6 xl:-mr-14">{bvmCards}</div>
+        </aside>
 
         {/* CENTER — portrait, CTAs, role cards */}
         <div className="order-1 flex min-w-0 flex-col justify-center lg:order-2">
@@ -234,43 +244,47 @@ export function EditorialHero({
 
           {/* ROLE CARDS */}
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {roles.map((r, i) => (
-              <article
-                key={r.t}
-                className="ed-rise ed-card group/role flex flex-col p-5 transition-transform duration-300 hover:-translate-y-1.5"
-                style={{ animationDelay: `${620 + i * 110}ms` }}
-              >
-                <span className="grid h-10 w-10 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/role:scale-110">
-                  <r.Icon size={18} />
-                </span>
-                <h3 className="mt-3 font-display text-lg font-bold">{r.t}</h3>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{r.d}</p>
-
-                {r.stat.label && (
-                  <p className="mt-4 flex items-baseline gap-2">
-                    <AnimatedCounter
-                      value={r.stat.n}
-                      suffix={r.stat.suffix}
-                      className="font-display text-2xl font-bold text-primary"
-                    />
-                    <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                      {r.stat.label}
-                    </span>
-                  </p>
-                )}
-
-                {r.action && (
-                  <button
-                    type="button"
-                    onClick={r.action.onClick}
-                    className="ed-ghost mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em]"
+            {roles.map((r, i) => {
+              const floatClass = i % 3 === 0 ? "float-1" : i % 3 === 1 ? "float-2" : "float-3";
+              return (
+                <div key={r.t} className={floatClass}>
+                  <article
+                    className="ed-rise ed-card group/role flex flex-col p-5 transition-transform duration-300 hover:-translate-y-1.5"
+                    style={{ animationDelay: `${620 + i * 110}ms` }}
                   >
-                    {r.action.icon === "play" ? <Play size={12} /> : <ArrowUpRight size={13} />}
-                    {r.action.label}
-                  </button>
-                )}
-              </article>
-            ))}
+                    <span className="grid h-10 w-10 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/role:scale-110">
+                      <r.Icon size={18} />
+                    </span>
+                    <h3 className="mt-3 font-display text-lg font-bold">{r.t}</h3>
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-muted-foreground">{r.d}</p>
+
+                    {r.stat.label && (
+                      <p className="mt-4 flex items-baseline gap-2">
+                        <AnimatedCounter
+                          value={r.stat.n}
+                          suffix={r.stat.suffix}
+                          className="font-display text-2xl font-bold text-primary"
+                        />
+                        <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                          {r.stat.label}
+                        </span>
+                      </p>
+                    )}
+
+                    {r.action && (
+                      <button
+                        type="button"
+                        onClick={r.action.onClick}
+                        className="ed-ghost mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.14em]"
+                      >
+                        {r.action.icon === "play" ? <Play size={12} /> : <ArrowUpRight size={13} />}
+                        {r.action.label}
+                      </button>
+                    )}
+                  </article>
+                </div>
+              );
+            })}
           </div>
 
           {(hasMore || socials.instagram || socials.youtube) && (
@@ -300,7 +314,9 @@ export function EditorialHero({
         </div>
 
         {/* RIGHT — Visionary Choreographer · Inspiring Mentor · Founder of DanceFit Live */}
-        <aside className="order-3 lg:order-3 lg:sticky lg:top-24">{aboutCards}</aside>
+        <aside className="order-3 lg:order-3 lg:sticky lg:top-24 lg:z-40">
+          <div className="lg:pl-2 lg:-ml-6 xl:-ml-14">{aboutCards}</div>
+        </aside>
       </div>
 
       {open && (
@@ -409,7 +425,7 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[32rem] sm:max-w-[40rem] lg:aspect-[4/5] lg:max-w-[58rem] lg:max-h-[86svh]"
+      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[46rem] lg:aspect-[4/5] lg:max-w-[64rem] lg:max-h-[88svh] xl:max-w-[70rem]"
       style={{ animationDelay: "180ms" }}
     >
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
