@@ -25,7 +25,7 @@ import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback
 import { LazySection } from "@/components/site/LazySection";
 
 import { type HomeCard } from "@/components/site/HomeSectionCards";
-import { listPerformances, listSignaturePrograms } from "@/lib/home-sections.functions";
+
 
 // Below-the-fold, media-heavy sections are code-split and only fetched
 // when the visitor scrolls near them.
