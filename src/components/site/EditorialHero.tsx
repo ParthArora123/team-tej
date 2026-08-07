@@ -181,10 +181,10 @@ export function EditorialHero({
   ];
 
   return (
-    <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-10 lg:pt-24 lg:pb-16">
-      <div className="mx-auto grid w-full max-w-[92rem] items-start gap-8 lg:grid-cols-[minmax(280px,21rem)_1fr_minmax(280px,21rem)] lg:gap-12">
+    <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-10 lg:pt-24 lg:pb-16">
+      <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 lg:grid-cols-[minmax(220px,17rem)_1fr_minmax(220px,17rem)] lg:gap-4 xl:gap-6">
         {/* Heading — centered above the image and both side card sections */}
-        <div className="col-span-full text-center">
+        <div className="col-span-full mb-2 text-center">
           <h1 className="ed-rise cine-title font-display text-[2rem] leading-[0.94] sm:text-5xl lg:text-6xl xl:text-[4.2rem] font-bold tracking-[-0.035em]">
             {heading}
           </h1>
@@ -197,7 +197,9 @@ export function EditorialHero({
         </div>
 
         {/* LEFT — Belief · Vision · Mission */}
-        <aside className="order-2 lg:order-1 lg:sticky lg:top-24">{bvmCards}</aside>
+        <aside className="order-2 lg:order-1 lg:sticky lg:top-24 lg:z-40">
+          <div className="lg:pr-2 lg:-mr-10 xl:-mr-16">{bvmCards}</div>
+        </aside>
 
         {/* CENTER — portrait, CTAs, role cards */}
         <div className="order-1 flex min-w-0 flex-col justify-center lg:order-2">
