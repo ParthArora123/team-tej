@@ -170,7 +170,7 @@ export function EditorialHero({
       t: "Dance Educator",
       Icon: GraduationCap,
       d: "Structured, joyful training that turns absolute beginners into confident movers.",
-      stat: stat("dancer"),
+      stat: { n: 16, suffix: "k+", label: "Experience" },
       action: null as null | { label: string; onClick: () => void; icon: "play" | "arrow" },
     },
     {
@@ -347,14 +347,6 @@ export function EditorialHero({
   );
 }
 
-/**
- * Tiny inlined WebP of the hero portrait (208 bytes). It paints on the very
- * first frame with zero network cost, so the frame is never empty and never
- * shows a broken-image glyph while the full-size portrait streams in.
- */
-const HERO_LQIP =
-  "data:image/webp;base64,UklGRsgAAABXRUJQVlA4ILwAAACQBgCdASoYACQAPrVUoUynJKMiKrgKAOAWiWcAzu2LGOrXCeLgFuSrTZX4ZknjnbfTfw2jufWLM6VDyckAAP6XxzNOFXdGBWxS/37jYN0Ut0kY9HXKco15NJdq83Y3DXreKaIuN4vcj+lzSgD60F/11m/O5PAATv7ZaRuI4ILkFtjLpDZROCvVVqWEbKCS8GsqMa5zvRRjzdY8X52uq7T8zMJUW3OXI2Fmjl5nY5xzkxtEhNKzfOSJySIAAA==";
-
 function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: string; clips: string[]; alt: string; onReady?: () => void; overlay?: React.ReactNode; className?: string }) {
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -437,48 +429,27 @@ function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: 
   return (
     <div
       ref={frameRef}
-      className={["ed-rise relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[3/2] max-h-[85vh] sm:max-h-[80vh] lg:max-h-[75vh]", className].filter(Boolean).join(" ")}
+      className={["ed-rise light-sweep relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[3/2] max-h-[85vh] sm:max-h-[80vh] lg:max-h-[75vh]", className].filter(Boolean).join(" ")}
       style={{ animationDelay: "180ms" }}
     >
-      {/* Current media used as a blurred edge-fill so the hero never shows a
-          mismatched empty frame, regardless of the active clip or portrait. */}
-      {clip ? (
-        <video
-          ref={bgVideoRef}
-          src={clip}
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          disablePictureInPicture
-          className="absolute inset-0 h-full w-full scale-105 object-cover opacity-70 blur-2xl"
-        />
-      ) : (
-        <img
-          src={image}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 h-full w-full scale-105 object-cover opacity-70 blur-2xl"
-          draggable={false}
-        />
-      )}
+      {/* Soft bottom wave overlay for a polished edge transition. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] h-1/3"
+        style={{
+          background:
+            "linear-gradient(to top, color-mix(in oklab, var(--surface) 85%, transparent), transparent)",
+          maskImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320' preserveAspectRatio='none'%3E%3Cpath fill='%23000' fill-opacity='1' d='M0,192L60,186.7C120,181,240,171,360,181.3C480,192,600,224,720,224C840,224,960,192,1080,181.3C1200,171,1320,181,1380,186.7L1440,192L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z'%3E%3C/path%3E%3C/svg%3E\")",
+          maskSize: "100% 100%",
+          maskRepeat: "no-repeat",
+        }}
+      />
 
       <div
         ref={mediaRef}
-        className="absolute inset-0 will-change-transform"
+        className="absolute inset-0 will-change-transform bg-surface"
         style={{ transition: "transform 420ms cubic-bezier(0.22,1,0.36,1)" }}
       >
-        {/* Premium blurred placeholder: visible until the portrait (or video
-            poster) has decoded, and it stays put if the source ever fails —
-            the browser's broken-image glyph is never shown. */}
-        <img
-          src={HERO_LQIP}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 h-full w-full object-contain blur-xl saturate-125 transition-opacity duration-500"
-          style={{ opacity: loaded ? 0 : 1 }}
-          draggable={false}
-        />
         {clip ? (
           <video
             ref={videoRef}
