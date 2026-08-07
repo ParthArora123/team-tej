@@ -193,8 +193,11 @@ export function EditorialHero({
     <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-6 lg:pt-24 lg:pb-10">
       <div className="mx-auto w-full max-w-[96rem]">
         <div className="mb-4 text-center">
+          <h1 className="ed-rise font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground" style={{ animationDelay: "120ms" }}>
+            {name}
+          </h1>
           <p
-            className="ed-rise mx-auto max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
+            className="ed-rise mx-auto mt-3 max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
             style={{ animationDelay: "190ms" }}
           >
             Transforming passion into performance.
@@ -434,7 +437,7 @@ function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: 
   return (
     <div
       ref={frameRef}
-      className={["ed-rise relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[9/16]", className].filter(Boolean).join(" ")}
+      className={["ed-rise relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[3/2] max-h-[85vh] sm:max-h-[80vh] lg:max-h-[75vh]", className].filter(Boolean).join(" ")}
       style={{ animationDelay: "180ms" }}
     >
       {/* Current media used as a blurred edge-fill so the hero never shows a
