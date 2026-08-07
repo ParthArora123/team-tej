@@ -458,7 +458,14 @@ function Index() {
     // with no idle-callback wait at all, so they're never the reason a
     // visitor sees blank sections.
     cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
-      .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
+      .then((rows: any) => {
+        const sorted = (rows ?? []).sort((a: any, b: any) => {
+          const ad = a?.event_date ? new Date(a.event_date).getTime() : Infinity;
+          const bd = b?.event_date ? new Date(b.event_date).getTime() : Infinity;
+          return ad - bd;
+        });
+        setWorkshops(sorted);
+      })
       .catch(() => setWorkshops([]))
       .finally(() => setWorkshopsLoaded(true));
     cachedCall("featuredExperience", () => getFeaturedExperience()).then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
@@ -694,7 +701,18 @@ function Index() {
             </div>
           ) : (
             <LazySection minHeight={520}>
-              <WorkshopDeck workshops={workshops} />
+              <WorkshopDeck workshops={workshops.slice(0, 4)} />
+              {workshops.length > 4 && (
+                <div className="mt-8 flex justify-center">
+                  <Link
+                    to="/workshops"
+                    className="group inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold transition-all hover:bg-primary hover:text-primary-foreground hover:gap-3"
+                  >
+                    View all workshops
+                    <ArrowUpRight size={16} className="transition-transform group-hover:rotate-45" />
+                  </Link>
+                </div>
+              )}
             </LazySection>
           )}
         </section>
