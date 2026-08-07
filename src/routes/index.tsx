@@ -1191,7 +1191,6 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
 
 
 function FounderSection({ founder }: { founder: any | null }) {
-  const [open, setOpen] = useState(false);
   const name = founder?.name || "Tejas D Dhoke";
   const title = founder?.title || "Founder";
   const intro = founder?.intro || "";
@@ -1200,9 +1199,6 @@ function FounderSection({ founder }: { founder: any | null }) {
   const achievements: string[] = Array.isArray(founder?.achievements) ? founder.achievements : [];
   const socials = founder?.socials || {};
 
-
-
-  const hasMore = Boolean(biography || achievements.length);
 
 
 
