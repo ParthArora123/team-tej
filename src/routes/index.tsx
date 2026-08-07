@@ -629,6 +629,41 @@ function Index() {
       <Chapter index={2} total={5} kicker="Start Moving — Book Your Experience">
         <CinematicShowreel choreos={choreos} workshops={workshops} />
 
+        {/* World Tour — tour destinations from globe data */}
+        {(() => {
+          const conducted = globe.filter((g) => g.status === "conducted");
+          const upcoming = globe.filter((g) => g.status === "upcoming");
+          const allCities = [...new Set([...conducted, ...upcoming].map((g) => g.city).filter(Boolean))];
+          const fallbackCities = ["Mumbai", "Delhi", "Bengaluru", "Dubai", "London", "New York", "Singapore"];
+          const cities = allCities.length > 0 ? allCities : fallbackCities;
+
+          return (
+            <section id="world-tour" className="max-w-7xl mx-auto px-6 lg:px-10 pt-4 pb-8 lg:pt-6 lg:pb-12">
+              <div className="text-center">
+                <p className="text-xs uppercase tracking-widest text-primary">World Tour</p>
+                <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
+                  Carrying our story <span className="italic font-light">across the world.</span>
+                </h2>
+                <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+                  Tejas D Dhoke has performed and taught on stages across continents.
+                </p>
+              </div>
+              <div className="mt-6 flex flex-wrap justify-center gap-3">
+                {cities.map((city, i) => (
+                  <span
+                    key={city}
+                    style={revealDelay(i)}
+                    className="reveal-up inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-background/80 border border-border hover:border-primary/40 hover:text-primary transition-colors"
+                  >
+                    <MapPin size={14} className="text-primary" />
+                    {city}
+                  </span>
+                ))}
+              </div>
+            </section>
+          );
+        })()}
+
         {/* Upcoming Workshops — merged into the same cinematic section */}
         <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-2 pb-10 lg:pt-4 lg:pb-16">
           <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
