@@ -240,11 +240,12 @@ export function EditorialHero({
           </aside>
         </div>
 
-        {/* Mobile / tablet cards below the image */}
-        <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 lg:hidden">
-          {renderBvmCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 [&_.ed-scroll]:overflow-visible [&_.ed-scroll]:flex-none [&_article]:h-auto", "h-auto min-h-[6.5rem] sm:h-[8rem]")}
-          {renderAboutCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 [&_.ed-scroll]:overflow-visible [&_.ed-scroll]:flex-none [&_article]:h-auto", "h-auto min-h-[6.5rem] sm:h-[8rem]")}
+        {/* Mobile / tablet cards below the image — stacked, full width, even spacing */}
+        <div className="mt-6 grid gap-4 lg:hidden">
+          {renderBvmCards("grid w-full min-w-0 grid-cols-1 gap-4 [&>div]:animate-none [&>div]:transform-none [&_.ed-scroll]:overflow-visible [&_.ed-scroll]:flex-none [&_article]:h-auto", "h-auto")}
+          {renderAboutCards("grid w-full min-w-0 grid-cols-1 gap-4 [&>div]:animate-none [&>div]:transform-none [&_.ed-scroll]:overflow-visible [&_.ed-scroll]:flex-none [&_article]:h-auto", "h-auto")}
         </div>
+
 
         <div
           className="ed-rise mt-6 grid w-full grid-cols-1 gap-3 sm:flex sm:shrink-0 sm:flex-wrap sm:items-center sm:justify-center"
