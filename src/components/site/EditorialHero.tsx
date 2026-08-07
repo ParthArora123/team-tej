@@ -98,7 +98,7 @@ export function EditorialHero({
               </span>
               <div className="min-w-0">
                 <p className="ed-eyebrow text-[7px] sm:text-[9px] text-muted-foreground">{c.k}</p>
-                <h2 className="font-display text-[10.5px] sm:text-[14px] font-bold leading-tight text-foreground break-words hyphens-auto">{c.t}</h2>
+                <h2 className="font-display text-[9px] sm:text-[14px] font-bold leading-tight text-foreground break-words hyphens-auto">{c.t}</h2>
               </div>
             </div>
             <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[9.5px] sm:text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
@@ -148,7 +148,7 @@ export function EditorialHero({
               </span>
               <div className="min-w-0">
                 <p className="ed-eyebrow text-[7px] sm:text-[9px] text-muted-foreground">{c.k}</p>
-                <h2 className="font-display text-[10.5px] sm:text-[14px] font-bold leading-tight text-foreground break-words hyphens-auto">{c.t}</h2>
+                <h2 className="font-display text-[9px] sm:text-[14px] font-bold leading-tight text-foreground break-words hyphens-auto">{c.t}</h2>
               </div>
             </div>
             <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[9.5px] sm:text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
