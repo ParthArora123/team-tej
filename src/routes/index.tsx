@@ -701,7 +701,18 @@ function Index() {
             </div>
           ) : (
             <LazySection minHeight={520}>
-              <WorkshopDeck workshops={workshops} />
+              <WorkshopDeck workshops={workshops.slice(0, 4)} />
+              {workshops.length > 4 && (
+                <div className="mt-8 flex justify-center">
+                  <Link
+                    to="/workshops"
+                    className="group inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold transition-all hover:bg-primary hover:text-primary-foreground hover:gap-3"
+                  >
+                    View all workshops
+                    <ArrowUpRight size={16} className="transition-transform group-hover:rotate-45" />
+                  </Link>
+                </div>
+              )}
             </LazySection>
           )}
         </section>
