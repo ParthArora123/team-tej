@@ -2,18 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
   Compass,
+  Eye,
   Flame,
   GraduationCap,
+  Heart,
   Instagram,
   Music4,
   Play,
+  Rocket,
   Sparkles,
   Target,
   Youtube,
 } from "lucide-react";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
-
-
 
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
@@ -57,26 +58,95 @@ export function EditorialHero({
   const [open, setOpen] = useState(false);
   const hasMore = Boolean(biography || achievements.length);
 
-  const columns = [
-    {
-      k: "About",
-      t: "Visionary Choreographer",
-      v: "A celebrated choreographer, dance educator, entrepreneur and founder of DanceFit Live — known for high-energy choreography and a teaching style that makes dance accessible, joyful and inclusive for every age and skill level, across Bollywood, Hip-Hop, Salsa and Contemporary.",
-      Icon: Flame,
-    },
-    {
-      k: "About",
-      t: "Inspiring Mentor",
-      v: "Thousands of students trained, hundreds of masterclasses delivered, and collaborations with leading Bollywood and music-industry professionals — simplifying complex choreography into easy-to-follow steps that build confidence while keeping the joy alive.",
-      Icon: Compass,
-    },
-    {
-      k: "About",
-      t: "Founder of DanceFit Live",
-      v: "Dance is a powerful medium for self-expression, confidence, fitness and personal transformation. Through DanceFit Live, workshops and digital platforms, Tejas keeps inspiring a global dance community and making quality dance education accessible to everyone.",
-      Icon: Target,
-    },
-  ];
+  const heading = `Meet ${name}`;
+
+  const aboutCards = (
+    <div className="flex w-full min-w-0 flex-col gap-4">
+      {[
+        {
+          k: "About",
+          t: "Visionary Choreographer",
+          v: "A celebrated choreographer, dance educator, entrepreneur and founder of DanceFit Live — known for high-energy choreography and a teaching style that makes dance accessible, joyful and inclusive for every age and skill level, across Bollywood, Hip-Hop, Salsa and Contemporary.",
+          Icon: Flame,
+        },
+        {
+          k: "About",
+          t: "Inspiring Mentor",
+          v: "Thousands of students trained, hundreds of masterclasses delivered, and collaborations with leading Bollywood and music-industry professionals — simplifying complex choreography into easy-to-follow steps that build confidence while keeping the joy alive.",
+          Icon: Compass,
+        },
+        {
+          k: "About",
+          t: "Founder of DanceFit Live",
+          v: "Dance is a powerful medium for self-expression, confidence, fitness and personal transformation. Through DanceFit Live, workshops and digital platforms, Tejas keeps inspiring a global dance community and making quality dance education accessible to everyone.",
+          Icon: Target,
+        },
+      ].map((c, i) => (
+        <article
+          key={c.t}
+          className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+          style={{ animationDelay: `${260 + i * 110}ms` }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+              <c.Icon size={16} />
+            </span>
+            <div className="min-w-0">
+              <p className="ed-eyebrow">{c.k}</p>
+              <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+            </div>
+          </div>
+          <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            {c.v}
+          </p>
+        </article>
+      ))}
+    </div>
+  );
+
+  const bvmCards = (
+    <div className="flex w-full min-w-0 flex-col gap-4">
+      {[
+        {
+          k: "Philosophy",
+          t: "Belief",
+          v: belief,
+          Icon: Heart,
+        },
+        {
+          k: "Purpose",
+          t: "Vision",
+          v: vision,
+          Icon: Eye,
+        },
+        {
+          k: "Mission",
+          t: "Mission",
+          v: mission,
+          Icon: Rocket,
+        },
+      ].map((c, i) => (
+        <article
+          key={c.t}
+          className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+          style={{ animationDelay: `${260 + i * 110}ms` }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+              <c.Icon size={16} />
+            </span>
+            <div className="min-w-0">
+              <p className="ed-eyebrow">{c.k}</p>
+              <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+            </div>
+          </div>
+          <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            {c.v}
+          </p>
+        </article>
+      ))}
+    </div>
+  );
 
   const stat = (needle: string) => {
     const b = badges?.find((x) => x.label.toLowerCase().includes(needle));
@@ -110,38 +180,26 @@ export function EditorialHero({
     },
   ];
 
-  const cards = (
-    <div className="flex w-full min-w-0 flex-col gap-4">
-      {columns.map((c, i) => (
-        <article
-          key={c.t}
-          className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
-          style={{ animationDelay: `${260 + i * 110}ms` }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
-              <c.Icon size={16} />
-            </span>
-            <div className="min-w-0">
-              <p className="ed-eyebrow">{c.k}</p>
-              <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
-            </div>
-          </div>
-          <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
-            {c.v}
-          </p>
-        </article>
-      ))}
-    </div>
-  );
-
   return (
     <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-10 lg:pt-24 lg:pb-16">
-      <div className="mx-auto grid w-full max-w-[92rem] items-start gap-8 lg:grid-cols-[minmax(280px,21rem)_1fr] lg:gap-12">
-        {/* LEFT — About: Belief · Vision · Mission (below hero on mobile via order) */}
-        <aside className="order-2 lg:order-1 lg:sticky lg:top-24">{cards}</aside>
+      <div className="mx-auto grid w-full max-w-[92rem] items-start gap-8 lg:grid-cols-[minmax(280px,21rem)_1fr_minmax(280px,21rem)] lg:gap-12">
+        {/* Heading — centered above the image and both side card sections */}
+        <div className="col-span-full text-center">
+          <h1 className="ed-rise cine-title font-display text-[2rem] leading-[0.94] sm:text-5xl lg:text-6xl xl:text-[4.2rem] font-bold tracking-[-0.035em]">
+            {heading}
+          </h1>
+          <p
+            className="ed-rise mx-auto mt-3 max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
+            style={{ animationDelay: "190ms" }}
+          >
+            Transforming passion into performance.
+          </p>
+        </div>
 
-        {/* RIGHT — portrait with overlay headline, CTAs, role cards */}
+        {/* LEFT — Belief · Vision · Mission */}
+        <aside className="order-2 lg:order-1 lg:sticky lg:top-24">{bvmCards}</aside>
+
+        {/* CENTER — portrait, CTAs, role cards */}
         <div className="order-1 flex min-w-0 flex-col justify-center lg:order-2">
           <div className="relative z-30 flex flex-col">
             <div className="ed-float relative isolate z-30">
@@ -151,21 +209,6 @@ export function EditorialHero({
                 clips={clips}
                 alt={name}
                 onReady={onReady}
-                overlay={
-                  <div className="pointer-events-none absolute inset-x-0 top-0 z-20 px-5 pt-8 text-center sm:px-8 sm:pt-12">
-                    <h1
-                      className="ed-rise cine-title font-display text-[2.4rem] leading-[0.94] sm:text-5xl lg:text-6xl xl:text-[4.8rem] font-bold tracking-[-0.035em] [text-shadow:0_6px_40px_oklch(0_0_0/60%)]"
-                    >
-                      {name.toUpperCase()}
-                    </h1>
-                    <p
-                      className="ed-rise mx-auto mt-3 max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85 [text-shadow:0_2px_18px_oklch(0_0_0/65%)]"
-                      style={{ animationDelay: "190ms" }}
-                    >
-                      Transforming passion into performance.
-                    </p>
-                  </div>
-                }
               />
             </div>
           </div>
@@ -230,7 +273,6 @@ export function EditorialHero({
             ))}
           </div>
 
-
           {(hasMore || socials.instagram || socials.youtube) && (
             <div className="ed-rise mt-6 flex items-center justify-center gap-2" style={{ animationDelay: "620ms" }}>
               {hasMore && (
@@ -256,10 +298,10 @@ export function EditorialHero({
             </div>
           )}
         </div>
+
+        {/* RIGHT — Visionary Choreographer · Inspiring Mentor · Founder of DanceFit Live */}
+        <aside className="order-3 lg:order-3 lg:sticky lg:top-24">{aboutCards}</aside>
       </div>
-
-
-
 
       {open && (
         <div className="modal-fade fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm" onClick={() => setOpen(false)}>
@@ -313,8 +355,6 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
     setLoaded(false);
     setFailed(false);
   }, [image]);
-
-
 
   useEffect(() => {
     if (clips.length < 2) return;
@@ -426,7 +466,6 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
             className="ed-kenburns absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
             style={{ opacity: loaded && !failed ? 1 : 0 }}
             ref={imgRef}
-
             onLoad={() => {
               setLoaded(true);
               onReady?.();
@@ -438,7 +477,6 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
             draggable={false}
           />
         )}
-
       </div>
       {/* cinematic vignette + top light falloff */}
       <div
@@ -460,7 +498,5 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
         </>
       ) : null}
     </div>
-
   );
-
 }
