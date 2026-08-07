@@ -394,7 +394,7 @@ function Index() {
   // Safety net: hero images cached before hydration never fire onLoad, so
   // ensure heroReady flips true shortly after mount even if the media
   // callback is missed. Without this, deferred sections (celebrities,
-  // brands, gallery, choreographies, founder, etc.) never load.
+  // gallery, choreographies, founder, etc.) never load.
   useEffect(() => {
     const t = setTimeout(() => setHeroReady(true), 400);
     return () => clearTimeout(t);
