@@ -58,7 +58,7 @@ export function EditorialHero({
   const [open, setOpen] = useState(false);
   const hasMore = Boolean(biography || achievements.length);
 
-  const heading = `Meet ${name}`;
+  
 
   const aboutCards = (
     <div className="flex w-full min-w-0 flex-col gap-4">
