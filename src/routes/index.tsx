@@ -97,7 +97,7 @@ const preloadLinkForHeroMedia = (src?: string | null) => {
   if (!src) return null;
   // Never preload video — hero clips load only once they become active.
   if (isVideoUrl(src)) return null;
-  return { rel: "preload", as: "image", href: src };
+  return { rel: "preload", as: "image", href: src, fetchPriority: "high" };
 };
 
 
