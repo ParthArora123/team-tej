@@ -230,21 +230,16 @@ export function EditorialHero({
           />
 
           {/* LEFT — floating Belief · Vision · Mission cards */}
-          <aside className="pointer-events-none absolute left-2 sm:left-4 lg:left-6 xl:left-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[9.5rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2.5 sm:gap-3 lg:flex">
-            <div className="pointer-events-auto">{renderBvmCards()}</div>
+          <aside className="pointer-events-none absolute left-1.5 sm:left-4 lg:left-6 xl:left-8 top-2 sm:top-4 lg:top-5 xl:top-6 z-40 flex w-[7.25rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2 sm:gap-3">
+            <div className="pointer-events-auto">{renderBvmCards(cardWrap, "h-[5.75rem] sm:h-[8rem]")}</div>
           </aside>
 
           {/* RIGHT — floating About cards */}
-          <aside className="pointer-events-none absolute right-2 sm:right-4 lg:right-6 xl:right-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[9.5rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2.5 sm:gap-3 lg:flex">
-            <div className="pointer-events-auto">{renderAboutCards()}</div>
+          <aside className="pointer-events-none absolute right-1.5 sm:right-4 lg:right-6 xl:right-8 top-2 sm:top-4 lg:top-5 xl:top-6 z-40 flex w-[7.25rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2 sm:gap-3">
+            <div className="pointer-events-auto">{renderAboutCards(cardWrap, "h-[5.75rem] sm:h-[8rem]")}</div>
           </aside>
         </div>
 
-        {/* Mobile / tablet cards below the image — stacked, full width, even spacing */}
-        <div className="mt-6 grid gap-4 lg:hidden">
-          {renderBvmCards("grid w-full min-w-0 grid-cols-1 gap-4 [&>div]:animate-none [&>div]:transform-none [&_.ed-scroll]:overflow-visible [&_.ed-scroll]:flex-none [&_article]:h-auto", "h-auto")}
-          {renderAboutCards("grid w-full min-w-0 grid-cols-1 gap-4 [&>div]:animate-none [&>div]:transform-none [&_.ed-scroll]:overflow-visible [&_.ed-scroll]:flex-none [&_article]:h-auto", "h-auto")}
-        </div>
 
 
         <div
