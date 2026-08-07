@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { cachedCall } from "@/lib/public-data-cache";
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
-import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
+import { listPublicCelebrities, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
 import { listDanceStyles, getSiteContent } from "@/lib/site-content.functions";
 import { listChoreographies } from "@/lib/choreographies.functions";
