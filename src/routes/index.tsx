@@ -1394,22 +1394,8 @@ function FounderSection({ founder }: { founder: any | null }) {
                 </div>
               )}
 
-              {(vision || mission) && (
-                <div className="mt-6 grid sm:grid-cols-2 gap-4">
-                  {vision && (
-                    <div className="ed-card p-5">
-                      <p className="text-xs uppercase tracking-widest text-primary">Vision</p>
-                      <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{vision}</p>
-                    </div>
-                  )}
-                  {mission && (
-                    <div className="ed-card p-5">
-                      <p className="text-xs uppercase tracking-widest text-primary">Mission</p>
-                      <p className="mt-2 text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{mission}</p>
-                    </div>
-                  )}
-                </div>
-              )}
+
+
 
 
           </div>
