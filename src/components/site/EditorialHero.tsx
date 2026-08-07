@@ -116,38 +116,42 @@ export function EditorialHero({
           t: "Belief",
           v: belief,
           Icon: Heart,
+          float: "float-1",
         },
         {
           k: "Purpose",
           t: "Vision",
           v: vision,
           Icon: Eye,
+          float: "float-2",
         },
         {
           k: "Mission",
           t: "Mission",
           v: mission,
           Icon: Rocket,
+          float: "float-3",
         },
       ].map((c, i) => (
-        <article
-          key={c.t}
-          className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
-          style={{ animationDelay: `${260 + i * 110}ms` }}
-        >
-          <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
-              <c.Icon size={16} />
-            </span>
-            <div className="min-w-0">
-              <p className="ed-eyebrow">{c.k}</p>
-              <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+        <div key={c.t} className={c.float}>
+          <article
+            className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+            style={{ animationDelay: `${260 + i * 110}ms` }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={16} />
+              </span>
+              <div className="min-w-0">
+                <p className="ed-eyebrow">{c.k}</p>
+                <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+              </div>
             </div>
-          </div>
-          <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
-            {c.v}
-          </p>
-        </article>
+            <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
+              {c.v}
+            </p>
+          </article>
+        </div>
       ))}
     </div>
   );
