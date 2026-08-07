@@ -72,17 +72,8 @@ export function EditorialHero({
             <p className="ed-rise mt-2 text-sm sm:text-base text-muted-foreground" style={{ animationDelay: "150ms" }}>
               Transforming passion into performance.
             </p>
-          </header>
 
-          <div className="relative z-30 mt-4 flex flex-col lg:mt-6">
-            <div className="relative isolate z-30">
-
-              <div aria-hidden className="cine-spot" />
-              <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
-            </div>
-
-            <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3 lg:mt-6" style={{ animationDelay: "520ms" }}>
-
+            <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
               <button
                 type="button"
                 onClick={onExplore}
@@ -99,6 +90,14 @@ export function EditorialHero({
               >
                 <Play size={13} /> Watch Performances
               </button>
+            </div>
+          </header>
+
+          <div className="relative z-30 mt-4 flex flex-col lg:mt-6">
+            <div className="relative isolate z-30">
+
+              <div aria-hidden className="cine-spot" />
+              <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
             </div>
           </div>
         </div>
