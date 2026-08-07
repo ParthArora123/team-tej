@@ -9,19 +9,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-[0_2px_8px_-2px_color-mix(in_oklab,var(--accent-gold)_20%,transparent)] hover:bg-primary/90 hover:shadow-[0_10px_30px_-10px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]",
+        default: "btn-premium-black rounded-xl",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
           "border border-input bg-background/40 backdrop-blur-md shadow-sm hover:bg-accent/60 hover:text-accent-foreground hover:border-primary/40",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+        secondary: "btn-premium-black rounded-xl",
         ghost: "hover:bg-accent/40 hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        premium:
-          "text-primary-foreground shine-sweep bg-[image:var(--gradient-primary)] shadow-[var(--shadow-glow)] hover:brightness-110 hover:-translate-y-0.5",
-        gold:
-          "text-black shine-sweep bg-[image:linear-gradient(135deg,var(--accent-gold),oklch(0.85_0.12_75))] shadow-[var(--shadow-gold)] hover:brightness-110 hover:-translate-y-0.5",
-        glass:
-          "text-foreground border border-white/15 bg-white/5 backdrop-blur-xl hover:bg-white/10 hover:border-white/25",
+        premium: "btn-premium-black shine-sweep rounded-xl",
+        gold: "btn-premium-black shine-sweep rounded-xl",
+        glass: "btn-premium-black rounded-xl",
       },
       size: {
         default: "h-9 px-4 py-2",
