@@ -1191,7 +1191,6 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
 
 
 function FounderSection({ founder }: { founder: any | null }) {
-  const [open, setOpen] = useState(false);
   const name = founder?.name || "Tejas D Dhoke";
   const title = founder?.title || "Founder";
   const intro = founder?.intro || "";
@@ -1200,9 +1199,6 @@ function FounderSection({ founder }: { founder: any | null }) {
   const achievements: string[] = Array.isArray(founder?.achievements) ? founder.achievements : [];
   const socials = founder?.socials || {};
 
-
-
-  const hasMore = Boolean(biography || achievements.length);
 
 
 
@@ -1266,22 +1262,26 @@ function FounderSection({ founder }: { founder: any | null }) {
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
           </div>
 
+          {biography && (
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary mb-2">About</p>
+              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{biography}</p>
+            </div>
+          )}
 
-
-
-
-
-
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            {hasMore && (
-              <button
-                onClick={() => setOpen(true)}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border hover:border-primary hover:text-primary font-medium transition"
-              >
-                Know more <ArrowUpRight size={18} />
-              </button>
-            )}
-          </div>
+          {achievements.length > 0 && (
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary mb-3">Dance journey & achievements</p>
+              <ul className="grid sm:grid-cols-2 gap-2">
+                {achievements.map((a, i) => (
+                  <li key={i} className="flex gap-2 text-sm text-muted-foreground">
+                    <Sparkles size={14} className="text-primary shrink-0 mt-0.5" />
+                    <span>{a}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Socials stay on homepage */}
           <div className="flex items-center gap-2 pt-1">
@@ -1300,57 +1300,6 @@ function FounderSection({ founder }: { founder: any | null }) {
           </div>
         </div>
       </div>
-
-      {/* Full biography modal */}
-      {open && (
-        <div
-          className="modal-fade fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="modal-pop relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl border border-border bg-card p-8 lg:p-10 shadow-2xl"
-          >
-
-              <button
-                onClick={() => setOpen(false)}
-                className="absolute top-4 right-4 h-9 w-9 grid place-items-center rounded-full border border-border hover:border-primary hover:text-primary transition"
-                aria-label="Close"
-              >
-                ✕
-              </button>
-
-              <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
-              <h3 className="mt-2 font-display text-3xl lg:text-4xl font-bold">{name}</h3>
-
-              {biography && (
-                <div className="mt-6">
-                  <p className="text-xs uppercase tracking-widest text-primary mb-2">About</p>
-                  <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{biography}</p>
-                </div>
-              )}
-
-              {achievements.length > 0 && (
-                <div className="mt-6">
-                  <p className="text-xs uppercase tracking-widest text-primary mb-3">Dance journey & achievements</p>
-                  <ul className="grid sm:grid-cols-2 gap-2">
-                    {achievements.map((a, i) => (
-                      <li key={i} className="flex gap-2 text-sm text-muted-foreground">
-                        <Sparkles size={14} className="text-primary shrink-0 mt-0.5" />
-                        <span>{a}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-
-
-
-
-          </div>
-        </div>
-      )}
 
     </section>
   );
