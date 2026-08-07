@@ -437,7 +437,7 @@ function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: 
   return (
     <div
       ref={frameRef}
-      className={["ed-rise relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[4/5]", className].filter(Boolean).join(" ")}
+      className={["ed-rise relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[3/2]", className].filter(Boolean).join(" ")}
       style={{ animationDelay: "180ms" }}
     >
       {/* Current media used as a blurred edge-fill so the hero never shows a
