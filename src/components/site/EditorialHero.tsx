@@ -58,7 +58,7 @@ export function EditorialHero({
   const [open, setOpen] = useState(false);
   const hasMore = Boolean(biography || achievements.length);
 
-  const heading = `Meet ${name}`;
+  
 
   const aboutCards = (
     <div className="flex w-full min-w-0 flex-col gap-4">
@@ -87,19 +87,19 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+            className="ed-rise ed-card group/card flex h-[10.5rem] flex-col overflow-hidden rounded-[18px] p-4 transition-transform duration-300 hover:-translate-y-1"
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
-            <div className="flex items-center gap-3">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
-                <c.Icon size={16} />
+            <div className="flex shrink-0 items-center gap-2.5 border-b border-border/40 pb-2.5">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[12px] border border-border/60 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={14} />
               </span>
               <div className="min-w-0">
-                <p className="ed-eyebrow">{c.k}</p>
-                <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+                <p className="ed-eyebrow text-[9px]">{c.k}</p>
+                <h2 className="font-display text-[15px] font-bold leading-tight">{c.t}</h2>
               </div>
             </div>
-            <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="ed-scroll mt-2.5 min-h-0 flex-1 overflow-y-auto pr-2 text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
               {c.v}
             </p>
           </article>
@@ -107,6 +107,7 @@ export function EditorialHero({
       ))}
     </div>
   );
+
 
   const bvmCards = (
     <div className="flex w-full min-w-0 flex-col gap-4">
@@ -135,22 +136,23 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise ed-card group/card flex min-h-[13.5rem] flex-col p-5 lg:p-6 transition-transform duration-300 hover:-translate-y-1"
+            className="ed-rise ed-card group/card flex h-[10.5rem] flex-col overflow-hidden rounded-[18px] p-4 transition-transform duration-300 hover:-translate-y-1"
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
-            <div className="flex items-center gap-3">
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/70 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
-                <c.Icon size={16} />
+            <div className="flex shrink-0 items-center gap-2.5 border-b border-border/40 pb-2.5">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[12px] border border-border/60 bg-surface/60 text-primary transition-transform duration-300 group-hover/card:scale-110">
+                <c.Icon size={14} />
               </span>
               <div className="min-w-0">
-                <p className="ed-eyebrow">{c.k}</p>
-                <h2 className="font-display text-lg lg:text-xl font-bold leading-tight">{c.t}</h2>
+                <p className="ed-eyebrow text-[9px]">{c.k}</p>
+                <h2 className="font-display text-[15px] font-bold leading-tight">{c.t}</h2>
               </div>
             </div>
-            <p className="ed-scroll mt-3 max-h-[9.5rem] flex-1 overflow-y-auto pr-2 text-[13.5px] leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="ed-scroll mt-2.5 min-h-0 flex-1 overflow-y-auto pr-2 text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
               {c.v}
             </p>
           </article>
+
         </div>
       ))}
     </div>
@@ -190,14 +192,10 @@ export function EditorialHero({
 
   return (
     <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-10 lg:pt-24 lg:pb-16">
-      <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 lg:grid-cols-[minmax(190px,15rem)_1fr_minmax(190px,15rem)] xl:grid-cols-[minmax(220px,17rem)_1fr_minmax(220px,17rem)] lg:gap-4 xl:gap-6">
-        {/* Heading — centered above the image and both side card sections */}
-        <div className="col-span-full mb-2 text-center">
-          <h1 className="ed-rise cine-title font-display text-[2rem] leading-[0.94] sm:text-5xl lg:text-6xl xl:text-[4.2rem] font-bold tracking-[-0.035em]">
-            {heading}
-          </h1>
+      <div className="mx-auto grid w-full max-w-[96rem] items-start gap-6 lg:grid-cols-[minmax(160px,12.5rem)_1fr_minmax(160px,12.5rem)] xl:grid-cols-[minmax(180px,13.5rem)_1fr_minmax(180px,13.5rem)] lg:gap-4 xl:gap-6">
+        <div className="col-span-full mb-1 text-center">
           <p
-            className="ed-rise mx-auto mt-3 max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
+            className="ed-rise mx-auto max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
             style={{ animationDelay: "190ms" }}
           >
             Transforming passion into performance.
@@ -206,8 +204,9 @@ export function EditorialHero({
 
         {/* LEFT — Belief · Vision · Mission */}
         <aside className="order-2 lg:order-1 lg:sticky lg:top-24 lg:z-40">
-          <div className="lg:pr-2 lg:-mr-6 xl:-mr-14">{bvmCards}</div>
+          <div className="lg:pr-2 lg:-mr-16 xl:-mr-24">{bvmCards}</div>
         </aside>
+
 
         {/* CENTER — portrait, CTAs, role cards */}
         <div className="order-1 flex min-w-0 flex-col justify-center lg:order-2">
@@ -315,7 +314,7 @@ export function EditorialHero({
 
         {/* RIGHT — Visionary Choreographer · Inspiring Mentor · Founder of DanceFit Live */}
         <aside className="order-3 lg:order-3 lg:sticky lg:top-24 lg:z-40">
-          <div className="lg:pl-2 lg:-ml-6 xl:-ml-14">{aboutCards}</div>
+          <div className="lg:pl-2 lg:-ml-16 xl:-ml-24">{aboutCards}</div>
         </aside>
       </div>
 
@@ -425,7 +424,7 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[46rem] lg:aspect-[4/5] lg:max-w-[64rem] lg:max-h-[88svh] xl:max-w-[70rem]"
+      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[36rem] sm:max-w-[50rem] lg:aspect-[4/5] lg:max-w-[76rem] lg:max-h-[94svh] xl:max-w-[84rem]"
       style={{ animationDelay: "180ms" }}
     >
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
