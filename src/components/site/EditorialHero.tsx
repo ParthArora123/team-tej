@@ -98,7 +98,7 @@ export function EditorialHero({
               </span>
               <div className="min-w-0">
                 <p className="ed-eyebrow text-[7px] sm:text-[9px] text-muted-foreground">{c.k}</p>
-                <h2 className="font-display text-[10.5px] sm:text-[14px] font-bold leading-tight text-foreground">{c.t}</h2>
+                <h2 className="font-display text-[10.5px] sm:text-[14px] font-bold leading-tight text-foreground break-words hyphens-auto">{c.t}</h2>
               </div>
             </div>
             <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[9.5px] sm:text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
@@ -148,7 +148,7 @@ export function EditorialHero({
               </span>
               <div className="min-w-0">
                 <p className="ed-eyebrow text-[7px] sm:text-[9px] text-muted-foreground">{c.k}</p>
-                <h2 className="font-display text-[10.5px] sm:text-[14px] font-bold leading-tight text-foreground">{c.t}</h2>
+                <h2 className="font-display text-[10.5px] sm:text-[14px] font-bold leading-tight text-foreground break-words hyphens-auto">{c.t}</h2>
               </div>
             </div>
             <p className="ed-scroll mt-2 min-h-0 flex-1 overflow-y-auto pr-1 text-[9.5px] sm:text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
@@ -230,12 +230,12 @@ export function EditorialHero({
           />
 
           {/* LEFT — floating Belief · Vision · Mission cards */}
-          <aside className="pointer-events-none absolute left-1.5 sm:left-4 lg:left-6 xl:left-8 top-2 sm:top-4 lg:top-5 xl:top-6 z-40 flex w-[7.25rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2 sm:gap-3">
+          <aside className="pointer-events-none absolute left-1.5 sm:left-4 lg:left-6 xl:left-8 top-2 sm:top-4 lg:top-5 xl:top-6 z-40 flex w-[7.75rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2 sm:gap-3">
             <div className="pointer-events-auto">{renderBvmCards(cardWrap, "h-[5.75rem] sm:h-[8rem]")}</div>
           </aside>
 
           {/* RIGHT — floating About cards */}
-          <aside className="pointer-events-none absolute right-1.5 sm:right-4 lg:right-6 xl:right-8 top-2 sm:top-4 lg:top-5 xl:top-6 z-40 flex w-[7.25rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2 sm:gap-3">
+          <aside className="pointer-events-none absolute right-1.5 sm:right-4 lg:right-6 xl:right-8 top-2 sm:top-4 lg:top-5 xl:top-6 z-40 flex w-[7.75rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2 sm:gap-3">
             <div className="pointer-events-auto">{renderAboutCards(cardWrap, "h-[5.75rem] sm:h-[8rem]")}</div>
           </aside>
         </div>
