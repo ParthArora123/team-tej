@@ -1436,7 +1436,7 @@ function CelebritiesTab() {
           <DialogHeader><DialogTitle>{edit?.id ? "Edit" : "Add"} celebrity</DialogTitle></DialogHeader>
           {edit && (
             <form onSubmit={submit} className="space-y-3">
-              <input required placeholder="Name" value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
+              <input placeholder="Name" value={edit.name} onChange={(e) => setEdit({ ...edit, name: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
               <input placeholder="Role / description" value={edit.role ?? ""} onChange={(e) => setEdit({ ...edit, role: e.target.value })} className="w-full px-3 py-2 rounded-lg bg-muted" />
 
               <div>
