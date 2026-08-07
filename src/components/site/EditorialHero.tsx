@@ -438,7 +438,18 @@ function HeroFrame({ image, clips, alt, onReady, overlay }: { image: string; cli
             "radial-gradient(ellipse 80% 70% at 50% 40%, transparent 55%, oklch(0 0 0 / 45%) 100%)",
         }}
       />
+      {overlay ? (
+        <>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
+            style={{ background: "linear-gradient(to top, oklch(0 0 0 / 62%), transparent)" }}
+          />
+          {overlay}
+        </>
+      ) : null}
     </div>
+
   );
 
 }
