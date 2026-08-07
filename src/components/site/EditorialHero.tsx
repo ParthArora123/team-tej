@@ -432,15 +432,8 @@ function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: 
       className={["ed-rise relative w-full aspect-[2/3]", className].filter(Boolean).join(" ")}
       style={{ animationDelay: "180ms" }}
     >
-      {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
-          painted before the real portrait arrives. */}
-      <img
-        src={HERO_LQIP}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
-        draggable={false}
-      />
+      {/* Subtle warm background behind the portrait to blend with the page. */}
+      <div className="absolute inset-0 bg-[#F7F5F0]" aria-hidden />
       <div
         ref={mediaRef}
         className="absolute inset-0 will-change-transform"
