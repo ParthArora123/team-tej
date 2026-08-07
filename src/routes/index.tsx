@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { cachedCall } from "@/lib/public-data-cache";
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
-import { listPublicCelebrities, listPublicGlobe } from "@/lib/content.functions";
+import { listPublicCelebrities, listPublicBrands, listPublicGlobe } from "@/lib/content.functions";
 import { listHeroSlides, getFeaturedExperience, listGalleryItems } from "@/lib/cms.functions";
 import { listDanceStyles, getSiteContent } from "@/lib/site-content.functions";
 import { listChoreographies } from "@/lib/choreographies.functions";
@@ -12,7 +12,9 @@ import { useServerFn } from "@tanstack/react-start";
 
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
+import heroImg from "@/assets/tejasdhoke.jpg";
 import uploadedHeroImg from "@/assets/tejasdhoke-hero.webp.asset.json";
+import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
 import { MagneticButton } from "@/components/site/MagneticButton";
@@ -299,6 +301,12 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const stats: { value: number; suffix: string; label: string }[] = [
+  { value: 100, suffix: "k+", label: "Dancers Trained" },
+  { value: 300, suffix: "+", label: "Live Performances" },
+  { value: 1000, suffix: "+", label: "Workshops" },
+  { value: 16, suffix: "+", label: "Years of Experience" },
+];
 
 type Choreo = {
   id: string;
@@ -332,6 +340,7 @@ function Index() {
   // tasks + video re-mount flicker on mid/low-end phones).
   const [deferred, setDeferred] = useState<{
     celebrities: any[];
+    brands: any[];
     globe: any[];
     gallery: any[];
     danceStyles: any[] | null;
@@ -342,6 +351,7 @@ function Index() {
     sigPrograms: HomeCard[];
   }>({
     celebrities: [],
+    brands: [],
     globe: [],
     gallery: [],
     danceStyles: null,
@@ -353,6 +363,7 @@ function Index() {
   });
   const {
     celebrities,
+    brands,
     globe,
     gallery,
     danceStyles,
@@ -394,7 +405,7 @@ function Index() {
   // Safety net: hero images cached before hydration never fire onLoad, so
   // ensure heroReady flips true shortly after mount even if the media
   // callback is missed. Without this, deferred sections (celebrities,
-  // gallery, choreographies, founder, etc.) never load.
+  // brands, gallery, choreographies, founder, etc.) never load.
   useEffect(() => {
     const t = setTimeout(() => setHeroReady(true), 400);
     return () => clearTimeout(t);
@@ -447,14 +458,7 @@ function Index() {
     // with no idle-callback wait at all, so they're never the reason a
     // visitor sees blank sections.
     cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
-      .then((rows: any) => {
-        const sorted = (rows ?? []).sort((a: any, b: any) => {
-          const ad = a?.event_date ? new Date(a.event_date).getTime() : Infinity;
-          const bd = b?.event_date ? new Date(b.event_date).getTime() : Infinity;
-          return ad - bd;
-        });
-        setWorkshops(sorted);
-      })
+      .then((rows: any) => setWorkshops((rows ?? []).slice(0, 6)))
       .catch(() => setWorkshops([]))
       .finally(() => setWorkshopsLoaded(true));
     cachedCall("featuredExperience", () => getFeaturedExperience()).then((r: any) => setFeatured(r)).catch(() => setFeatured(null));
@@ -485,6 +489,7 @@ function Index() {
           .catch(() => commit({ [field]: empty }));
 
       load("celebrities", "celebrities", () => listPublicCelebrities(), []);
+      load("brands", "brands", () => listPublicBrands(), []);
       load("globe", "globe", () => listPublicGlobe(), []);
       load("gallery", "gallery", () => listGalleryItems(), []);
       load("danceStyles", "danceStyles", () => listDanceStyles(), []);
@@ -618,95 +623,45 @@ function Index() {
           onExplore={() => goToHomeSection("workshops", "/workshops")}
           onWatch={() => goToHomeSection("showcase", "/#showcase")}
         />
+        <FounderSection founder={founder} />
+        <CinematicShowreel choreos={choreos} workshops={workshops} />
       </Chapter>
 
-      {/* SCREEN 2 — Viral Choreographies + Register & Book Your Experience */}
+      {/* SCREEN 2 — Register & Book Your Experience */}
       <Chapter index={2} total={5} kicker="Start Moving — Book Your Experience">
-        <CinematicShowreel choreos={choreos} workshops={workshops} />
-
-        {/* World Tour — tour destinations from globe data */}
-        {(() => {
-          const conducted = globe.filter((g) => g.status === "conducted");
-          const upcoming = globe.filter((g) => g.status === "upcoming");
-          const allCities = [...new Set([...conducted, ...upcoming].map((g) => g.city).filter(Boolean))];
-          const fallbackCities = ["Mumbai", "Delhi", "Bengaluru", "Dubai", "London", "New York", "Singapore"];
-          const cities = allCities.length > 0 ? allCities : fallbackCities;
-
-          return (
-            <section id="world-tour" className="max-w-7xl mx-auto px-6 lg:px-10 pt-4 pb-8 lg:pt-6 lg:pb-12">
-              <div className="text-center">
-                <p className="text-xs uppercase tracking-widest text-primary">World Tour</p>
-                <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-                  Carrying our story <span className="italic font-light">across the world.</span>
-                </h2>
-                <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-                  Tejas D Dhoke has performed and taught on stages across continents.
-                </p>
-              </div>
-              <div className="mt-6 flex flex-wrap justify-center gap-3">
-                {cities.map((city, i) => (
-                  <span
-                    key={city}
-                    style={revealDelay(i)}
-                    className="reveal-up inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-background/80 border border-border hover:border-primary/40 hover:text-primary transition-colors"
-                  >
-                    <MapPin size={14} className="text-primary" />
-                    {city}
-                  </span>
-                ))}
-              </div>
-            </section>
-          );
-        })()}
-
-        {/* Upcoming Workshops — merged into the same cinematic section */}
-        <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-2 pb-10 lg:pt-4 lg:pb-16">
-          <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
-                <Calendar size={12} /> Start Moving
-              </p>
-              <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-                Upcoming <span className="italic font-light">Workshops.</span>
-              </h2>
-              <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
-                Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
-              </p>
-            </div>
-            <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
-              See all workshops <ArrowUpRight size={14} />
-            </Link>
+      <section id="workshops" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+              <Calendar size={12} /> Start Moving
+            </p>
+            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
+              Book your <span className="italic font-light">experience.</span>
+            </h2>
+            <p className="mt-3 hidden sm:block text-muted-foreground max-w-xl">
+              Live intensives with Tejas D Dhoke — seats fill fast. Grab yours before they're gone.
+            </p>
           </div>
+          <Link to="/workshops" className="inline-flex items-center gap-2 text-sm text-primary hover:gap-3 transition-all">
+            See all workshops <ArrowUpRight size={14} />
+          </Link>
+        </div>
 
-          {workshops.length === 0 && !workshopsLoaded ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
-            </div>
-          ) : workshops.length === 0 ? (
-            <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
-              <p className="font-display text-2xl">Coming Soon</p>
-              <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
-            </div>
-          ) : (
-            <LazySection minHeight={520}>
-              <WorkshopDeck workshops={workshops.slice(0, 4)} />
-              {workshops.length > 4 && (
-                <div className="mt-8 flex justify-center">
-                  <Link
-                    to="/workshops"
-                    className="group inline-flex items-center gap-2 rounded-full border border-border bg-background px-6 py-3 text-sm font-semibold transition-all hover:bg-primary hover:text-primary-foreground hover:gap-3"
-                  >
-                    View all workshops
-                    <ArrowUpRight size={16} className="transition-transform group-hover:rotate-45" />
-                  </Link>
-                </div>
-              )}
-            </LazySection>
-          )}
-        </section>
-
-
-
+        {workshops.length === 0 && !workshopsLoaded ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
+          </div>
+        ) : workshops.length === 0 ? (
+          <div className="border border-dashed border-border rounded-2xl py-16 text-center text-muted-foreground">
+            <p className="font-display text-2xl">Coming Soon</p>
+            <p className="mt-2 text-sm">New workshops drop every month — check back soon.</p>
+          </div>
+        ) : (
+          <LazySection minHeight={520}>
+            <WorkshopDeck workshops={workshops} />
+          </LazySection>
+        )}
+      </section>
 
 
 
@@ -860,139 +815,142 @@ function Index() {
 
       {/* SCREEN 4 — Programs & Styles */}
       <Chapter index={4} total={5} kicker="Programs & Formats — Ways to Train">
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-7 lg:pt-10 lg:pb-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-8 lg:gap-12 items-start">
-          {/* LEFT — Ways to train */}
-          <div id="programs">
-            <div>
-              <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Programs &amp; Formats</p>
-              <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
-                Ways to <span className="italic font-light df-gradient-text">train.</span>
-              </h2>
-              <p className="mt-3 text-muted-foreground max-w-xl">
-                Signature movement experiences tailored for all levels.
-              </p>
-            </div>
+      <section id="programs" className="max-w-7xl mx-auto px-6 lg:px-10 pt-7 pb-5 lg:pt-10 lg:pb-6">
+        <div>
+          <p className="text-xs uppercase tracking-widest df-gradient-text font-bold">Programs &amp; Formats</p>
+          <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold leading-[1.02] text-balance">
+            Ways to <span className="italic font-light df-gradient-text">train.</span>
+          </h2>
+          <p className="mt-3 text-muted-foreground max-w-xl">
+            Signature movement experiences tailored for all levels.
+          </p>
+        </div>
 
-            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-5">
-              {[
-                { icon: "✨", title: "Workshops & Events", desc: "High-energy live sessions combining choreography and community energy.", tone: "var(--df-1)" },
-                { icon: "🎗️", title: "Nritya Sadhana", desc: "A meditative movement exploration focusing on stillness and breath.", tone: "var(--df-2)" },
-                { icon: "👥", title: "DanceFit App & Online", desc: "Structured online learning, live feedback, and dance fitness anywhere.", href: "https://dancefitstudio.app", cta: "Download App & Register", tone: "var(--df-3)" },
-                { icon: "⚡", title: "The Tej Method", desc: "Core philosophy integrating body awareness and confidence.", tone: "var(--df-4)" },
-                { icon: "🚀", title: "Zero to Hero", desc: "Step-by-step beginner program to eliminate stage fear.", to: "/zero-to-hero", tone: "var(--df-5)" },
-                { icon: "🪔", title: "Bhakti Experience", desc: "A spiritual blend of grace, devotion, and movement.", tone: "var(--df-2)" },
-              ].map((p, pi) => (
-                <article
-                  key={p.title}
-                  style={revealDelay(pi)}
-                  className="reveal-up ed-card relative overflow-hidden p-4 lg:p-5 transition-transform duration-300 hover:-translate-y-1"
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5">
+          {[
+            { icon: "✨", title: "Workshops & Events", desc: "High-energy live sessions combining choreography and community energy.", tone: "var(--df-1)" },
+            { icon: "🎗️", title: "Nritya Sadhana", desc: "A meditative movement exploration focusing on stillness and breath.", tone: "var(--df-2)" },
+            { icon: "👥", title: "DanceFit App & Online", desc: "Structured online learning, live feedback, and dance fitness anywhere.", href: "https://dancefitstudio.app", cta: "Download App & Register", tone: "var(--df-3)" },
+            { icon: "⚡", title: "The Tej Method", desc: "Core philosophy integrating body awareness and confidence.", tone: "var(--df-4)" },
+            { icon: "🚀", title: "Zero to Hero", desc: "Step-by-step beginner program to eliminate stage fear.", to: "/zero-to-hero", tone: "var(--df-5)" },
+            { icon: "🪔", title: "Bhakti Experience", desc: "A spiritual blend of grace, devotion, and movement.", tone: "var(--df-2)" },
+          ].map((p, pi) => (
+            <article
+              key={p.title}
+              style={revealDelay(pi)}
+              className="reveal-up ed-card relative overflow-hidden p-4 lg:p-5 transition-transform duration-300 hover:-translate-y-1"
+            >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 h-0.5"
+                style={{ background: `linear-gradient(90deg, ${p.tone}, transparent)` }}
+              />
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full blur-2xl"
+                style={{ background: `color-mix(in oklab, ${p.tone} 30%, transparent)` }}
+              />
+              <div
+                className="relative grid h-11 w-11 place-items-center rounded-xl text-2xl leading-none"
+                style={{
+                  background: `color-mix(in oklab, ${p.tone} 12%, transparent)`,
+                  border: `1px solid color-mix(in oklab, ${p.tone} 30%, transparent)`,
+                }}
+              >
+                {p.icon}
+              </div>
+              <h3 className="relative mt-3 font-display text-lg font-bold">{p.title}</h3>
+              <p className="relative mt-1.5 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+              {p.href && (
+                <a
+                  href={p.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="relative mt-3 inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
+                  style={{ color: p.tone }}
                 >
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-x-0 top-0 h-0.5"
-                    style={{ background: `linear-gradient(90deg, ${p.tone}, transparent)` }}
-                  />
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full blur-2xl"
-                    style={{ background: `color-mix(in oklab, ${p.tone} 30%, transparent)` }}
-                  />
-                  <div
-                    className="relative grid h-11 w-11 place-items-center rounded-xl text-2xl leading-none"
-                    style={{
-                      background: `color-mix(in oklab, ${p.tone} 12%, transparent)`,
-                      border: `1px solid color-mix(in oklab, ${p.tone} 30%, transparent)`,
-                    }}
-                  >
-                    {p.icon}
-                  </div>
-                  <h3 className="relative mt-3 font-display text-lg font-bold">{p.title}</h3>
-                  <p className="relative mt-1.5 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
-                  {p.href && (
-                    <a
-                      href={p.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="relative mt-3 inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
-                      style={{ color: p.tone }}
-                    >
-                      {p.cta} <ArrowUpRight size={14} />
-                    </a>
-                  )}
-                  {p.to && (
-                    <Link
-                      to={p.to}
-                      className="relative mt-3 inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
-                      style={{ color: p.tone }}
-                    >
-                      Explore program <ArrowUpRight size={14} />
-                    </Link>
-                  )}
-                </article>
-              ))}
-            </div>
-          </div>
-
-          {/* RIGHT — Styles on floor (compact list) */}
-          <div id="classes" className="lg:sticky lg:top-24">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
-              <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold text-balance leading-[1.02]">
-                Styles on the <span className="italic font-light">floor.</span>
-              </h2>
-              <p className="mt-3 text-muted-foreground">
-                Core styles taught in studio masterclasses &amp; online modules.
-              </p>
-            </div>
-
-            <div className="mt-5 grid grid-cols-2 gap-2.5 lg:gap-3">
-              {((danceStyles ?? []).length > 0
-                ? (danceStyles ?? []).map((s: any) => ({
-                    name: String(s.name ?? "Dance Style").trim() || "Dance Style",
-                    tagline: String(s.tagline ?? "").trim(),
-                    image_url: s.image_url ?? null,
-                  }))
-                : defaultStyles.map((s) => ({ name: s.name, tagline: s.tagline, image_url: null }))
-              ).map((s, si) => (
-                <article
-                  key={s.name}
-                  style={revealDelay(si)}
-                  className="reveal-up ed-card group relative overflow-hidden px-3 py-3 transition-transform duration-300 hover:translate-x-1"
+                  {p.cta} <ArrowUpRight size={14} />
+                </a>
+              )}
+              {p.to && (
+                <Link
+                  to={p.to}
+                  className="relative mt-3 inline-flex items-center gap-2 text-sm font-semibold hover:gap-3 transition-all"
+                  style={{ color: p.tone }}
                 >
-                  {s.image_url && (
-                    <img
-                      src={s.image_url}
-                      alt=""
-                      aria-hidden
-                      loading="lazy"
-                      decoding="async"
-                      className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-10 transition-opacity duration-500 group-hover:opacity-20"
-                    />
-                  )}
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    style={{ background: "var(--gradient-beige-wash)" }}
-                  />
-                  <div className="relative flex flex-col gap-1">
-                    <span className="font-display text-[10px] text-primary/70 tabular-nums">
-                      {String(si + 1).padStart(2, "0")}
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="font-display text-sm lg:text-base font-semibold truncate">{s.name}</h3>
-                      {s.tagline && (
-                        <p className="text-[11px] text-muted-foreground truncate">{s.tagline}</p>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
+                  Explore program <ArrowUpRight size={14} />
+                </Link>
+              )}
+            </article>
+          ))}
         </div>
       </section>
 
+
+
+      {/* DANCE STYLES — premium two-column grid */}
+      <section id="classes" className="max-w-7xl mx-auto px-6 lg:px-10 pt-5 pb-7 lg:pt-6 lg:pb-8">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">What we teach</p>
+            <h2 className="mt-2 font-display text-2xl lg:text-4xl font-bold text-balance leading-[1.02]">
+              Styles on the <span className="italic font-light">floor.</span>
+            </h2>
+          </div>
+          <p className="hidden md:block text-xs uppercase tracking-widest text-muted-foreground max-w-xs text-right">
+            Many vocabularies. One fusion.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-5">
+          {((danceStyles ?? []).length > 0
+            ? (danceStyles ?? []).map((s: any) => ({
+                name: String(s.name ?? "Dance Style").trim() || "Dance Style",
+                tagline: String(s.tagline ?? "").trim(),
+                image_url: s.image_url ?? null,
+              }))
+            : defaultStyles.map((s) => ({ name: s.name, tagline: s.tagline, image_url: null }))
+          ).map((s, si) => (
+            <article
+              key={s.name}
+              style={revealDelay(si)}
+              className="reveal-up ed-card group relative overflow-hidden p-5 lg:p-6"
+            >
+              {s.image_url && (
+                <img
+                  src={s.image_url}
+                  alt=""
+                  aria-hidden
+                  loading="lazy"
+                  decoding="async"
+                  className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-15 transition-opacity duration-500 group-hover:opacity-25"
+                />
+              )}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: "var(--gradient-beige-wash)" }}
+              />
+              <div className="relative flex items-baseline gap-4">
+                <span className="font-display text-sm text-primary/70 tabular-nums">
+                  {String(si + 1).padStart(2, "0")}
+                </span>
+                <div className="min-w-0">
+                  <h3 className="font-display text-xl lg:text-2xl font-bold truncate">{s.name}</h3>
+                  {s.tagline && (
+                    <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{s.tagline}</p>
+                  )}
+                </div>
+              </div>
+              <span
+                aria-hidden
+                className="pointer-events-none absolute bottom-0 left-0 h-px w-0 group-hover:w-full transition-[width] duration-500"
+                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
+              />
+            </article>
+          ))}
+        </div>
+      </section>
       </Chapter>
 
 
@@ -1000,6 +958,20 @@ function Index() {
       <Chapter index={5} total={5} kicker="Iconic Work — World Tour">
 
       <section className="relative px-6 lg:px-10 max-w-7xl mx-auto py-7 lg:py-10 space-y-7 lg:space-y-10">
+
+        {brands.length > 0 && (
+          <div>
+            <p className="text-xs uppercase tracking-widest text-primary">Brands we've worked with</p>
+            <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2">Trusted partners</h2>
+            <div className="mt-5 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+              {brands.map((b) => (
+                <div key={b.id} className="h-20 rounded-xl bg-muted border border-border flex items-center justify-center font-display text-lg tracking-wide hover:text-primary transition overflow-hidden p-3">
+                  {b.logo_url ? <img src={b.logo_url} alt={b.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <span>{b.name}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {celebrities.length > 0 && (
 
@@ -1040,6 +1012,58 @@ function Index() {
           </div>
         )}
 
+
+        {globe.length > 0 && (() => {
+          const conducted = globe.filter((g) => g.status === "conducted");
+          const upcoming = globe.filter((g) => g.status === "upcoming");
+          
+          return (
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-card to-background border border-border p-6 lg:p-12">
+              <p className="text-xs uppercase tracking-widest text-primary">India to the globe</p>
+              <h2 className="font-display text-2xl lg:text-4xl font-bold mt-2 max-w-3xl">Carrying our story across the world</h2>
+              <p className="mt-4 text-muted-foreground max-w-2xl">Tejas D Dhoke has performed and taught on stages across continents.</p>
+              {conducted.length > 0 && (
+                <div className="mt-8">
+                  <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-3">Conducted</p>
+                  <div className="flex flex-wrap gap-2">
+                    {conducted.map((g) => (
+                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-border bg-background/40">{g.city}, {g.country}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {upcoming.length > 0 && (
+                <div className="mt-6">
+                  <p className="text-[11px] uppercase tracking-widest text-primary mb-3">Upcoming</p>
+                  <div className="flex flex-wrap gap-2">
+                    {upcoming.map((g) => (
+                      <span key={g.id} className="px-3 py-1.5 rounded-full text-xs border border-primary/40 bg-primary/10 text-primary">
+                        {g.city}, {g.country}{g.event_date ? ` · ${new Date(g.event_date).toLocaleDateString(undefined, { month: "short", year: "numeric" })}` : ""}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* RHYTHM & COUNTING — animated stats, immediately after the globe */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+          {stats.map((s, si) => (
+            <div key={s.label} className="reveal-up relative border-t border-border pt-6" style={revealDelay(si)}>
+              <div
+                aria-hidden
+                className="absolute -top-px left-0 h-px w-16"
+                style={{ background: "linear-gradient(90deg, var(--primary), transparent)" }}
+              />
+              <p className="font-display text-4xl lg:text-6xl font-bold text-primary drop-shadow-[0_0_25px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]">
+                {s.value}{s.suffix ?? ""}
+              </p>
+              <p className="mt-3 text-xs lg:text-sm text-muted-foreground uppercase tracking-widest">{s.label}</p>
+            </div>
+          ))}
+        </div>
       </section>
       </Chapter>
 
