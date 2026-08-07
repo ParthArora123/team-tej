@@ -1299,11 +1299,32 @@ main section:first-of-type {
 }
 
 /* Primary CTA — vibrant stage gradient with an animated light sweep. */
+@utility btn-premium-black {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 42%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(160deg, #1c1c1c 0%, #111111 48%, #0b0b0b 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 280ms ease, filter 280ms ease,
+    border-color 280ms ease;
+  &:hover {
+    transform: scale(1.02);
+    filter: brightness(1.18);
+    border-color: rgba(255, 255, 255, 0.16);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+  }
+  &:active { transform: scale(0.98); transition-duration: 120ms; }
+}
+
 @utility ed-cta {
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  background:
+  background-image:
     linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 42%, rgba(255, 255, 255, 0) 60%),
     linear-gradient(160deg, #1c1c1c 0%, #111111 48%, #0b0b0b 100%);
   color: #fff;
@@ -1329,28 +1350,6 @@ main section:first-of-type {
     box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
   }
   &:hover::after { transform: translate3d(120%, 0, 0); }
-  &:active { transform: scale(0.98); transition-duration: 120ms; }
-}
-
-/* Premium black CTA — shared token-free style for all primary buttons. */
-@utility btn-premium-black {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 42%, rgba(255, 255, 255, 0) 60%),
-    linear-gradient(160deg, #1c1c1c 0%, #111111 48%, #0b0b0b 100%);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 280ms ease, filter 280ms ease,
-    border-color 280ms ease;
-  &:hover {
-    transform: scale(1.02);
-    filter: brightness(1.18);
-    border-color: rgba(255, 255, 255, 0.16);
-    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
-  }
   &:active { transform: scale(0.98); transition-duration: 120ms; }
 }
 
@@ -1510,25 +1509,32 @@ main section:first-of-type {
   60%, 100% { transform: skewX(-14deg) translate3d(560%, 0, 0); }
 }
 
-/* Site-wide button lift: any solid primary button becomes a stage-gradient
-   CTA with glow. Purely visual — markup and behaviour untouched. */
+/* Site-wide button lift: any solid primary button becomes a premium glossy
+   black CTA. Purely visual — markup and behaviour untouched. */
 button.bg-primary,
 a.bg-primary,
 .bg-primary[role="button"] {
-  background-image: var(--gradient-stage);
-  background-size: 200% 100%;
-  background-position: 0% 50%;
-  border-color: transparent;
-  box-shadow: var(--glow-stage);
-  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease, background-position 600ms ease;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 42%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(160deg, #1c1c1c 0%, #111111 48%, #0b0b0b 100%);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 280ms ease, filter 280ms ease,
+    border-color 280ms ease;
 }
 button.bg-primary:hover,
 a.bg-primary:hover,
 .bg-primary[role="button"]:hover {
-  background-position: 100% 50%;
-  box-shadow: var(--glow-stage-strong);
-  transform: translate3d(0, -2px, 0);
+  filter: brightness(1.18);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+  transform: scale(1.02);
 }
+button.bg-primary:active,
+a.bg-primary:active,
+.bg-primary[role="button"]:active { transform: scale(0.98); }
+
 
 /* Distinct role colours from the reference */
 .role-educator { color: var(--stage-blue); }
