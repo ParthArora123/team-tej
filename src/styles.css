@@ -1532,6 +1532,23 @@ html[data-scrolling="1"] .cine-spot { animation-play-state: paused; }
 }
 .ed-float { animation: ed-float 7s ease-in-out infinite alternate; will-change: transform; }
 
+/* Floating cards — gentle, staggered, compositor-only, with subtle hover lift */
+@keyframes float-1 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -10px, 0); }
+}
+@keyframes float-2 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -14px, 0); }
+}
+@keyframes float-3 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -8px, 0); }
+}
+.float-1 { animation: float-1 6s ease-in-out infinite; will-change: transform; }
+.float-2 { animation: float-2 7.5s ease-in-out infinite 1.2s; will-change: transform; }
+.float-3 { animation: float-3 5.5s ease-in-out infinite 2.1s; will-change: transform; }
+
 @utility ed-ghost {
   position: relative;
   color: color-mix(in oklab, var(--foreground) 82%, transparent);
@@ -1564,5 +1581,10 @@ html[data-scrolling="1"] .cine-spot { animation-play-state: paused; }
 
 @media (prefers-reduced-motion: reduce) {
   .ed-float { animation: none !important; }
+  .float-1, .float-2, .float-3 { animation: none !important; }
 }
 html[data-scrolling="1"] .ed-float { animation-play-state: paused; }
+html[data-scrolling="1"] .float-1,
+html[data-scrolling="1"] .float-2,
+html[data-scrolling="1"] .float-3 { animation-play-state: paused; }
+
