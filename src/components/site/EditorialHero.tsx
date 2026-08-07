@@ -152,14 +152,14 @@ export function EditorialHero({
                 alt={name}
                 onReady={onReady}
                 overlay={
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 px-5 pb-7 text-center sm:px-8 sm:pb-10">
+                  <div className="pointer-events-none absolute inset-x-0 top-0 z-20 px-5 pt-8 text-center sm:px-8 sm:pt-12">
                     <h1
-                      className="ed-rise cine-title font-display text-[2.6rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[5.6rem] font-bold tracking-[-0.035em] [text-shadow:0_6px_40px_oklch(0_0_0/55%)]"
+                      className="ed-rise cine-title font-display text-[2.4rem] leading-[0.94] sm:text-5xl lg:text-6xl xl:text-[4.8rem] font-bold tracking-[-0.035em] [text-shadow:0_6px_40px_oklch(0_0_0/60%)]"
                     >
                       {name.toUpperCase()}
                     </h1>
                     <p
-                      className="ed-rise mx-auto mt-2 max-w-xl text-sm sm:text-lg font-medium text-foreground/85 [text-shadow:0_2px_18px_oklch(0_0_0/60%)]"
+                      className="ed-rise mx-auto mt-3 max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85 [text-shadow:0_2px_18px_oklch(0_0_0/65%)]"
                       style={{ animationDelay: "190ms" }}
                     >
                       Transforming passion into performance.
