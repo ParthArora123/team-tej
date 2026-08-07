@@ -60,8 +60,10 @@ export function EditorialHero({
 
   
 
-  const aboutCards = (
-    <div className="flex w-full min-w-0 flex-col gap-2.5 sm:gap-3">
+  const cardWrap = "flex w-full min-w-0 flex-col gap-2.5 sm:gap-3";
+
+  const renderAboutCards = (wrapClass = cardWrap, hClass = "h-[7rem] sm:h-[8rem]") => (
+    <div className={wrapClass}>
       {[
         {
           k: "About",
@@ -87,7 +89,7 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise ed-card !bg-white group/card flex h-[7rem] sm:h-[8rem] flex-col overflow-hidden rounded-[18px] p-3 transition-transform duration-300 hover:-translate-y-1"
+            className={`ed-rise ed-card !bg-white group/card flex ${hClass} flex-col overflow-hidden rounded-[18px] p-3 transition-transform duration-300 hover:-translate-y-1`}
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
             <div className="flex shrink-0 items-center gap-2 border-b border-border/60 pb-2">
@@ -109,8 +111,9 @@ export function EditorialHero({
   );
 
 
-  const bvmCards = (
-    <div className="flex w-full min-w-0 flex-col gap-2.5 sm:gap-3">
+  const renderBvmCards = (wrapClass = cardWrap, hClass = "h-[7rem] sm:h-[8rem]") => (
+    <div className={wrapClass}>
+
       {[
         {
           k: "Philosophy",
@@ -136,7 +139,7 @@ export function EditorialHero({
       ].map((c, i) => (
         <div key={c.t} className={c.float}>
           <article
-            className="ed-rise ed-card !bg-white group/card flex h-[7rem] sm:h-[8rem] flex-col overflow-hidden rounded-[18px] p-3 transition-transform duration-300 hover:-translate-y-1"
+            className={`ed-rise ed-card !bg-white group/card flex ${hClass} flex-col overflow-hidden rounded-[18px] p-3 transition-transform duration-300 hover:-translate-y-1`}
             style={{ animationDelay: `${260 + i * 110}ms` }}
           >
             <div className="flex shrink-0 items-center gap-2 border-b border-border/60 pb-2">
@@ -193,14 +196,23 @@ export function EditorialHero({
   ];
 
   return (
-    <section className="relative w-full px-3 sm:px-6 lg:px-8 xl:px-12 pt-24 pb-6 lg:pt-24 lg:pb-10">
+    <section className="relative w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-20 pb-8 sm:pt-24 lg:pt-24 lg:pb-10">
       <div className="mx-auto w-full max-w-[96rem]">
-        <div className="mb-4 text-center">
-          <h1 className="ed-rise font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground" style={{ animationDelay: "120ms" }}>
+        <div className="mb-5 text-center sm:mb-4">
+          <p
+            className="ed-rise ed-eyebrow mb-2 text-[10px] tracking-[0.3em] text-muted-foreground sm:hidden"
+            style={{ animationDelay: "80ms" }}
+          >
+            Founder · DanceFit Live
+          </p>
+          <h1
+            className="ed-rise font-display text-[2.15rem] leading-[1.05] sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground"
+            style={{ animationDelay: "120ms" }}
+          >
             {name}
           </h1>
           <p
-            className="ed-rise mx-auto mt-3 max-w-xl text-xs sm:text-base font-medium uppercase tracking-[0.22em] text-foreground/85"
+            className="ed-rise mx-auto mt-3 max-w-xl text-[10px] leading-relaxed sm:text-base font-medium uppercase tracking-[0.2em] sm:tracking-[0.22em] text-foreground/85"
             style={{ animationDelay: "190ms" }}
           >
             Transforming passion into performance.
@@ -219,30 +231,29 @@ export function EditorialHero({
 
           {/* LEFT — floating Belief · Vision · Mission cards */}
           <aside className="pointer-events-none absolute left-2 sm:left-4 lg:left-6 xl:left-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[9.5rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2.5 sm:gap-3 lg:flex">
-            <div className="pointer-events-auto">{bvmCards}</div>
+            <div className="pointer-events-auto">{renderBvmCards()}</div>
           </aside>
 
           {/* RIGHT — floating About cards */}
           <aside className="pointer-events-none absolute right-2 sm:right-4 lg:right-6 xl:right-8 top-3 sm:top-4 lg:top-5 xl:top-6 z-40 hidden w-[9.5rem] sm:w-[10.5rem] lg:w-[12.5rem] xl:w-[14rem] flex-col gap-2.5 sm:gap-3 lg:flex">
-            <div className="pointer-events-auto">{aboutCards}</div>
+            <div className="pointer-events-auto">{renderAboutCards()}</div>
           </aside>
         </div>
 
         {/* Mobile / tablet cards below the image */}
-        <div className="mt-6 grid gap-4 lg:hidden">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {bvmCards}
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            {aboutCards}
-          </div>
+        <div className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 lg:hidden">
+          {renderBvmCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 [&_.ed-scroll]:overflow-visible [&_.ed-scroll]:flex-none [&_article]:h-auto", "h-auto min-h-[6.5rem] sm:h-[8rem]")}
+          {renderAboutCards("grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 [&_.ed-scroll]:overflow-visible [&_.ed-scroll]:flex-none [&_article]:h-auto", "h-auto min-h-[6.5rem] sm:h-[8rem]")}
         </div>
 
-        <div className="ed-rise mt-6 flex shrink-0 flex-wrap items-center justify-center gap-3" style={{ animationDelay: "560ms" }}>
+        <div
+          className="ed-rise mt-6 grid w-full grid-cols-1 gap-3 sm:flex sm:shrink-0 sm:flex-wrap sm:items-center sm:justify-center"
+          style={{ animationDelay: "560ms" }}
+        >
           <button
             type="button"
             onClick={onExplore}
-            className="ed-cta group inline-flex items-center gap-2 rounded-full px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
+            className="ed-cta group inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.16em] sm:w-auto sm:px-9 sm:text-sm"
           >
             Explore Workshops
             <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -251,11 +262,13 @@ export function EditorialHero({
           <button
             type="button"
             onClick={onWatch}
-            className="ed-ghost group inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em]"
+            className="ed-ghost group inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] sm:w-auto sm:text-sm"
           >
             <Play size={13} className="transition-transform group-hover:scale-110" /> Watch Performances
           </button>
         </div>
+
+
 
         {/* ROLE CARDS */}
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -436,7 +449,7 @@ function HeroFrame({ image, clips, alt, onReady, overlay, className }: { image: 
   return (
     <div
       ref={frameRef}
-      className={["ed-rise light-sweep relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[3/2] max-h-[85vh] sm:max-h-[80vh] lg:max-h-[75vh]", className].filter(Boolean).join(" ")}
+      className={["ed-rise light-sweep relative w-full overflow-hidden rounded-3xl aspect-[9/16] sm:aspect-[3/4] lg:aspect-[3/2] max-h-none sm:max-h-[80vh] lg:max-h-[75vh]", className].filter(Boolean).join(" ")}
       style={{ animationDelay: "180ms" }}
     >
       {/* Soft bottom wave overlay for a polished edge transition. */}
