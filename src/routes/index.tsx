@@ -1252,7 +1252,8 @@ function FounderSection({ founder }: { founder: any | null }) {
 
 
 
-  const hasMore = Boolean(biography || achievements.length || vision || mission);
+  const hasMore = Boolean(biography || achievements.length);
+
 
 
   return (
