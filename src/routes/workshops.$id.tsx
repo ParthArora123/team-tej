@@ -746,7 +746,7 @@ function WorkshopDetailPage() {
                 icon: Calendar,
                 label: "Event Date",
                 main: program.event_date ? new Date(program.event_date).toLocaleDateString("en-IN", { day: "numeric", month: "long" }) : "TBA",
-                sub: program.duration ? program.duration : "One transformative session",
+                sub: formatDuration(program.duration) ?? "One transformative session",
               },
               {
                 icon: Clock,
