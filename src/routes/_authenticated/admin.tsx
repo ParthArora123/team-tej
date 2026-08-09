@@ -1318,8 +1318,9 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
             setBlockedWa((s) => ({ ...s, [id]: waUrl }));
           }
         } else {
-          toast.error("Approved, but this student has no phone number and no fallback WhatsApp number is set — message not sent.");
+          toast.error("Approved, but this student's registration has no valid contact number — WhatsApp confirmation not sent.");
         }
+
       }
     } catch (e: any) {
       alert(e.message ?? "Failed");
