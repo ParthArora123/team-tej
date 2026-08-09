@@ -763,38 +763,8 @@ function WorkshopDetailPage() {
 
 
 
-      {galleryItems.length > 0 && (
-        <section className="relative py-14 md:py-24">
-          <div className="max-w-6xl mx-auto px-6">
-            <SectionHeader eyebrow="Moments" title="The Experience" />
-            <div className="mt-12 relative rounded-3xl overflow-hidden border border-primary/30 aspect-video bg-jet shadow-[0_30px_80px_-30px_rgba(231,223,206,0.4)]">
-              {heroMedia?.media_kind === "video" ? (
-                <video key={heroMedia.media_url ?? ""} src={heroMedia.media_url ?? undefined} poster={heroMedia.poster_url ?? undefined}
-                       controls playsInline className="w-full h-full object-contain bg-jet" />
-              ) : heroMedia?.media_url ? (
-                <img src={heroMedia.media_url} alt="" className="w-full h-full object-cover lg:object-contain" />
-              ) : null}
-            </div>
-            {galleryItems.length > 1 && (
-              <div className="mt-4 flex gap-3 overflow-x-auto pb-2 snap-x">
-                {galleryItems.map((m, i) => (
-                  <button key={m.id} onClick={() => setHeroIdx(i)}
-                    className={`relative shrink-0 h-20 w-32 rounded-lg overflow-hidden bg-jet snap-start border-2 transition ${i === heroIdx ? "border-primary shadow-[0_0_20px_rgba(231,223,206,0.5)]" : "border-primary/10 hover:border-primary/40"}`}>
-                    {m.media_kind === "video" ? (
-                      <>
-                        <video src={m.media_url ?? undefined} poster={m.poster_url ?? undefined} muted playsInline preload="metadata" className="w-full h-full object-contain" />
-                        <PlayCircle className="absolute inset-0 m-auto text-primary/90" size={22} />
-                      </>
-                    ) : (
-                      <img src={m.media_url ?? ""} alt="" loading="lazy" className="w-full h-full object-cover lg:object-contain" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+
+
 
       <section className="relative py-14 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
