@@ -546,6 +546,28 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
             </div>
 
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Class / Session Schedule</p>
+              <p className="text-[11px] text-muted-foreground">Add each class with its own time and name (e.g. 3:00 PM — Bol Na Halke). Shown on the workshop detail page.</p>
+              {(f.session_schedule ?? []).map((s: any, i: number) => (
+                <div key={i} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)_auto] gap-2 items-center">
+                  <In placeholder="3:00 PM" v={s.time} on={(v) => {
+                    const next = [...(f.session_schedule ?? [])]; next[i] = { ...next[i], time: v }; setF({ ...f, session_schedule: next });
+                  }} />
+                  <In placeholder="Bol Na Halke" v={s.name} on={(v) => {
+                    const next = [...(f.session_schedule ?? [])]; next[i] = { ...next[i], name: v }; setF({ ...f, session_schedule: next });
+                  }} />
+                  <button type="button"
+                    onClick={() => setF({ ...f, session_schedule: (f.session_schedule ?? []).filter((_: any, j: number) => j !== i) })}
+                    className="px-2 py-1.5 rounded-lg border border-border text-destructive text-xs">Remove</button>
+                </div>
+              ))}
+              <button type="button"
+                onClick={() => setF({ ...f, session_schedule: [...(f.session_schedule ?? []), { time: "", name: "" }] })}
+                className="px-3 py-1.5 rounded-lg border border-border text-xs">+ Add session</button>
+            </div>
+
+
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration Configuration</p>
               <label className="flex items-center gap-2 text-sm font-medium">
                 <input type="checkbox" checked={!!f.allow_single} onChange={(e) => setF({ ...f, allow_single: e.target.checked })} />
