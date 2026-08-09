@@ -72,7 +72,7 @@ function Dashboard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [proofFile, setProofFile] = useState<Record<string, File | null>>({});
-  const [reference, setReference] = useState<Record<string, string>>({});
+  
   const [proofError, setProofError] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState<Record<string, boolean>>({});
 
