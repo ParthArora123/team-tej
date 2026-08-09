@@ -72,7 +72,7 @@ function Dashboard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [proofFile, setProofFile] = useState<Record<string, File | null>>({});
-  
+  const [reference, setReference] = useState<Record<string, string>>({});
   const [proofError, setProofError] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState<Record<string, boolean>>({});
 
@@ -83,13 +83,17 @@ function Dashboard() {
 
   const submitProof = async (enrollmentId: string) => {
     const file = proofFile[enrollmentId];
+    const ref = (reference[enrollmentId] || "").trim();
     setProofError((s) => ({ ...s, [enrollmentId]: "" }));
 
     if (!file) {
       setProofError((s) => ({ ...s, [enrollmentId]: "Please choose a payment screenshot." }));
       return;
     }
-
+    if (!/^[A-Za-z0-9-]{6,64}$/.test(ref)) {
+      setProofError((s) => ({ ...s, [enrollmentId]: "Enter the 6–64 character UPI Reference / UTR ID from your payment app." }));
+      return;
+    }
 
     setSubmitting((s) => ({ ...s, [enrollmentId]: true }));
     try {
@@ -104,10 +108,11 @@ function Dashboard() {
         .upload(proofPath, validated.bytes, { contentType: validated.mime, upsert: false });
       if (upErr) throw new Error(upErr.message || "Could not upload the screenshot. Please try again.");
 
-      await submitPayment({ data: { enrollmentId, proofPath } });
+      await submitPayment({ data: { enrollmentId, proofPath, paymentReference: ref } });
 
       toast.success("Payment submitted! We'll confirm it shortly.");
       setProofFile((s) => ({ ...s, [enrollmentId]: null }));
+      setReference((s) => ({ ...s, [enrollmentId]: "" }));
       await reload();
     } catch (e: any) {
       setProofError((s) => ({ ...s, [enrollmentId]: e.message ?? "Something went wrong. Please try again." }));
@@ -269,6 +274,16 @@ function Dashboard() {
                           />
                         </label>
 
+                        <input
+                          type="text"
+                          value={reference[r.id] || ""}
+                          onChange={(e) => {
+                            setReference((s) => ({ ...s, [r.id]: e.target.value }));
+                            setProofError((s) => ({ ...s, [r.id]: "" }));
+                          }}
+                          placeholder="UPI Reference / UTR ID (from your payment app)"
+                          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm"
+                        />
 
                         {proofError[r.id] && (
                           <p className="text-xs text-destructive">{proofError[r.id]}</p>
