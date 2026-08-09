@@ -211,16 +211,40 @@ function useCountdown(target: Date | null) {
 }
 
 function formatTime(time: string | null | undefined): string | null {
-  if (!time) return null;
-  const [hStr, mStr] = time.split(":");
-  const h = Number(hStr);
-  const m = Number(mStr);
-  if (isNaN(h) || isNaN(m)) return time;
-  const period = h >= 12 ? "PM" : "AM";
-  const hour = h % 12 || 12;
-  const minute = String(m).padStart(2, "0");
-  return `${hour}:${minute} ${period}`;
+  const raw = String(time ?? "").trim();
+  if (!raw) return null;
+
+  // Already has a meridiem, e.g. "3:00 PM" / "3 pm"
+  const withMeridiem = raw.match(/^(\d{1,2})(?::(\d{1,2}))?\s*([AaPp])\.?[Mm]\.?$/);
+  if (withMeridiem) {
+    const h = Number(withMeridiem[1]) % 12 || 12;
+    const m = String(Number(withMeridiem[2] ?? 0)).padStart(2, "0");
+    return `${h}:${m} ${withMeridiem[3].toUpperCase()}M`;
+  }
+
+  // 24h forms: "15:00", "15:00:00", "1500", "15"
+  const hm = raw.match(/^(\d{1,2}):(\d{1,2})(?::\d{1,2})?$/) ?? raw.match(/^(\d{2})(\d{2})$/) ?? raw.match(/^(\d{1,2})$/);
+  if (!hm) return raw;
+  const h24 = Number(hm[1]);
+  const min = Number(hm[2] ?? 0);
+  if (!Number.isFinite(h24) || h24 > 23 || !Number.isFinite(min) || min > 59) return raw;
+  const period = h24 >= 12 ? "PM" : "AM";
+  const hour = h24 % 12 || 12;
+  return `${hour}:${String(min).padStart(2, "0")} ${period}`;
 }
+
+function formatDuration(duration: string | null | undefined): string | null {
+  const raw = String(duration ?? "").trim();
+  if (!raw) return null;
+  // Bare number like "3" -> "3 hrs"; "3hr" -> "3 hrs"
+  const n = raw.match(/^(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hour|hours)?$/i);
+  if (n) {
+    const v = Number(n[1]);
+    return `${n[1]} ${v === 1 ? "hr" : "hrs"}`;
+  }
+  return raw;
+}
+
 
 /* ---------- Workshop detail backdrop: stable, premium floating layer ---------- */
 function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
