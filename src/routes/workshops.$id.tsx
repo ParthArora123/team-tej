@@ -34,6 +34,15 @@ type Media = {
   caption: string | null;
 };
 
+function fmtTime(t: string) {
+  const m = /^(\d{1,2}):(\d{2})/.exec(t.trim());
+  if (!m) return t.trim();
+  const h = Number(m[1]);
+  const suffix = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${m[2]} ${suffix}`;
+}
+
 function DanceMotionCanvas() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -519,6 +528,12 @@ function WorkshopDetailPage() {
     );
   }
 
+  const sessions: { time: string; name: string }[] = Array.isArray((program as any).session_schedule)
+    ? ((program as any).session_schedule as any[])
+        .map((x) => ({ time: fmtTime(String(x?.time ?? "")), name: String(x?.name ?? "") }))
+        .filter((x) => x.time || x.name)
+    : [];
+
   const timelineSteps = [
     { n: "01", t: "Choose Workshop", d: "Pick your batch & session" },
     { n: "02", t: "Register", d: "Fill your details securely" },
@@ -534,7 +549,7 @@ function WorkshopDetailPage() {
 
 
       {/* ==================== HERO ==================== */}
-      <section ref={heroRef} className="relative w-full min-h-[100svh] overflow-hidden">
+      <section ref={heroRef} className="relative w-full min-h-[74svh] sm:min-h-[100svh] overflow-hidden">
         <motion.div style={{ y: yBg }} className="absolute inset-0 will-change-transform transform-gpu">
           {heroMedia?.media_url ? (
             heroMedia.media_kind === "video" ? (
@@ -550,7 +565,7 @@ function WorkshopDetailPage() {
         </motion.div>
 
         <motion.div style={{ opacity: fadeHero }}
-          className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-28 pb-24 grid lg:grid-cols-2 gap-12 items-center">
+          className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-12 pt-20 pb-12 sm:pt-28 sm:pb-24 grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
           <div>
             <Link to="/workshops" className="inline-flex items-center gap-1.5 text-xs text-primary/70 hover:text-primary mb-8 w-fit">
               <ArrowLeft size={14} /> All workshops
@@ -581,14 +596,14 @@ function WorkshopDetailPage() {
 
             <motion.h1
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
-              className="mt-5 font-display text-6xl sm:text-7xl lg:text-8xl font-semibold leading-[0.95] text-foreground"
+              className="mt-4 sm:mt-5 font-display text-4xl sm:text-7xl lg:text-8xl font-semibold leading-[0.95] text-foreground"
               style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}
             >
               {program.name}
             </motion.h1>
 
             {program.style && (
-              <p className="mt-4 font-display italic text-2xl text-primary/85"
+              <p className="mt-3 sm:mt-4 font-display italic text-lg sm:text-2xl text-primary/85"
                  style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                 The {program.style} Experience
               </p>
@@ -597,12 +612,12 @@ function WorkshopDetailPage() {
             <div className="mt-6 h-px w-32 bg-gradient-to-r from-primary/70 to-transparent" />
 
             {program.description && (
-              <p className="mt-6 text-base sm:text-lg text-primary/70 max-w-xl leading-relaxed line-clamp-4">
+              <p className="mt-4 sm:mt-6 text-sm sm:text-lg text-primary/70 max-w-xl leading-relaxed line-clamp-3 sm:line-clamp-4">
                 {program.description}
               </p>
             )}
 
-            <div className="mt-8 flex flex-wrap gap-4">
+            <div className="mt-6 sm:mt-8 flex flex-wrap gap-3 sm:gap-4">
               <button
                 onClick={scrollToRegister}
                 disabled={full}
@@ -626,7 +641,7 @@ function WorkshopDetailPage() {
             initial={{ opacity: 0, scale: 0.94, rotateY: -8 }}
             animate={{ opacity: 1, scale: 1, rotateY: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative mx-auto w-full max-w-md aspect-[4/5] [perspective:1400px]"
+            className="relative mx-auto w-full max-w-[17rem] sm:max-w-md aspect-[4/5] [perspective:1400px]"
           >
             <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(231,223,206,0.35),transparent_65%)] blur-2xl" />
             <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden border border-primary/40 shadow-[0_40px_100px_-30px_rgba(231,223,206,0.5)] bg-jet">
@@ -635,7 +650,7 @@ function WorkshopDetailPage() {
                   autoPlay muted loop playsInline preload="auto"
                   className="w-full h-full object-contain" />
               ) : heroMedia?.media_url ? (
-                <img src={heroMedia.media_url} alt={program.name} className="w-full h-full object-cover lg:object-contain" />
+                <img src={heroMedia.media_url} alt={program.name} className="w-full h-full object-contain" />
               ) : (
                 <div className="w-full h-full grid place-items-center bg-gradient-to-br from-accent/40 to-black">
                   <Sparkles className="text-primary/60" size={48} />
@@ -665,7 +680,7 @@ function WorkshopDetailPage() {
       </section>
 
       {countdown && !countdown.done && (
-        <section id="countdown" className="relative py-14 border-y border-primary/15 bg-jet/48">
+        <section id="countdown" className="relative py-8 sm:py-14 border-y border-primary/15 bg-jet/48">
           <div className="max-w-5xl mx-auto px-6 flex flex-col items-center gap-6">
             <p className="text-[11px] tracking-[0.4em] uppercase text-primary">The Workshop Starts In</p>
             <div className="grid grid-cols-4 gap-3 sm:gap-8">
@@ -691,10 +706,10 @@ function WorkshopDetailPage() {
         </section>
       )}
 
-      <section className="relative py-24">
+      <section className="relative py-12 sm:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Event Logistics" title="Gathering Details" />
-          <div className="mt-14 grid md:grid-cols-3 gap-6">
+          <div className="mt-8 sm:mt-14 grid md:grid-cols-3 gap-4 sm:gap-6">
             {[
               {
                 icon: Calendar,
@@ -718,7 +733,7 @@ function WorkshopDetailPage() {
               <motion.div key={c.label}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="group relative rounded-2xl border border-primary/25 bg-gradient-to-b from-background/28 to-jet/72 p-8 text-center overflow-hidden hover:border-primary/60 hover:shadow-[0_20px_60px_-20px_rgba(231,223,206,0.4)] transition-all">
+                className="group relative rounded-2xl border border-primary/25 bg-gradient-to-b from-background/28 to-jet/72 p-5 sm:p-8 text-center overflow-hidden hover:border-primary/60 hover:shadow-[0_20px_60px_-20px_rgba(231,223,206,0.4)] transition-all">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(231,223,206,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
                 <c.icon className="mx-auto text-primary" size={28} />
                 <p className="mt-4 text-[11px] tracking-[0.3em] uppercase text-primary">{c.label}</p>
@@ -731,8 +746,30 @@ function WorkshopDetailPage() {
       </section>
 
 
+      {sessions.length > 0 && (
+        <section className="relative pb-4 sm:pb-8">
+          <div className="max-w-4xl mx-auto px-5 sm:px-6">
+            <SectionHeader eyebrow="Class Schedule" title="Sessions & Timings" />
+            <div className="mt-6 sm:mt-10 divide-y divide-primary/15 rounded-2xl border border-primary/25 bg-jet/60 overflow-hidden">
+              {sessions.map((s, i) => (
+                <div key={`${s.time}-${i}`} className="flex items-center gap-3 sm:gap-5 px-4 sm:px-6 py-3 sm:py-4">
+                  <div className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-2.5 py-1">
+                    <Clock size={12} className="text-primary" />
+                    <span className="text-[11px] sm:text-xs font-semibold tabular-nums text-primary">{s.time || "TBA"}</span>
+                  </div>
+                  <p className="min-w-0 flex-1 truncate font-display text-sm sm:text-lg text-primary"
+                     style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                    {s.name || "Session"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {galleryItems.length > 0 && (
-        <section className="relative py-24">
+        <section className="relative py-12 sm:py-24">
           <div className="max-w-6xl mx-auto px-6">
             <SectionHeader eyebrow="Moments" title="The Experience" />
             <div className="mt-12 relative rounded-3xl overflow-hidden border border-primary/30 aspect-video bg-jet shadow-[0_30px_80px_-30px_rgba(231,223,206,0.4)]">
@@ -764,7 +801,7 @@ function WorkshopDetailPage() {
         </section>
       )}
 
-      <section className="relative py-24">
+      <section className="relative py-12 sm:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />
 
@@ -876,7 +913,7 @@ function WorkshopDetailPage() {
       </section>
 
 
-      <section className="relative py-24">
+      <section className="relative py-12 sm:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="How It Works" title="Registration Timeline" />
           <div className="mt-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -897,7 +934,7 @@ function WorkshopDetailPage() {
       </section>
 
       {program.venue && (
-        <section className="relative py-24">
+        <section className="relative py-12 sm:py-24">
           <div className="max-w-6xl mx-auto px-6">
             <SectionHeader eyebrow="Reach The Studio" title="Location & Directions" />
             <div className="mt-14 grid lg:grid-cols-3 gap-6">
@@ -923,7 +960,7 @@ function WorkshopDetailPage() {
         </section>
       )}
 
-      <section className="relative py-24">
+      <section className="relative py-12 sm:py-24">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center">
             <p className="text-[11px] tracking-[0.35em] uppercase text-primary">Need Help?</p>
