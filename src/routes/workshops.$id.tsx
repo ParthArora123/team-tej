@@ -503,7 +503,7 @@ function WorkshopDetailPage() {
   const heroMedia = galleryItems[heroIdx] ?? null;
   const rawSessions: { time: string; name: string }[] = Array.isArray((program as any)?.session_schedule)
     ? ((program as any).session_schedule as any[])
-        .map((s) => ({ time: String(s?.time ?? ""), name: String(s?.name ?? "") }))
+        .map((s) => ({ time: formatTime(String(s?.time ?? "")) ?? "", name: String(s?.name ?? "") }))
         .filter((s) => s.time || s.name)
     : [];
 
