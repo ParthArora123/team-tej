@@ -356,6 +356,9 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       workshop2_name: rest.allow_both ? (rest.workshop2_name || null) : null,
       silver_capacity_w1: rest.silver_capacity_w1 ?? null,
       silver_capacity_w2: rest.allow_both ? (rest.silver_capacity_w2 ?? null) : null,
+      session_schedule: (rest.session_schedule ?? [])
+        .map((s) => ({ time: (s.time ?? "").trim(), name: (s.name ?? "").trim() }))
+        .filter((s) => s.time || s.name),
     };
     if (clear_upi) {
       clean.upi_id_encrypted = null;
