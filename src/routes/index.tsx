@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
-import { cachedCall } from "@/lib/public-data-cache";
+import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { getHomeBundle } from "@/lib/home-bundle.functions";
 import { useServerFn } from "@tanstack/react-start";
