@@ -277,6 +277,7 @@ const emptyWs = () => ({
   workshop2_name: "",
   silver_capacity_w1: "",
   silver_capacity_w2: "",
+  session_schedule: [] as { time: string; name: string }[],
   upi_id: "", clear_upi: false, has_upi: false,
   bank_account_holder: "",
   save_payer_default: false,
