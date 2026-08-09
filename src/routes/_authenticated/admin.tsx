@@ -392,6 +392,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         workshop2_name: f.allow_both ? (f.workshop2_name?.trim() || null) : null,
         silver_capacity_w1: f.silver_capacity_w1 !== "" ? Number(f.silver_capacity_w1) : null,
         silver_capacity_w2: f.allow_both && f.silver_capacity_w2 !== "" ? Number(f.silver_capacity_w2) : null,
+        session_schedule: (f.session_schedule ?? []).map((s: any) => ({ time: s.time ?? "", name: s.name ?? "" })),
         upi_id: f.upi_id?.trim() || undefined,
         clear_upi: !!f.clear_upi,
         silver_seat_enabled: !!f.silver_seat_enabled,
