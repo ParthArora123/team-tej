@@ -35,7 +35,39 @@ export type HomeBundle = {
   sigPrograms: any[];
 };
 
-const TTL_MS = 60_000;
+const TTL_MS = 15_000;
+
+/**
+ * Homepage workshop ordering.
+ *
+ * `listPrograms` returns every published workshop newest-created first. Sorting
+ * by creation date meant an older record that the admin later switched to
+ * Published (or edited) stayed buried behind newer ones and got cut by the
+ * display cap — so a genuinely published workshop never appeared on the home
+ * page. Order by what the visitor cares about instead: soonest upcoming event
+ * first, then undated entries, then past events, and keep the cap generous.
+ */
+function orderWorkshops(rows: any[]): any[] {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const t = (d: any) => (d ? new Date(d).getTime() : null);
+
+  const rank = (r: any) => {
+    const when = t(r.event_date);
+    if (when == null) return 1; // undated — still eligible
+    return when >= startOfToday.getTime() ? 0 : 2; // upcoming, then past
+  };
+
+  return [...rows].sort((a, b) => {
+    const ra = rank(a);
+    const rb = rank(b);
+    if (ra !== rb) return ra - rb;
+    const da = t(a.event_date);
+    const db = t(b.event_date);
+    if (da != null && db != null && da !== db) return ra === 2 ? db - da : da - db;
+    return (t(b.created_at) ?? 0) - (t(a.created_at) ?? 0);
+  });
+}
 let cache: { at: number; promise: Promise<HomeBundle> } | undefined;
 
 async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
@@ -83,7 +115,7 @@ async function build(): Promise<HomeBundle> {
   return {
     heroSlides,
     heroPortrait,
-    workshops: (workshops ?? []).slice(0, 6),
+    workshops: orderWorkshops(workshops ?? []).slice(0, 12),
     featured,
     celebrities,
     brands,
