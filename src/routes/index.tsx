@@ -203,18 +203,30 @@ function HeroSlideMedia({
     // low and avoids background decoding of hidden videos.
     if (!active) {
       return fallbackSrc ? (
-        <img
-          src={fallbackSrc}
-          alt=""
-          aria-hidden
-          className={common}
-          loading="lazy"
-          decoding="async"
-          fetchPriority="low"
-          draggable={false}
-        />
+        <>
+          <img
+            src={fallbackSrc}
+            alt=""
+            aria-hidden
+            className="blur-backdrop-wide opacity-85"
+            draggable={false}
+            loading="lazy"
+            decoding="async"
+          />
+          <img
+            src={fallbackSrc}
+            alt=""
+            aria-hidden
+            className={common}
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            draggable={false}
+          />
+        </>
       ) : null;
     }
+
     return (
       <>
         {fallbackSrc && (
@@ -248,22 +260,34 @@ function HeroSlideMedia({
   }
 
   return (
-    <img
-      src={src}
-      alt={alt ?? ""}
-      className={common}
-      loading={priority || active ? "eager" : "lazy"}
-      decoding="async"
-      fetchPriority={priority ? "high" : active ? "auto" : "low"}
-      sizes="100vw"
-      draggable={false}
-      onLoad={markReady}
-      onError={markReady}
-      ref={(el) => {
-        if (el && el.complete && el.naturalWidth > 0) markReady();
-      }}
-    />
+    <>
+      <img
+        src={src}
+        alt=""
+        aria-hidden
+        className="blur-backdrop-wide opacity-85"
+        draggable={false}
+        loading={priority || active ? "eager" : "lazy"}
+        decoding="async"
+      />
+      <img
+        src={src}
+        alt={alt ?? ""}
+        className={common}
+        loading={priority || active ? "eager" : "lazy"}
+        decoding="async"
+        fetchPriority={priority ? "high" : active ? "auto" : "low"}
+        sizes="100vw"
+        draggable={false}
+        onLoad={markReady}
+        onError={markReady}
+        ref={(el) => {
+          if (el && el.complete && el.naturalWidth > 0) markReady();
+        }}
+      />
+    </>
   );
+
 
 }
 
