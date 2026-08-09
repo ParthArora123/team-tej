@@ -1271,7 +1271,9 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const getProof = useServerFn(adminGetProofUrl);
   const loadContent = useServerFn(getSiteContent);
   const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
-  const [waFallbackNumber, setWaFallbackNumber] = useState<string>("");
+  // FROM/sender contact: the WhatsApp number already published on the Contact page.
+  const [waFallbackNumber, setWaFallbackNumber] = useState<string>("+91 98765 43210");
+
   const [blockedWa, setBlockedWa] = useState<Record<string, string>>({});
 
   useEffect(() => {
