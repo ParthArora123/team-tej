@@ -727,7 +727,7 @@ function WorkshopDetailPage() {
               {
                 icon: Clock,
                 label: "Event Hours",
-                main: program.event_time ?? sessions[0]?.time ?? "TBA",
+                main: formattedEventTime ?? sessions[0]?.time ?? "TBA",
                 sub: sessions.length > 1 ? `${sessions.length} sessions` : "Doors open 30 mins prior",
               },
               {
