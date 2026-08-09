@@ -465,11 +465,12 @@ function WorkshopDetailPage() {
     return [...arr, ...media];
   }, [program, media]);
   const heroMedia = galleryItems[heroIdx] ?? null;
-  const sessions: { time: string; name: string }[] = Array.isArray((program as any)?.session_schedule)
+  const rawSessions: { time: string; name: string }[] = Array.isArray((program as any)?.session_schedule)
     ? ((program as any).session_schedule as any[])
         .map((s) => ({ time: String(s?.time ?? ""), name: String(s?.name ?? "") }))
         .filter((s) => s.time || s.name)
     : [];
+
 
   const eventDateObj = useMemo(() => {
     if (!program?.event_date) return null;
