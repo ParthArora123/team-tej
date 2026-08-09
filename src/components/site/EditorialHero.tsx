@@ -294,7 +294,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             preload="metadata"
             poster={image}
             disablePictureInPicture
-            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
+            className="absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-500 lg:object-cover lg:object-[50%_30%]"
             style={{ opacity: loaded ? 1 : 0 }}
             onLoadedData={() => {
               setLoaded(true);
@@ -309,7 +309,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             height={1600}
             fetchPriority="high"
             decoding="async"
-            className="ed-kenburns absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
+            className="ed-kenburns absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-500 lg:object-cover lg:object-[50%_30%]"
             style={{ opacity: loaded && !failed ? 1 : 0 }}
             ref={imgRef}
 
