@@ -735,6 +735,33 @@ function WorkshopDetailPage() {
         </div>
       </section>
 
+      {sessions.length > 0 && (
+        <section className="relative py-14 md:py-24">
+          <div className="max-w-4xl mx-auto px-5 sm:px-6">
+            <SectionHeader eyebrow="Class Timings" title="Session Schedule" />
+            <div className="mt-8 md:mt-12 space-y-3">
+              {sessions.map((s, i) => (
+                <motion.div key={`${s.time}-${i}`}
+                  initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.5, delay: i * 0.06 }}
+                  className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)] items-center gap-3 sm:gap-5 rounded-2xl border border-primary/25 bg-gradient-to-r from-background/28 to-jet/72 px-4 py-3.5 sm:px-6 sm:py-5 hover:border-primary/55 transition-colors">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Clock size={16} className="text-primary" />
+                    <span className="font-display text-sm sm:text-lg text-primary tabular-nums"
+                          style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                      {s.time || "TBA"}
+                    </span>
+                  </div>
+                  <p className="min-w-0 truncate text-sm sm:text-base text-primary/80">{s.name || "Session"}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+
+
 
       {galleryItems.length > 0 && (
         <section className="relative py-14 md:py-24">
