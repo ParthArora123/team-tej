@@ -210,6 +210,18 @@ function useCountdown(target: Date | null) {
   return { d, h, m, s, done: diff === 0 };
 }
 
+function formatTime(time: string | null | undefined): string | null {
+  if (!time) return null;
+  const [hStr, mStr] = time.split(":");
+  const h = Number(hStr);
+  const m = Number(mStr);
+  if (isNaN(h) || isNaN(m)) return time;
+  const period = h >= 12 ? "PM" : "AM";
+  const hour = h % 12 || 12;
+  const minute = String(m).padStart(2, "0");
+  return `${hour}:${minute} ${period}`;
+}
+
 /* ---------- Workshop detail backdrop: stable, premium floating layer ---------- */
 function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
   const { scrollYProgress } = useScroll();
@@ -490,12 +502,9 @@ function WorkshopDetailPage() {
   const w1Name = (program as any).workshop1_name || "Workshop 1";
   const w2Name = (program as any).workshop2_name || "Workshop 2";
 
-  const sessions: { time: string; name: string }[] = rawSessions.length
-    ? rawSessions
-    : [
-        { time: "3:00 PM", name: w1Name },
-        ...(allowBoth ? [{ time: "6:00 PM", name: w2Name }] : []),
-      ];
+  const sessions: { time: string; name: string }[] = rawSessions;
+
+  const formattedEventTime = formatTime(program?.event_time);
 
 
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
@@ -507,7 +516,7 @@ function WorkshopDetailPage() {
     bothPrice: (program as any).both_price ?? null,
     workshop1Name: (program as any).workshop1_name ?? null,
     workshop2Name: (program as any).workshop2_name ?? null,
-    eventTime: (program as any).event_time ?? null,
+    eventTime: formattedEventTime ?? sessions[0]?.time ?? null,
   } : null;
 
   const scrollToRegister = () => {
@@ -718,7 +727,7 @@ function WorkshopDetailPage() {
               {
                 icon: Clock,
                 label: "Event Hours",
-                main: program.event_time ?? sessions[0]?.time ?? "TBA",
+                main: formattedEventTime ?? sessions[0]?.time ?? "TBA",
                 sub: sessions.length > 1 ? `${sessions.length} sessions` : "Doors open 30 mins prior",
               },
               {
