@@ -397,7 +397,9 @@ function Index() {
     let cancelled = false;
     let frame = 0;
 
-    cachedCall("homeBundle", () => fetchHomeBundle() as Promise<any>)
+    // Short TTL: a workshop published in the admin panel must show up on the
+    // next homepage visit/refresh, not minutes later.
+    cachedCall("homeBundle", () => fetchHomeBundle() as Promise<any>, 15_000)
       .then((b: any) => {
         if (cancelled || !b) return;
 
