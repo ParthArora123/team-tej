@@ -516,7 +516,7 @@ function WorkshopDetailPage() {
     bothPrice: (program as any).both_price ?? null,
     workshop1Name: (program as any).workshop1_name ?? null,
     workshop2Name: (program as any).workshop2_name ?? null,
-    eventTime: (program as any).event_time ?? null,
+    eventTime: formattedEventTime ?? sessions[0]?.time ?? null,
   } : null;
 
   const scrollToRegister = () => {
