@@ -323,6 +323,10 @@ const workshopSchema = z.object({
   workshop2_name: z.string().max(120).optional().or(z.literal("")).nullable(),
   silver_capacity_w1: z.number().int().min(0).optional().nullable(),
   silver_capacity_w2: z.number().int().min(0).optional().nullable(),
+  session_schedule: z.array(z.object({
+    time: z.string().max(40).default(""),
+    name: z.string().max(160).default(""),
+  })).max(20).optional().nullable(),
   upi_id: z.string().max(120).optional().or(z.literal("")),
   clear_upi: z.boolean().optional(),
   bank_account_holder: z.string().min(2).max(120),
