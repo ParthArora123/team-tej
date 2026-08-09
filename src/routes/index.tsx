@@ -203,18 +203,30 @@ function HeroSlideMedia({
     // low and avoids background decoding of hidden videos.
     if (!active) {
       return fallbackSrc ? (
-        <img
-          src={fallbackSrc}
-          alt=""
-          aria-hidden
-          className={common}
-          loading="lazy"
-          decoding="async"
-          fetchPriority="low"
-          draggable={false}
-        />
+        <>
+          <img
+            src={fallbackSrc}
+            alt=""
+            aria-hidden
+            className="blur-backdrop-wide opacity-85"
+            draggable={false}
+            loading="lazy"
+            decoding="async"
+          />
+          <img
+            src={fallbackSrc}
+            alt=""
+            aria-hidden
+            className={common}
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            draggable={false}
+          />
+        </>
       ) : null;
     }
+
     return (
       <>
         {fallbackSrc && (
