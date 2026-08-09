@@ -210,6 +210,18 @@ function useCountdown(target: Date | null) {
   return { d, h, m, s, done: diff === 0 };
 }
 
+function formatTime(time: string | null | undefined): string | null {
+  if (!time) return null;
+  const [hStr, mStr] = time.split(":");
+  const h = Number(hStr);
+  const m = Number(mStr);
+  if (isNaN(h) || isNaN(m)) return time;
+  const period = h >= 12 ? "PM" : "AM";
+  const hour = h % 12 || 12;
+  const minute = String(m).padStart(2, "0");
+  return `${hour}:${minute} ${period}`;
+}
+
 /* ---------- Workshop detail backdrop: stable, premium floating layer ---------- */
 function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
   const { scrollYProgress } = useScroll();
