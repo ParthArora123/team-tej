@@ -62,7 +62,7 @@ const defaultStyles = [
   { name: "Bollywood", tagline: "Built for the camera." },
 ];
 
-const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
+export const isVideoUrl = (u?: string | null) => !!u && /\.(mp4|webm|mov|m4v)(\?|#|$)/i.test(u);
 
 /** Smooth-scroll (and pager-jump) to a homepage section, with a page fallback. */
 function goToHomeSection(id: string, fallbackHref: string) {
