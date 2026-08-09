@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
-import { cachedCall } from "@/lib/public-data-cache";
+import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { getHomeBundle } from "@/lib/home-bundle.functions";
 import { useServerFn } from "@tanstack/react-start";
@@ -397,7 +397,9 @@ function Index() {
     let cancelled = false;
     let frame = 0;
 
-    cachedCall("homeBundle", () => fetchHomeBundle() as Promise<any>)
+    // Short TTL: a workshop published in the admin panel must show up on the
+    // next homepage visit/refresh, not minutes later.
+    cachedCall("homeBundle", () => fetchHomeBundle() as Promise<any>, 15_000)
       .then((b: any) => {
         if (cancelled || !b) return;
 
@@ -461,6 +463,28 @@ function Index() {
       if (frame) cancelAnimationFrame(frame);
     };
   }, [fetchHomeBundle, heroReady]);
+
+  // Returning to the tab (e.g. after publishing a workshop in the admin panel)
+  // must show the freshest workshop list without a rebuild or hard reload.
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "hidden") return;
+      invalidateCachedCall("homeBundle");
+      (fetchHomeBundle() as Promise<any>)
+        .then((b: any) => {
+          if (Array.isArray(b?.workshops)) setWorkshops(b.workshops);
+        })
+        .catch(() => {});
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [fetchHomeBundle]);
+
+
 
 
   useEffect(() => {
