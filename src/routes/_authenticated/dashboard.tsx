@@ -104,11 +104,10 @@ function Dashboard() {
         .upload(proofPath, validated.bytes, { contentType: validated.mime, upsert: false });
       if (upErr) throw new Error(upErr.message || "Could not upload the screenshot. Please try again.");
 
-      await submitPayment({ data: { enrollmentId, proofPath, paymentReference: ref } });
+      await submitPayment({ data: { enrollmentId, proofPath } });
 
       toast.success("Payment submitted! We'll confirm it shortly.");
       setProofFile((s) => ({ ...s, [enrollmentId]: null }));
-      setReference((s) => ({ ...s, [enrollmentId]: "" }));
       await reload();
     } catch (e: any) {
       setProofError((s) => ({ ...s, [enrollmentId]: e.message ?? "Something went wrong. Please try again." }));
