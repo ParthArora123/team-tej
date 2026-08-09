@@ -119,8 +119,7 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({
     enrollmentId: z.string().uuid(),
     proofPath: z.string().min(3).max(300),
-    paymentReference: z.string().trim().min(6).max(64)
-      .regex(/^[A-Za-z0-9-]+$/, "UPI Reference ID must be 6–64 letters/digits."),
+    paymentReference: z.string().trim().max(64).optional(),
   }).parse(input))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -162,23 +161,14 @@ export const markPaymentSubmitted = createServerFn({ method: "POST" })
       throw new Error("This payment screenshot has already been used for another registration. Please upload a fresh screenshot of your actual payment.");
     }
 
-    const ref = data.paymentReference.replace(/\s+/g, "");
-    const { data: dupRef } = await supabaseAdmin
-      .from("enrollments")
-      .select("id")
-      .ilike("payment_reference", ref)
-      .neq("id", existing.id)
-      .maybeSingle();
-    if (dupRef) {
-      throw new Error("This UPI Reference ID has already been used. Please verify your payment details.");
-    }
+    const ref = (data.paymentReference ?? "").replace(/\s+/g, "");
 
     const { error: upErr } = await supabaseAdmin
       .from("enrollments").update({
         status: "payment_submitted",
         payment_proof_path: data.proofPath,
         payment_proof_sha256: validated.sha256,
-        payment_reference: ref,
+        ...(ref ? { payment_reference: ref } : {}),
         payment_confirmed_at: new Date().toISOString(),
       })
       .eq("id", existing.id);

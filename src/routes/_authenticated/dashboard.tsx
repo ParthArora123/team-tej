@@ -83,17 +83,13 @@ function Dashboard() {
 
   const submitProof = async (enrollmentId: string) => {
     const file = proofFile[enrollmentId];
-    const ref = (reference[enrollmentId] || "").trim();
     setProofError((s) => ({ ...s, [enrollmentId]: "" }));
 
     if (!file) {
       setProofError((s) => ({ ...s, [enrollmentId]: "Please choose a payment screenshot." }));
       return;
     }
-    if (!/^[A-Za-z0-9-]{6,64}$/.test(ref)) {
-      setProofError((s) => ({ ...s, [enrollmentId]: "Enter the 6–64 character UPI Reference / UTR ID from your payment app." }));
-      return;
-    }
+
 
     setSubmitting((s) => ({ ...s, [enrollmentId]: true }));
     try {
@@ -274,16 +270,6 @@ function Dashboard() {
                           />
                         </label>
 
-                        <input
-                          type="text"
-                          value={reference[r.id] || ""}
-                          onChange={(e) => {
-                            setReference((s) => ({ ...s, [r.id]: e.target.value }));
-                            setProofError((s) => ({ ...s, [r.id]: "" }));
-                          }}
-                          placeholder="UPI Reference / UTR ID (from your payment app)"
-                          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm"
-                        />
 
                         {proofError[r.id] && (
                           <p className="text-xs text-destructive">{proofError[r.id]}</p>
