@@ -327,6 +327,9 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       workshop2_name: r.workshop2_name ?? "",
       silver_capacity_w1: r.silver_capacity_w1 != null ? String(r.silver_capacity_w1) : "",
       silver_capacity_w2: r.silver_capacity_w2 != null ? String(r.silver_capacity_w2) : "",
+      session_schedule: Array.isArray(r.session_schedule)
+        ? r.session_schedule.map((s: any) => ({ time: s?.time ?? "", name: s?.name ?? "" }))
+        : [],
       upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
       bank_account_holder: r.bank_account_holder ?? "",
       save_payer_default: false,
