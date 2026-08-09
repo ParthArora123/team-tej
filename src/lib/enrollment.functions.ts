@@ -303,6 +303,10 @@ const workshopSchema = z.object({
   banner_gif_path: z.string().max(500).optional().or(z.literal("")).nullable(),
   event_date: z.string().optional(),
   event_time: z.string().optional(),
+  session_schedule: z.array(z.object({
+    time: z.string().max(40).default(""),
+    name: z.string().max(160).default(""),
+  })).max(20).optional(),
   venue: z.string().optional(),
   city: z.string().max(80).optional().or(z.literal("")),
 
@@ -352,6 +356,9 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       workshop2_name: rest.allow_both ? (rest.workshop2_name || null) : null,
       silver_capacity_w1: rest.silver_capacity_w1 ?? null,
       silver_capacity_w2: rest.allow_both ? (rest.silver_capacity_w2 ?? null) : null,
+      session_schedule: (rest.session_schedule ?? [])
+        .map((s) => ({ time: (s.time ?? "").trim(), name: (s.name ?? "").trim() }))
+        .filter((s) => s.time || s.name),
     };
     if (clear_upi) {
       clean.upi_id_encrypted = null;
