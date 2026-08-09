@@ -642,7 +642,6 @@ export type Database = {
           registration_open_on: string | null
           seats: number | null
           seats_taken: number
-          session_schedule: Json
           silver_capacity_w1: number | null
           silver_capacity_w2: number | null
           silver_seat_enabled: boolean
@@ -685,7 +684,6 @@ export type Database = {
           registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
-          session_schedule?: Json
           silver_capacity_w1?: number | null
           silver_capacity_w2?: number | null
           silver_seat_enabled?: boolean
@@ -728,7 +726,6 @@ export type Database = {
           registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
-          session_schedule?: Json
           silver_capacity_w1?: number | null
           silver_capacity_w2?: number | null
           silver_seat_enabled?: boolean

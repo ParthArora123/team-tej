@@ -265,7 +265,6 @@ const emptyWs = () => ({
   banner_gif_path: "" as string,
   banner_gif_preview: null as string | null,
   event_date: "", event_time: "", venue: "", city: "", instructor: "",
-  session_schedule: [] as { time: string; name: string }[],
   duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
   category: "", style: "", published: true,
@@ -313,9 +312,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       banner_gif_path: r.banner_gif_path ?? "",
       banner_gif_preview: r.banner_gif_signed_url ?? null,
       event_date: r.event_date ?? "", event_time: r.event_time ?? "",
-      session_schedule: Array.isArray(r.session_schedule)
-        ? r.session_schedule.map((x: any) => ({ time: x?.time ?? "", name: x?.name ?? "" }))
-        : [],
       venue: r.venue ?? "", city: r.city ?? "", instructor: r.instructor ?? "", duration: r.duration ?? "",
       capacity: r.capacity ?? "", price_inr: r.price_inr ?? "",
       registration_open_on: r.registration_open_on ?? todayISO(),
@@ -400,9 +396,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         banner_video_path: f.banner_video_path || null,
         banner_gif_path: f.banner_gif_path || null,
         registration_open_on: f.registration_open_on || undefined,
-        session_schedule: (f.session_schedule ?? [])
-          .map((x: any) => ({ time: (x.time ?? "").trim(), name: (x.name ?? "").trim() }))
-          .filter((x: any) => x.time || x.name),
       }});
       if (!payerDefaults && f.save_payer_default && f.upi_id?.trim() && f.bank_account_holder?.trim()) {
         try {
@@ -497,37 +490,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               <FieldRow label="Workshop Duration">
                 <In placeholder="Enter duration (e.g. 2 hrs)" v={f.duration} on={(v) => setF({ ...f, duration: v })} />
               </FieldRow>
-              <div className="sm:col-span-2">
-                <FieldRow label="Class Schedule (time + class name)">
-                  <div className="space-y-2">
-                    {(f.session_schedule ?? []).map((row: any, i: number) => (
-                      <div key={i} className="grid grid-cols-[7.5rem_minmax(0,1fr)_auto] gap-2 items-center">
-                        <input type="time" value={row.time}
-                          onChange={(e) => setF((s: any) => {
-                            const next = [...(s.session_schedule ?? [])];
-                            next[i] = { ...next[i], time: e.target.value };
-                            return { ...s, session_schedule: next };
-                          })}
-                          className="w-full px-2 py-2 rounded-lg bg-muted border border-border text-sm" />
-                        <input value={row.name} placeholder="Class name (e.g. Bol Na Halke)"
-                          onChange={(e) => setF((s: any) => {
-                            const next = [...(s.session_schedule ?? [])];
-                            next[i] = { ...next[i], name: e.target.value };
-                            return { ...s, session_schedule: next };
-                          })}
-                          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
-                        <button type="button" title="Remove session"
-                          onClick={() => setF((s: any) => ({ ...s, session_schedule: (s.session_schedule ?? []).filter((_: any, j: number) => j !== i) }))}
-                          className="shrink-0 px-2 py-2 rounded-lg border border-border text-destructive text-xs">Remove</button>
-                      </div>
-                    ))}
-                    <button type="button"
-                      onClick={() => setF((s: any) => ({ ...s, session_schedule: [...(s.session_schedule ?? []), { time: "", name: "" }] }))}
-                      className="px-3 py-1.5 rounded-lg border border-border text-xs">+ Add session</button>
-                    <p className="text-[11px] text-muted-foreground">Shown on the workshop detail page, e.g. 3:00 PM — Bol Na Halke.</p>
-                  </div>
-                </FieldRow>
-              </div>
               <FieldRow label="Workshop Location">
                 <In placeholder="Enter workshop location" v={f.venue} on={(v) => setF({ ...f, venue: v })} />
               </FieldRow>

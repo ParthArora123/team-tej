@@ -1,1 +1,0 @@
-ALTER TABLE public.programs ADD COLUMN IF NOT EXISTS session_schedule jsonb NOT NULL DEFAULT '[]'::jsonb;
