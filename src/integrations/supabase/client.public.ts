@@ -35,8 +35,14 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 }
 
 export function createPublicClient() {
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+  // On Lovable, SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY are injected into the
+  // server runtime. On other hosts (Vercel, Netlify, self-hosted) they may not
+  // be, which would make every public read throw and render empty sections.
+  // Fall back to the build-time inlined VITE_ values — they hold the exact same
+  // public project URL + publishable (anon) key, so this leaks nothing new.
+  const SUPABASE_URL = process.env.SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL;
+  const SUPABASE_PUBLISHABLE_KEY =
+    process.env.SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
@@ -47,6 +53,7 @@ export function createPublicClient() {
     console.error(`[Supabase] ${message}`);
     throw new Error(message);
   }
+
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     global: {
