@@ -61,20 +61,38 @@ export function renderWhatsappTemplate(
     .trim();
 }
 
+// Normalises a raw phone string into a wa.me-compatible international number.
+// Indian 10-digit numbers (the common case in the registration form) get the
+// 91 country code; anything already carrying a country code is left as-is.
+function normalizeWaNumber(raw: unknown): string {
+  let digits = String(raw ?? "").replace(/[^\d]/g, "");
+  if (!digits) return "";
+  digits = digits.replace(/^0+/, "");
+  if (digits.length === 10) digits = `91${digits}`;
+  return digits.length >= 11 ? digits : "";
+}
+
 // Builds the wa.me deep link addressed to the registered student's mobile
 // number, pre-filled with the admin-configured confirmation template and the
 // registration/ticket details. Used once a registration has been approved.
+//
+// TO   → the contact/WhatsApp number the student entered in the registration
+//        form (`enr.phone`). Never falls back to the business number, so a
+//        confirmation is never mis-delivered to the studio itself.
+// FROM → the WhatsApp number shown on the Contact page (passed in as
+//        `contactPageWhatsapp`). wa.me always sends from the signed-in
+//        WhatsApp account, so this number is what the student sees as the
+//        support/reply contact inside the message.
 export function buildWaUrl(
   enr: any,
   ticket: string | null,
   template: string,
-  fallbackWhatsapp: string,
+  contactPageWhatsapp: string,
 ): string | null {
   if (!enr) return null;
-  const studentNumber = String(enr.phone ?? "").replace(/[^\d]/g, "");
-  const businessNumber = String(fallbackWhatsapp ?? "").replace(/[^\d]/g, "");
-  const waNumber = studentNumber || businessNumber;
+  const waNumber = normalizeWaNumber(enr.phone);
   if (!waNumber) return null;
+  const supportNumber = String(contactPageWhatsapp ?? "").trim();
   const verifyUrl = ticket && typeof window !== "undefined"
     ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
     : "";
@@ -90,10 +108,11 @@ export function buildWaUrl(
     WorkshopTime: enr.program?.event_time || "",
     Venue: enr.program?.venue || "",
     InstructorName: "Tejas D Dhoke",
-    SupportContact: fallbackWhatsapp || "",
+    SupportContact: supportNumber,
     CustomInstructions: "",
     QRCodeUrl: qrImageUrl,
     TicketUrl: verifyUrl,
   });
   return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
 }
+
