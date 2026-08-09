@@ -260,12 +260,13 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
           painted before the real portrait arrives. */}
       <img
-        src={HERO_LQIP}
+        src={image || HERO_LQIP}
         alt=""
         aria-hidden
-        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
+        className="absolute inset-0 h-full w-full scale-125 object-cover opacity-70 blur-2xl saturate-125"
         draggable={false}
       />
+
       <div
         ref={mediaRef}
         className="absolute inset-0 will-change-transform"
