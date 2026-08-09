@@ -465,6 +465,11 @@ function WorkshopDetailPage() {
     return [...arr, ...media];
   }, [program, media]);
   const heroMedia = galleryItems[heroIdx] ?? null;
+  const sessions: { time: string; name: string }[] = Array.isArray((program as any)?.session_schedule)
+    ? ((program as any).session_schedule as any[])
+        .map((s) => ({ time: String(s?.time ?? ""), name: String(s?.name ?? "") }))
+        .filter((s) => s.time || s.name)
+    : [];
 
   const eventDateObj = useMemo(() => {
     if (!program?.event_date) return null;
@@ -534,7 +539,7 @@ function WorkshopDetailPage() {
 
 
       {/* ==================== HERO ==================== */}
-      <section ref={heroRef} className="relative w-full min-h-[100svh] overflow-hidden">
+      <section ref={heroRef} className="relative w-full min-h-[76svh] md:min-h-[100svh] overflow-hidden">
         <motion.div style={{ y: yBg }} className="absolute inset-0 will-change-transform transform-gpu">
           {heroMedia?.media_url ? (
             heroMedia.media_kind === "video" ? (
@@ -550,7 +555,7 @@ function WorkshopDetailPage() {
         </motion.div>
 
         <motion.div style={{ opacity: fadeHero }}
-          className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 pt-28 pb-24 grid lg:grid-cols-2 gap-12 items-center">
+          className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-12 pt-24 pb-14 md:pt-28 md:pb-24 grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           <div>
             <Link to="/workshops" className="inline-flex items-center gap-1.5 text-xs text-primary/70 hover:text-primary mb-8 w-fit">
               <ArrowLeft size={14} /> All workshops
@@ -581,14 +586,14 @@ function WorkshopDetailPage() {
 
             <motion.h1
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
-              className="mt-5 font-display text-6xl sm:text-7xl lg:text-8xl font-semibold leading-[0.95] text-foreground"
+              className="mt-4 md:mt-5 font-display text-4xl sm:text-6xl lg:text-8xl font-semibold leading-[0.95] text-foreground"
               style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}
             >
               {program.name}
             </motion.h1>
 
             {program.style && (
-              <p className="mt-4 font-display italic text-2xl text-primary/85"
+              <p className="mt-3 font-display italic text-xl sm:text-2xl text-primary/85"
                  style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                 The {program.style} Experience
               </p>
@@ -626,7 +631,7 @@ function WorkshopDetailPage() {
             initial={{ opacity: 0, scale: 0.94, rotateY: -8 }}
             animate={{ opacity: 1, scale: 1, rotateY: 0 }}
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative mx-auto w-full max-w-md aspect-[4/5] [perspective:1400px]"
+            className="relative mx-auto w-full max-w-[300px] sm:max-w-md aspect-[4/5] [perspective:1400px]"
           >
             <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(231,223,206,0.35),transparent_65%)] blur-2xl" />
             <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden border border-primary/40 shadow-[0_40px_100px_-30px_rgba(231,223,206,0.5)] bg-jet">
@@ -691,10 +696,10 @@ function WorkshopDetailPage() {
         </section>
       )}
 
-      <section className="relative py-24">
+      <section className="relative py-14 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Event Logistics" title="Gathering Details" />
-          <div className="mt-14 grid md:grid-cols-3 gap-6">
+          <div className="mt-8 md:mt-14 grid md:grid-cols-3 gap-4 md:gap-6">
             {[
               {
                 icon: Calendar,
@@ -705,8 +710,8 @@ function WorkshopDetailPage() {
               {
                 icon: Clock,
                 label: "Event Hours",
-                main: program.event_time ?? "TBA",
-                sub: "Doors open 30 mins prior",
+                main: program.event_time ?? sessions[0]?.time ?? "TBA",
+                sub: sessions.length > 1 ? `${sessions.length} sessions` : "Doors open 30 mins prior",
               },
               {
                 icon: MapPin,
@@ -718,7 +723,7 @@ function WorkshopDetailPage() {
               <motion.div key={c.label}
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="group relative rounded-2xl border border-primary/25 bg-gradient-to-b from-background/28 to-jet/72 p-8 text-center overflow-hidden hover:border-primary/60 hover:shadow-[0_20px_60px_-20px_rgba(231,223,206,0.4)] transition-all">
+                className="group relative rounded-2xl border border-primary/25 bg-gradient-to-b from-background/28 to-jet/72 text-center overflow-hidden p-5 md:p-8 hover:border-primary/60 hover:shadow-[0_20px_60px_-20px_rgba(231,223,206,0.4)] transition-all">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(231,223,206,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
                 <c.icon className="mx-auto text-primary" size={28} />
                 <p className="mt-4 text-[11px] tracking-[0.3em] uppercase text-primary">{c.label}</p>
@@ -730,9 +735,36 @@ function WorkshopDetailPage() {
         </div>
       </section>
 
+      {sessions.length > 0 && (
+        <section className="relative py-14 md:py-24">
+          <div className="max-w-4xl mx-auto px-5 sm:px-6">
+            <SectionHeader eyebrow="Class Timings" title="Session Schedule" />
+            <div className="mt-8 md:mt-12 space-y-3">
+              {sessions.map((s, i) => (
+                <motion.div key={`${s.time}-${i}`}
+                  initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.5, delay: i * 0.06 }}
+                  className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)] items-center gap-3 sm:gap-5 rounded-2xl border border-primary/25 bg-gradient-to-r from-background/28 to-jet/72 px-4 py-3.5 sm:px-6 sm:py-5 hover:border-primary/55 transition-colors">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Clock size={16} className="text-primary" />
+                    <span className="font-display text-sm sm:text-lg text-primary tabular-nums"
+                          style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                      {s.time || "TBA"}
+                    </span>
+                  </div>
+                  <p className="min-w-0 truncate text-sm sm:text-base text-primary/80">{s.name || "Session"}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+
+
 
       {galleryItems.length > 0 && (
-        <section className="relative py-24">
+        <section className="relative py-14 md:py-24">
           <div className="max-w-6xl mx-auto px-6">
             <SectionHeader eyebrow="Moments" title="The Experience" />
             <div className="mt-12 relative rounded-3xl overflow-hidden border border-primary/30 aspect-video bg-jet shadow-[0_30px_80px_-30px_rgba(231,223,206,0.4)]">
@@ -764,7 +796,7 @@ function WorkshopDetailPage() {
         </section>
       )}
 
-      <section className="relative py-24">
+      <section className="relative py-14 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />
 
@@ -876,7 +908,7 @@ function WorkshopDetailPage() {
       </section>
 
 
-      <section className="relative py-24">
+      <section className="relative py-14 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="How It Works" title="Registration Timeline" />
           <div className="mt-14 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -897,7 +929,7 @@ function WorkshopDetailPage() {
       </section>
 
       {program.venue && (
-        <section className="relative py-24">
+        <section className="relative py-14 md:py-24">
           <div className="max-w-6xl mx-auto px-6">
             <SectionHeader eyebrow="Reach The Studio" title="Location & Directions" />
             <div className="mt-14 grid lg:grid-cols-3 gap-6">
@@ -923,7 +955,7 @@ function WorkshopDetailPage() {
         </section>
       )}
 
-      <section className="relative py-24">
+      <section className="relative py-14 md:py-24">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center">
             <p className="text-[11px] tracking-[0.35em] uppercase text-primary">Need Help?</p>

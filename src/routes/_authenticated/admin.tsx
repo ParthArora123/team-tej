@@ -277,6 +277,7 @@ const emptyWs = () => ({
   workshop2_name: "",
   silver_capacity_w1: "",
   silver_capacity_w2: "",
+  session_schedule: [] as { time: string; name: string }[],
   upi_id: "", clear_upi: false, has_upi: false,
   bank_account_holder: "",
   save_payer_default: false,
@@ -326,6 +327,9 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       workshop2_name: r.workshop2_name ?? "",
       silver_capacity_w1: r.silver_capacity_w1 != null ? String(r.silver_capacity_w1) : "",
       silver_capacity_w2: r.silver_capacity_w2 != null ? String(r.silver_capacity_w2) : "",
+      session_schedule: Array.isArray(r.session_schedule)
+        ? r.session_schedule.map((s: any) => ({ time: s?.time ?? "", name: s?.name ?? "" }))
+        : [],
       upi_id: "", clear_upi: false, has_upi: !!r.has_upi,
       bank_account_holder: r.bank_account_holder ?? "",
       save_payer_default: false,
@@ -388,6 +392,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         workshop2_name: f.allow_both ? (f.workshop2_name?.trim() || null) : null,
         silver_capacity_w1: f.silver_capacity_w1 !== "" ? Number(f.silver_capacity_w1) : null,
         silver_capacity_w2: f.allow_both && f.silver_capacity_w2 !== "" ? Number(f.silver_capacity_w2) : null,
+        session_schedule: (f.session_schedule ?? []).map((s: any) => ({ time: s.time ?? "", name: s.name ?? "" })),
         upi_id: f.upi_id?.trim() || undefined,
         clear_upi: !!f.clear_upi,
         silver_seat_enabled: !!f.silver_seat_enabled,
@@ -539,6 +544,28 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               )}
               <p className="text-[11px] text-muted-foreground">Default price is ₹1,000. Leave capacity empty for unlimited silver seats.</p>
             </div>
+
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Class / Session Schedule</p>
+              <p className="text-[11px] text-muted-foreground">Add each class with its own time and name (e.g. 3:00 PM — Bol Na Halke). Shown on the workshop detail page.</p>
+              {(f.session_schedule ?? []).map((s: any, i: number) => (
+                <div key={i} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)_auto] gap-2 items-center">
+                  <In placeholder="3:00 PM" v={s.time} on={(v) => {
+                    const next = [...(f.session_schedule ?? [])]; next[i] = { ...next[i], time: v }; setF({ ...f, session_schedule: next });
+                  }} />
+                  <In placeholder="Bol Na Halke" v={s.name} on={(v) => {
+                    const next = [...(f.session_schedule ?? [])]; next[i] = { ...next[i], name: v }; setF({ ...f, session_schedule: next });
+                  }} />
+                  <button type="button"
+                    onClick={() => setF({ ...f, session_schedule: (f.session_schedule ?? []).filter((_: any, j: number) => j !== i) })}
+                    className="px-2 py-1.5 rounded-lg border border-border text-destructive text-xs">Remove</button>
+                </div>
+              ))}
+              <button type="button"
+                onClick={() => setF({ ...f, session_schedule: [...(f.session_schedule ?? []), { time: "", name: "" }] })}
+                className="px-3 py-1.5 rounded-lg border border-border text-xs">+ Add session</button>
+            </div>
+
 
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration Configuration</p>
