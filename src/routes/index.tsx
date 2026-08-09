@@ -464,6 +464,28 @@ function Index() {
     };
   }, [fetchHomeBundle, heroReady]);
 
+  // Returning to the tab (e.g. after publishing a workshop in the admin panel)
+  // must show the freshest workshop list without a rebuild or hard reload.
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === "hidden") return;
+      invalidateCachedCall("homeBundle");
+      (fetchHomeBundle() as Promise<any>)
+        .then((b: any) => {
+          if (Array.isArray(b?.workshops)) setWorkshops(b.workshops);
+        })
+        .catch(() => {});
+    };
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [fetchHomeBundle]);
+
+
+
 
   useEffect(() => {
     if (!heroReady) return;
