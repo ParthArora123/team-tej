@@ -260,13 +260,12 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
           painted before the real portrait arrives. */}
       <img
-        src={image || HERO_LQIP}
+        src={HERO_LQIP}
         alt=""
         aria-hidden
-        className="absolute inset-0 h-full w-full scale-125 object-cover opacity-70 blur-2xl saturate-125"
+        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
         draggable={false}
       />
-
       <div
         ref={mediaRef}
         className="absolute inset-0 will-change-transform"
@@ -294,7 +293,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             preload="metadata"
             poster={image}
             disablePictureInPicture
-            className="absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-500 lg:object-cover lg:object-[50%_30%]"
+            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
             style={{ opacity: loaded ? 1 : 0 }}
             onLoadedData={() => {
               setLoaded(true);
@@ -309,7 +308,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             height={1600}
             fetchPriority="high"
             decoding="async"
-            className="ed-kenburns absolute inset-0 h-full w-full object-contain object-center transition-opacity duration-500 lg:object-cover lg:object-[50%_30%]"
+            className="ed-kenburns absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
             style={{ opacity: loaded && !failed ? 1 : 0 }}
             ref={imgRef}
 
