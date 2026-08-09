@@ -490,6 +490,13 @@ function WorkshopDetailPage() {
   const w1Name = (program as any).workshop1_name || "Workshop 1";
   const w2Name = (program as any).workshop2_name || "Workshop 2";
 
+  const sessions: { time: string; name: string }[] = rawSessions.length
+    ? rawSessions
+    : [
+        { time: "3:00 PM", name: w1Name },
+        ...(allowBoth ? [{ time: "6:00 PM", name: w2Name }] : []),
+      ];
+
 
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
 
