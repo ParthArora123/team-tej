@@ -37,6 +37,8 @@ import { MediaUploader } from "@/components/admin/MediaUploader";
 import { ZeroToHeroMediaTab } from "@/components/admin/ZeroToHeroMediaTab";
 import { HomeSectionsTab } from "@/components/admin/HomeSectionsTab";
 import { compressImageFile } from "@/lib/compress-image";
+import { OverviewTab } from "@/components/admin/OverviewTab";
+
 
 
 
