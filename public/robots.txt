@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://team-tej.lovable.app/sitemap.xml
+Sitemap: https://tejasdhoke.com/sitemap.xml
