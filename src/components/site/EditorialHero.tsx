@@ -49,14 +49,15 @@ export function EditorialHero({
 
   return (
     <>
-      <section className="relative w-full h-[60svh] sm:h-[65svh] md:h-[70svh] lg:h-[75svh] min-h-[480px] max-h-[900px]">
-        {/* FULL-BLEED HERO IMAGE — fills the entire viewport section */}
-        <div className="absolute inset-0 z-0">
+      <section className="relative w-full bg-background">
+        {/* The foreground always uses contain so the supplied artwork and all
+            embedded text remain visible at every viewport ratio. */}
+        <div className="relative z-0 h-[60svh] min-h-[420px] max-h-[900px] sm:h-[65svh] md:h-[70svh] lg:h-[75svh]">
           <HeroFill image={image} clips={clips} alt={name} onReady={onReady} />
         </div>
 
-        {/* Bottom CTA strip */}
-        <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center justify-end gap-4 bg-gradient-to-t from-background via-background/60 to-transparent pb-8 pt-24 px-4 sm:px-6">
+        {/* Keep controls outside the artwork so they never cover its text. */}
+        <div className="relative z-30 flex flex-col items-center justify-center gap-4 border-b border-border bg-background px-4 py-5 sm:px-6 sm:py-6">
           <div className="ed-rise flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
             <button
               type="button"
@@ -194,6 +195,15 @@ function HeroFill({ image, clips, alt, onReady }: { image: string; clips: string
 
   return (
     <div className="relative h-full w-full overflow-hidden">
+      {/* Edge-filling backdrop preserves a cinematic full-width field without
+          cropping the actual foreground artwork. */}
+      <img
+        src={image}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
+        draggable={false}
+      />
       {/* Blurred placeholder */}
       <img
         src={HERO_LQIP}
@@ -214,7 +224,7 @@ function HeroFill({ image, clips, alt, onReady }: { image: string; clips: string
           preload="metadata"
           poster={image}
           disablePictureInPicture
-          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
+          className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
           style={{ opacity: loaded ? 1 : 0 }}
           onLoadedData={() => {
             setLoaded(true);
@@ -229,7 +239,7 @@ function HeroFill({ image, clips, alt, onReady }: { image: string; clips: string
           height={1050}
           fetchPriority="high"
           decoding="async"
-          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
+          className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
           style={{ opacity: loaded && !failed ? 1 : 0 }}
           ref={imgRef}
           onLoad={() => {
