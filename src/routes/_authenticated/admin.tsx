@@ -38,13 +38,14 @@ import { ZeroToHeroMediaTab } from "@/components/admin/ZeroToHeroMediaTab";
 import { HomeSectionsTab } from "@/components/admin/HomeSectionsTab";
 import { compressImageFile } from "@/lib/compress-image";
 import { OverviewTab } from "@/components/admin/OverviewTab";
+import { AttendanceTab } from "@/components/admin/AttendanceTab";
 
 
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "approvals" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero" | "home_sections" | "whatsapp_template" | "hero_portrait";
+type Tab = "overview" | "approvals" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "attendance" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero" | "home_sections" | "whatsapp_template" | "hero_portrait";
 
 const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "overview", label: "Overview" },
@@ -72,6 +73,7 @@ const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
   { id: "globe", label: "Globe" },
   { id: "students", label: "Students" },
   { id: "scan", label: "Scan" },
+  { id: "attendance", label: "Attendance scanner", emphasis: true },
 ];
 
 
