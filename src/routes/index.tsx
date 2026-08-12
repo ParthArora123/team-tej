@@ -592,7 +592,7 @@ function Index() {
         to="/workshops"
         className="md:hidden fixed bottom-5 inset-x-5 z-40 flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold py-3.5 shadow-[0_10px_40px_-10px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)]"
       >
-        <Sparkles size={16} /> Explore Workshops
+        <Sparkles size={16} /> Book Your Spot
       </Link>
 
       <HorizontalPager>
