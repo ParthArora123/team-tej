@@ -275,7 +275,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
       style={{
         animationDelay: "180ms",
         background: "transparent",
-        aspectRatio: ratio ? `${ratio}` : "3 / 4",
+        aspectRatio: ratio ? `${ratio}` : "4 / 3",
       }}
     >
 
@@ -322,8 +322,8 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
           <img
             src={image}
             alt={alt}
-            width={1066}
-            height={1600}
+            width={1400}
+            height={1050}
             fetchPriority="high"
             decoding="async"
             className="ed-kenburns absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
