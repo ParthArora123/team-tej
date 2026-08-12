@@ -602,8 +602,9 @@ function Index() {
         <EditorialHero
           founder={founder}
           workshops={workshops}
-          image={heroPhoto ?? uploadedHeroImg}
-          clips={heroClips}
+          image={uploadedHeroImg}
+          clips={[]}
+
           badges={heroBadges}
           onReady={() => setHeroReady(true)}
           onExplore={() => goToHomeSection("workshops", "/workshops")}
