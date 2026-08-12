@@ -49,7 +49,7 @@ export function EditorialHero({
 
   return (
     <>
-      <section className="relative w-full h-svh min-h-[600px]">
+      <section className="relative w-full h-[60svh] sm:h-[65svh] md:h-[70svh] lg:h-[75svh] min-h-[480px] max-h-[900px]">
         {/* FULL-BLEED HERO IMAGE — fills the entire viewport section */}
         <div className="absolute inset-0 z-0">
           <HeroFill image={image} clips={clips} alt={name} onReady={onReady} />
