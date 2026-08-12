@@ -1388,15 +1388,8 @@ main section:first-of-type {
 }
 .ed-rise { animation: ed-rise 760ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-@keyframes ed-kenburns {
-  from { transform: scale(1); }
-  to { transform: scale(1.06); }
-}
-.ed-kenburns { animation: ed-kenburns 22s ease-in-out infinite alternate; }
-
 @media (prefers-reduced-motion: reduce) {
   .ed-rise { animation: none !important; opacity: 1; transform: none; }
-  .ed-kenburns { animation: none !important; }
 }
 
 /* ============================================================
