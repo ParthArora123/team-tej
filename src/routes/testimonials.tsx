@@ -88,10 +88,11 @@ function Testimonials() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !quote.trim() || !video) {
-      setError("Add your name, a short story, and a video.");
+    if (!name.trim() || !quote.trim()) {
+      setError("Add your name and a short story.");
       return;
     }
+
     const next: Testimonial = {
       id: "u-" + Date.now().toString(36),
       name: name.trim(),
@@ -192,7 +193,7 @@ function Testimonials() {
 
           <div className="mt-3">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Video (max 500 MB)
+              Video (optional, max 500 MB)
             </span>
             <div className="mt-1 flex items-center gap-3">
               <button
@@ -231,7 +232,7 @@ function Testimonials() {
             Post testimonial
           </button>
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Videos are stored locally in your browser for this demo.
+            Video is optional. Any uploaded videos are stored locally in your browser for this demo.
           </p>
         </motion.form>
       </section>
