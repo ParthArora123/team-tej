@@ -91,6 +91,7 @@ type HeroSlide = {
 
 type HomeLoaderData = {
   heroSlides: HeroSlide[];
+  bundle: any | null;
 };
 
 const preloadLinkForHeroMedia = (src?: string | null) => {
@@ -111,10 +112,17 @@ const preconnectLinkForHeroMedia = (src?: string | null) => {
   }
 };
 
-function loadHomeData(): HomeLoaderData {
-  // Never block the first homepage paint on remote carousel data.
-  // The local hero image renders immediately; CMS slides hydrate after paint.
-  return { heroSlides: [] };
+async function loadHomeData(): Promise<HomeLoaderData> {
+  // Fetch the whole public homepage payload during SSR so the first HTML
+  // already contains hero slides, workshops and every below-the-fold section.
+  // Previously this ran only after hydration, which meant the visitor stared
+  // at empty sections for several seconds on mobile/slow networks.
+  try {
+    const bundle: any = await (getHomeBundle as any)();
+    return { heroSlides: Array.isArray(bundle?.heroSlides) ? bundle.heroSlides : [], bundle };
+  } catch {
+    return { heroSlides: [], bundle: null };
+  }
 }
 
 function isSlowNetwork(): boolean {
@@ -324,10 +332,11 @@ const revealDelay = (i: number) => ({ animationDelay: `${100 + i * 80}ms` });
 
 function Index() {
   const loaderData = Route.useLoaderData() as HomeLoaderData;
+  const ssrBundle = loaderData.bundle ?? null;
 
-  const [workshops, setWorkshops] = useState<any[]>([]);
+  const [workshops, setWorkshops] = useState<any[]>(ssrBundle?.workshops ?? []);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(loaderData.heroSlides ?? []);
-  const [featured, setFeatured] = useState<any | null>(null);
+  const [featured, setFeatured] = useState<any | null>(ssrBundle?.featured ?? null);
   const [heroPhoto, setHeroPhoto] = useState<string | null>(null);
 
   // Every below-the-fold dataset lands in ONE state object. Previously each of
@@ -346,16 +355,16 @@ function Index() {
     performances: HomeCard[];
     sigPrograms: HomeCard[];
   }>({
-    celebrities: [],
-    brands: [],
-    globe: [],
-    gallery: [],
-    danceStyles: null,
-    choreos: [],
-    founder: null,
-    testimonials: [],
-    performances: [],
-    sigPrograms: [],
+    celebrities: ssrBundle?.celebrities ?? [],
+    brands: ssrBundle?.brands ?? [],
+    globe: ssrBundle?.globe ?? [],
+    gallery: ssrBundle?.gallery ?? [],
+    danceStyles: ssrBundle ? (ssrBundle.danceStyles ?? []) : null,
+    choreos: ssrBundle?.choreos ?? [],
+    founder: ssrBundle?.founder ?? null,
+    testimonials: ssrBundle?.testimonials ?? [],
+    performances: ssrBundle?.performances ?? [],
+    sigPrograms: ssrBundle?.sigPrograms ?? [],
   });
   const {
     celebrities,
@@ -375,7 +384,7 @@ function Index() {
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
   const [showStageLights, setShowStageLights] = useState(false);
-  const [workshopsLoaded, setWorkshopsLoaded] = useState(false);
+  const [workshopsLoaded, setWorkshopsLoaded] = useState(!!ssrBundle);
 
   // Safety net: hero images cached before hydration never fire onLoad, so
   // ensure heroReady flips true shortly after mount even if the media
@@ -392,7 +401,10 @@ function Index() {
   // each triggering its own React commit. Now the server fans out the reads in
   // parallel, caches them briefly, and the client commits in two batches:
   // above-the-fold first, everything else on the next frame.
+  // When SSR already delivered the payload we skip this entirely — no extra
+  // round-trip, no second render pass.
   useEffect(() => {
+    if (ssrBundle) return;
     if (!heroReady) return;
     let cancelled = false;
     let frame = 0;
@@ -462,7 +474,7 @@ function Index() {
       cancelled = true;
       if (frame) cancelAnimationFrame(frame);
     };
-  }, [fetchHomeBundle, heroReady]);
+  }, [fetchHomeBundle, heroReady, ssrBundle]);
 
   // Returning to the tab (e.g. after publishing a workshop in the admin panel)
   // must show the freshest workshop list without a rebuild or hard reload.
