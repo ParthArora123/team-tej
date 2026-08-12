@@ -257,6 +257,39 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
       className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:aspect-[16/10] lg:h-[68svh] lg:max-w-[80rem]"
       style={{ animationDelay: "180ms" }}
     >
+      {/* Full-bleed cinematic side extension — the SAME image, cropped and
+          mirrored outward so the hero fills the viewport width with no blank
+          margins, while the centered copy stays fully uncropped. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2 overflow-hidden"
+      >
+        <img
+          src={image}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full scale-[1.15] object-cover opacity-45 blur-[10px] saturate-125"
+          draggable={false}
+        />
+        <img
+          src={image}
+          alt=""
+          aria-hidden
+          className="absolute inset-y-0 left-0 h-full w-1/2 object-cover object-right opacity-55 blur-[2px] [transform:scaleX(-1)]"
+          style={{ maskImage: "linear-gradient(to right, black 0%, transparent 92%)", WebkitMaskImage: "linear-gradient(to right, black 0%, transparent 92%)" }}
+          draggable={false}
+        />
+        <img
+          src={image}
+          alt=""
+          aria-hidden
+          className="absolute inset-y-0 right-0 h-full w-1/2 object-cover object-right opacity-55 blur-[2px]"
+          style={{ maskImage: "linear-gradient(to left, black 0%, transparent 92%)", WebkitMaskImage: "linear-gradient(to left, black 0%, transparent 92%)" }}
+          draggable={false}
+        />
+        <div className="absolute inset-0 bg-background/25" />
+      </div>
+
       {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
           painted before the real portrait arrives. */}
       <img
@@ -266,6 +299,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
         className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
         draggable={false}
       />
+
       <div
         ref={mediaRef}
         className="absolute inset-0 will-change-transform"
