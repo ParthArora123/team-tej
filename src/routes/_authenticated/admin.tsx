@@ -222,6 +222,8 @@ function AdminPage() {
       {tab === "whatsapp_template" && <WhatsappTemplateTab />}
 
       {tab === "scan" && <ScanTab onScan={scan} />}
+
+      {tab === "attendance" && <AttendanceTab />}
     </div>
   );
 }
