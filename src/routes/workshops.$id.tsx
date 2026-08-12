@@ -681,7 +681,7 @@ function WorkshopDetailPage() {
                   autoPlay muted loop playsInline preload="auto"
                   className="w-full h-full object-contain" />
               ) : heroMedia?.media_url ? (
-                <img src={heroMedia.media_url} alt={program.name} className="w-full h-full object-cover lg:object-contain" />
+                <img src={heroMedia.media_url} alt={program.name} fetchPriority="high" decoding="async" className="w-full h-full object-cover lg:object-contain" />
               ) : (
                 <div className="w-full h-full grid place-items-center bg-gradient-to-br from-accent/40 to-black">
                   <Sparkles className="text-primary/60" size={48} />
