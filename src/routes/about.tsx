@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Sparkles, Award, Users } from "lucide-react";
+import aboutImg from "@/assets/founder.jpg";
+import { MotionImage } from "@/components/site/MotionImage";
 import { useServerFn } from "@tanstack/react-start";
 import { cachedCall } from "@/lib/public-data-cache";
 import { getSiteContent } from "@/lib/site-content.functions";
