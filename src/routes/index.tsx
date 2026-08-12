@@ -1136,7 +1136,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
             <Play size={12} /> Iconic Work
           </p>
           <h2 className="mt-3 font-display text-4xl lg:text-6xl font-bold text-balance leading-[1.02]">
-            Our Most Viral <span className="italic font-light">Choreographies.</span>
+            Most Loved <span className="italic font-light">Choreography.</span>
           </h2>
         </div>
 
