@@ -26,19 +26,6 @@ export function Footer() {
         style={{ background: "linear-gradient(90deg, transparent, var(--border), transparent)" }}
       />
 
-      {/* Very faint oversized background typography — premium, non-distracting */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 flex items-end justify-center overflow-hidden"
-      >
-        <span
-          className="font-display text-[14vw] md:text-[11vw] lg:text-[9vw] leading-[0.82] tracking-tighter text-foreground/[0.025] select-none translate-y-[18%]"
-          style={{ willChange: "transform" }}
-        >
-          TEJAS D DHOKE
-        </span>
-      </div>
-
       {/* Soft warm light wash */}
       <div
         aria-hidden
@@ -48,6 +35,7 @@ export function Footer() {
             "radial-gradient(circle, color-mix(in oklab, var(--beige) 55%, transparent), transparent 70%)",
         }}
       />
+
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pb-8">
         {/* Main CTA Card — warm invitation */}
