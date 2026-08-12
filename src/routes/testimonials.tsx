@@ -193,7 +193,7 @@ function Testimonials() {
 
           <div className="mt-3">
             <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Video (max 500 MB)
+              Video (optional, max 500 MB)
             </span>
             <div className="mt-1 flex items-center gap-3">
               <button
