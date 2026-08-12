@@ -10,6 +10,7 @@ import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Fac
 
 import heroImg from "@/assets/tejasdhoke.jpg";
 import uploadedHeroImg from "@/assets/tejas-hero.webp";
+import meetTejasImg from "@/assets/tejas-meet.png.asset.json";
 import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
