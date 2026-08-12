@@ -10,7 +10,7 @@ import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Fac
 
 import heroImg from "@/assets/tejasdhoke.jpg";
 import uploadedHeroImg from "@/assets/tejas-hero.webp";
-import meetTejasImg from "@/assets/tejas-meet.png.asset.json";
+import meetTejasImg from "@/assets/tejas-meet.webp";
 import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
@@ -1245,7 +1245,7 @@ function FounderSection({ founder }: { founder: any | null }) {
   const name = founder?.name || "Tejas D Dhoke";
   const title = founder?.title || "Founder";
   const intro = founder?.intro || "";
-  const image = meetTejasImg.url;
+  const image = meetTejasImg;
   const biography = founder?.biography || "";
   const achievements: string[] = Array.isArray(founder?.achievements) ? founder.achievements : [];
   const socials = founder?.socials || {};
