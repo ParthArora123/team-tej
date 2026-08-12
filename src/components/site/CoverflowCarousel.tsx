@@ -151,7 +151,7 @@ const CardMedia = memo(function CardMedia({
           muted
           loop
           playsInline
-          preload={active ? "auto" : "metadata"}
+          preload={active ? "auto" : visible ? "metadata" : "none"}
           disableRemotePlayback
           disablePictureInPicture
           onLoadedData={primeFrame}
@@ -302,12 +302,13 @@ export function CoverflowCarousel({
               onClick={() => !active && setIndex(i)}
             >
               <motion.div
-                animate={{ y: active ? [0, -8, 0] : 0 }}
+                animate={{ y: active && inView ? [0, -8, 0] : 0 }}
                 transition={
-                  active
+                  active && inView
                     ? { duration: 6, repeat: Infinity, ease: "easeInOut" }
                     : { duration: 0.4 }
                 }
+
                 className={`group relative h-full w-full overflow-hidden rounded-3xl border ${
                   active
                     ? "border-primary/40 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)]"

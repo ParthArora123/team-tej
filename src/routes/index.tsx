@@ -381,7 +381,7 @@ function Index() {
   } = deferred;
 
 
-  const [slideIdx, setSlideIdx] = useState(0);
+  const slideIdx = 0;
   const [heroReady, setHeroReady] = useState(false);
   const [warmSlides, setWarmSlides] = useState(false);
   const [showStageLights, setShowStageLights] = useState(false);
@@ -548,13 +548,10 @@ function Index() {
     return () => io.disconnect();
   }, []);
 
-  useEffect(() => {
-    if (!heroReady || heroSlides.length < 2 || !heroVisible) return;
-    const t = setInterval(() => {
-      requestAnimationFrame(() => setSlideIdx((i) => (i + 1) % heroSlides.length));
-    }, 5000);
-    return () => clearInterval(t);
-  }, [heroReady, heroSlides.length, heroVisible]);
+  // NOTE: the hero rotates its own media internally; the page-level 5s
+  // interval that used to live here re-rendered the entire homepage tree
+  // every 5 seconds for nothing. Removed.
+
 
   // Soonest upcoming workshop — fully dynamic, sourced from whatever the
   // admin has entered for event_date / capacity / seats_taken. No hardcoded
