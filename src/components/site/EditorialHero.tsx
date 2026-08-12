@@ -199,7 +199,17 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
     }
     setLoaded(false);
     setFailed(false);
-  }, [image]);
+    // Safety net: videos with `preload="metadata"` (and any source whose load
+    // event is missed on mobile/data-saver) never fire `loadeddata`, which used
+    // to leave the blurred placeholder covering the hero forever. Reveal the
+    // real media shortly after mount regardless.
+    const t = setTimeout(() => {
+      setLoaded(true);
+      onReady?.();
+    }, 1200);
+    return () => clearTimeout(t);
+  }, [image, clips, idx]);
+
 
 
 

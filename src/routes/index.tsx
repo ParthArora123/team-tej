@@ -9,7 +9,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowUpRight, Sparkles, Calendar, MapPin, Play, Instagram, Youtube, Facebook, Twitter, Linkedin, HeartHandshake, Target, Music2, Users2, Rocket, Heart, Video, ChevronDown } from "lucide-react";
 
 import heroImg from "@/assets/tejasdhoke.jpg";
-import uploadedHeroImg from "@/assets/tejasdhoke-hero.webp.asset.json";
+import uploadedHeroImg from "@/assets/tejasdhoke-hero.webp";
 import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
@@ -282,7 +282,7 @@ function HeroSlideMedia({
 export const Route = createFileRoute("/")({
   loader: loadHomeData,
   head: ({ loaderData }) => {
-    const firstHero = loaderData?.heroSlides?.[0]?.image_url || uploadedHeroImg.url;
+    const firstHero = loaderData?.heroSlides?.[0]?.image_url || uploadedHeroImg;
     const preload = preloadLinkForHeroMedia(firstHero);
     const preconnect = preconnectLinkForHeroMedia(firstHero);
     return {
@@ -421,7 +421,7 @@ function Index() {
         setFeatured(b.featured ?? null);
 
         const portrait = b.heroPortrait?.image_url;
-        if (portrait && portrait !== uploadedHeroImg.url) {
+        if (portrait && portrait !== uploadedHeroImg) {
           const img = new Image();
           img.decoding = "async";
           const swap = () => { if (!cancelled) setHeroPhoto(portrait); };
@@ -602,7 +602,7 @@ function Index() {
         <EditorialHero
           founder={founder}
           workshops={workshops}
-          image={heroPhoto ?? uploadedHeroImg.url}
+          image={heroPhoto ?? uploadedHeroImg}
           clips={heroClips}
           badges={heroBadges}
           onReady={() => setHeroReady(true)}
