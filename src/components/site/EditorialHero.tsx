@@ -52,7 +52,7 @@ export function EditorialHero({
       <section className="relative w-full bg-background">
         {/* The foreground always uses contain so the supplied artwork and all
             embedded text remain visible at every viewport ratio. */}
-        <div className="relative z-0 h-[60svh] min-h-[420px] max-h-[900px] sm:h-[65svh] md:h-[70svh] lg:h-[75svh]">
+        <div className="relative z-0 aspect-[4/3] w-full">
           <HeroFill image={image} clips={clips} alt={name} onReady={onReady} />
         </div>
 
