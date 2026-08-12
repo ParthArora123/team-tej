@@ -87,9 +87,10 @@ export function Footer() {
             <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground mb-4">Explore</p>
             <ul className="space-y-2.5 text-[14px]">
               {explore.map((l) => (
-                <li key={l.to}>
+                <li key={`${l.to}${(l as any).hash ?? ""}`}>
                   <Link
-                    to={l.to}
+                    to={l.to as any}
+                    hash={(l as any).hash}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {l.label}
