@@ -76,8 +76,19 @@ function Dashboard() {
   const [proofError, setProofError] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState<Record<string, boolean>>({});
 
-  const reload = async () => setRows(await fetchEnrollments());
-  useEffect(() => { reload(); adminCheck().then((r) => setIsAdmin(r.isAdmin)); }, []);
+  const reload = async () => {
+    // A dropped request must never take the whole page down.
+    try {
+      setRows(await fetchEnrollments());
+    } catch {
+      toast.error("Couldn't load your bookings. Please check your connection and retry.");
+    }
+  };
+  useEffect(() => {
+    reload();
+    adminCheck().then((r) => setIsAdmin(r.isAdmin)).catch(() => setIsAdmin(false));
+  }, []);
+
 
   const signOut = async () => { await supabase.auth.signOut(); navigate({ to: "/" }); };
 
