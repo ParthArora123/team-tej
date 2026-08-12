@@ -282,7 +282,7 @@ function HeroSlideMedia({
 export const Route = createFileRoute("/")({
   loader: loadHomeData,
   head: ({ loaderData }) => {
-    const firstHero = loaderData?.heroSlides?.[0]?.image_url || uploadedHeroImg;
+    const firstHero = uploadedHeroImg;
     const preload = preloadLinkForHeroMedia(firstHero);
     const preconnect = preconnectLinkForHeroMedia(firstHero);
     return {
