@@ -232,7 +232,7 @@ function Testimonials() {
             Post testimonial
           </button>
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Videos are stored locally in your browser for this demo.
+            Video is optional. Any uploaded videos are stored locally in your browser for this demo.
           </p>
         </motion.form>
       </section>
