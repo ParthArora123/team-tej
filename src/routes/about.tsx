@@ -159,6 +159,71 @@ function About() {
         </section>
       )}
 
+      {/* Known for */}
+      <section className="relative border-t border-border/60">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-20">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-primary">Recognition</p>
+          <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold">What he is known for</h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground leading-relaxed">
+            Tejas Dinesh Dhoke is a celebrity choreographer, dance educator and founder of DanceFit —
+            recognised for making high-energy choreography learnable for everyone.
+          </p>
+          <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {KNOWN_FOR.map((k, i) => (
+              <motion.div
+                key={k.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ delay: i * 0.06, duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
+                className="p-7 rounded-2xl glass-card hover-lift"
+              >
+                <div
+                  className="flex items-center justify-center h-11 w-11 rounded-xl mb-5"
+                  style={{ background: "color-mix(in oklab, var(--primary) 14%, transparent)", color: "var(--primary)" }}
+                >
+                  <k.icon size={18} />
+                </div>
+                <p className="font-display text-xl font-bold">{k.title}</p>
+                <p className="mt-2 text-muted-foreground leading-relaxed">{k.body}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Certifications */}
+      <section className="relative border-t border-border/60">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-20">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-primary">Credentials</p>
+          <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold">Certifications &amp; memberships</h2>
+          <div className="mt-10 grid md:grid-cols-3 gap-6">
+            {CERTIFICATES.map((c, i) => (
+              <motion.figure
+                key={c.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ delay: i * 0.08, duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
+                className="rounded-2xl glass-card hover-lift overflow-hidden"
+              >
+                <div className="aspect-[4/3] bg-muted/40 flex items-center justify-center p-3">
+                  <img
+                    src={c.src}
+                    alt={c.alt}
+                    loading="lazy"
+                    className="max-h-full max-w-full object-contain rounded-lg"
+                  />
+                </div>
+                <figcaption className="p-6 border-t border-border/60">
+                  <p className="font-display text-lg font-bold">{c.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{c.meta}</p>
+                </figcaption>
+              </motion.figure>
+            ))}
+          </div>
+        </div>
+      </section>
     </>
   );
 }
