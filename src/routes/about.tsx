@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { Sparkles, Award, Users } from "lucide-react";
+import { Sparkles, Award, Users, Clapperboard, GraduationCap, Globe2 } from "lucide-react";
+import cidTejas from "@/assets/cid-tejas-2024.jpg.asset.json";
+import cidDancefit from "@/assets/cid-dancefit-2024.jpg.asset.json";
+import nsdcTrainer from "@/assets/nsdc-master-trainer.jpg.asset.json";
 import aboutImg from "@/assets/founder.jpg";
 import { MotionImage } from "@/components/site/MotionImage";
 import { useServerFn } from "@tanstack/react-start";
@@ -32,6 +35,60 @@ const defaultValues = [
   { title: "Discipline", body: "Every form starts with foundation. We drill until it's muscle memory." },
   { title: "Fusion", body: "Classical, contemporary, urban — borders are where the best work happens." },
   { title: "Stage-first", body: "We train for performance, not just for class. Every batch performs." },
+];
+
+const KNOWN_FOR: { title: string; body: string; icon: typeof Sparkles }[] = [
+  {
+    title: "Celebrity choreographer",
+    body: "High-energy signature choreography for artists, films and brand productions.",
+    icon: Clapperboard,
+  },
+  {
+    title: "Certified master trainer",
+    body: "NSDC / Skill India certified Master Trainer for the Dance Teacher qualification.",
+    icon: GraduationCap,
+  },
+  {
+    title: "Dance educator",
+    body: "Thousands of students trained through workshops, intensives and online programs.",
+    icon: Users,
+  },
+  {
+    title: "Founder — DanceFit",
+    body: "Built a studio and community where beginners and pros train side by side.",
+    icon: Sparkles,
+  },
+  {
+    title: "International member",
+    body: "Registered member of the International Dance Council CID, UNESCO Paris.",
+    icon: Globe2,
+  },
+  {
+    title: "Masterclasses worldwide",
+    body: "Hundreds of masterclasses across cities and continents, on stage and online.",
+    icon: Award,
+  },
+];
+
+const CERTIFICATES: { src: string; alt: string; title: string; meta: string }[] = [
+  {
+    src: nsdcTrainer.url,
+    alt: "Skill India NSDC Certified Master Trainer certificate for Tejas Dinesh Dhoke",
+    title: "Certified Master Trainer",
+    meta: "Skill India / NSDC — Dance Teacher (MES/Q1505) v2.0 · NSQF Level 6",
+  },
+  {
+    src: cidTejas.url,
+    alt: "International Dance Council CID membership confirmation for Tejas Dinesh Dhoke",
+    title: "CID Member — Tejas Dinesh Dhoke",
+    meta: "International Dance Council CID, UNESCO Paris · Reg. 39651 (2024)",
+  },
+  {
+    src: cidDancefit.url,
+    alt: "International Dance Council CID membership confirmation for DanceFit",
+    title: "CID Member — DanceFit",
+    meta: "International Dance Council CID, UNESCO Paris · Reg. 39652 (2024)",
+  },
 ];
 
 function About() {
@@ -159,6 +216,71 @@ function About() {
         </section>
       )}
 
+      {/* Known for */}
+      <section className="relative border-t border-border/60">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-20">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-primary">Recognition</p>
+          <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold">What he is known for</h2>
+          <p className="mt-4 max-w-2xl text-muted-foreground leading-relaxed">
+            Tejas Dinesh Dhoke is a celebrity choreographer, dance educator and founder of DanceFit —
+            recognised for making high-energy choreography learnable for everyone.
+          </p>
+          <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {KNOWN_FOR.map((k, i) => (
+              <motion.div
+                key={k.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ delay: i * 0.06, duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
+                className="p-7 rounded-2xl glass-card hover-lift"
+              >
+                <div
+                  className="flex items-center justify-center h-11 w-11 rounded-xl mb-5"
+                  style={{ background: "color-mix(in oklab, var(--primary) 14%, transparent)", color: "var(--primary)" }}
+                >
+                  <k.icon size={18} />
+                </div>
+                <p className="font-display text-xl font-bold">{k.title}</p>
+                <p className="mt-2 text-muted-foreground leading-relaxed">{k.body}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Certifications */}
+      <section className="relative border-t border-border/60">
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-20">
+          <p className="text-[11px] uppercase tracking-[0.22em] text-primary">Credentials</p>
+          <h2 className="mt-3 font-display text-3xl md:text-4xl font-bold">Certifications &amp; memberships</h2>
+          <div className="mt-10 grid md:grid-cols-3 gap-6">
+            {CERTIFICATES.map((c, i) => (
+              <motion.figure
+                key={c.title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ delay: i * 0.08, duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
+                className="rounded-2xl glass-card hover-lift overflow-hidden"
+              >
+                <div className="aspect-[4/3] bg-muted/40 flex items-center justify-center p-3">
+                  <img
+                    src={c.src}
+                    alt={c.alt}
+                    loading="lazy"
+                    className="max-h-full max-w-full object-contain rounded-lg"
+                  />
+                </div>
+                <figcaption className="p-6 border-t border-border/60">
+                  <p className="font-display text-lg font-bold">{c.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{c.meta}</p>
+                </figcaption>
+              </motion.figure>
+            ))}
+          </div>
+        </div>
+      </section>
     </>
   );
 }
