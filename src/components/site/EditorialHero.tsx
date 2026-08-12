@@ -257,20 +257,9 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
     <div
       ref={frameRef}
       className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:aspect-[16/10] lg:h-[68svh] lg:max-w-[80rem]"
-      style={{ animationDelay: "180ms" }}
+      style={{ animationDelay: "180ms", background: "transparent" }}
     >
 
-
-
-      {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
-          painted before the real portrait arrives. */}
-      <img
-        src={HERO_LQIP}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
-        draggable={false}
-      />
 
       <div
         ref={mediaRef}
