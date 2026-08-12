@@ -78,8 +78,10 @@ export function EditorialHero({
             <div className="relative isolate z-30">
 
               <div aria-hidden className="cine-spot" />
+              <HeroSideExtension image={image} />
               <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
             </div>
+
 
             <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3 lg:mt-6" style={{ animationDelay: "520ms" }}>
 
