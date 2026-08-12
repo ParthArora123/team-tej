@@ -344,3 +344,45 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   );
 
 }
+
+/**
+ * Full-bleed cinematic side extension — the SAME hero image, cropped and
+ * mirrored outward so the hero fills the viewport width with no blank margins,
+ * while the centered copy stays fully uncropped.
+ */
+function HeroSideExtension({ image }: { image: string }) {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2 overflow-hidden"
+    >
+      <img
+        src={image}
+        alt=""
+        className="absolute inset-0 h-full w-full scale-[1.15] object-cover opacity-40 blur-[14px] saturate-125"
+        draggable={false}
+      />
+      <img
+        src={image}
+        alt=""
+        className="absolute inset-y-0 left-0 h-full w-1/2 object-cover object-right opacity-60 blur-[3px] [transform:scaleX(-1)]"
+        style={{
+          maskImage: "linear-gradient(to right, black 0%, transparent 88%)",
+          WebkitMaskImage: "linear-gradient(to right, black 0%, transparent 88%)",
+        }}
+        draggable={false}
+      />
+      <img
+        src={image}
+        alt=""
+        className="absolute inset-y-0 right-0 h-full w-1/2 object-cover object-right opacity-60 blur-[3px]"
+        style={{
+          maskImage: "linear-gradient(to left, black 0%, transparent 88%)",
+          WebkitMaskImage: "linear-gradient(to left, black 0%, transparent 88%)",
+        }}
+        draggable={false}
+      />
+      <div className="absolute inset-0 bg-background/20" />
+    </div>
+  );
+}
