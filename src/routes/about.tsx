@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { Sparkles, Award, Users } from "lucide-react";
+import { Sparkles, Award, Users, Clapperboard, GraduationCap, Globe2 } from "lucide-react";
+import cidTejas from "@/assets/cid-tejas-2024.jpg.asset.json";
+import cidDancefit from "@/assets/cid-dancefit-2024.jpg.asset.json";
+import nsdcTrainer from "@/assets/nsdc-master-trainer.jpg.asset.json";
 import aboutImg from "@/assets/founder.jpg";
 import { MotionImage } from "@/components/site/MotionImage";
 import { useServerFn } from "@tanstack/react-start";
