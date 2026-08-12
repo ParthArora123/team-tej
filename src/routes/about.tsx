@@ -2,9 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Sparkles, Award, Users, Clapperboard, GraduationCap, Globe2 } from "lucide-react";
-import cidTejas from "@/assets/cid-tejas-2024.jpg.asset.json";
-import cidDancefit from "@/assets/cid-dancefit-2024.jpg.asset.json";
-import nsdcTrainer from "@/assets/nsdc-master-trainer.jpg.asset.json";
+import cidTejas from "@/assets/cid-tejas-2024.webp";
+import cidDancefit from "@/assets/cid-dancefit-2024.webp";
+import nsdcTrainer from "@/assets/nsdc-master-trainer.webp";
 import aboutImg from "@/assets/founder.jpg";
 import { MotionImage } from "@/components/site/MotionImage";
 import { useServerFn } from "@tanstack/react-start";
@@ -72,19 +72,19 @@ const KNOWN_FOR: { title: string; body: string; icon: typeof Sparkles }[] = [
 
 const CERTIFICATES: { src: string; alt: string; title: string; meta: string }[] = [
   {
-    src: nsdcTrainer.url,
+    src: nsdcTrainer,
     alt: "Skill India NSDC Certified Master Trainer certificate for Tejas Dinesh Dhoke",
     title: "Certified Master Trainer",
     meta: "Skill India / NSDC — Dance Teacher (MES/Q1505) v2.0 · NSQF Level 6",
   },
   {
-    src: cidTejas.url,
+    src: cidTejas,
     alt: "International Dance Council CID membership confirmation for Tejas Dinesh Dhoke",
     title: "CID Member — Tejas Dinesh Dhoke",
     meta: "International Dance Council CID, UNESCO Paris · Reg. 39651 (2024)",
   },
   {
-    src: cidDancefit.url,
+    src: cidDancefit,
     alt: "International Dance Council CID membership confirmation for DanceFit",
     title: "CID Member — DanceFit",
     meta: "International Dance Council CID, UNESCO Paris · Reg. 39652 (2024)",
