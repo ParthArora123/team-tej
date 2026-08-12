@@ -65,7 +65,7 @@ export function TestimonialsCarousel({ items }: { items?: Testimonial[] }) {
                 style={{ background: "linear-gradient(135deg, var(--primary), #7A3BFF)" }}
               >
                 {avatar ? (
-                  <img src={avatar} alt={t.name} className="h-full w-full rounded-full object-cover" />
+                  <img src={avatar} alt={t.name} loading="lazy" decoding="async" className="h-full w-full rounded-full object-cover" />
                 ) : (
                   t.name.charAt(0)
                 )}
