@@ -208,7 +208,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
       onReady?.();
     }, 1200);
     return () => clearTimeout(t);
-  }, [image, clips, idx]);
+  }, [image, clips.join('|'), idx]);
 
 
 
