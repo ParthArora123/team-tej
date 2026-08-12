@@ -22,12 +22,15 @@ const CardMedia = memo(function CardMedia({
   item,
   active,
   visible,
+  warm,
   playing,
   muted,
 }: {
   item: CoverflowItem;
   active: boolean;
   visible: boolean;
+  /** Next-up card: warms metadata in the background so the swap is instant. */
+  warm: boolean;
   playing: boolean;
   muted: boolean;
 }) {
