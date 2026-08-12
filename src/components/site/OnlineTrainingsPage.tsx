@@ -83,7 +83,7 @@ function CtaButton({
       target="_blank"
       rel="noopener noreferrer"
       className={[
-        "inline-flex items-center justify-center gap-2 rounded-xl df-gradient-bg px-5 py-3 text-sm font-bold text-white shadow-[0_10px_26px_-12px_rgba(238,61,139,0.8)] transition-transform hover:scale-[1.02] active:scale-[0.98]",
+        "ed-cta inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold text-white",
         className,
       ].join(" ")}
     >
