@@ -1,6 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { onScrollY } from "@/lib/scroll-signal";
+
 import { Menu, X } from "lucide-react";
 // Supabase is imported lazily inside the effect so the auth bundle never
 // blocks first paint of the header.
@@ -35,12 +37,8 @@ export function Header() {
     };
   }, []);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  useEffect(() => onScrollY((y) => setScrolled((s) => (s === y > 12 ? s : y > 12))), []);
+
 
   const isActive = (to: string) =>
     to === "/" ? pathname === "/" : pathname === to || pathname.startsWith(`${to}/`);

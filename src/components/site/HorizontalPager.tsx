@@ -80,40 +80,33 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
     return () => cancelAnimationFrame(id);
   }, [mounted, nav]);
 
-  // Pre-warm the remaining slides while the browser is idle, one per idle
-  // tick, so navigating never pays the React mount cost inside the animation.
-  // Deliberately does not depend on `mounted` — that re-armed the callback on
-  // every mount and kept scheduling work on the main thread.
+  // Pre-warm ONLY the next slide while the browser is idle. Warming every
+  // remaining chapter mounted the whole site into one DOM (~3k nodes), which
+  // made every style recalculation and scroll frame far more expensive.
   const mountedRef = useRef(mounted);
   mountedRef.current = mounted;
   useEffect(() => {
     if (typeof window === "undefined") return;
+    const next = index + 1;
+    if (next >= count || mountedRef.current.includes(next)) return;
     const w = window as Window & {
       requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
       cancelIdleCallback?: (handle: number) => void;
     };
     const useIdle = typeof w.requestIdleCallback === "function";
     let cancelled = false;
-    let handle: number;
-    const schedule = () => {
-      handle = useIdle
-        ? w.requestIdleCallback!(warm, { timeout: 3000 })
-        : window.setTimeout(warm, 800);
-    };
     const warm = () => {
       if (cancelled) return;
-      const next = mountedRef.current.length;
-      if (next >= count) return;
       setMounted((m) => (m.includes(next) ? m : [...m, next]));
-      schedule();
     };
-    schedule();
+    const handle = useIdle ? w.requestIdleCallback!(warm, { timeout: 4000 }) : window.setTimeout(warm, 1200);
     return () => {
       cancelled = true;
       if (useIdle) w.cancelIdleCallback?.(handle);
       else clearTimeout(handle);
     };
-  }, [count]);
+  }, [count, index, mounted]);
+
 
 
 

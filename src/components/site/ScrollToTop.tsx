@@ -1,16 +1,14 @@
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUp } from "lucide-react";
 import { useEffect, useState } from "react";
+import { onScrollY } from "@/lib/scroll-signal";
 
 export function ScrollToTop() {
   const [show, setShow] = useState(false);
 
-  useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 800);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  // Shared, rAF-coalesced scroll signal — no per-component scroll listener.
+  useEffect(() => onScrollY((y) => setShow((s) => (s === y > 800 ? s : y > 800))), []);
+
 
   return (
     <AnimatePresence>
