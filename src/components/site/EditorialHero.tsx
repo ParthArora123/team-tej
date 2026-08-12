@@ -5,19 +5,15 @@ import { ArrowUpRight, Instagram, Play, Youtube } from "lucide-react";
 import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
 /**
- * EditorialHero — the reference "story board" hero:
- * three editorial columns (philosophy · framed portrait with stat pills ·
- * upcoming studio day) sitting under one centered display title.
- *
- * Everything animates with compositor-only CSS (opacity + transform), so the
- * whole screen stays at 60fps on mobile.
+ * EditorialHero — full-bleed cinematic hero image.
+ * The hero image fills the entire viewport section edge-to-edge with no
+ * surrounding whitespace. The Tejas Dhoke heading is removed; CTAs sit on a
+ * soft gradient at the bottom so they stay readable over the image.
  */
 export function EditorialHero({
   founder,
-  workshops,
   image,
   clips,
-  badges,
   onReady,
   onExplore,
   onWatch,
@@ -52,101 +48,77 @@ export function EditorialHero({
 
 
   return (
-    <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-24 pb-8 lg:pt-20 lg:pb-10">
-      {/* ROW 1 — HERO: full-width cinematic portrait */}
-      <div className="mx-auto flex w-full max-w-[92rem] flex-col justify-center gap-5">
+    <>
+      <section className="relative w-full h-svh min-h-[600px]">
+        {/* FULL-BLEED HERO IMAGE — fills the entire viewport section */}
+        <div className="absolute inset-0 z-0">
+          <HeroFill image={image} clips={clips} alt={name} onReady={onReady} />
+        </div>
 
-        <div className="flex min-w-0 flex-col justify-center">
-          <header className="relative z-10 shrink-0 text-center">
-            <h1 className="ed-rise cine-title font-display text-[2.7rem] leading-[0.92] sm:text-6xl lg:text-7xl xl:text-[6rem] font-bold tracking-[-0.03em]">
+        {/* Bottom CTA strip */}
+        <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center justify-end gap-4 bg-gradient-to-t from-background via-background/60 to-transparent pb-8 pt-24 px-4 sm:px-6">
+          <div className="ed-rise flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: "520ms" }}>
+            <button
+              type="button"
+              onClick={onExplore}
+              className="ed-cta group inline-flex items-center gap-2 px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
+            >
+              Explore Workshops
+              <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </button>
 
-              {name.toUpperCase()}
-            </h1>
-            <p className="ed-rise mt-2.5 flex items-center justify-center gap-2 text-[10px] sm:text-[0.85rem] font-extrabold uppercase tracking-[0.2em]" style={{ animationDelay: "90ms" }}>
-              <span className="role-educator">Dance Educator</span>
-              <span className="text-muted-foreground text-[0.75rem]">•</span>
-              <span className="role-performer">Performer</span>
-              <span className="text-muted-foreground text-[0.75rem]">•</span>
-              <span className="role-choreographer">Choreographer</span>
-            </p>
-            <p className="ed-rise mt-2 text-sm sm:text-base text-muted-foreground" style={{ animationDelay: "150ms" }}>
-              Transforming passion into performance.
-            </p>
-          </header>
-
-          <div className="relative z-30 mt-4 flex flex-col lg:mt-6">
-            <div className="relative isolate z-30">
-
-              <div aria-hidden className="cine-spot" />
-              <HeroSideExtension image={image} />
-              <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
-            </div>
-
-
-            <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3 lg:mt-6" style={{ animationDelay: "520ms" }}>
-
-              <button
-                type="button"
-                onClick={onExplore}
-                className="ed-cta group inline-flex items-center gap-2 px-9 py-4 text-xs sm:text-sm font-semibold uppercase tracking-[0.16em]"
-              >
-                Explore Workshops
-                <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </button>
-
-              <button
-                type="button"
-                onClick={onWatch}
-                className="inline-flex items-center gap-2 rounded-full px-5 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] text-foreground/80 transition hover:text-primary"
-              >
-                <Play size={13} /> Watch Performances
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={onWatch}
+              className="inline-flex items-center gap-2 rounded-full px-5 py-3.5 text-xs sm:text-sm font-semibold uppercase tracking-[0.14em] text-foreground/90 transition hover:text-primary"
+            >
+              <Play size={13} /> Watch Performances
+            </button>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ROW 2 — Belief, Vision & Mission */}
-      <div className="mx-auto mt-8 w-full max-w-[92rem] lg:mt-12">
-        <div className="flex min-w-0 flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {columns.map((c, i) => (
-              <article key={c.t} className="ed-rise ed-card p-5 lg:p-7" style={{ animationDelay: `${220 + i * 80}ms` }}>
-                <p className="ed-eyebrow">{c.k}</p>
-                <h2 className="mt-1.5 font-display text-xl lg:text-2xl font-bold">{c.t}</h2>
-                <p className="mt-2.5 text-[14px] leading-relaxed text-muted-foreground whitespace-pre-line">{c.v}</p>
-              </article>
-            ))}
-          </div>
-
-          {(hasMore || socials.instagram || socials.youtube) && (
-            <div className="ed-rise flex items-center justify-center gap-2" style={{ animationDelay: "460ms" }}>
-              {hasMore && (
-                <button
-                  onClick={() => setOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-medium transition hover:border-primary hover:text-primary"
-                >
-                  Know more <ArrowUpRight size={14} />
-                </button>
-              )}
-              {socials.instagram && (
-                <a href={socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-                  className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
-                  <Instagram size={15} />
-                </a>
-              )}
-              {socials.youtube && (
-                <a href={socials.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
-                  className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
-                  <Youtube size={15} />
-                </a>
-              )}
+      <section className="relative w-full px-3 sm:px-6 lg:px-10 pt-8 pb-8 lg:pt-12 lg:pb-10">
+        <div className="mx-auto w-full max-w-[92rem]">
+          <div className="flex min-w-0 flex-col gap-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {columns.map((c, i) => (
+                <article key={c.t} className="ed-rise ed-card p-5 lg:p-7" style={{ animationDelay: `${220 + i * 80}ms` }}>
+                  <p className="ed-eyebrow">{c.k}</p>
+                  <h2 className="mt-1.5 font-display text-xl lg:text-2xl font-bold">{c.t}</h2>
+                  <p className="mt-2.5 text-[14px] leading-relaxed text-muted-foreground whitespace-pre-line">{c.v}</p>
+                </article>
+              ))}
             </div>
-          )}
+
+            {(hasMore || socials.instagram || socials.youtube) && (
+              <div className="ed-rise flex items-center justify-center gap-2" style={{ animationDelay: "460ms" }}>
+                {hasMore && (
+                  <button
+                    onClick={() => setOpen(true)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-medium transition hover:border-primary hover:text-primary"
+                  >
+                    Know more <ArrowUpRight size={14} />
+                  </button>
+                )}
+                {socials.instagram && (
+                  <a href={socials.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
+                    className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
+                    <Instagram size={15} />
+                  </a>
+                )}
+                {socials.youtube && (
+                  <a href={socials.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
+                    className="grid h-9 w-9 place-items-center rounded-full border border-border transition hover:border-primary hover:text-primary">
+                    <Youtube size={15} />
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-
-
+      </section>
 
       {open && (
         <div className="modal-fade fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm" onClick={() => setOpen(false)}>
@@ -166,7 +138,7 @@ export function EditorialHero({
           </div>
         </div>
       )}
-    </section>
+    </>
   );
 }
 
@@ -178,17 +150,13 @@ export function EditorialHero({
 const HERO_LQIP =
   "data:image/webp;base64,UklGRsgAAABXRUJQVlA4ILwAAACQBgCdASoYACQAPrVUoUynJKMiKrgKAOAWiWcAzu2LGOrXCeLgFuSrTZX4ZknjnbfTfw2jufWLM6VDyckAAP6XxzNOFXdGBWxS/37jYN0Ut0kY9HXKco15NJdq83Y3DXreKaIuN4vcj+lzSgD60F/11m/O5PAATv7ZaRuI4ILkFtjLpDZROCvVVqWEbKCS8GsqMa5zvRRjzdY8X52uq7T8zMJUW3OXI2Fmjl5nY5xzkxtEhNKzfOSJySIAAA==";
 
-function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: string[]; alt: string; onReady?: () => void }) {
+function HeroFill({ image, clips, alt, onReady }: { image: string; clips: string[]; alt: string; onReady?: () => void }) {
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // A new source starts as "not loaded" again so the blurred placeholder
-  // covers the swap instead of flashing an empty box. Images that were already
-  // in cache (or decoded during SSR hydration) never fire `load`, so check
-  // `complete` right after mount too.
   useEffect(() => {
     const el = imgRef.current;
     if (el && el.complete && el.naturalWidth > 0) {
@@ -199,19 +167,12 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
     }
     setLoaded(false);
     setFailed(false);
-    // Safety net: videos with `preload="metadata"` (and any source whose load
-    // event is missed on mobile/data-saver) never fire `loadeddata`, which used
-    // to leave the blurred placeholder covering the hero forever. Reveal the
-    // real media shortly after mount regardless.
     const t = setTimeout(() => {
       setLoaded(true);
       onReady?.();
     }, 1200);
     return () => clearTimeout(t);
   }, [image, clips.join('|'), idx]);
-
-
-
 
   useEffect(() => {
     if (clips.length < 2) return;
@@ -230,179 +191,68 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   }, [idx, clips.length]);
 
   const clip = clips[idx];
-  const frameRef = useRef<HTMLDivElement>(null);
-  const mediaRef = useRef<HTMLDivElement>(null);
-  // The frame adopts the media's own aspect ratio, so `object-contain` fills it
-  // exactly: the full image is visible with no crop and no side letterboxing.
-  const [ratio, setRatio] = useState<number | null>(null);
-  useEffect(() => setRatio(null), [image, clip]);
-
-
-  // Subtle GPU-only pointer parallax on the hero media.
-  useEffect(() => {
-    const frame = frameRef.current;
-    const media = mediaRef.current;
-    if (!frame || !media) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    if (window.matchMedia("(hover: none)").matches) return;
-    let raf = 0;
-    const onMove = (e: PointerEvent) => {
-      const r = frame.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        media.style.transform = `translate3d(${x * -6}px, ${y * -6}px, 0)`;
-      });
-    };
-    const onLeave = () => {
-      cancelAnimationFrame(raf);
-      media.style.transform = "translate3d(0,0,0) scale(1)";
-    };
-    frame.addEventListener("pointermove", onMove);
-    frame.addEventListener("pointerleave", onLeave);
-    return () => {
-      cancelAnimationFrame(raf);
-      frame.removeEventListener("pointermove", onMove);
-      frame.removeEventListener("pointerleave", onLeave);
-    };
-  }, []);
 
   return (
-    <div
-      ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative mx-auto w-full max-w-[34rem] sm:max-w-[40rem] lg:w-[var(--hero-w)] lg:max-w-[min(100%,88rem)]"
-      style={{
-        animationDelay: "180ms",
-        background: "transparent",
-        aspectRatio: ratio ? `${ratio}` : "4 / 3",
-        // Desktop: grow the frame as wide as possible while its full height
-        // still fits the viewport, so the whole image shows with no crop and
-        // as little side space as possible.
-        ["--hero-w" as string]: `calc(88svh * ${ratio ?? 4 / 3})`,
-      }}
-
-    >
-
-
-
-      <div
-        ref={mediaRef}
-        className="absolute inset-0 will-change-transform"
-        style={{ transition: "transform 420ms cubic-bezier(0.22,1,0.36,1)" }}
-      >
-        {/* Premium blurred placeholder: visible until the portrait (or video
-            poster) has decoded, and it stays put if the source ever fails —
-            the browser's broken-image glyph is never shown. */}
+    <div className="relative h-full w-full overflow-hidden">
+      {/* Blurred placeholder */}
+      <img
+        src={HERO_LQIP}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 h-full w-full object-cover blur-xl saturate-125 transition-opacity duration-500"
+        style={{ opacity: loaded ? 0 : 1 }}
+        draggable={false}
+      />
+      {clip ? (
+        <video
+          ref={videoRef}
+          key={clip}
+          src={clip}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={image}
+          disablePictureInPicture
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
+          style={{ opacity: loaded ? 1 : 0 }}
+          onLoadedData={() => {
+            setLoaded(true);
+            onReady?.();
+          }}
+        />
+      ) : (
         <img
-          src={HERO_LQIP}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 h-full w-full object-contain blur-xl saturate-125 transition-opacity duration-500"
-          style={{ opacity: loaded ? 0 : 1 }}
+          src={image}
+          alt={alt}
+          width={1400}
+          height={1050}
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
+          style={{ opacity: loaded && !failed ? 1 : 0 }}
+          ref={imgRef}
+          onLoad={() => {
+            setLoaded(true);
+            onReady?.();
+          }}
+          onError={() => {
+            setFailed(true);
+            onReady?.();
+          }}
           draggable={false}
         />
-        {clip ? (
-          <video
-            ref={videoRef}
-            key={clip}
-            src={clip}
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={image}
-            disablePictureInPicture
-            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
-            style={{ opacity: loaded ? 1 : 0 }}
-            onLoadedData={(e) => {
-              const v = e.currentTarget;
-              if (v.videoWidth && v.videoHeight) setRatio(v.videoWidth / v.videoHeight);
-              setLoaded(true);
-              onReady?.();
-            }}
+      )}
 
-          />
-        ) : (
-          <img
-            src={image}
-            alt={alt}
-            width={1400}
-            height={1050}
-            fetchPriority="high"
-            decoding="async"
-            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
-            style={{ opacity: loaded && !failed ? 1 : 0 }}
-            ref={imgRef}
-
-            onLoad={(e) => {
-              const el = e.currentTarget;
-              if (el.naturalWidth && el.naturalHeight) setRatio(el.naturalWidth / el.naturalHeight);
-              setLoaded(true);
-              onReady?.();
-            }}
-
-            onError={() => {
-              setFailed(true);
-              onReady?.();
-            }}
-            draggable={false}
-          />
-        )}
-
-      </div>
       {/* cinematic vignette + top light falloff */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 92% 88% at 50% 45%, transparent 70%, oklch(0 0 0 / 18%) 100%)",
+            "radial-gradient(ellipse 92% 88% at 50% 45%, transparent 70%, oklch(0 0 0 / 22%) 100%)",
         }}
       />
-    </div>
-  );
-
-}
-
-/**
- * Full-bleed cinematic side extension — the SAME hero image, cropped and
- * mirrored outward so the hero fills the viewport width with no blank margins,
- * while the centered copy stays fully uncropped.
- */
-function HeroSideExtension({ image }: { image: string }) {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2 overflow-hidden"
-    >
-      <img
-        src={image}
-        alt=""
-        className="absolute inset-0 h-full w-full scale-[1.15] object-cover opacity-40 blur-[14px] saturate-125"
-        draggable={false}
-      />
-      <img
-        src={image}
-        alt=""
-        className="absolute inset-y-0 left-0 h-full w-1/2 object-cover object-right opacity-60 blur-[3px] [transform:scaleX(-1)]"
-        style={{
-          maskImage: "linear-gradient(to right, black 0%, transparent 88%)",
-          WebkitMaskImage: "linear-gradient(to right, black 0%, transparent 88%)",
-        }}
-        draggable={false}
-      />
-      <img
-        src={image}
-        alt=""
-        className="absolute inset-y-0 right-0 h-full w-1/2 object-cover object-right opacity-60 blur-[3px]"
-        style={{
-          maskImage: "linear-gradient(to left, black 0%, transparent 88%)",
-          WebkitMaskImage: "linear-gradient(to left, black 0%, transparent 88%)",
-        }}
-        draggable={false}
-      />
-      <div className="absolute inset-0 bg-background/20" />
     </div>
   );
 }
