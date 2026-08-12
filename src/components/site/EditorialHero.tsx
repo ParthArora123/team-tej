@@ -271,12 +271,17 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative mx-auto w-full max-w-[34rem] sm:max-w-[40rem] lg:h-[68svh] lg:w-auto lg:max-w-[min(100%,80rem)]"
+      className="ed-rise ed-frame light-sweep relative mx-auto w-full max-w-[34rem] sm:max-w-[40rem] lg:w-[var(--hero-w)] lg:max-w-[min(100%,88rem)]"
       style={{
         animationDelay: "180ms",
         background: "transparent",
         aspectRatio: ratio ? `${ratio}` : "4 / 3",
+        // Desktop: grow the frame as wide as possible while its full height
+        // still fits the viewport, so the whole image shows with no crop and
+        // as little side space as possible.
+        ["--hero-w" as string]: `calc(78svh * ${ratio ?? 4 / 3})`,
       }}
+
     >
 
 
