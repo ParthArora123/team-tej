@@ -320,10 +320,13 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             style={{ opacity: loaded && !failed ? 1 : 0 }}
             ref={imgRef}
 
-            onLoad={() => {
+            onLoad={(e) => {
+              const el = e.currentTarget;
+              if (el.naturalWidth && el.naturalHeight) setRatio(el.naturalWidth / el.naturalHeight);
               setLoaded(true);
               onReady?.();
             }}
+
             onError={() => {
               setFailed(true);
               onReady?.();
