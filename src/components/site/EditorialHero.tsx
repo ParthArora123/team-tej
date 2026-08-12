@@ -279,7 +279,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
         // Desktop: grow the frame as wide as possible while its full height
         // still fits the viewport, so the whole image shows with no crop and
         // as little side space as possible.
-        ["--hero-w" as string]: `calc(78svh * ${ratio ?? 4 / 3})`,
+        ["--hero-w" as string]: `calc(88svh * ${ratio ?? 4 / 3})`,
       }}
 
     >
