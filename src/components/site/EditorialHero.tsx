@@ -300,10 +300,13 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             disablePictureInPicture
             className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
             style={{ opacity: loaded ? 1 : 0 }}
-            onLoadedData={() => {
+            onLoadedData={(e) => {
+              const v = e.currentTarget;
+              if (v.videoWidth && v.videoHeight) setRatio(v.videoWidth / v.videoHeight);
               setLoaded(true);
               onReady?.();
             }}
+
           />
         ) : (
           <img
