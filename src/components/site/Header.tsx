@@ -62,10 +62,10 @@ export function Header() {
         >
           {/* Brand */}
           <Link to="/" className="group flex items-baseline gap-2 shrink-0">
-            <span className="font-display text-[15px] leading-none tracking-[0.14em] uppercase text-foreground transition-opacity duration-300 group-hover:opacity-70">
+            <span className="font-display text-[15px] leading-none tracking-[0.14em] uppercase text-black transition-opacity duration-300 group-hover:opacity-70">
               Tejas
             </span>
-            <span className="font-display text-[15px] leading-none tracking-[0.14em] uppercase text-muted-foreground transition-colors duration-300 group-hover:text-foreground">
+            <span className="font-display text-[15px] leading-none tracking-[0.14em] uppercase text-black transition-opacity duration-300 group-hover:opacity-70">
               D Dhoke
             </span>
           </Link>
