@@ -146,7 +146,7 @@ const CardMedia = memo(function CardMedia({
           style={{ opacity: ready ? 0 : 1, transition: "opacity 400ms ease" }}
         />
       )}
-      {(active || warm) && item.videoSrc && (
+      {(active || (warm && visible)) && item.videoSrc && (
         <video
           ref={videoRef}
           src={item.videoSrc}
