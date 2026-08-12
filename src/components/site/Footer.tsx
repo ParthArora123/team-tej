@@ -5,7 +5,7 @@ import { WhatsAppIcon } from "@/components/site/WhatsAppIcon";
 const explore = [
   { to: "/", label: "Home" },
   { to: "/workshops", label: "Workshops" },
-  { to: "/#showcase", label: "Viral Choreographies" },
+  { to: "/" as const, hash: "showcase" as const, label: "Viral Choreographies" },
   { to: "/about", label: "About" },
 ] as const;
 
