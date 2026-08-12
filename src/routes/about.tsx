@@ -37,6 +37,60 @@ const defaultValues = [
   { title: "Stage-first", body: "We train for performance, not just for class. Every batch performs." },
 ];
 
+const KNOWN_FOR: { title: string; body: string; icon: typeof Sparkles }[] = [
+  {
+    title: "Celebrity choreographer",
+    body: "High-energy signature choreography for artists, films and brand productions.",
+    icon: Clapperboard,
+  },
+  {
+    title: "Certified master trainer",
+    body: "NSDC / Skill India certified Master Trainer for the Dance Teacher qualification.",
+    icon: GraduationCap,
+  },
+  {
+    title: "Dance educator",
+    body: "Thousands of students trained through workshops, intensives and online programs.",
+    icon: Users,
+  },
+  {
+    title: "Founder — DanceFit",
+    body: "Built a studio and community where beginners and pros train side by side.",
+    icon: Sparkles,
+  },
+  {
+    title: "International member",
+    body: "Registered member of the International Dance Council CID, UNESCO Paris.",
+    icon: Globe2,
+  },
+  {
+    title: "Masterclasses worldwide",
+    body: "Hundreds of masterclasses across cities and continents, on stage and online.",
+    icon: Award,
+  },
+];
+
+const CERTIFICATES: { src: string; alt: string; title: string; meta: string }[] = [
+  {
+    src: nsdcTrainer.url,
+    alt: "Skill India NSDC Certified Master Trainer certificate for Tejas Dinesh Dhoke",
+    title: "Certified Master Trainer",
+    meta: "Skill India / NSDC — Dance Teacher (MES/Q1505) v2.0 · NSQF Level 6",
+  },
+  {
+    src: cidTejas.url,
+    alt: "International Dance Council CID membership confirmation for Tejas Dinesh Dhoke",
+    title: "CID Member — Tejas Dinesh Dhoke",
+    meta: "International Dance Council CID, UNESCO Paris · Reg. 39651 (2024)",
+  },
+  {
+    src: cidDancefit.url,
+    alt: "International Dance Council CID membership confirmation for DanceFit",
+    title: "CID Member — DanceFit",
+    meta: "International Dance Council CID, UNESCO Paris · Reg. 39652 (2024)",
+  },
+];
+
 function About() {
   const loadContent = useServerFn(getSiteContent);
   const [content, setContent] = useState<any>({
