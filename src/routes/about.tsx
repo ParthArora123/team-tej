@@ -47,7 +47,6 @@ function About() {
     values_title: "What we stand on",
     values: defaultValues,
   });
-  const [founder, setFounder] = useState<any | null>(null);
 
   useEffect(() => {
     cachedCall("siteContent:about", () => loadContent({ data: { key: "about" } })).then((v: any) => v && setContent((c: any) => ({ ...c, ...v }))).catch(() => {});
