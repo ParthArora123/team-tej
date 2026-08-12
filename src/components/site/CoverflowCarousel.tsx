@@ -166,7 +166,7 @@ const CardMedia = memo(function CardMedia({
 
 
 /**
- * Premium floating coverflow carousel for "Most Loved Choreography".
+ * Premium floating coverflow carousel for "Most Loved Choreographies".
  * Active clip is centred and largest; neighbours float behind with depth,
  * blur and dimming. Auto-advances every `interval` ms with smooth spring motion.
  */
