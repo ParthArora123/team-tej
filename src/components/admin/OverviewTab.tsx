@@ -385,7 +385,7 @@ export function OverviewTab() {
       ) : data ? (
         <div className={`relative mt-6 space-y-5 transition-opacity ${loading ? "opacity-60" : "opacity-100"}`}>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Kpi label="Total footfall" value={data.kpis.footfall} hint="Confirmed participants at completed workshops" accent="rgba(56,189,248,.5)" />
+            <Kpi label="Total footfall" value={data.kpis.footfall} hint="Unique participants checked in at the venue" accent="rgba(56,189,248,.5)" />
             <Kpi label="Total registrations" value={data.kpis.registrations} accent="rgba(167,139,250,.5)" />
             <Kpi label="Total revenue" value={data.kpis.revenue} money hint="Confirmed payments only" accent="rgba(52,211,153,.45)" />
             <Kpi label="Confirmed paid" value={data.kpis.confirmed} accent="rgba(52,211,153,.4)" />

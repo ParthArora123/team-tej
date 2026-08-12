@@ -50,12 +50,16 @@ function bucketDate(programDate: string | null | undefined, createdAt: string | 
 export async function computeOverviewAnalytics(year?: number | null): Promise<OverviewAnalytics> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  const [progRes, enrRes] = await Promise.all([
+  const [progRes, enrRes, attRes] = await Promise.all([
     supabaseAdmin.from("programs").select("id, name, kind, event_date, created_at, published"),
     supabaseAdmin
       .from("enrollments")
       .select("id, status, amount_inr, created_at, program_id, approved_at"),
+    supabaseAdmin.from("attendance").select("enrollment_id, checked_in_at"),
   ]);
+
+  // Footfall comes exclusively from real check-in records.
+  const attendedIds = new Set<string>((attRes.data ?? []).map((a: any) => a.enrollment_id));
 
   const programs = (progRes.data ?? []) as any[];
   const enrollments = (enrRes.data ?? []) as any[];
@@ -117,9 +121,8 @@ export async function computeOverviewAnalytics(year?: number | null): Promise<Ov
     const m = d.getUTCMonth();
     const isConfirmed = e.status === "confirmed";
     const amount = isConfirmed ? Number(e.amount_inr ?? 0) : 0;
-    // Footfall = confirmed participants of a workshop that has already happened.
-    const happened = p?.event_date ? new Date(p.event_date) <= now : false;
-    const attended = isConfirmed && happened;
+    // Footfall = participants actually checked in at the workshop entrance.
+    const attended = attendedIds.has(e.id);
 
     registrations += 1;
     months[m]!.registrations += 1;
