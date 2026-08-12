@@ -252,7 +252,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
       const y = (e.clientY - r.top) / r.height - 0.5;
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        media.style.transform = `translate3d(${x * -14}px, ${y * -14}px, 0) scale(1.04)`;
+        media.style.transform = `translate3d(${x * -6}px, ${y * -6}px, 0)`;
       });
     };
     const onLeave = () => {
@@ -331,7 +331,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             height={1050}
             fetchPriority="high"
             decoding="async"
-            className="ed-kenburns absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
+            className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
             style={{ opacity: loaded && !failed ? 1 : 0 }}
             ref={imgRef}
 
