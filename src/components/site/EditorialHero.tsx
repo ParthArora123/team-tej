@@ -222,6 +222,11 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   const clip = clips[idx];
   const frameRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
+  // The frame adopts the media's own aspect ratio, so `object-contain` fills it
+  // exactly: the full image is visible with no crop and no side letterboxing.
+  const [ratio, setRatio] = useState<number | null>(null);
+  useEffect(() => setRatio(null), [image, clip]);
+
 
   // Subtle GPU-only pointer parallax on the hero media.
   useEffect(() => {
