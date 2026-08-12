@@ -18,18 +18,29 @@ const connect = [
 
 export function Footer() {
   return (
-    <footer className="relative mt-24 md:mt-32">
-      {/* Extremely subtle top divider — keeps the footer anchored to the page */}
+    <footer className="relative mt-24 md:mt-32 overflow-hidden">
+      {/* Subtle top divider — anchors the footer */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 -top-px h-px"
         style={{ background: "linear-gradient(90deg, transparent, var(--border), transparent)" }}
       />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 pb-8">
-        {/* Premium Final CTA — large rounded card floating above the footer */}
-        <div className="relative rounded-[2rem] md:rounded-[2.5rem] border border-border bg-surface/60 backdrop-blur-sm p-8 md:p-12 lg:p-16 text-center shadow-[0_24px_70px_-30px_rgba(0,0,0,0.08)]">
-          {/* Soft warm gradient wash behind the CTA */}
+      {/* Soft warm light wash */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[40rem] w-[40rem] rounded-full opacity-30 blur-[120px]"
+        style={{
+          background:
+            "radial-gradient(circle, color-mix(in oklab, var(--beige) 55%, transparent), transparent 70%)",
+        }}
+      />
+
+
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pb-8">
+        {/* Main CTA Card — warm invitation */}
+        <div className="relative rounded-[2rem] md:rounded-[2.5rem] border border-border bg-surface/70 backdrop-blur-sm p-10 md:p-14 lg:p-18 text-center shadow-[0_24px_70px_-30px_rgba(0,0,0,0.08)]">
+          {/* Soft gradient wash behind the card */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-40"
@@ -40,17 +51,21 @@ export function Footer() {
           />
           <div className="relative">
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight text-foreground">
-              READY TO MOVE?
+              COME DANCE WITH US.
             </h2>
             <p className="mt-4 text-[15px] md:text-[17px] text-muted-foreground max-w-md mx-auto leading-relaxed">
-              Your next dance experience starts here.
+              Learn. Connect. Create unforgettable moments.
             </p>
             <Link
               to="/workshops"
-              className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-7 py-3.5 text-[14px] font-semibold shadow-[0_10px_40px_-10px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] hover:opacity-90 transition-all duration-300 hover:-translate-y-0.5"
+              className="group mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground px-7 py-3.5 text-[14px] font-semibold transition-all duration-300 hover:opacity-90 hover:-translate-y-0.5"
             >
               Register for a Workshop
-              <ArrowRight size={16} strokeWidth={2.5} />
+              <ArrowRight
+                size={16}
+                strokeWidth={2.5}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
             </Link>
           </div>
         </div>
@@ -91,9 +106,12 @@ export function Footer() {
                   <Link
                     to={l.to as any}
                     hash={(l as any).hash}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    className="group inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {l.label}
+                    <span className="relative">
+                      {l.label}
+                      <span className="absolute left-0 -bottom-px h-px w-0 bg-foreground transition-all duration-300 group-hover:w-full" />
+                    </span>
                   </Link>
                 </li>
               ))}
@@ -114,10 +132,13 @@ export function Footer() {
                       rel={c.external ? "noopener noreferrer" : undefined}
                       className="group inline-flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      <span className="grid h-7 w-7 place-items-center rounded-full border border-border bg-background/70 group-hover:border-primary/30 transition-colors">
+                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-border bg-background/70 group-hover:border-primary/30 transition-colors">
                         <Icon size={13} />
                       </span>
-                      <span>{c.label}</span>
+                      <span className="relative">
+                        {c.label}
+                        <span className="absolute left-0 -bottom-px h-px w-0 bg-foreground transition-all duration-300 group-hover:w-full" />
+                      </span>
                     </a>
                   </li>
                 );
@@ -126,8 +147,18 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Large editorial brand mark — subtle, premium */}
+        <div className="mt-16 md:mt-20 overflow-hidden">
+          <p
+            className="font-display text-[13vw] sm:text-[10vw] md:text-[8vw] lg:text-[7vw] leading-[0.85] tracking-tighter text-foreground/[0.06] text-center select-none"
+            aria-hidden
+          >
+            TEJAS D DHOKE
+          </p>
+        </div>
+
         {/* Bottom bar */}
-        <div className="mt-16 md:mt-20 border-t border-border">
+        <div className="mt-12 md:mt-16 border-t border-border">
           <div className="pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
             <span>© 2026 Tejas D Dhoke</span>
             <span className="flex items-center gap-2">
