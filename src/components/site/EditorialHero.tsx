@@ -222,6 +222,11 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   const clip = clips[idx];
   const frameRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
+  // The frame adopts the media's own aspect ratio, so `object-contain` fills it
+  // exactly: the full image is visible with no crop and no side letterboxing.
+  const [ratio, setRatio] = useState<number | null>(null);
+  useEffect(() => setRatio(null), [image, clip]);
+
 
   // Subtle GPU-only pointer parallax on the hero media.
   useEffect(() => {
@@ -256,9 +261,14 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
   return (
     <div
       ref={frameRef}
-      className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:aspect-[16/10] lg:h-[68svh] lg:max-w-[80rem]"
-      style={{ animationDelay: "180ms", background: "transparent" }}
+      className="ed-rise ed-frame light-sweep relative mx-auto w-full max-w-[34rem] sm:max-w-[40rem] lg:h-[68svh] lg:w-auto lg:max-w-[min(100%,80rem)]"
+      style={{
+        animationDelay: "180ms",
+        background: "transparent",
+        aspectRatio: ratio ? `${ratio}` : "3 / 4",
+      }}
     >
+
 
 
       <div
@@ -290,10 +300,13 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             disablePictureInPicture
             className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
             style={{ opacity: loaded ? 1 : 0 }}
-            onLoadedData={() => {
+            onLoadedData={(e) => {
+              const v = e.currentTarget;
+              if (v.videoWidth && v.videoHeight) setRatio(v.videoWidth / v.videoHeight);
               setLoaded(true);
               onReady?.();
             }}
+
           />
         ) : (
           <img
@@ -307,10 +320,13 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
             style={{ opacity: loaded && !failed ? 1 : 0 }}
             ref={imgRef}
 
-            onLoad={() => {
+            onLoad={(e) => {
+              const el = e.currentTarget;
+              if (el.naturalWidth && el.naturalHeight) setRatio(el.naturalWidth / el.naturalHeight);
               setLoaded(true);
               onReady?.();
             }}
+
             onError={() => {
               setFailed(true);
               onReady?.();
