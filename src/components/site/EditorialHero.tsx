@@ -326,7 +326,7 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 80% 70% at 50% 40%, transparent 55%, oklch(0 0 0 / 45%) 100%)",
+            "radial-gradient(ellipse 92% 88% at 50% 45%, transparent 70%, oklch(0 0 0 / 18%) 100%)",
         }}
       />
     </div>
