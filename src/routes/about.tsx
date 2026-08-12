@@ -160,59 +160,6 @@ function About() {
         </section>
       )}
 
-      {/* Founder */}
-      <section className="relative border-t border-border/60">
-        <div
-          aria-hidden
-          className="absolute right-0 top-0 h-[500px] w-[500px] rounded-full blur-3xl opacity-30 pointer-events-none"
-          style={{ background: "var(--gradient-primary)" }}
-        />
-        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-24 relative">
-          <div className="mb-12">
-            <p className="text-[11px] uppercase tracking-[0.22em] text-primary">Founder</p>
-            <h2 className="mt-3 font-display text-3xl md:text-4xl lg:text-5xl font-bold max-w-3xl">
-              The vision behind the company.
-            </h2>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-            className="grid md:grid-cols-5 gap-10 lg:gap-16 items-center"
-          >
-            <div className="md:col-span-2">
-              <div className="relative rounded-3xl overflow-hidden border-gradient">
-                <div className="aspect-[4/5] bg-muted">
-                  {founder?.image_url ? (
-                    <img
-                      src={founder.image_url}
-                      alt={founder?.name || "Tejas D Dhoke — Founder"}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover lg:object-contain"
-                    />
-                  ) : (
-                    <MotionImage src={aboutImg} alt="Tejas D Dhoke — Founder" width={1200} height={1400} className="h-full w-full" />
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="md:col-span-3">
-              <p className="font-display text-3xl lg:text-5xl font-bold leading-tight">
-                <span className="gradient-text">{founder?.name || "Tejas D Dhoke"}</span>
-              </p>
-              <p className="mt-2 text-sm uppercase tracking-[0.2em] text-muted-foreground">
-                {founder?.title || "Founder & Creative Director"}
-              </p>
-              <p className="mt-6 text-lg leading-relaxed text-muted-foreground whitespace-pre-line">
-                {founder?.intro || founder?.biography ||
-                  "Tejas leads the company's choreography, curriculum and creative direction — building a fusion vocabulary that borrows from Kathak, contemporary, Bollywood and hip-hop. His work spans film, festivals and live productions across India."}
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
     </>
   );
 }
