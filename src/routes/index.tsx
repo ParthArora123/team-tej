@@ -1245,7 +1245,7 @@ function FounderSection({ founder }: { founder: any | null }) {
   const name = founder?.name || "Tejas D Dhoke";
   const title = founder?.title || "Founder";
   const intro = founder?.intro || "";
-  const image = founder?.image_url || meetTejasImg.url || "";
+  const image = meetTejasImg.url;
   const biography = founder?.biography || "";
   const achievements: string[] = Array.isArray(founder?.achievements) ? founder.achievements : [];
   const socials = founder?.socials || {};
