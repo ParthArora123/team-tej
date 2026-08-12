@@ -88,10 +88,11 @@ function Testimonials() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !quote.trim() || !video) {
-      setError("Add your name, a short story, and a video.");
+    if (!name.trim() || !quote.trim()) {
+      setError("Add your name and a short story.");
       return;
     }
+
     const next: Testimonial = {
       id: "u-" + Date.now().toString(36),
       name: name.trim(),
