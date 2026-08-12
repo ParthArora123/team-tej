@@ -166,16 +166,8 @@ function AdminPage() {
         ))}
       </div>
 
-      {tab === "overview" && stats && (
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard label="Total workshops" value={stats.totalWorkshops} />
-          <StatCard label="Published" value={stats.activeWorkshops} />
-          <StatCard label="Total registrations" value={stats.totalRegs} />
-          <StatCard label="Confirmed (paid)" value={stats.approved} accent />
-          <StatCard label="Awaiting payment" value={stats.awaiting} />
-          <StatCard label="Revenue (₹)" value={stats.revenue.toLocaleString("en-IN")} />
-        </div>
-      )}
+      {tab === "overview" && <OverviewTab />}
+
 
       {tab === "workshops" && (
         <WorkshopsTab rows={workshops.filter((w: any) => (w.kind ?? "workshop") === "workshop")} onSave={saveWorkshop} onDel={delWorkshop} onPub={setPublished} reload={reload} />
