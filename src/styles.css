@@ -999,9 +999,23 @@ html[data-scrolling="1"] [class*="backdrop-blur"] {
 }
 html[data-scrolling="1"] .blur-3xl,
 html[data-scrolling="1"] .blur-2xl,
-html[data-scrolling="1"] .blur-xl {
+html[data-scrolling="1"] .blur-xl,
+html[data-scrolling="1"] [class*="blur-["] {
   filter: none !important;
 }
+
+/* The named glass utilities set backdrop-filter directly, so the
+   [class*="backdrop-blur"] guard above never matched them. Suspend those too
+   while scrolling — identical look at rest, far cheaper per frame. */
+html[data-scrolling="1"] .ed-card,
+html[data-scrolling="1"] .glass,
+html[data-scrolling="1"] .glass-card,
+html[data-scrolling="1"] .eyebrow-pill,
+html[data-scrolling="1"] header .rounded-full {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
 
 /* Ambient stage-lighting backdrop — layered coloured beams behind the whole
    site. Static gradients (zero per-frame paint) + one slow, compositor-only
