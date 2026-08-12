@@ -78,8 +78,10 @@ export function EditorialHero({
             <div className="relative isolate z-30">
 
               <div aria-hidden className="cine-spot" />
+              <HeroSideExtension image={image} />
               <HeroFrame image={image} clips={clips} alt={name} onReady={onReady} />
             </div>
+
 
             <div className="ed-rise mt-5 flex shrink-0 flex-wrap items-center justify-center gap-3 lg:mt-6" style={{ animationDelay: "520ms" }}>
 
@@ -255,17 +257,10 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
     <div
       ref={frameRef}
       className="ed-rise ed-frame light-sweep relative mx-auto aspect-[3/4] w-full max-w-[34rem] sm:max-w-[40rem] lg:aspect-[16/10] lg:h-[68svh] lg:max-w-[80rem]"
-      style={{ animationDelay: "180ms" }}
+      style={{ animationDelay: "180ms", background: "transparent" }}
     >
-      {/* Blurred backdrop fill — inlined LQIP, so it costs no request and is
-          painted before the real portrait arrives. */}
-      <img
-        src={HERO_LQIP}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-2xl"
-        draggable={false}
-      />
+
+
       <div
         ref={mediaRef}
         className="absolute inset-0 will-change-transform"
@@ -331,10 +326,52 @@ function HeroFrame({ image, clips, alt, onReady }: { image: string; clips: strin
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 80% 70% at 50% 40%, transparent 55%, oklch(0 0 0 / 45%) 100%)",
+            "radial-gradient(ellipse 92% 88% at 50% 45%, transparent 70%, oklch(0 0 0 / 18%) 100%)",
         }}
       />
     </div>
   );
 
+}
+
+/**
+ * Full-bleed cinematic side extension — the SAME hero image, cropped and
+ * mirrored outward so the hero fills the viewport width with no blank margins,
+ * while the centered copy stays fully uncropped.
+ */
+function HeroSideExtension({ image }: { image: string }) {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2 overflow-hidden"
+    >
+      <img
+        src={image}
+        alt=""
+        className="absolute inset-0 h-full w-full scale-[1.15] object-cover opacity-40 blur-[14px] saturate-125"
+        draggable={false}
+      />
+      <img
+        src={image}
+        alt=""
+        className="absolute inset-y-0 left-0 h-full w-1/2 object-cover object-right opacity-60 blur-[3px] [transform:scaleX(-1)]"
+        style={{
+          maskImage: "linear-gradient(to right, black 0%, transparent 88%)",
+          WebkitMaskImage: "linear-gradient(to right, black 0%, transparent 88%)",
+        }}
+        draggable={false}
+      />
+      <img
+        src={image}
+        alt=""
+        className="absolute inset-y-0 right-0 h-full w-1/2 object-cover object-right opacity-60 blur-[3px]"
+        style={{
+          maskImage: "linear-gradient(to left, black 0%, transparent 88%)",
+          WebkitMaskImage: "linear-gradient(to left, black 0%, transparent 88%)",
+        }}
+        draggable={false}
+      />
+      <div className="absolute inset-0 bg-background/20" />
+    </div>
+  );
 }
