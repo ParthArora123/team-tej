@@ -51,7 +51,6 @@ function About() {
 
   useEffect(() => {
     cachedCall("siteContent:about", () => loadContent({ data: { key: "about" } })).then((v: any) => v && setContent((c: any) => ({ ...c, ...v }))).catch(() => {});
-    cachedCall("siteContent:founder", () => loadContent({ data: { key: "founder" } })).then((v: any) => v && setFounder(v)).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
