@@ -114,10 +114,14 @@ const preconnectLinkForHeroMedia = (src?: string | null) => {
 };
 
 async function loadHomeData(): Promise<HomeLoaderData> {
-  // Fetch the whole public homepage payload during SSR so the first HTML
-  // already contains hero slides, workshops and every below-the-fold section.
-  // Previously this ran only after hydration, which meant the visitor stared
-  // at empty sections for several seconds on mobile/slow networks.
+  // SSR: fetch the whole public homepage payload so the first HTML already
+  // contains hero slides, workshops and every below-the-fold section.
+  //
+  // Client (soft navigation / repeat visit): never block the route on a
+  // network round-trip. We return empty immediately, the component paints the
+  // static UI, seeds itself from the IndexedDB cache, and then revalidates in
+  // the background.
+  if (typeof window !== "undefined") return { heroSlides: [], bundle: null };
   try {
     const bundle: any = await (getHomeBundle as any)();
     return { heroSlides: Array.isArray(bundle?.heroSlides) ? bundle.heroSlides : [], bundle };
@@ -125,6 +129,7 @@ async function loadHomeData(): Promise<HomeLoaderData> {
     return { heroSlides: [], bundle: null };
   }
 }
+
 
 function isSlowNetwork(): boolean {
   if (typeof navigator === "undefined") return false;
