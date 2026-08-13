@@ -14,7 +14,7 @@ export const Route = createFileRoute("/verify")({
     meta: [
       { title: "Verify Ticket — Tejas D Dhoke" },
       { name: "description", content: "Verify a Tejas D Dhoke enrollment ticket by scanning the QR." },
-      { name: "robots", content: "noindex" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
   component: Verify,

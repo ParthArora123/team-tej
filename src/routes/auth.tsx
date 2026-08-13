@@ -6,6 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
     typeof s.next === "string" && s.next ? { next: s.next } : {},
+  head: () => ({
+    meta: [
+      { title: "Sign in — Tejas Dhoke" },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AuthPage,
 });
 

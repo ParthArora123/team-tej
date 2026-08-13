@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated")({
+  head: () => ({ meta: [{ name: "robots", content: "noindex, nofollow" }] }),
   ssr: false,
   beforeLoad: async () => {
     // Loaded on demand: `beforeLoad` is part of the critical route bundle, so a
