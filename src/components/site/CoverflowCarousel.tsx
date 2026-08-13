@@ -34,11 +34,13 @@ function pickSource(item: CoverflowItem): string | undefined {
 const CardMedia = memo(function CardMedia({
   item,
   active,
+  near,
   playing,
   muted,
 }: {
   item: CoverflowItem;
   active: boolean;
+  near: boolean;
   playing: boolean;
   muted: boolean;
 }) {
@@ -46,6 +48,7 @@ const CardMedia = memo(function CardMedia({
   const [ready, setReady] = useState(false);
 
   useEffect(() => setReady(false), [item.videoSrc, item.videoSrcMobile]);
+
 
   useEffect(() => {
     const v = videoRef.current;
