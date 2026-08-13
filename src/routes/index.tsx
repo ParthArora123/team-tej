@@ -516,16 +516,24 @@ function Index() {
 
   // Returning to the tab (e.g. after publishing a workshop in the admin panel)
   // must show the freshest workshop list without a rebuild or hard reload.
+  // Throttled so focus + visibilitychange never fire two identical requests.
   useEffect(() => {
+    let lastAt = 0;
     const refresh = () => {
       if (document.visibilityState === "hidden") return;
+      const now = Date.now();
+      if (now - lastAt < 60_000) return;
+      lastAt = now;
       invalidateCachedCall("homeBundle");
       (fetchHomeBundle() as Promise<any>)
         .then((b: any) => {
-          if (Array.isArray(b?.workshops)) setWorkshops(b.workshops);
+          if (!b) return;
+          if (Array.isArray(b.workshops)) setWorkshops(b.workshops);
+          void idbSet(HOME_CACHE_KEY, b, HOME_CACHE_VERSION);
         })
         .catch(() => {});
     };
+
     window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", refresh);
     return () => {
