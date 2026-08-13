@@ -86,8 +86,9 @@ const CardMedia = memo(function CardMedia({
     );
   }
 
-  // One-video lookahead: only the *next* card prebuffers (never the whole
-  // carousel), on every device including iOS. Slow links stay poster-only.
+  // Two-card lookahead: only the immediate next/previous neighbours prebuffer
+  // (never the whole carousel), so a swipe in either direction starts instantly.
+  // Slow links stay poster-only.
   const warm = next && !active && playing && !isSlowConnection();
 
   return (
@@ -127,6 +128,8 @@ export function CoverflowCarousel({
   const [width, setWidth] = useState(1200);
   const rootRef = useRef<HTMLDivElement>(null);
   const touchX = useRef<number | null>(null);
+  const touchY = useRef<number | null>(null);
+  const swiped = useRef(false);
 
   // Responsive metrics
   useEffect(() => {
@@ -161,19 +164,29 @@ export function CoverflowCarousel({
     return () => obs.disconnect();
   }, []);
 
-  // Auto-advance
+  // Auto-advance every `interval` ms. `tick` is bumped on every manual change
+  // so the 5s timer restarts cleanly for the newly active card.
+  const [tick, setTick] = useState(0);
   useEffect(() => {
     if (count < 2 || !inView || hovered) return;
     const id = window.setInterval(() => {
       setIndex((i) => (i + 1) % count);
     }, Math.max(2000, interval));
     return () => window.clearInterval(id);
-  }, [count, inView, hovered, interval]);
+  }, [count, inView, hovered, interval, tick]);
 
   const go = useCallback(
-    (dir: number) => setIndex((i) => (i + dir + count) % count),
+    (dir: number) => {
+      setIndex((i) => (i + dir + count) % count);
+      setTick((t) => t + 1);
+    },
     [count]
   );
+
+  const jumpTo = useCallback((i: number) => {
+    setIndex(i);
+    setTick((t) => t + 1);
+  }, []);
 
   const metrics = useMemo(() => {
     const isMobile = width < 640;
@@ -202,16 +215,60 @@ export function CoverflowCarousel({
       onMouseLeave={() => setHovered(false)}
       onTouchStart={(e) => {
         touchX.current = e.touches[0]?.clientX ?? null;
+        touchY.current = e.touches[0]?.clientY ?? null;
+        swiped.current = false;
         setHovered(true);
+      }}
+      // Fire as soon as the gesture clears the threshold — no waiting for
+      // touchend, and never for a vertical (page scroll) gesture.
+      onTouchMove={(e) => {
+        if (swiped.current) return;
+        const start = touchX.current;
+        const startY = touchY.current;
+        const x = e.touches[0]?.clientX ?? null;
+        const y = e.touches[0]?.clientY ?? null;
+        if (start == null || x == null) return;
+        const dx = x - start;
+        const dy = startY != null && y != null ? y - startY : 0;
+        if (Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy)) {
+          swiped.current = true;
+          // Keep the gesture local: the homepage section pager must not also
+          // page away while the user is browsing clips.
+          e.stopPropagation();
+          go(dx < 0 ? 1 : -1);
+        }
       }}
       onTouchEnd={(e) => {
         const start = touchX.current;
         const end = e.changedTouches[0]?.clientX ?? null;
-        if (start != null && end != null && Math.abs(end - start) > 40) {
+        if (!swiped.current && start != null && end != null && Math.abs(end - start) > 28) {
+          swiped.current = true;
           go(end < start ? 1 : -1);
         }
+        if (swiped.current) e.stopPropagation();
         touchX.current = null;
+        touchY.current = null;
+        swiped.current = false;
         setHovered(false);
+      }}
+      // Desktop drag with a mouse behaves the same way.
+      onPointerDown={(e) => {
+        if (e.pointerType !== "mouse") return;
+        touchX.current = e.clientX;
+        swiped.current = false;
+      }}
+      onPointerMove={(e) => {
+        if (e.pointerType !== "mouse" || swiped.current || touchX.current == null) return;
+        const dx = e.clientX - touchX.current;
+        if (Math.abs(dx) > 48) {
+          swiped.current = true;
+          go(dx < 0 ? 1 : -1);
+        }
+      }}
+      onPointerUp={(e) => {
+        if (e.pointerType !== "mouse") return;
+        touchX.current = null;
+        swiped.current = false;
       }}
     >
       <div
@@ -243,7 +300,7 @@ export function CoverflowCarousel({
                 filter: active ? "blur(0px)" : `blur(${Math.min(6, abs * 3)}px)`,
               }}
               transition={{ type: "spring", stiffness: 130, damping: 22, mass: 0.9 }}
-              onClick={() => !active && setIndex(i)}
+              onClick={() => !active && jumpTo(i)}
             >
               <motion.div
                 animate={{ y: active && inView ? [0, -8, 0] : 0 }}
@@ -259,7 +316,7 @@ export function CoverflowCarousel({
                     : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
-                <CardMedia item={item} active={active} near={abs <= 1} next={d === 1 || (count > 1 && index === count - 1 && i === 0)} playing={inView} muted={muted} />
+                <CardMedia item={item} active={active} near={abs <= 1} next={count > 1 && abs === 1} playing={inView} muted={muted} />
 
                 <div
                   className="pointer-events-none absolute inset-0"
@@ -330,7 +387,7 @@ export function CoverflowCarousel({
             <button
               key={it.id}
               type="button"
-              onClick={() => setIndex(i)}
+              onClick={() => jumpTo(i)}
               aria-label={`Go to ${it.title}`}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === index ? "w-7 bg-primary" : "w-1.5 bg-muted-foreground/40"
