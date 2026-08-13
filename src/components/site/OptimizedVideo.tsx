@@ -144,6 +144,65 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     };
   }, [play, muted, src]);
 
+  // Lookahead: while this clip is the *next* one, prime a short buffer without
+  // playing it. iOS ignores `preload` until a user gesture, so we nudge the
+  // element with a muted play/pause to fill the first seconds, then park it.
+  useEffect(() => {
+    const v = ref.current;
+    if (!v || play || !warm || !src) return;
+    let cancelled = false;
+    let started = false;
+
+    const buffered = () => {
+      try {
+        return v.buffered.length ? v.buffered.end(v.buffered.length - 1) : 0;
+      } catch {
+        return 0;
+      }
+    };
+
+    const stopWhenReady = () => {
+      if (cancelled) return;
+      if (buffered() >= 2 || v.readyState >= 3) {
+        v.pause();
+        try {
+          v.currentTime = 0;
+        } catch {
+          /* ignore */
+        }
+      }
+    };
+
+    const prime = () => {
+      if (cancelled || started) return;
+      started = true;
+      v.muted = true;
+      const p = v.play();
+      if (p && typeof p.then === "function") {
+        p.then(() => {
+          if (cancelled) return;
+          window.setTimeout(stopWhenReady, 350);
+        }).catch(() => {
+          /* autoplay refused — `preload` still buffers what it can */
+        });
+      }
+    };
+
+    v.addEventListener("progress", stopWhenReady);
+    v.addEventListener("canplay", stopWhenReady);
+    v.addEventListener("loadeddata", prime);
+    if (v.readyState >= 2) prime();
+    else v.load();
+
+    return () => {
+      cancelled = true;
+      v.removeEventListener("progress", stopWhenReady);
+      v.removeEventListener("canplay", stopWhenReady);
+      v.removeEventListener("loadeddata", prime);
+      v.pause();
+    };
+  }, [play, warm, src]);
+
   // Release decoder + in-flight bytes on unmount.
   useEffect(() => {
     const v = ref.current;
@@ -170,21 +229,10 @@ export const OptimizedVideo = memo(function OptimizedVideo({
           }}
         />
       )}
-      {!play && warm && src && (
-        <video
-          src={src}
-          muted
-          playsInline
-          preload="metadata"
-          disableRemotePlayback
-          disablePictureInPicture
-          aria-hidden
-          tabIndex={-1}
-          className={className}
-          style={{ opacity: 0, pointerEvents: "none" }}
-        />
-      )}
-      {play && src && (
+      {/* One persistent element for the active clip AND the single lookahead
+          neighbour: the buffer built while warm survives the switch, so
+          playback starts without a fresh network round-trip. */}
+      {(play || warm) && src && (
         <video
           ref={ref}
           src={src}
@@ -192,11 +240,18 @@ export const OptimizedVideo = memo(function OptimizedVideo({
           muted
           loop
           playsInline
-          preload={IS_IOS ? "metadata" : "auto"}
+          preload={play ? (IS_IOS ? "metadata" : "auto") : IS_IOS ? "metadata" : "auto"}
           disableRemotePlayback
           disablePictureInPicture
+          aria-hidden={!play}
+          tabIndex={-1}
           className={className}
-          style={{ opacity: showing ? 1 : 0, transition: "opacity 200ms ease", zIndex: 1 }}
+          style={{
+            opacity: showing ? 1 : 0,
+            transition: "opacity 200ms ease",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
         />
       )}
     </>

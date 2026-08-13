@@ -38,12 +38,14 @@ const CardMedia = memo(function CardMedia({
   item,
   active,
   near,
+  next,
   playing,
   muted,
 }: {
   item: CoverflowItem;
   active: boolean;
   near: boolean;
+  next: boolean;
   playing: boolean;
   muted: boolean;
 }) {
@@ -86,9 +88,9 @@ const CardMedia = memo(function CardMedia({
     );
   }
 
-  // Warm the immediate neighbour only on capable desktops, and only with
-  // metadata — never a second full download alongside the playing clip.
-  const warm = near && !active && playing && !IS_IOS && !IS_MOBILE && !isSlowConnection();
+  // One-video lookahead: only the *next* card prebuffers (never the whole
+  // carousel), on every device including iOS. Slow links stay poster-only.
+  const warm = next && !active && playing && !isSlowConnection();
 
   return (
     <>
@@ -259,7 +261,7 @@ export function CoverflowCarousel({
                     : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
-                <CardMedia item={item} active={active} near={abs <= 1} playing={inView} muted={muted} />
+                <CardMedia item={item} active={active} near={abs <= 1} next={d === 1 || (count > 1 && index === count - 1 && i === 0)} playing={inView} muted={muted} />
 
                 <div
                   className="pointer-events-none absolute inset-0"
