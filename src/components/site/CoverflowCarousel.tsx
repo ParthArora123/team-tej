@@ -382,7 +382,7 @@ export function CoverflowCarousel({
             <button
               key={it.id}
               type="button"
-              onClick={() => setIndex(i)}
+              onClick={() => jumpTo(i)}
               aria-label={`Go to ${it.title}`}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === index ? "w-7 bg-primary" : "w-1.5 bg-muted-foreground/40"
