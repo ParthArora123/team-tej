@@ -24,7 +24,7 @@ let dbPromise: Promise<IDBDatabase> | null = null;
 
 function openDb(): Promise<IDBDatabase> {
   if (!dbPromise) {
-    dbPromise = new Promise((resolve, reject) => {
+    dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
       const req = indexedDB.open(DB_NAME, DB_VERSION);
       req.onupgradeneeded = () => {
         const db = req.result;
@@ -37,8 +37,9 @@ function openDb(): Promise<IDBDatabase> {
       throw err;
     });
   }
-  return dbPromise;
+  return dbPromise as Promise<IDBDatabase>;
 }
+
 
 /** Read a cached value. Returns null when missing, expired or unavailable. */
 export async function idbGet<T>(
