@@ -1,6 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
+import { idbGet, idbSet, sameShallowJson } from "@/lib/idb-cache";
+
+/** Persistent (IndexedDB) cache of the public homepage bundle. */
+const HOME_CACHE_KEY = "homeBundle";
+const HOME_CACHE_VERSION = "1";
+const HOME_CACHE_MAX_AGE_MS = 24 * 60 * 60_000;
+
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { getHomeBundle } from "@/lib/home-bundle.functions";
 import { useServerFn } from "@tanstack/react-start";
@@ -114,10 +121,14 @@ const preconnectLinkForHeroMedia = (src?: string | null) => {
 };
 
 async function loadHomeData(): Promise<HomeLoaderData> {
-  // Fetch the whole public homepage payload during SSR so the first HTML
-  // already contains hero slides, workshops and every below-the-fold section.
-  // Previously this ran only after hydration, which meant the visitor stared
-  // at empty sections for several seconds on mobile/slow networks.
+  // SSR: fetch the whole public homepage payload so the first HTML already
+  // contains hero slides, workshops and every below-the-fold section.
+  //
+  // Client (soft navigation / repeat visit): never block the route on a
+  // network round-trip. We return empty immediately, the component paints the
+  // static UI, seeds itself from the IndexedDB cache, and then revalidates in
+  // the background.
+  if (typeof window !== "undefined") return { heroSlides: [], bundle: null };
   try {
     const bundle: any = await (getHomeBundle as any)();
     return { heroSlides: Array.isArray(bundle?.heroSlides) ? bundle.heroSlides : [], bundle };
@@ -125,6 +136,7 @@ async function loadHomeData(): Promise<HomeLoaderData> {
     return { heroSlides: [], bundle: null };
   }
 }
+
 
 function isSlowNetwork(): boolean {
   if (typeof navigator === "undefined") return false;
@@ -397,79 +409,103 @@ function Index() {
 
   const fetchHomeBundle = useServerFn(getHomeBundle);
 
-  // ONE request for the whole homepage. Everything below the fold used to be
-  // 13 separate server-function round-trips (browser-capped at ~6 parallel),
-  // each triggering its own React commit. Now the server fans out the reads in
-  // parallel, caches them briefly, and the client commits in two batches:
-  // above-the-fold first, everything else on the next frame.
-  // When SSR already delivered the payload we skip this entirely — no extra
-  // round-trip, no second render pass.
+  // Cache-first homepage data.
+  //
+  // 1. UI renders immediately (static shell + skeletons) — nothing awaits data.
+  // 2. The IndexedDB copy of the last successful bundle is applied as soon as
+  //    it's read, so repeat visits paint real content in a few ms.
+  // 3. The single bundled server request then runs in the background and only
+  //    commits when the payload actually differs, so no needless re-render.
+  // Everything below the fold lands in ONE setState — 13 separate round-trips
+  // and ten commits used to be the biggest source of long tasks on phones.
   useEffect(() => {
-    if (ssrBundle) return;
     if (!heroReady) return;
     let cancelled = false;
     let frame = 0;
 
-    // Short TTL: a workshop published in the admin panel must show up on the
-    // next homepage visit/refresh, not minutes later.
-    cachedCall("homeBundle", () => fetchHomeBundle() as Promise<any>, 15_000)
-      .then((b: any) => {
-        if (cancelled || !b) return;
+    const apply = (b: any) => {
+      if (cancelled || !b) return;
 
-        // Above-the-fold commit.
-        if (Array.isArray(b.workshops)) setWorkshops(b.workshops);
-        setWorkshopsLoaded(true);
-        setFeatured(b.featured ?? null);
+      // Above-the-fold commit.
+      if (Array.isArray(b.workshops)) setWorkshops(b.workshops);
+      setWorkshopsLoaded(true);
+      setFeatured(b.featured ?? null);
 
-        const portrait = b.heroPortrait?.image_url;
-        if (portrait && portrait !== uploadedHeroImg) {
+      const portrait = b.heroPortrait?.image_url;
+      if (portrait && portrait !== uploadedHeroImg) {
+        const img = new Image();
+        img.decoding = "async";
+        const swap = () => { if (!cancelled) setHeroPhoto(portrait); };
+        img.onload = swap;
+        img.onerror = () => {};
+        img.src = portrait;
+        img.decode?.().then(swap).catch(() => {});
+      }
+
+      const slides: HeroSlide[] = Array.isArray(b.heroSlides) ? b.heroSlides : [];
+      if (slides.length) {
+        const first = slides[0]?.image_url;
+        if (!first || isVideoUrl(first)) {
+          setHeroSlides(slides);
+        } else {
           const img = new Image();
           img.decoding = "async";
-          const swap = () => { if (!cancelled) setHeroPhoto(portrait); };
-          img.onload = swap;
-          img.onerror = () => {};
-          img.src = portrait;
-          img.decode?.().then(swap).catch(() => {});
+          (img as any).fetchPriority = "high";
+          const commitSlides = () => { if (!cancelled) setHeroSlides(slides); };
+          img.onload = commitSlides;
+          img.onerror = commitSlides;
+          img.src = first;
+          img.decode?.().then(commitSlides).catch(() => {});
         }
+      }
 
-        const slides: HeroSlide[] = Array.isArray(b.heroSlides) ? b.heroSlides : [];
-        if (slides.length) {
-          const first = slides[0]?.image_url;
-          if (!first || isVideoUrl(first)) {
-            setHeroSlides(slides);
-          } else {
-            const img = new Image();
-            img.decoding = "async";
-            (img as any).fetchPriority = "high";
-            const commitSlides = () => { if (!cancelled) setHeroSlides(slides); };
-            img.onload = commitSlides;
-            img.onerror = commitSlides;
-            img.src = first;
-            img.decode?.().then(commitSlides).catch(() => {});
-          }
-        }
-
-        // Below-the-fold commit — one setState for ten datasets, on the next
-        // frame so it never lands inside the same long task as the hero.
-        frame = requestAnimationFrame(() => {
-          if (cancelled) return;
-          setDeferred({
-            celebrities: b.celebrities ?? [],
-            brands: b.brands ?? [],
-            globe: b.globe ?? [],
-            gallery: b.gallery ?? [],
-            danceStyles: b.danceStyles ?? [],
-            choreos: b.choreos ?? [],
-            founder: b.founder ?? null,
-            testimonials: b.testimonials ?? [],
-            performances: b.performances ?? [],
-            sigPrograms: b.sigPrograms ?? [],
-          });
+      // Below-the-fold commit — one setState for ten datasets, on the next
+      // frame so it never lands inside the same long task as the hero.
+      if (frame) cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        if (cancelled) return;
+        setDeferred({
+          celebrities: b.celebrities ?? [],
+          brands: b.brands ?? [],
+          globe: b.globe ?? [],
+          gallery: b.gallery ?? [],
+          danceStyles: b.danceStyles ?? [],
+          choreos: b.choreos ?? [],
+          founder: b.founder ?? null,
+          testimonials: b.testimonials ?? [],
+          performances: b.performances ?? [],
+          sigPrograms: b.sigPrograms ?? [],
         });
-      })
-      .catch(() => {
-        if (!cancelled) setWorkshopsLoaded(true);
       });
+    };
+
+    (async () => {
+      // SSR already delivered the payload: nothing to fetch, just refresh the
+      // offline cache for the next visit.
+      if (ssrBundle) {
+        void idbSet(HOME_CACHE_KEY, ssrBundle, HOME_CACHE_VERSION);
+        return;
+      }
+
+      const cached = await idbGet<any>(HOME_CACHE_KEY, {
+        maxAgeMs: HOME_CACHE_MAX_AGE_MS,
+        version: HOME_CACHE_VERSION,
+      });
+      if (cached && !cancelled) apply(cached);
+
+      // Short TTL on the in-memory dedupe: a workshop published in the admin
+      // panel must show up on the next homepage visit, not minutes later.
+      try {
+        const fresh: any = await cachedCall("homeBundle", () => fetchHomeBundle() as Promise<any>, 15_000);
+        if (cancelled || !fresh) return;
+        if (!cached || !sameShallowJson(fresh, cached)) apply(fresh);
+        void idbSet(HOME_CACHE_KEY, fresh, HOME_CACHE_VERSION);
+      } catch (error) {
+        // Supabase hiccup: keep whatever cached content is on screen.
+        console.error("[home] background refresh failed", error);
+        if (!cancelled && !cached) setWorkshopsLoaded(true);
+      }
+    })();
 
     return () => {
       cancelled = true;
@@ -477,18 +513,27 @@ function Index() {
     };
   }, [fetchHomeBundle, heroReady, ssrBundle]);
 
+
   // Returning to the tab (e.g. after publishing a workshop in the admin panel)
   // must show the freshest workshop list without a rebuild or hard reload.
+  // Throttled so focus + visibilitychange never fire two identical requests.
   useEffect(() => {
+    let lastAt = 0;
     const refresh = () => {
       if (document.visibilityState === "hidden") return;
+      const now = Date.now();
+      if (now - lastAt < 60_000) return;
+      lastAt = now;
       invalidateCachedCall("homeBundle");
       (fetchHomeBundle() as Promise<any>)
         .then((b: any) => {
-          if (Array.isArray(b?.workshops)) setWorkshops(b.workshops);
+          if (!b) return;
+          if (Array.isArray(b.workshops)) setWorkshops(b.workshops);
+          void idbSet(HOME_CACHE_KEY, b, HOME_CACHE_VERSION);
         })
         .catch(() => {});
     };
+
     window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", refresh);
     return () => {
