@@ -13,6 +13,7 @@ import { listWorkshopMedia } from "@/lib/workshop-media.functions";
 import { getSiteContent } from "@/lib/site-content.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
+import { ViewportVideo } from "@/components/site/ViewportVideo";
 
 export const Route = createFileRoute("/workshops/$id")({
   component: WorkshopDetailPage,
@@ -681,7 +682,7 @@ function WorkshopDetailPage() {
             <div className="absolute -inset-6 rounded-[2rem] bg-[radial-gradient(circle_at_center,rgba(231,223,206,0.35),transparent_65%)] blur-2xl" />
             <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden border border-primary/40 shadow-[0_40px_100px_-30px_rgba(231,223,206,0.5)] bg-jet">
               {heroMedia?.media_kind === "video" && heroMedia.media_url ? (
-                <video src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
+                <ViewportVideo src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
                   autoPlay muted loop playsInline preload="metadata"
                   className="w-full h-full object-contain" />
               ) : heroMedia?.media_url ? (
