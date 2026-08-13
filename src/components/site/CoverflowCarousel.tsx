@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Volume2, VolumeX } from "lucide-react";
-import { isIOSDevice, isMobileDevice, isSlowConnection } from "@/lib/video-source";
+import { isSlowConnection } from "@/lib/video-source";
 import { OptimizedVideo } from "@/components/site/OptimizedVideo";
 
 export type CoverflowItem = {
@@ -26,8 +26,6 @@ export type CoverflowItem = {
  * drops playback of the visible clip when neighbours are mounted. Detect once
  * and mount only the active card there.
  */
-const IS_IOS = isIOSDevice();
-const IS_MOBILE = isMobileDevice();
 
 /**
  * Media layer. Only the active card (plus, on non-iOS desktops, the immediate
