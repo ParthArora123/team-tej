@@ -1407,12 +1407,16 @@ function FounderSection({ founder }: { founder: any | null }) {
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
             <h1 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance leading-[1.05]">
-              Tejas D Dhoke <span className="italic font-light">— Dance Choreographer &amp; Performer</span>
+              Tejas D Dhoke <span className="italic font-light">— Official Website</span>
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground max-w-2xl">
-              Tejas Dhoke is a dance choreographer and performer offering dance workshops,
-              choreography, performances and learning experiences.
+            <p className="mt-2 text-sm uppercase tracking-widest text-muted-foreground">
+              Choreographer · Dancer · Dance Educator · Entrepreneur
             </p>
+            <p className="mt-4 text-lg text-muted-foreground max-w-2xl">
+              This is the official website of Tejas D Dhoke. Explore workshops, choreography,
+              dance programs, performances and The Tej Method.
+            </p>
+
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
 
           </div>
