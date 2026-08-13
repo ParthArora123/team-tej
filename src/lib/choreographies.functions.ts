@@ -27,11 +27,22 @@ async function signIfNeeded(url: string | null | undefined): Promise<string | nu
   return data?.signedUrl ?? null;
 }
 
+/**
+ * Optimised clips are stored as `<name>-1080.mp4` with a `<name>-720.mp4`
+ * sibling. Signed URLs are path-bound, so the lighter mobile variant has to be
+ * signed here on the server rather than string-swapped in the browser.
+ */
+function mobileVariant(url: string | null | undefined): string | null {
+  if (!url || /^https?:\/\//i.test(url)) return null;
+  return url.includes("-1080.mp4") ? url.replace("-1080.mp4", "-720.mp4") : null;
+}
+
 async function decorate(rows: any[]) {
   return Promise.all((rows ?? []).map(async (r) => ({
     ...r,
     thumbnail_url: await signIfNeeded(r.thumbnail_url),
     video_url: await signIfNeeded(r.video_url),
+    video_url_mobile: await signIfNeeded(mobileVariant(r.video_url)),
   })));
 }
 

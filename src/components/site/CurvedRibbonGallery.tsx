@@ -312,8 +312,8 @@ export function CurvedRibbonGallery({ items }: { items: DeckItem[] }) {
               <RibbonMedia
                 item={item}
                 active={isActive && inView}
-                mount={isActive || i === (index + 1) % n}
-                preloadNext={i === (index + 1) % n}
+                mount={inView && (isActive || i === (index + 1) % n)}
+                preloadNext={inView && i === (index + 1) % n}
                 soundOn={soundOn}
                 onSoundBlocked={handleSoundBlocked}
               />

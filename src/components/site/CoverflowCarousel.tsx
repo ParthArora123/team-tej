@@ -10,12 +10,29 @@ export type CoverflowItem = {
   subtitle?: string;
   badge?: string;
   videoSrc?: string | null;
+  /** Lighter 720p encode used on small screens / slow links. */
+  videoSrcMobile?: string | null;
   embedSrc?: string | null;
   poster?: string | null;
   ctaLabel?: string | null;
   ctaLink?: string | null;
   ctaExternal?: boolean;
 };
+
+/**
+ * Serve the 720p encode to phones and to devices reporting a slow connection,
+ * falling back to the full-size clip everywhere else.
+ */
+function pickSource(item: CoverflowItem): string | undefined {
+  const full = item.videoSrc ?? undefined;
+  const light = item.videoSrcMobile ?? undefined;
+  if (!light || typeof window === "undefined") return full;
+  const narrow = window.matchMedia?.("(max-width: 900px)").matches;
+  const conn = (navigator as any)?.connection?.effectiveType as string | undefined;
+  const slow = conn ? /2g|3g/.test(conn) : false;
+  return narrow || slow ? light : full;
+}
+
 
 /** Media layer — videos mount for all visible cards; only the active one plays. */
 const CardMedia = memo(function CardMedia({
@@ -146,10 +163,10 @@ const CardMedia = memo(function CardMedia({
           style={{ opacity: ready ? 0 : 1, transition: "opacity 400ms ease" }}
         />
       )}
-      {(active || (warm && visible)) && item.videoSrc && (
+      {playing && (active || (warm && visible)) && item.videoSrc && (
         <video
           ref={videoRef}
-          src={item.videoSrc}
+          src={pickSource(item)}
           poster={item.poster ?? undefined}
           muted
           loop

@@ -36,7 +36,7 @@ export function WorkshopGallery({ programId }: { programId: string }) {
             className="relative shrink-0 h-16 w-24 rounded-md overflow-hidden bg-muted snap-start group">
             {m.media_kind === "video" ? (
               <>
-                <video src={m.media_url ?? undefined} poster={m.poster_url ?? undefined} muted playsInline preload="metadata"
+                <video src={m.media_url ?? undefined} poster={m.poster_url ?? undefined} muted playsInline preload="none"
                   className="w-full h-full object-contain" />
                 <span className="absolute inset-0 grid place-items-center bg-foreground/15 group-hover:bg-foreground/25">
                   <Play size={16} className="text-white" />

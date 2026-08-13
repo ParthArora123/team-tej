@@ -385,8 +385,8 @@ export function VideoCollage({ items }: { items: CollageItem[] }) {
                 <Media
                   item={item}
                   active={isActive && inView}
-                  preloadNext={i === (index + 1) % n}
-                  mount={isActive || i === (index + 1) % n}
+                  preloadNext={inView && i === (index + 1) % n}
+                  mount={inView && (isActive || i === (index + 1) % n)}
                   soundOn={soundOn}
                   onSoundBlocked={handleSoundBlocked}
                 />
