@@ -17,6 +17,8 @@ export type OptimizedVideoProps = {
   muted?: boolean;
   /** Eager poster decode for the active/near card. */
   priority?: boolean;
+  /** Non-playing neighbour: fetch metadata only so the next switch starts instantly. */
+  warm?: boolean;
   className?: string;
 };
 
@@ -39,6 +41,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   play,
   muted = true,
   priority = false,
+  warm = false,
   className = "absolute inset-0 h-full w-full object-contain",
 }: OptimizedVideoProps) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -118,6 +121,20 @@ export const OptimizedVideo = memo(function OptimizedVideo({
           decoding="async"
           className={className}
           style={{ opacity: showing ? 0 : 1, transition: "opacity 260ms ease" }}
+        />
+      )}
+      {!play && warm && src && (
+        <video
+          src={src}
+          muted
+          playsInline
+          preload="metadata"
+          disableRemotePlayback
+          disablePictureInPicture
+          aria-hidden
+          tabIndex={-1}
+          className={className}
+          style={{ opacity: 0, pointerEvents: "none" }}
         />
       )}
       {play && src && (
