@@ -72,11 +72,22 @@ function WorkshopsPage() {
 
   const load = () => {
     cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
-      .then(setRows)
-      .catch(() => setRows([]))
+      .then((fresh: any) => {
+        setRows(fresh);
+        void idbSet(WORKSHOPS_CACHE_KEY, fresh);
+      })
+      .catch(() => {})
       .finally(() => setLoaded(true));
   };
   useEffect(() => {
+    // Cache-first: paint the last known list instantly, then revalidate.
+    let cancelled = false;
+    idbGet<any[]>(WORKSHOPS_CACHE_KEY, { maxAgeMs: 24 * 60 * 60_000 }).then((cached) => {
+      if (!cancelled && cached?.length) {
+        setRows((current) => (current.length ? current : cached));
+        setLoaded(true);
+      }
+    });
     load();
     // Refocus should show live seat counts, so bypass the cache here.
     const onFocus = () => {
@@ -84,8 +95,12 @@ function WorkshopsPage() {
       load();
     };
     window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("focus", onFocus);
+    };
   }, []);
+
 
   return (
     <div className="relative min-h-screen pb-24">
