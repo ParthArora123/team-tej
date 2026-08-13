@@ -159,7 +159,7 @@ const CardMedia = memo(function CardMedia({
           style={{ opacity: ready && active ? 0 : 1, transition: "opacity 300ms ease" }}
         />
       )}
-      {playing && (active || near) && item.videoSrc && (
+      {playing && (active || (near && !IS_IOS)) && item.videoSrc && (
         <video
           ref={videoRef}
           src={pickSource(item)}
@@ -167,7 +167,9 @@ const CardMedia = memo(function CardMedia({
           muted
           loop
           playsInline
-          preload="auto"
+          // iOS ignores "auto" and only honours playsinline+muted autoplay for
+          // the element the user is looking at; neighbours stay unmounted there.
+          preload={IS_IOS ? "metadata" : "auto"}
           disableRemotePlayback
           disablePictureInPicture
           onLoadedData={primeFrame}
@@ -178,6 +180,7 @@ const CardMedia = memo(function CardMedia({
           style={{ opacity: ready && active ? 1 : 0, transition: "opacity 200ms ease" }}
         />
       )}
+
     </>
   );
 });
