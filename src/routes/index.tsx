@@ -331,6 +331,7 @@ type Choreo = {
   description?: string | null;
   thumbnail_url?: string | null;
   video_url?: string | null;
+  video_url_mobile?: string | null;
   youtube_url?: string | null;
   instagram_url?: string | null;
   uploaded_at: string;
@@ -1100,6 +1101,7 @@ type ReelItem = {
   subtitle: string;
   badge: string;
   videoSrc?: string | null;
+  videoSrcMobile?: string | null;
   embedSrc?: string | null;
   poster?: string | null;
   ctaLabel?: string;
@@ -1120,6 +1122,7 @@ function buildReelItems(choreos: Choreo[], workshops: any[]): ReelItem[] {
       subtitle: "Choreography",
       badge: "Choreo",
       videoSrc: c.video_url ?? null,
+      videoSrcMobile: c.video_url_mobile ?? null,
       embedSrc: youtubeEmbed(c.youtube_url),
       poster: c.thumbnail_url ?? null,
       ctaLabel: c.instagram_url ? "Watch on Instagram" : undefined,
@@ -1206,6 +1209,7 @@ function CinematicShowreel({ choreos, workshops }: { choreos: Choreo[]; workshop
             subtitle: it.subtitle,
             badge: it.badge,
             videoSrc: it.videoSrc,
+            videoSrcMobile: it.videoSrcMobile,
             embedSrc: it.embedSrc,
             poster: it.poster,
             ctaLabel: it.ctaLabel,

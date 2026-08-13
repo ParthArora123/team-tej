@@ -51,7 +51,7 @@ function DeckMedia({ item, front, near = false }: { item: DeckItem; front: boole
           className="absolute inset-0 h-full w-full object-contain"
         />
       )}
-      {item.video && (
+      {(front || near) && item.video && (
       <video
         ref={ref}
         src={item.video}
@@ -174,7 +174,7 @@ export function VideoDeck({ items }: { items: DeckItem[] }) {
               opacity: 1,
             }}
           >
-            <DeckMedia item={it} front={front && inView} near={depth === 1} />
+            <DeckMedia item={it} front={front && inView} near={inView && depth === 1} />
             <div
               aria-hidden
               className="absolute inset-0"
