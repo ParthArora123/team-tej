@@ -213,16 +213,55 @@ export function CoverflowCarousel({
       onMouseLeave={() => setHovered(false)}
       onTouchStart={(e) => {
         touchX.current = e.touches[0]?.clientX ?? null;
+        touchY.current = e.touches[0]?.clientY ?? null;
+        swiped.current = false;
         setHovered(true);
+      }}
+      // Fire as soon as the gesture clears the threshold — no waiting for
+      // touchend, and never for a vertical (page scroll) gesture.
+      onTouchMove={(e) => {
+        if (swiped.current) return;
+        const start = touchX.current;
+        const startY = touchY.current;
+        const x = e.touches[0]?.clientX ?? null;
+        const y = e.touches[0]?.clientY ?? null;
+        if (start == null || x == null) return;
+        const dx = x - start;
+        const dy = startY != null && y != null ? y - startY : 0;
+        if (Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy)) {
+          swiped.current = true;
+          go(dx < 0 ? 1 : -1);
+        }
       }}
       onTouchEnd={(e) => {
         const start = touchX.current;
         const end = e.changedTouches[0]?.clientX ?? null;
-        if (start != null && end != null && Math.abs(end - start) > 40) {
+        if (!swiped.current && start != null && end != null && Math.abs(end - start) > 28) {
           go(end < start ? 1 : -1);
         }
         touchX.current = null;
+        touchY.current = null;
+        swiped.current = false;
         setHovered(false);
+      }}
+      // Desktop drag with a mouse behaves the same way.
+      onPointerDown={(e) => {
+        if (e.pointerType !== "mouse") return;
+        touchX.current = e.clientX;
+        swiped.current = false;
+      }}
+      onPointerMove={(e) => {
+        if (e.pointerType !== "mouse" || swiped.current || touchX.current == null) return;
+        const dx = e.clientX - touchX.current;
+        if (Math.abs(dx) > 48) {
+          swiped.current = true;
+          go(dx < 0 ? 1 : -1);
+        }
+      }}
+      onPointerUp={(e) => {
+        if (e.pointerType !== "mouse") return;
+        touchX.current = null;
+        swiped.current = false;
       }}
     >
       <div
