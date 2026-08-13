@@ -15,6 +15,8 @@ import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { ViewportVideo } from "@/components/site/ViewportVideo";
 
+const SITE_URL = "https://tejasdhoke.com";
+
 export const Route = createFileRoute("/workshops/$id")({
   component: WorkshopDetailPage,
   loader: async ({ params }: any) => {
@@ -25,7 +27,80 @@ export const Route = createFileRoute("/workshops/$id")({
       return { program: null };
     }
   },
+  head: ({ params, loaderData }: any) => {
+    const p = loaderData?.program ?? null;
+    const url = `${SITE_URL}/workshops/${params.id}`;
+    if (!p) {
+      return {
+        meta: [{ title: "Workshop — Tejas Dhoke" }],
+        links: [{ rel: "canonical", href: url }],
+      };
+    }
+    const title = `${p.name} — Dance Workshop by Tejas Dhoke`;
+    const place = [p.venue, p.city].filter(Boolean).join(", ");
+    const description =
+      (p.description as string | null)?.trim() ||
+      `Join ${p.name}, a dance workshop by Tejas Dhoke${place ? ` in ${place}` : ""}. Book your seat online.`;
+    const image: string | null = p.banner_url ?? null;
+
+    const event: Record<string, unknown> = {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      name: p.name,
+      description,
+      url,
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      organizer: { "@type": "Person", name: "Tejas Dhoke", url: `${SITE_URL}/` },
+      performer: { "@type": "Person", name: "Tejas Dhoke" },
+    };
+    if (p.event_date) {
+      event.startDate = p.event_time ? `${p.event_date}T${String(p.event_time).slice(0, 8)}` : p.event_date;
+    }
+    if (place) {
+      event.location = {
+        "@type": "Place",
+        name: p.venue || place,
+        address: { "@type": "PostalAddress", addressLocality: p.city || undefined },
+      };
+    }
+    if (image) event.image = image;
+    if (typeof p.price_inr === "number") {
+      event.offers = {
+        "@type": "Offer",
+        price: String(p.price_inr),
+        priceCurrency: "INR",
+        url,
+        availability:
+          typeof p.capacity === "number" && typeof p.seats_taken === "number" && p.seats_taken >= p.capacity
+            ? "https://schema.org/SoldOut"
+            : "https://schema.org/InStock",
+      };
+    }
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description.slice(0, 300) },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description.slice(0, 300) },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+        ...(image
+          ? [
+              { property: "og:image", content: image },
+              { name: "twitter:image", content: image },
+            ]
+          : []),
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description.slice(0, 300) },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: p.event_date ? [{ type: "application/ld+json", children: JSON.stringify(event) }] : [],
+    };
+  },
 });
+
 
 type Media = {
   id: string;
