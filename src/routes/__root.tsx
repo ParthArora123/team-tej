@@ -94,13 +94,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Tejas D Dhoke | Dance Choreographer & Performer" },
+      { title: "Tejas Dhoke | Dance Choreographer & Performer" },
       {
         name: "description",
         content:
-          "Tejas D Dhoke is a dance choreographer and performer offering dance workshops, choreography, performances and learning experiences.",
+          "Tejas Dhoke is a dance choreographer and performer offering dance workshops, choreography, performances and learning experiences.",
       },
-      { property: "og:site_name", content: "Tejas D Dhoke" },
+      { property: "og:site_name", content: "Tejas Dhoke" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -118,7 +118,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "Tejas D Dhoke",
+          name: "Tejas Dhoke",
           url: "https://tejasdhoke.com/",
         }),
       },

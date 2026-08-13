@@ -32,15 +32,15 @@ export const Route = createFileRoute("/workshops/$id")({
     const url = `${SITE_URL}/workshops/${params.id}`;
     if (!p) {
       return {
-        meta: [{ title: "Workshop — Tejas D Dhoke" }],
+        meta: [{ title: "Workshop — Tejas Dhoke" }],
         links: [{ rel: "canonical", href: url }],
       };
     }
-    const title = `${p.name} — Dance Workshop by Tejas D Dhoke`;
+    const title = `${p.name} — Dance Workshop by Tejas Dhoke`;
     const place = [p.venue, p.city].filter(Boolean).join(", ");
     const description =
       (p.description as string | null)?.trim() ||
-      `Join ${p.name}, a dance workshop by Tejas D Dhoke${place ? ` in ${place}` : ""}. Book your seat online.`;
+      `Join ${p.name}, a dance workshop by Tejas Dhoke${place ? ` in ${place}` : ""}. Book your seat online.`;
     const image: string | null = p.banner_url ?? null;
 
     const event: Record<string, unknown> = {
@@ -50,8 +50,8 @@ export const Route = createFileRoute("/workshops/$id")({
       description,
       url,
       eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-      organizer: { "@type": "Person", name: "Tejas D Dhoke", url: `${SITE_URL}/` },
-      performer: { "@type": "Person", name: "Tejas D Dhoke" },
+      organizer: { "@type": "Person", name: "Tejas Dhoke", url: `${SITE_URL}/` },
+      performer: { "@type": "Person", name: "Tejas Dhoke" },
     };
     if (p.event_date) {
       event.startDate = p.event_time ? `${p.event_date}T${String(p.event_time).slice(0, 8)}` : p.event_date;

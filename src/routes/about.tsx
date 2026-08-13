@@ -14,16 +14,16 @@ import { getSiteContent } from "@/lib/site-content.functions";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Tejas D Dhoke — Dance Choreographer & Performer" },
+      { title: "About Tejas Dhoke — Dance Choreographer & Performer" },
       {
         name: "description",
         content:
-          "About Tejas D Dhoke — dance choreographer and performer. His journey, training approach, certifications and the workshops he leads.",
+          "About Tejas Dhoke — dance choreographer and performer. His journey, training approach, certifications and the workshops he leads.",
       },
-      { property: "og:title", content: "About Tejas D Dhoke — Dance Choreographer & Performer" },
+      { property: "og:title", content: "About Tejas Dhoke — Dance Choreographer & Performer" },
       {
         property: "og:description",
-        content: "The journey, craft and certifications behind Tejas D Dhoke.",
+        content: "The journey, craft and certifications behind Tejas Dhoke.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://tejasdhoke.com/about" },
