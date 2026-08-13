@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { listWorkshopHeroSlides } from "@/lib/workshop-hero.functions";
 import { MagneticButton } from "@/components/site/MagneticButton";
+import { ViewportVideo } from "@/components/site/ViewportVideo";
 
 type Slide = {
   id: string;
@@ -50,9 +51,9 @@ export function WorkshopHero() {
           className="absolute inset-0"
         >
           {s.media_kind === "video"
-            ? <video
+            ? <ViewportVideo
                 key={s.media_url ?? ""}
-                src={s.media_url ?? undefined}
+                src={s.media_url ?? ""}
                 poster={s.poster_url ?? undefined}
                 autoPlay muted loop playsInline
                 preload="metadata"

@@ -173,7 +173,7 @@ function HeroFill({ image, clips, alt, onReady }: { image: string; clips: string
       onReady?.();
     }, 1200);
     return () => clearTimeout(t);
-  }, [image, clips.join('|'), idx]);
+  }, [image, onReady]);
 
   useEffect(() => {
     if (clips.length < 2) return;
@@ -216,7 +216,6 @@ function HeroFill({ image, clips, alt, onReady }: { image: string; clips: string
       {clip ? (
         <video
           ref={videoRef}
-          key={clip}
           src={clip}
           muted
           loop

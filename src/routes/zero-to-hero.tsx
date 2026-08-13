@@ -673,7 +673,7 @@ function ZeroToHeroGallery() {
             <div className="group relative overflow-hidden rounded-2xl border border-border/70 bg-card aspect-[4/5]">
               {m.media_kind === "video" ? (
                 <video src={m.media_url} poster={m.poster_url ?? undefined}
-                  autoPlay muted loop playsInline preload="metadata"
+                  controls muted playsInline preload="none"
                   className="w-full h-full object-contain" />
               ) : (
                 <img src={m.media_url} alt={m.caption ?? ""} loading="lazy"

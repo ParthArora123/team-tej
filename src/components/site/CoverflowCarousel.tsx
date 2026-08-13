@@ -38,16 +38,11 @@ function pickSource(item: CoverflowItem): string | undefined {
 const CardMedia = memo(function CardMedia({
   item,
   active,
-  visible,
-  warm,
   playing,
   muted,
 }: {
   item: CoverflowItem;
   active: boolean;
-  visible: boolean;
-  /** Next-up card: warms metadata in the background so the swap is instant. */
-  warm: boolean;
   playing: boolean;
   muted: boolean;
 }) {
@@ -163,7 +158,7 @@ const CardMedia = memo(function CardMedia({
           style={{ opacity: ready ? 0 : 1, transition: "opacity 400ms ease" }}
         />
       )}
-      {playing && (active || (warm && visible)) && item.videoSrc && (
+      {playing && active && item.videoSrc && (
         <video
           ref={videoRef}
           src={pickSource(item)}
@@ -171,7 +166,7 @@ const CardMedia = memo(function CardMedia({
           muted
           loop
           playsInline
-          preload={active ? "auto" : "metadata"}
+          preload="metadata"
           disableRemotePlayback
           disablePictureInPicture
           onLoadedData={primeFrame}
@@ -230,7 +225,7 @@ export function CoverflowCarousel({
       // Low threshold: on short/scaled laptop screens the tall card stage can
       // never reach 25% visibility, which would keep the video paused forever.
       threshold: 0.01,
-      rootMargin: "200px 0px",
+      rootMargin: "48px 0px",
     });
 
     obs.observe(el);
@@ -335,7 +330,7 @@ export function CoverflowCarousel({
                     : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
-                <CardMedia item={item} active={active} visible={!hidden} warm={d === 1} playing={inView} muted={muted} />
+                <CardMedia item={item} active={active} playing={inView} muted={muted} />
 
                 <div
                   className="pointer-events-none absolute inset-0"

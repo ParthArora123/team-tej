@@ -17,6 +17,7 @@ import { WorkshopGallery } from "@/components/site/WorkshopGallery";
 import { TiltCard } from "@/components/site/TiltCard";
 import { Reveal } from "@/components/site/Reveal";
 import { WorkshopLivingBackdrop } from "@/components/site/WorkshopLivingBackdrop";
+import { ViewportVideo } from "@/components/site/ViewportVideo";
 
 export const Route = createFileRoute("/workshops/")({ component: WorkshopsPage });
 
@@ -27,7 +28,7 @@ function WorkshopBanner({ r }: { r: any }) {
         {r.banner_url && (
           <img src={r.banner_url} alt="" aria-hidden className="blur-backdrop-wide opacity-70" />
         )}
-        <video
+        <ViewportVideo
           src={r.banner_video_url}
           poster={r.banner_url ?? undefined}
           autoPlay muted loop playsInline

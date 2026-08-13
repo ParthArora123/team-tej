@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
 
 import { DECK_SCRIM } from "@/components/site/StackedDeck";
+import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 export type Reel = {
   id: string;
   title?: string | null;
@@ -13,24 +14,29 @@ export type Reel = {
 function ReelCard({ reel }: { reel: Reel }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [hover, setHover] = useState(false);
+  const [activated, setActivated] = useState(false);
 
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    if (hover) v.play().catch(() => {});
+    if (hover) void playHomepageVideo(v);
     else {
       try {
-        v.pause();
+        pauseHomepageVideo(v);
         v.currentTime = 0;
       } catch {
         /* noop */
       }
     }
+    return () => pauseHomepageVideo(v);
   }, [hover]);
 
   const body = (
     <div
-      onMouseEnter={() => setHover(true)}
+      onMouseEnter={() => {
+        setActivated(true);
+        setHover(true);
+      }}
       onMouseLeave={() => setHover(false)}
       className="group relative aspect-[9/16] w-[240px] sm:w-[300px] shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-foreground/15 transition-transform duration-500 hover:scale-[1.04] transform-gpu"
     >
@@ -53,7 +59,7 @@ function ReelCard({ reel }: { reel: Reel }) {
       {reel.video && (
         <video
           ref={ref}
-          src={hover ? reel.video : undefined}
+          src={activated ? reel.video : undefined}
           muted
           loop
           playsInline

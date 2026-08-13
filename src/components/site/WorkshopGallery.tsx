@@ -57,7 +57,7 @@ export function WorkshopGallery({ programId }: { programId: string }) {
             className="absolute top-4 right-4 p-2 rounded-full bg-muted border border-border"><X size={16} /></button>
           <div className="max-w-4xl w-full max-h-[85vh] flex flex-col items-center gap-3">
             {active.media_kind === "video"
-              ? <video src={active.media_url ?? undefined} poster={active.poster_url ?? undefined} controls autoPlay playsInline className="max-h-[80vh] w-auto rounded-lg" />
+              ? <video src={active.media_url ?? undefined} poster={active.poster_url ?? undefined} controls autoPlay playsInline preload="metadata" className="max-h-[80vh] w-auto rounded-lg" />
               : <img src={active.media_url ?? ""} alt={active.caption ?? ""} className="max-h-[80vh] w-auto rounded-lg" />}
             {active.caption && <p className="text-sm text-muted-foreground">{active.caption}</p>}
           </div>
