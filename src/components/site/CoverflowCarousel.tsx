@@ -2,7 +2,8 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Volume2, VolumeX } from "lucide-react";
-import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
+import { pauseHomepageVideo, playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
+import { isIOSDevice, isMobileDevice, isSlowConnection, pickVideoSource } from "@/lib/video-source";
 
 export type CoverflowItem = {
   id: string;
@@ -10,7 +11,7 @@ export type CoverflowItem = {
   subtitle?: string;
   badge?: string;
   videoSrc?: string | null;
-  /** Lighter 720p encode used on small screens / slow links. */
+  /** Lighter 720p H.264 encode used on iOS/Android/tablets and slow links. */
   videoSrcMobile?: string | null;
   embedSrc?: string | null;
   poster?: string | null;
@@ -20,28 +21,24 @@ export type CoverflowItem = {
 };
 
 /**
- * iOS Safari (iPhone/iPad) refuses to buffer offscreen videos, caps the number
- * of simultaneous inline decoders, and drops playback of the visible clip when
- * neighbours are mounted. Detect it once and mount only the active card there.
+ * iOS Safari (iPhone/iPad, and every iOS browser since they are all WebKit)
+ * refuses to buffer offscreen videos, caps simultaneous inline decoders, and
+ * drops playback of the visible clip when neighbours are mounted. Detect once
+ * and mount only the active card there.
  */
-const IS_IOS =
-  typeof navigator !== "undefined" &&
-  (/iP(hone|ad|od)/.test(navigator.userAgent) ||
-    (/Mac/.test(navigator.userAgent) && (navigator as Navigator & { maxTouchPoints?: number }).maxTouchPoints! > 1));
+const IS_IOS = isIOSDevice();
+const IS_MOBILE = isMobileDevice();
 
-/**
- * Cards render below 400px wide, so the 720p encode is the correct source on
- * every viewport. Avoid downloading the much heavier master unnecessarily.
- */
+/** Resolve source once per item, before the element gets a `src`. */
 function pickSource(item: CoverflowItem): string | undefined {
-  const full = item.videoSrc ?? undefined;
-  const light = item.videoSrcMobile ?? undefined;
-  return light || full;
+  return pickVideoSource({ desktopSrc: item.videoSrc, mobileSrc: item.videoSrcMobile });
 }
 
-
-
-/** Media layer — videos mount for all visible cards; only the active one plays. */
+/**
+ * Media layer. Only the active card (plus, on non-iOS desktops, the immediate
+ * neighbour at `preload="metadata"`) ever mounts a <video>; everything else
+ * shows the poster only, so hidden slides cost zero network.
+ */
 const CardMedia = memo(function CardMedia({
   item,
   active,
@@ -57,68 +54,68 @@ const CardMedia = memo(function CardMedia({
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
+  const retries = useRef(0);
 
-  useEffect(() => setReady(false), [item.videoSrc, item.videoSrcMobile]);
+  useEffect(() => {
+    setReady(false);
+    retries.current = 0;
+  }, [item.videoSrc, item.videoSrcMobile]);
 
-
+  // Playback state is driven entirely by native media events — no polling loops,
+  // no timeupdate-driven setState.
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     v.muted = active ? muted : true;
+
     if (!(active && playing)) {
-      v.pause();
+      pauseHomepageVideo(v);
       return;
     }
-    // Some browsers (battery saver, autoplay heuristics, slow decode) reject or
-    // stall the first play() — retry on the events that signal readiness.
-    // Bounded retries only: a permanent 1.5s interval woke the main thread
-    // forever and showed up as periodic frame drops during playback.
-    let tries = 0;
-    let retry = 0;
-    const attempt = () => {
-      if (!v.paused) return;
-      void playHomepageVideo(v);
-      if (tries++ < 6 && !retry) {
-        retry = window.setTimeout(() => {
-          retry = 0;
-          if (v.paused) attempt();
-        }, 1200);
+
+    const tryPlay = () => {
+      if (v.paused) void playHomepageVideo(v);
+    };
+    const onReady = () => {
+      setReady(true);
+      tryPlay();
+    };
+    const onStalled = () => {
+      // Show the poster again and let the network recover naturally.
+      // Bounded nudges only — never an infinite reload loop.
+      if (retries.current++ < 2) {
+        window.setTimeout(tryPlay, 1500);
       }
     };
-    attempt();
-    v.addEventListener("canplay", attempt);
-    v.addEventListener("loadeddata", attempt);
+    const onError = () => {
+      setReady(false);
+    };
+
+    v.addEventListener("loadedmetadata", tryPlay);
+    v.addEventListener("canplay", onReady);
+    v.addEventListener("playing", onReady);
+    v.addEventListener("waiting", onStalled);
+    v.addEventListener("stalled", onStalled);
+    v.addEventListener("error", onError);
+    tryPlay();
+
     return () => {
-      if (retry) window.clearTimeout(retry);
-      v.removeEventListener("canplay", attempt);
-      v.removeEventListener("loadeddata", attempt);
+      v.removeEventListener("loadedmetadata", tryPlay);
+      v.removeEventListener("canplay", onReady);
+      v.removeEventListener("playing", onReady);
+      v.removeEventListener("waiting", onStalled);
+      v.removeEventListener("stalled", onStalled);
+      v.removeEventListener("error", onError);
     };
   }, [active, playing, muted]);
 
-
-
+  // Release the decoder + any in-flight download when the card unmounts.
   useEffect(() => {
     const v = videoRef.current;
     return () => {
-      if (v) pauseHomepageVideo(v);
+      if (v) releaseHomepageVideo(v);
     };
   }, []);
-
-  // Nudge non-active videos so a real frame is decoded and painted.
-  const primeFrame = useCallback(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    setReady(true);
-    // Seeking before metadata exists throws on iOS and leaves the card blank.
-    if (!active && !IS_IOS && v.readyState >= 1 && v.currentTime === 0) {
-      try {
-        v.currentTime = 0.05;
-      } catch {
-        /* ignore */
-      }
-    }
-
-  }, [active]);
 
   const backdrop = item.poster ? (
     <img
@@ -159,6 +156,11 @@ const CardMedia = memo(function CardMedia({
     );
   }
 
+  // Warm the immediate neighbour only on capable desktops, and only with
+  // metadata — never a second full download alongside the playing clip.
+  const warm = near && !active && !IS_IOS && !IS_MOBILE && !isSlowConnection();
+  const mountVideo = playing && (active || warm) && !!(item.videoSrc || item.videoSrcMobile);
+
   return (
     <>
       {backdrop}
@@ -172,7 +174,7 @@ const CardMedia = memo(function CardMedia({
           style={{ opacity: ready && active ? 0 : 1, transition: "opacity 300ms ease" }}
         />
       )}
-      {playing && (active || (near && !IS_IOS)) && item.videoSrc && (
+      {mountVideo && (
         <video
           ref={videoRef}
           src={pickSource(item)}
@@ -180,23 +182,19 @@ const CardMedia = memo(function CardMedia({
           muted
           loop
           playsInline
-          // iOS ignores "auto" and only honours playsinline+muted autoplay for
-          // the element the user is looking at; neighbours stay unmounted there.
-          preload={IS_IOS ? "metadata" : "auto"}
+          // Only the active clip is allowed to buffer media data.
+          preload={active ? (IS_IOS ? "metadata" : "auto") : "none"}
           disableRemotePlayback
           disablePictureInPicture
-          onLoadedData={primeFrame}
-          onCanPlay={primeFrame}
           className="absolute inset-0 h-full w-full object-contain"
-          // Never place a blank video layer over its poster. The previous
-          // condition made the video opaque merely because a poster existed.
+          // Never place a blank video layer over its poster.
           style={{ opacity: ready && active ? 1 : 0, transition: "opacity 200ms ease" }}
         />
       )}
-
     </>
   );
 });
+
 
 
 /**
