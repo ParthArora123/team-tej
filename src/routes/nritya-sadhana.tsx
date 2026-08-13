@@ -4,16 +4,16 @@ import { ProgramListPage } from "@/components/site/ProgramListPage";
 export const Route = createFileRoute("/nritya-sadhana")({
   head: () => ({
     meta: [
-      { title: "Nritya Sadhana — Dance Practice with Tejas Dhoke" },
+      { title: "Nritya Sadhana — Dance Practice with Tejas D Dhoke" },
       {
         name: "description",
         content:
-          "Nritya Sadhana by Tejas Dhoke — weekly dance batches building stamina, vocabulary and stage presence over a full season.",
+          "Nritya Sadhana by Tejas D Dhoke — weekly dance batches building stamina, vocabulary and stage presence over a full season.",
       },
-      { property: "og:title", content: "Nritya Sadhana — Dance Practice with Tejas Dhoke" },
+      { property: "og:title", content: "Nritya Sadhana — Dance Practice with Tejas D Dhoke" },
       {
         property: "og:description",
-        content: "Weekly dance batches rooted in practice, led by Tejas Dhoke.",
+        content: "Weekly dance batches rooted in practice, led by Tejas D Dhoke.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://tejasdhoke.com/nritya-sadhana" },

@@ -7,7 +7,7 @@ import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback
 /**
  * EditorialHero — full-bleed cinematic hero image.
  * The hero image fills the entire viewport section edge-to-edge with no
- * surrounding whitespace. The Tejas Dhoke heading is removed; CTAs sit on a
+ * surrounding whitespace. The Tejas D Dhoke heading is removed; CTAs sit on a
  * soft gradient at the bottom so they stay readable over the image.
  */
 export function EditorialHero({
