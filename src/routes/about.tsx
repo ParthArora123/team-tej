@@ -27,6 +27,7 @@ export const Route = createFileRoute("/about")({
       },
       { property: "og:image", content: "/og-founder.jpg" },
     ],
+    links: [{ rel: "canonical", href: "https://tejasdhoke.com/about" }],
   }),
   component: About,
 });
