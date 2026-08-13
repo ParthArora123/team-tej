@@ -19,7 +19,33 @@ import { Reveal } from "@/components/site/Reveal";
 import { WorkshopLivingBackdrop } from "@/components/site/WorkshopLivingBackdrop";
 import { ViewportVideo } from "@/components/site/ViewportVideo";
 
-export const Route = createFileRoute("/workshops/")({ component: WorkshopsPage });
+export const Route = createFileRoute("/workshops/")({
+  component: WorkshopsPage,
+  head: () => ({
+    meta: [
+      { title: "Dance Workshops by Tejas Dhoke" },
+      {
+        name: "description",
+        content:
+          "Browse upcoming dance workshops by Tejas Dhoke — choreography intensives, live sessions and performance training. Book your seat online.",
+      },
+      { property: "og:title", content: "Dance Workshops by Tejas Dhoke" },
+      {
+        property: "og:description",
+        content: "Upcoming dance workshops, choreography intensives and performance training with Tejas Dhoke.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://tejasdhoke.com/workshops" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Dance Workshops by Tejas Dhoke" },
+      {
+        name: "twitter:description",
+        content: "Upcoming dance workshops, choreography intensives and performance training with Tejas Dhoke.",
+      },
+    ],
+    links: [{ rel: "canonical", href: "https://tejasdhoke.com/workshops" }],
+  }),
+});
 
 function WorkshopBanner({ r }: { r: any }) {
   if (r.banner_video_url) {
