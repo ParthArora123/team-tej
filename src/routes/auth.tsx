@@ -8,7 +8,7 @@ export const Route = createFileRoute("/auth")({
     typeof s.next === "string" && s.next ? { next: s.next } : {},
   head: () => ({
     meta: [
-      { title: "Sign in — Tejas Dhoke" },
+      { title: "Sign in — Tejas D Dhoke" },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
