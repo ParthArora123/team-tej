@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { pauseHomepageVideo, playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
 import { isIOSDevice, pickVideoSource } from "@/lib/video-source";
 
@@ -50,8 +50,9 @@ export const OptimizedVideo = memo(function OptimizedVideo({
 
   const src = pickVideoSource({ desktopSrc, mobileSrc });
 
-  // Any source or intent change puts the poster back on top immediately.
-  useEffect(() => {
+  // Any source or intent change puts the poster back on top immediately
+  // (layout effect => happens in the same commit as the carousel switch).
+  useLayoutEffect(() => {
     setShowing(false);
     nudges.current = 0;
   }, [src, play]);
@@ -70,10 +71,39 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     const tryPlay = () => {
       if (v.paused) void playHomepageVideo(v);
     };
-    // Only a real `playing` event reveals the video — never `canplay`, so a
-    // black/blank frame can't appear over the poster.
-    const onPlaying = () => setShowing(true);
-    const onHold = () => setShowing(false);
+    // The video is revealed only once a real frame has been painted: we prefer
+    // requestVideoFrameCallback, and fall back to `playing` + a non-zero
+    // currentTime. `canplay` alone never reveals, so a black/blank frame can't
+    // appear over the poster.
+    let rvfcHandle = 0;
+    const reveal = () => setShowing(true);
+    type WithRVFC = HTMLVideoElement & {
+      requestVideoFrameCallback?: (cb: () => void) => number;
+      cancelVideoFrameCallback?: (handle: number) => void;
+    };
+    const vf = v as WithRVFC;
+    const onPlaying = () => {
+      if (typeof vf.requestVideoFrameCallback === "function") {
+        rvfcHandle = vf.requestVideoFrameCallback(reveal);
+      } else if (v.readyState >= 2 && v.currentTime > 0) {
+        reveal();
+      } else {
+        v.addEventListener("timeupdate", onTimeUpdate);
+      }
+    };
+    const onTimeUpdate = () => {
+      if (v.currentTime > 0 && !v.paused) {
+        v.removeEventListener("timeupdate", onTimeUpdate);
+        reveal();
+      }
+    };
+    const onHold = () => {
+      if (rvfcHandle && typeof vf.cancelVideoFrameCallback === "function") {
+        vf.cancelVideoFrameCallback(rvfcHandle);
+        rvfcHandle = 0;
+      }
+      setShowing(false);
+    };
     const onSoftStall = () => {
       setShowing(false);
       // Bounded nudges — no reload loops, no infinite retries.
@@ -88,6 +118,10 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     v.addEventListener("waiting", onSoftStall);
     v.addEventListener("stalled", onSoftStall);
     v.addEventListener("error", onHold);
+    v.addEventListener("seeking", onHold);
+    v.addEventListener("emptied", onHold);
+    v.addEventListener("ended", onHold);
+    v.addEventListener("abort", onHold);
     tryPlay();
 
     return () => {
@@ -99,6 +133,14 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       v.removeEventListener("waiting", onSoftStall);
       v.removeEventListener("stalled", onSoftStall);
       v.removeEventListener("error", onHold);
+      v.removeEventListener("seeking", onHold);
+      v.removeEventListener("emptied", onHold);
+      v.removeEventListener("ended", onHold);
+      v.removeEventListener("abort", onHold);
+      v.removeEventListener("timeupdate", onTimeUpdate);
+      if (rvfcHandle && typeof vf.cancelVideoFrameCallback === "function") {
+        vf.cancelVideoFrameCallback(rvfcHandle);
+      }
     };
   }, [play, muted, src]);
 
@@ -120,7 +162,12 @@ export const OptimizedVideo = memo(function OptimizedVideo({
           fetchPriority={priority ? "high" : "auto"}
           decoding="async"
           className={className}
-          style={{ opacity: showing ? 0 : 1, transition: "opacity 260ms ease" }}
+          style={{
+            opacity: showing ? 0 : 1,
+            transition: "opacity 260ms ease",
+            zIndex: 2,
+            pointerEvents: "none",
+          }}
         />
       )}
       {!play && warm && src && (
@@ -149,7 +196,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
           disableRemotePlayback
           disablePictureInPicture
           className={className}
-          style={{ opacity: showing ? 1 : 0, transition: "opacity 200ms ease" }}
+          style={{ opacity: showing ? 1 : 0, transition: "opacity 200ms ease", zIndex: 1 }}
         />
       )}
     </>
