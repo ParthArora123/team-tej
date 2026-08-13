@@ -1,6 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
+import { idbGet, idbSet, sameShallowJson } from "@/lib/idb-cache";
+
+/** Persistent (IndexedDB) cache of the public homepage bundle. */
+const HOME_CACHE_KEY = "homeBundle";
+const HOME_CACHE_VERSION = "1";
+const HOME_CACHE_MAX_AGE_MS = 24 * 60 * 60_000;
+
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { getHomeBundle } from "@/lib/home-bundle.functions";
 import { useServerFn } from "@tanstack/react-start";
