@@ -232,6 +232,9 @@ export function CoverflowCarousel({
         const dy = startY != null && y != null ? y - startY : 0;
         if (Math.abs(dx) > 28 && Math.abs(dx) > Math.abs(dy)) {
           swiped.current = true;
+          // Keep the gesture local: the homepage section pager must not also
+          // page away while the user is browsing clips.
+          e.stopPropagation();
           go(dx < 0 ? 1 : -1);
         }
       }}
@@ -239,8 +242,10 @@ export function CoverflowCarousel({
         const start = touchX.current;
         const end = e.changedTouches[0]?.clientX ?? null;
         if (!swiped.current && start != null && end != null && Math.abs(end - start) > 28) {
+          swiped.current = true;
           go(end < start ? 1 : -1);
         }
+        if (swiped.current) e.stopPropagation();
         touchX.current = null;
         touchY.current = null;
         swiped.current = false;
