@@ -240,7 +240,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
           muted
           loop
           playsInline
-          preload={play ? (IS_IOS ? "metadata" : "auto") : IS_IOS ? "metadata" : "auto"}
+          preload={IS_IOS ? "metadata" : "auto"}
           disableRemotePlayback
           disablePictureInPicture
           aria-hidden={!play}
