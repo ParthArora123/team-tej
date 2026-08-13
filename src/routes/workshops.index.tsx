@@ -4,6 +4,10 @@ import { motion } from "motion/react";
 import { Calendar, MapPin, User, Users, Clock, Sparkles, Ticket } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
+import { idbGet, idbSet } from "@/lib/idb-cache";
+
+const WORKSHOPS_CACHE_KEY = "programs:workshop";
+
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
