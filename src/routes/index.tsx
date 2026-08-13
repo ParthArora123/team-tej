@@ -292,29 +292,56 @@ function HeroSlideMedia({
 
 
 
+const SITE_URL = "https://tejasdhoke.com";
+
 export const Route = createFileRoute("/")({
   loader: loadHomeData,
   head: ({ loaderData }) => {
     const firstHero = uploadedHeroImg;
     const preload = preloadLinkForHeroMedia(firstHero);
     const preconnect = preconnectLinkForHeroMedia(firstHero);
+    const heroAbsolute = `${SITE_URL}${String(uploadedHeroImg)}`;
+    const socialDescription =
+      "Discover Tejas Dhoke's dance workshops, choreography, performances and dance experiences.";
     return {
     meta: [
-      { title: "Tejas D Dhoke — Fusion Dance Company" },
+      { title: "Tejas Dhoke | Dance Choreographer & Performer" },
       {
         name: "description",
         content:
-          "A fusion dance company shaping India's next generation of performers. Train, perform, transform.",
+          "Tejas Dhoke is a dance choreographer and performer offering dance workshops, choreography, performances and learning experiences.",
       },
-      { property: "og:title", content: "Tejas D Dhoke — Fusion Dance Company" },
+      { property: "og:title", content: "Tejas Dhoke | Dance Choreographer & Performer" },
+      { property: "og:description", content: socialDescription },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:image", content: heroAbsolute },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Tejas Dhoke | Dance Choreographer & Performer" },
+      { name: "twitter:description", content: socialDescription },
+      { name: "twitter:image", content: heroAbsolute },
+    ],
+    links: [{ rel: "canonical", href: `${SITE_URL}/` }, preconnect, preload].filter(Boolean) as any,
+    scripts: [
       {
-        property: "og:description",
-        content: "Train, perform, transform with Tejas D Dhoke.",
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Person",
+          name: "Tejas Dhoke",
+          url: `${SITE_URL}/`,
+          jobTitle: "Dance Choreographer & Performer",
+          image: heroAbsolute,
+          sameAs: [
+            "https://instagram.com/tejasdhoke",
+            "https://youtube.com/@tejasdhoke",
+          ],
+        }),
       },
     ],
-    links: [preconnect, preload].filter(Boolean) as any,
   };
   },
+
   component: Index,
 });
 
