@@ -1344,7 +1344,7 @@ function FounderSection({ founder }: { founder: any | null }) {
             {image ? (
               <img
                 src={image}
-                alt={name}
+                alt={`${name} — dance choreographer and performer`}
                 loading="lazy"
                 decoding="async"
                 className="absolute inset-0 h-full w-full object-cover lg:object-contain transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
