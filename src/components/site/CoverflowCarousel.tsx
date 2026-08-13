@@ -20,17 +20,13 @@ export type CoverflowItem = {
 };
 
 /**
- * Serve the 720p encode to phones and to devices reporting a slow connection,
- * falling back to the full-size clip everywhere else.
+ * Cards render below 400px wide, so the 720p encode is the correct source on
+ * every viewport. Avoid downloading the much heavier master unnecessarily.
  */
 function pickSource(item: CoverflowItem): string | undefined {
   const full = item.videoSrc ?? undefined;
   const light = item.videoSrcMobile ?? undefined;
-  if (!light || typeof window === "undefined") return full;
-  const narrow = window.matchMedia?.("(max-width: 900px)").matches;
-  const conn = (navigator as any)?.connection?.effectiveType as string | undefined;
-  const slow = conn ? /2g|3g/.test(conn) : false;
-  return narrow || slow ? light : full;
+  return light || full;
 }
 
 
@@ -166,7 +162,7 @@ const CardMedia = memo(function CardMedia({
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
           disableRemotePlayback
           disablePictureInPicture
           onLoadedData={primeFrame}
@@ -225,7 +221,9 @@ export function CoverflowCarousel({
       // Low threshold: on short/scaled laptop screens the tall card stage can
       // never reach 25% visibility, which would keep the video paused forever.
       threshold: 0.01,
-      rootMargin: "48px 0px",
+      // Begin buffering before the user reaches the section. This avoids the
+      // blank wait while still keeping all non-active cards poster-only.
+      rootMargin: "900px 0px",
     });
 
     obs.observe(el);
