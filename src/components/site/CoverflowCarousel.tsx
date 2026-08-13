@@ -162,19 +162,29 @@ export function CoverflowCarousel({
     return () => obs.disconnect();
   }, []);
 
-  // Auto-advance
+  // Auto-advance every `interval` ms. `tick` is bumped on every manual change
+  // so the 5s timer restarts cleanly for the newly active card.
+  const [tick, setTick] = useState(0);
   useEffect(() => {
     if (count < 2 || !inView || hovered) return;
     const id = window.setInterval(() => {
       setIndex((i) => (i + 1) % count);
     }, Math.max(2000, interval));
     return () => window.clearInterval(id);
-  }, [count, inView, hovered, interval]);
+  }, [count, inView, hovered, interval, tick]);
 
   const go = useCallback(
-    (dir: number) => setIndex((i) => (i + dir + count) % count),
+    (dir: number) => {
+      setIndex((i) => (i + dir + count) % count);
+      setTick((t) => t + 1);
+    },
     [count]
   );
+
+  const jumpTo = useCallback((i: number) => {
+    setIndex(i);
+    setTick((t) => t + 1);
+  }, []);
 
   const metrics = useMemo(() => {
     const isMobile = width < 640;
