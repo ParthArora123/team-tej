@@ -1384,7 +1384,7 @@ function FounderSection({ founder }: { founder: any | null }) {
               Tejas D Dhoke <span className="italic font-light">— Dance Choreographer &amp; Performer</span>
             </h1>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl">
-              Tejas Dhoke is a dance choreographer and performer offering dance workshops,
+              Tejas D Dhoke is a dance choreographer and performer offering dance workshops,
               choreography, performances and learning experiences.
             </p>
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
