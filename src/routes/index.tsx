@@ -301,23 +301,22 @@ export const Route = createFileRoute("/")({
     const preload = preloadLinkForHeroMedia(firstHero);
     const preconnect = preconnectLinkForHeroMedia(firstHero);
     const heroAbsolute = `${SITE_URL}${String(uploadedHeroImg)}`;
+    const siteTitle =
+      "Tejas D Dhoke — Official Website | Choreographer, Dancer & Dance Educator";
     const socialDescription =
-      "Discover Tejas Dhoke's dance workshops, choreography, performances and dance experiences.";
+      "Official website of Tejas D Dhoke — choreographer, dancer, dance educator and entrepreneur. Explore workshops, choreography, dance programs, performances and The Tej Method.";
     return {
     meta: [
-      { title: "Tejas Dhoke | Dance Choreographer & Performer" },
-      {
-        name: "description",
-        content:
-          "Tejas Dhoke is a dance choreographer and performer offering dance workshops, choreography, performances and learning experiences.",
-      },
-      { property: "og:title", content: "Tejas Dhoke | Dance Choreographer & Performer" },
+      { title: siteTitle },
+      { name: "description", content: socialDescription },
+      { property: "og:title", content: siteTitle },
+      { property: "og:site_name", content: "Tejas D Dhoke" },
       { property: "og:description", content: socialDescription },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:url", content: SITE_URL },
       { property: "og:image", content: heroAbsolute },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Tejas Dhoke | Dance Choreographer & Performer" },
+      { name: "twitter:title", content: siteTitle },
       { name: "twitter:description", content: socialDescription },
       { name: "twitter:image", content: heroAbsolute },
     ],
@@ -327,18 +326,45 @@ export const Route = createFileRoute("/")({
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "Person",
-          name: "Tejas Dhoke",
-          url: `${SITE_URL}/`,
-          jobTitle: "Dance Choreographer & Performer",
-          image: heroAbsolute,
-          sameAs: [
-            "https://instagram.com/tejasdhoke",
-            "https://youtube.com/@tejasdhoke",
+          "@graph": [
+            {
+              "@type": "Person",
+              "@id": `${SITE_URL}/#person`,
+              name: "Tejas D Dhoke",
+              alternateName: "Tejas Dhoke",
+              url: SITE_URL,
+              jobTitle: "Choreographer, Dancer, Dance Educator & Entrepreneur",
+              image: heroAbsolute,
+              sameAs: [
+                "https://instagram.com/tejasdhoke",
+                "https://youtube.com/@tejasdhoke",
+              ],
+            },
+            {
+              "@type": "WebSite",
+              "@id": `${SITE_URL}/#website`,
+              name: "Tejas D Dhoke",
+              alternateName: "Tejas D Dhoke — Official Website",
+              url: SITE_URL,
+              publisher: { "@id": `${SITE_URL}/#person` },
+              about: { "@id": `${SITE_URL}/#person` },
+              mainEntity: { "@id": `${SITE_URL}/#person` },
+            },
+            {
+              "@type": "WebPage",
+              "@id": `${SITE_URL}/#webpage`,
+              name: "Tejas D Dhoke — Official Website",
+              url: SITE_URL,
+              description: socialDescription,
+              isPartOf: { "@id": `${SITE_URL}/#website` },
+              about: { "@id": `${SITE_URL}/#person` },
+              mainEntity: { "@id": `${SITE_URL}/#person` },
+            },
           ],
         }),
       },
     ],
+
   };
   },
 
