@@ -1,97 +1,78 @@
-import { useEffect, useState } from "react";
-
 /**
- * Device + network aware video source selection.
+ * Central video delivery policy.
  *
- * Encoding contract (documented so new uploads stay consistent):
- *  - Desktop source  : H.264/AVC MP4 + AAC, existing high-quality master.
- *  - Mobile source   : H.264/AVC MP4 + AAC, 720p–1080p, ~2–5 Mbps, 24/30 fps.
- *  - Never rely on HEVC/H.265 or WebM alone — MP4/H.264 is the iOS fallback.
+ * Encoding contract (what the CMS should upload):
+ *  - Desktop master (`video_url`)        : H.264 High / MP4 + AAC, existing high quality. Untouched.
+ *  - Mobile variant  (`video_url_mobile`): H.264 Main/Baseline MP4 + AAC, 720p (preferred) or
+ *                                          1080p, ~2–5 Mbps, 24/30 fps, faststart (moov atom first).
+ *                                          Never HEVC-only — every iOS browser is WebKit and 720p
+ *                                          H.264 is the one universally hardware-decoded profile.
+ *  - Poster (`thumbnail_url`)            : compressed WebP/AVIF/JPEG, no 4K posters on phones.
  *
- * Items expose `videoSrc` (desktop) and optional `videoSrcMobile`. When a
- * mobile variant is missing we fall back to the desktop file so nothing
- * breaks; those clips are the ones that need a 720p encode added.
+ * When a mobile variant is missing the desktop source is used as a fallback, so nothing breaks —
+ * adding the variant later requires no carousel changes.
  */
 
-export type DeviceProfile = {
-  /** iPhone / iPad / iPod, including iPadOS reporting itself as "Mac". */
-  ios: boolean;
-  /** Any handheld/tablet class device (iOS, Android, coarse-pointer tablets). */
-  mobile: boolean;
-  /** Connection looks constrained (Network Information API, when available). */
-  slow: boolean;
+export type VideoSources = {
+  /** High-quality master. */
+  desktopSrc?: string | null;
+  /** Optimized 720p/1080p H.264 MP4 for phones, tablets and slow links. */
+  mobileSrc?: string | null;
 };
 
-const DEFAULT_PROFILE: DeviceProfile = { ios: false, mobile: false, slow: false };
+const ua = () => (typeof navigator === "undefined" ? "" : navigator.userAgent || "");
 
-/** UA + capability detection — never screen width alone (iPad is desktop-wide). */
-export function detectDevice(): DeviceProfile {
-  if (typeof navigator === "undefined") return DEFAULT_PROFILE;
+/**
+ * iOS / iPadOS detection. iPadOS 13+ reports a desktop UA, so the touch-capable
+ * Mac check is required — viewport width alone is not reliable.
+ */
+export function isIOSDevice(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const s = ua();
+  const touchMac =
+    /Mac/.test(s) && ((navigator as Navigator & { maxTouchPoints?: number }).maxTouchPoints ?? 0) > 1;
+  return /iP(hone|ad|od)/.test(s) || touchMac;
+}
 
-  const ua = navigator.userAgent || "";
-  const touchPoints = (navigator as Navigator & { maxTouchPoints?: number }).maxTouchPoints ?? 0;
-  const ios = /iP(hone|ad|od)/.test(ua) || (/Mac/.test(ua) && touchPoints > 1);
-  const android = /Android/i.test(ua);
-  const mobileUa = /Mobi|Tablet|Silk|Kindle|Opera Mini|IEMobile/i.test(ua);
-  const coarse =
-    typeof window !== "undefined" &&
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(pointer: coarse)").matches &&
-    touchPoints > 0;
+/** Any handheld/tablet WebKit or Android browser — all get the mobile strategy. */
+export function isMobileDevice(): boolean {
+  if (typeof navigator === "undefined") return false;
+  if (isIOSDevice()) return true;
+  if (/Android|Mobile|Silk|Kindle|Opera Mini|IEMobile/i.test(ua())) return true;
+  if (typeof window !== "undefined" && window.matchMedia) {
+    // Coarse pointer without hover = phone/tablet even with a wide viewport.
+    return window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+  }
+  return false;
+}
 
-  return {
-    ios,
-    mobile: ios || android || mobileUa || coarse,
-    slow: isSlowConnection(),
-  };
+type NetInfo = { effectiveType?: string; saveData?: boolean; downlink?: number };
+
+/**
+ * Optional enhancement only — everything below works when the API is absent.
+ */
+function connection(): NetInfo | undefined {
+  if (typeof navigator === "undefined") return undefined;
+  return (navigator as Navigator & { connection?: NetInfo }).connection;
+}
+
+/** True when the link is known-slow. Unknown networks are treated as fast. */
+export function isSlowConnection(): boolean {
+  const c = connection();
+  if (!c) return false;
+  if (c.saveData) return true;
+  if (c.effectiveType && /(^|-)(2g|slow-2g)$/.test(c.effectiveType)) return true;
+  if (c.effectiveType === "3g") return true;
+  return typeof c.downlink === "number" && c.downlink > 0 && c.downlink < 1.5;
 }
 
 /**
- * Optional enhancement only. Every caller must behave correctly when the
- * Network Information API is unavailable (Safari, Firefox).
+ * Pick the source BEFORE the element ever gets a `src`, so the browser never
+ * downloads the desktop master first and swaps afterwards.
  */
-function isSlowConnection(): boolean {
-  const conn = (navigator as Navigator & {
-    connection?: { effectiveType?: string; saveData?: boolean };
-  }).connection;
-  if (!conn) return false;
-  if (conn.saveData) return true;
-  return conn.effectiveType === "slow-2g" || conn.effectiveType === "2g" || conn.effectiveType === "3g";
-}
-
-/**
- * Stable during SSR + first client render (avoids hydration mismatch); the
- * real profile lands in an effect, before any video element mounts because
- * media only mounts once it is near the viewport.
- */
-export function useDeviceProfile(): DeviceProfile {
-  const [profile, setProfile] = useState<DeviceProfile>(DEFAULT_PROFILE);
-
-  useEffect(() => {
-    setProfile(detectDevice());
-    const conn = (navigator as Navigator & {
-      connection?: { addEventListener?: (t: string, cb: () => void) => void; removeEventListener?: (t: string, cb: () => void) => void };
-    }).connection;
-    if (!conn?.addEventListener) return;
-    const onChange = () => setProfile(detectDevice());
-    conn.addEventListener("change", onChange);
-    return () => conn.removeEventListener?.("change", onChange);
-  }, []);
-
-  return profile;
-}
-
-/**
- * Picks the URL BEFORE the element gets a `src`, so the browser never starts
- * the heavy master download and then swaps. URLs stay untouched/stable so
- * browser + CDN caching keeps working.
- */
-export function pickVideoSource(
-  sources: { desktopSrc?: string | null; mobileSrc?: string | null },
-  profile: DeviceProfile,
-): string | undefined {
-  const desktop = sources.desktopSrc ?? undefined;
-  const mobile = sources.mobileSrc ?? undefined;
-  if (profile.mobile || profile.slow) return mobile || desktop;
+export function pickVideoSource(item: VideoSources): string | undefined {
+  const desktop = item.desktopSrc ?? undefined;
+  const mobile = item.mobileSrc ?? undefined;
+  if (isMobileDevice() || isSlowConnection()) return mobile || desktop;
   return desktop || mobile;
 }
