@@ -20,6 +20,16 @@ export type CoverflowItem = {
 };
 
 /**
+ * iOS Safari (iPhone/iPad) refuses to buffer offscreen videos, caps the number
+ * of simultaneous inline decoders, and drops playback of the visible clip when
+ * neighbours are mounted. Detect it once and mount only the active card there.
+ */
+const IS_IOS =
+  typeof navigator !== "undefined" &&
+  (/iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (/Mac/.test(navigator.userAgent) && (navigator as Navigator & { maxTouchPoints?: number }).maxTouchPoints! > 1));
+
+/**
  * Cards render below 400px wide, so the 720p encode is the correct source on
  * every viewport. Avoid downloading the much heavier master unnecessarily.
  */
@@ -28,6 +38,7 @@ function pickSource(item: CoverflowItem): string | undefined {
   const light = item.videoSrcMobile ?? undefined;
   return light || full;
 }
+
 
 
 /** Media layer — videos mount for all visible cards; only the active one plays. */
@@ -98,13 +109,15 @@ const CardMedia = memo(function CardMedia({
     const v = videoRef.current;
     if (!v) return;
     setReady(true);
-    if (!active && v.currentTime === 0) {
+    // Seeking before metadata exists throws on iOS and leaves the card blank.
+    if (!active && !IS_IOS && v.readyState >= 1 && v.currentTime === 0) {
       try {
         v.currentTime = 0.05;
       } catch {
         /* ignore */
       }
     }
+
   }, [active]);
 
   const backdrop = item.poster ? (
@@ -159,7 +172,7 @@ const CardMedia = memo(function CardMedia({
           style={{ opacity: ready && active ? 0 : 1, transition: "opacity 300ms ease" }}
         />
       )}
-      {playing && (active || near) && item.videoSrc && (
+      {playing && (active || (near && !IS_IOS)) && item.videoSrc && (
         <video
           ref={videoRef}
           src={pickSource(item)}
@@ -167,7 +180,9 @@ const CardMedia = memo(function CardMedia({
           muted
           loop
           playsInline
-          preload="auto"
+          // iOS ignores "auto" and only honours playsinline+muted autoplay for
+          // the element the user is looking at; neighbours stay unmounted there.
+          preload={IS_IOS ? "metadata" : "auto"}
           disableRemotePlayback
           disablePictureInPicture
           onLoadedData={primeFrame}
@@ -178,6 +193,7 @@ const CardMedia = memo(function CardMedia({
           style={{ opacity: ready && active ? 1 : 0, transition: "opacity 200ms ease" }}
         />
       )}
+
     </>
   );
 });
