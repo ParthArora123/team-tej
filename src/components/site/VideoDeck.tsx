@@ -51,7 +51,7 @@ function DeckMedia({ item, front, near = false }: { item: DeckItem; front: boole
           className="absolute inset-0 h-full w-full object-contain"
         />
       )}
-      {(front || near) && item.video && (
+      {front && item.video && (
       <video
         ref={ref}
         src={item.video}
@@ -59,7 +59,7 @@ function DeckMedia({ item, front, near = false }: { item: DeckItem; front: boole
         muted
         loop
         playsInline
-        preload={front || near ? "metadata" : "none"}
+        preload="metadata"
         disableRemotePlayback
         disablePictureInPicture
         onLoadedData={() => setReady(true)}

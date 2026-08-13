@@ -9,6 +9,12 @@ function stop(video: HTMLVideoElement) {
   }
 }
 
+function release(video: HTMLVideoElement) {
+  stop(video);
+  video.removeAttribute("src");
+  video.load();
+}
+
 /**
  * Single-player registry for every homepage video. Playing one clip always
  * pauses + rewinds whichever clip was playing before, so no two videos ever
@@ -24,6 +30,12 @@ export function playHomepageVideo(video: HTMLVideoElement) {
 
 export function pauseHomepageVideo(video: HTMLVideoElement) {
   stop(video);
+  if (activeVideo === video) activeVideo = null;
+}
+
+/** Fully release network/decoder resources for media that has left its stage. */
+export function releaseHomepageVideo(video: HTMLVideoElement) {
+  release(video);
   if (activeVideo === video) activeVideo = null;
 }
 

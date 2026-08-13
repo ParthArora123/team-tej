@@ -218,6 +218,7 @@ function Testimonials() {
               <video
                 src={video}
                 controls
+                preload="metadata"
                 className="mt-3 w-full max-h-64 rounded-lg bg-jet"
               />
             )}
@@ -256,6 +257,7 @@ function Testimonials() {
                 <video
                   src={t.video}
                   controls
+                  preload="none"
                   className="w-full aspect-video bg-jet object-contain"
                 />
               ) : (

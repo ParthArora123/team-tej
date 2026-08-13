@@ -163,7 +163,7 @@ const CardMedia = memo(function CardMedia({
           style={{ opacity: ready ? 0 : 1, transition: "opacity 400ms ease" }}
         />
       )}
-      {playing && (active || (warm && visible)) && item.videoSrc && (
+      {playing && active && item.videoSrc && (
         <video
           ref={videoRef}
           src={pickSource(item)}
@@ -171,7 +171,7 @@ const CardMedia = memo(function CardMedia({
           muted
           loop
           playsInline
-          preload={active ? "auto" : "metadata"}
+          preload="metadata"
           disableRemotePlayback
           disablePictureInPicture
           onLoadedData={primeFrame}

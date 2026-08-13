@@ -287,11 +287,12 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
       style={{ contain: "paint" }}
     >
       <motion.div style={{ y: mediaY }} className="absolute -inset-[6%] will-change-transform transform-gpu">
-        {media?.media_kind === "video" && media.media_url ? (
-          <video
-            src={media.media_url}
-            poster={media.poster_url ?? undefined}
-            autoPlay muted loop playsInline preload="auto" disablePictureInPicture
+        {media?.media_kind === "video" && media.poster_url ? (
+          <img
+            src={media.poster_url}
+            alt=""
+            loading="eager"
+            decoding="async"
             className="h-full w-full object-cover opacity-[0.38]"
           />
         ) : media?.media_url ? (
@@ -583,9 +584,8 @@ function WorkshopDetailPage() {
       <section ref={heroRef} className="relative w-full min-h-[76svh] md:min-h-[100svh] overflow-hidden">
         <motion.div style={{ y: yBg }} className="absolute inset-0 will-change-transform transform-gpu">
           {heroMedia?.media_url ? (
-            heroMedia.media_kind === "video" ? (
-              <video src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
-                autoPlay muted loop playsInline preload="auto"
+            heroMedia.media_kind === "video" && heroMedia.poster_url ? (
+              <img src={heroMedia.poster_url} alt="" loading="eager" decoding="async"
                 className="w-full h-full object-cover opacity-[0.18] scale-105 transform-gpu" />
             ) : (
               <img src={heroMedia.media_url} alt="" loading="eager" fetchPriority="high" className="w-full h-full object-cover opacity-[0.16] scale-105 transform-gpu" />
@@ -678,7 +678,7 @@ function WorkshopDetailPage() {
             <div className="relative h-full w-full rounded-[1.5rem] overflow-hidden border border-primary/40 shadow-[0_40px_100px_-30px_rgba(231,223,206,0.5)] bg-jet">
               {heroMedia?.media_kind === "video" && heroMedia.media_url ? (
                 <video src={heroMedia.media_url} poster={heroMedia.poster_url ?? undefined}
-                  autoPlay muted loop playsInline preload="auto"
+                  autoPlay muted loop playsInline preload="metadata"
                   className="w-full h-full object-contain" />
               ) : heroMedia?.media_url ? (
                 <img src={heroMedia.media_url} alt={program.name} fetchPriority="high" decoding="async" className="w-full h-full object-cover lg:object-contain" />
