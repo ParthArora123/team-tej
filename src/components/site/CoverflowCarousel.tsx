@@ -109,13 +109,15 @@ const CardMedia = memo(function CardMedia({
     const v = videoRef.current;
     if (!v) return;
     setReady(true);
-    if (!active && v.currentTime === 0) {
+    // Seeking before metadata exists throws on iOS and leaves the card blank.
+    if (!active && !IS_IOS && v.readyState >= 1 && v.currentTime === 0) {
       try {
         v.currentTime = 0.05;
       } catch {
         /* ignore */
       }
     }
+
   }, [active]);
 
   const backdrop = item.poster ? (
