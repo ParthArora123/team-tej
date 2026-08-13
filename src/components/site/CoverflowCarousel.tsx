@@ -45,6 +45,8 @@ const CardMedia = memo(function CardMedia({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
 
+  useEffect(() => setReady(false), [item.videoSrc, item.videoSrcMobile]);
+
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -168,7 +170,9 @@ const CardMedia = memo(function CardMedia({
           onLoadedData={primeFrame}
           onCanPlay={primeFrame}
           className="absolute inset-0 h-full w-full object-contain"
-          style={{ opacity: ready || item.poster ? 1 : 0, transition: "opacity 400ms ease" }}
+          // Never place a blank video layer over its poster. The previous
+          // condition made the video opaque merely because a poster existed.
+          style={{ opacity: ready ? 1 : 0, transition: "opacity 250ms ease" }}
         />
       )}
     </>
