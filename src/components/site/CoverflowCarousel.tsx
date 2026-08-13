@@ -128,6 +128,8 @@ export function CoverflowCarousel({
   const [width, setWidth] = useState(1200);
   const rootRef = useRef<HTMLDivElement>(null);
   const touchX = useRef<number | null>(null);
+  const touchY = useRef<number | null>(null);
+  const swiped = useRef(false);
 
   // Responsive metrics
   useEffect(() => {
