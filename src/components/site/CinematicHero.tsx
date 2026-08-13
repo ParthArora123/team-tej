@@ -264,16 +264,7 @@ export function CinematicHero({
       {/* Cinematic clip montage — crossfades over the portrait on desktop */}
       {cinemaOn && activeClip && (
         <>
-          <img
-            src={backgroundImage}
-            alt=""
-            aria-hidden
-            className="blur-backdrop opacity-70"
-            style={{ willChange: "transform", contain: "paint" }}
-            draggable={false}
-          />
           <video
-            key={activeClip}
             ref={(node) => {
               videoRef.current = node;
               if (node) {

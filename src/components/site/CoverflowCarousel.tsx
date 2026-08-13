@@ -225,7 +225,7 @@ export function CoverflowCarousel({
       // Low threshold: on short/scaled laptop screens the tall card stage can
       // never reach 25% visibility, which would keep the video paused forever.
       threshold: 0.01,
-      rootMargin: "200px 0px",
+      rootMargin: "48px 0px",
     });
 
     obs.observe(el);

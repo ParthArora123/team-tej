@@ -1,5 +1,7 @@
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
+import { useEffect, useRef } from "react";
+import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
 
 export type StyleCard = {
   name: string;
@@ -9,6 +11,16 @@ export type StyleCard = {
 };
 
 function Media({ s, active }: { s: StyleCard; active: boolean }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (active) void playHomepageVideo(video);
+    else pauseHomepageVideo(video);
+    return () => pauseHomepageVideo(video);
+  }, [active, s.video_url]);
+
   if (s.video_url && active) {
     return (
       <>
@@ -21,13 +33,15 @@ function Media({ s, active }: { s: StyleCard; active: boolean }) {
           />
         )}
         <video
+          ref={videoRef}
           src={s.video_url}
           poster={s.image_url ?? undefined}
-          autoPlay
           loop
           muted
           playsInline
           preload="metadata"
+          disableRemotePlayback
+          disablePictureInPicture
           className="absolute inset-0 h-full w-full object-contain"
         />
       </>

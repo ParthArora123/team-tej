@@ -1,5 +1,6 @@
 import { Children, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { pauseHomepageVideo } from "@/lib/home-video-playback";
 
 /**
  * Turns its children into a full-screen, one-section-at-a-time horizontal
@@ -118,7 +119,7 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
     slideRefs.current.forEach((el, i) => {
       if (!el || i === index) return;
       el.querySelectorAll("video").forEach((v) => {
-        if (!v.paused) v.pause();
+        pauseHomepageVideo(v);
       });
     });
   }, [index]);
