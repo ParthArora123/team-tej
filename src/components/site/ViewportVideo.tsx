@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef, useState } from "react";
-import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
+import { pauseHomepageVideo, playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
 
 type ViewportVideoProps = Omit<React.VideoHTMLAttributes<HTMLVideoElement>, "src" | "preload"> & {
   src: string;
@@ -20,14 +20,13 @@ export const ViewportVideo = memo(function ViewportVideo({
   preload = "metadata",
   ...props
 }: ViewportVideoProps) {
-  const hostRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [near, setNear] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const host = hostRef.current;
-    if (!host || typeof IntersectionObserver === "undefined") {
+    const video = videoRef.current;
+    if (!video || typeof IntersectionObserver === "undefined") {
       setNear(true);
       setVisible(true);
       return;
@@ -40,46 +39,34 @@ export const ViewportVideo = memo(function ViewportVideo({
       ([entry]) => setVisible(entry.isIntersecting),
       { threshold: 0.35 },
     );
-    nearObserver.observe(host);
-    visibleObserver.observe(host);
+    nearObserver.observe(video);
+    visibleObserver.observe(video);
     return () => {
       nearObserver.disconnect();
       visibleObserver.disconnect();
     };
-  }, [rootMargin]);
+  }, [rootMargin, src]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     if (active && visible && autoPlay) void playHomepageVideo(video);
+    else if (!near && releaseOnExit) releaseHomepageVideo(video);
     else pauseHomepageVideo(video);
     return () => pauseHomepageVideo(video);
-  }, [active, autoPlay, visible, near]);
+  }, [active, autoPlay, visible, near, releaseOnExit]);
 
   const mounted = near || !releaseOnExit;
 
   return (
-    <div ref={hostRef} className="contents">
-      {mounted ? (
-        <video
-          {...props}
-          ref={videoRef}
-          src={src}
-          muted={muted}
-          autoPlay={false}
-          playsInline
-          preload={active && visible ? preload : "none"}
-        />
-      ) : props.poster ? (
-        <img
-          src={props.poster}
-          alt=""
-          aria-hidden
-          loading="lazy"
-          decoding="async"
-          className={props.className}
-        />
-      ) : null}
-    </div>
+    <video
+      {...props}
+      ref={videoRef}
+      src={mounted ? src : undefined}
+      muted={muted}
+      autoPlay={false}
+      playsInline
+      preload={active && visible ? preload : "none"}
+    />
   );
 });
