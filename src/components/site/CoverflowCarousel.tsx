@@ -156,10 +156,10 @@ const CardMedia = memo(function CardMedia({
           loading="lazy"
           decoding="async"
           className="absolute inset-0 h-full w-full object-contain"
-          style={{ opacity: ready ? 0 : 1, transition: "opacity 400ms ease" }}
+          style={{ opacity: ready && active ? 0 : 1, transition: "opacity 300ms ease" }}
         />
       )}
-      {playing && active && item.videoSrc && (
+      {playing && (active || near) && item.videoSrc && (
         <video
           ref={videoRef}
           src={pickSource(item)}
@@ -175,7 +175,7 @@ const CardMedia = memo(function CardMedia({
           className="absolute inset-0 h-full w-full object-contain"
           // Never place a blank video layer over its poster. The previous
           // condition made the video opaque merely because a poster existed.
-          style={{ opacity: ready ? 1 : 0, transition: "opacity 250ms ease" }}
+          style={{ opacity: ready && active ? 1 : 0, transition: "opacity 200ms ease" }}
         />
       )}
     </>
@@ -335,7 +335,7 @@ export function CoverflowCarousel({
                     : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
-                <CardMedia item={item} active={active} playing={inView} muted={muted} />
+                <CardMedia item={item} active={active} near={abs <= 1} playing={inView} muted={muted} />
 
                 <div
                   className="pointer-events-none absolute inset-0"
