@@ -302,22 +302,22 @@ export const Route = createFileRoute("/")({
     const preconnect = preconnectLinkForHeroMedia(firstHero);
     const heroAbsolute = `${SITE_URL}${String(uploadedHeroImg)}`;
     const socialDescription =
-      "Discover Tejas D Dhoke's dance workshops, choreography, performances and dance experiences.";
+      "Discover Tejas Dhoke's dance workshops, choreography, performances and dance experiences.";
     return {
     meta: [
-      { title: "Tejas D Dhoke | Dance Choreographer & Performer" },
+      { title: "Tejas Dhoke | Dance Choreographer & Performer" },
       {
         name: "description",
         content:
-          "Tejas D Dhoke is a dance choreographer and performer offering dance workshops, choreography, performances and learning experiences.",
+          "Tejas Dhoke is a dance choreographer and performer offering dance workshops, choreography, performances and learning experiences.",
       },
-      { property: "og:title", content: "Tejas D Dhoke | Dance Choreographer & Performer" },
+      { property: "og:title", content: "Tejas Dhoke | Dance Choreographer & Performer" },
       { property: "og:description", content: socialDescription },
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}/` },
       { property: "og:image", content: heroAbsolute },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Tejas D Dhoke | Dance Choreographer & Performer" },
+      { name: "twitter:title", content: "Tejas Dhoke | Dance Choreographer & Performer" },
       { name: "twitter:description", content: socialDescription },
       { name: "twitter:image", content: heroAbsolute },
     ],
@@ -328,7 +328,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Person",
-          name: "Tejas D Dhoke",
+          name: "Tejas Dhoke",
           url: `${SITE_URL}/`,
           jobTitle: "Dance Choreographer & Performer",
           image: heroAbsolute,
@@ -1384,7 +1384,7 @@ function FounderSection({ founder }: { founder: any | null }) {
               Tejas D Dhoke <span className="italic font-light">— Dance Choreographer &amp; Performer</span>
             </h1>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl">
-              Tejas D Dhoke is a dance choreographer and performer offering dance workshops,
+              Tejas Dhoke is a dance choreographer and performer offering dance workshops,
               choreography, performances and learning experiences.
             </p>
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
