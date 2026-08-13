@@ -295,6 +295,8 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
             decoding="async"
             className="h-full w-full object-cover opacity-[0.38]"
           />
+        ) : media?.media_kind === "video" ? (
+          <div className="h-full w-full bg-jet opacity-[0.38]" />
         ) : media?.media_url ? (
           <img
             src={media.media_url}
@@ -587,6 +589,8 @@ function WorkshopDetailPage() {
             heroMedia.media_kind === "video" && heroMedia.poster_url ? (
               <img src={heroMedia.poster_url} alt="" loading="eager" decoding="async"
                 className="w-full h-full object-cover opacity-[0.18] scale-105 transform-gpu" />
+            ) : heroMedia.media_kind === "video" ? (
+              <div className="w-full h-full bg-jet opacity-[0.18]" />
             ) : (
               <img src={heroMedia.media_url} alt="" loading="eager" fetchPriority="high" className="w-full h-full object-cover opacity-[0.16] scale-105 transform-gpu" />
             )
