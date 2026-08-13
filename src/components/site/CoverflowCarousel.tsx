@@ -295,7 +295,7 @@ export function CoverflowCarousel({
                 filter: active ? "blur(0px)" : `blur(${Math.min(6, abs * 3)}px)`,
               }}
               transition={{ type: "spring", stiffness: 130, damping: 22, mass: 0.9 }}
-              onClick={() => !active && setIndex(i)}
+              onClick={() => !active && jumpTo(i)}
             >
               <motion.div
                 animate={{ y: active && inView ? [0, -8, 0] : 0 }}
