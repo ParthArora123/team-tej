@@ -2,8 +2,8 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Volume2, VolumeX } from "lucide-react";
-import { pauseHomepageVideo, playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
-import { isIOSDevice, isMobileDevice, isSlowConnection, pickVideoSource } from "@/lib/video-source";
+import { isIOSDevice, isMobileDevice, isSlowConnection } from "@/lib/video-source";
+import { OptimizedVideo } from "@/components/site/OptimizedVideo";
 
 export type CoverflowItem = {
   id: string;
@@ -29,11 +29,6 @@ export type CoverflowItem = {
 const IS_IOS = isIOSDevice();
 const IS_MOBILE = isMobileDevice();
 
-/** Resolve source once per item, before the element gets a `src`. */
-function pickSource(item: CoverflowItem): string | undefined {
-  return pickVideoSource({ desktopSrc: item.videoSrc, mobileSrc: item.videoSrcMobile });
-}
-
 /**
  * Media layer. Only the active card (plus, on non-iOS desktops, the immediate
  * neighbour at `preload="metadata"`) ever mounts a <video>; everything else
@@ -52,71 +47,6 @@ const CardMedia = memo(function CardMedia({
   playing: boolean;
   muted: boolean;
 }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [ready, setReady] = useState(false);
-  const retries = useRef(0);
-
-  useEffect(() => {
-    setReady(false);
-    retries.current = 0;
-  }, [item.videoSrc, item.videoSrcMobile]);
-
-  // Playback state is driven entirely by native media events — no polling loops,
-  // no timeupdate-driven setState.
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    v.muted = active ? muted : true;
-
-    if (!(active && playing)) {
-      pauseHomepageVideo(v);
-      return;
-    }
-
-    const tryPlay = () => {
-      if (v.paused) void playHomepageVideo(v);
-    };
-    const onReady = () => {
-      setReady(true);
-      tryPlay();
-    };
-    const onStalled = () => {
-      // Show the poster again and let the network recover naturally.
-      // Bounded nudges only — never an infinite reload loop.
-      if (retries.current++ < 2) {
-        window.setTimeout(tryPlay, 1500);
-      }
-    };
-    const onError = () => {
-      setReady(false);
-    };
-
-    v.addEventListener("loadedmetadata", tryPlay);
-    v.addEventListener("canplay", onReady);
-    v.addEventListener("playing", onReady);
-    v.addEventListener("waiting", onStalled);
-    v.addEventListener("stalled", onStalled);
-    v.addEventListener("error", onError);
-    tryPlay();
-
-    return () => {
-      v.removeEventListener("loadedmetadata", tryPlay);
-      v.removeEventListener("canplay", onReady);
-      v.removeEventListener("playing", onReady);
-      v.removeEventListener("waiting", onStalled);
-      v.removeEventListener("stalled", onStalled);
-      v.removeEventListener("error", onError);
-    };
-  }, [active, playing, muted]);
-
-  // Release the decoder + any in-flight download when the card unmounts.
-  useEffect(() => {
-    const v = videoRef.current;
-    return () => {
-      if (v) releaseHomepageVideo(v);
-    };
-  }, []);
-
   const backdrop = item.poster ? (
     <img
       src={item.poster}
@@ -158,44 +88,24 @@ const CardMedia = memo(function CardMedia({
 
   // Warm the immediate neighbour only on capable desktops, and only with
   // metadata — never a second full download alongside the playing clip.
-  const warm = near && !active && !IS_IOS && !IS_MOBILE && !isSlowConnection();
-  const mountVideo = playing && (active || warm) && !!(item.videoSrc || item.videoSrcMobile);
+  const warm = near && !active && playing && !IS_IOS && !IS_MOBILE && !isSlowConnection();
 
   return (
     <>
       {backdrop}
-      {item.poster && (
-        <img
-          src={item.poster}
-          alt={item.title}
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 h-full w-full object-contain"
-          style={{ opacity: ready && active ? 0 : 1, transition: "opacity 300ms ease" }}
-        />
-      )}
-      {mountVideo && (
-        <video
-          ref={videoRef}
-          src={pickSource(item)}
-          poster={item.poster ?? undefined}
-          muted
-          loop
-          playsInline
-          // Only the active clip is allowed to buffer media data.
-          preload={active ? (IS_IOS ? "metadata" : "auto") : "none"}
-          disableRemotePlayback
-          disablePictureInPicture
-          className="absolute inset-0 h-full w-full object-contain"
-          // Never place a blank video layer over its poster.
-          style={{ opacity: ready && active ? 1 : 0, transition: "opacity 200ms ease" }}
-        />
-      )}
+      <OptimizedVideo
+        desktopSrc={item.videoSrc}
+        mobileSrc={item.videoSrcMobile}
+        poster={item.poster}
+        alt={item.title}
+        play={active && playing}
+        muted={muted}
+        priority={active || near}
+        warm={warm}
+      />
     </>
   );
 });
-
-
 
 /**
  * Premium floating coverflow carousel for "Most Loved Choreographies".
