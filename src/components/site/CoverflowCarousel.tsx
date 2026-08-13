@@ -86,8 +86,9 @@ const CardMedia = memo(function CardMedia({
     );
   }
 
-  // One-video lookahead: only the *next* card prebuffers (never the whole
-  // carousel), on every device including iOS. Slow links stay poster-only.
+  // Two-card lookahead: only the immediate next/previous neighbours prebuffer
+  // (never the whole carousel), so a swipe in either direction starts instantly.
+  // Slow links stay poster-only.
   const warm = next && !active && playing && !isSlowConnection();
 
   return (
