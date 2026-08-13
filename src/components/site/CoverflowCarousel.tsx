@@ -311,7 +311,7 @@ export function CoverflowCarousel({
                     : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
-                <CardMedia item={item} active={active} near={abs <= 1} next={d === 1 || (count > 1 && index === count - 1 && i === 0)} playing={inView} muted={muted} />
+                <CardMedia item={item} active={active} near={abs <= 1} next={count > 1 && abs === 1} playing={inView} muted={muted} />
 
                 <div
                   className="pointer-events-none absolute inset-0"
