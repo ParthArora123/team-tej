@@ -18,6 +18,7 @@ export const Route = createFileRoute("/testimonials")({
         content: "Hear from the movers who built their craft at Tejas D Dhoke.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://tejasdhoke.com/testimonials" }],
   }),
   component: Testimonials,
 });

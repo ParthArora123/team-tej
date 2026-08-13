@@ -14,19 +14,22 @@ import { getSiteContent } from "@/lib/site-content.functions";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — Tejas D Dhoke" },
+      { title: "About Tejas Dhoke — Dance Choreographer & Performer" },
       {
         name: "description",
         content:
-          "The story behind Tejas D Dhoke — a fusion dance company training movers and choreographing India's most expressive stages.",
+          "About Tejas Dhoke — dance choreographer and performer. His journey, training approach, certifications and the workshops he leads.",
       },
-      { property: "og:title", content: "About — Tejas D Dhoke" },
+      { property: "og:title", content: "About Tejas Dhoke — Dance Choreographer & Performer" },
       {
         property: "og:description",
-        content: "Meet the company, the craft, and the people behind Tejas D Dhoke.",
+        content: "The journey, craft and certifications behind Tejas Dhoke.",
       },
-      { property: "og:image", content: "/og-founder.jpg" },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://tejasdhoke.com/about" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://tejasdhoke.com/about" }],
   }),
   component: About,
 });

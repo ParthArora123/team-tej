@@ -94,26 +94,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Tejas D Dhoke — Fusion Dance Company" },
+      { title: "Tejas Dhoke | Dance Choreographer & Performer" },
       {
         name: "description",
         content:
-          "Tejas D Dhoke is a fusion dance company training movers and crafting stages — classes, workshops and live performances.",
+          "Tejas Dhoke is a dance choreographer and performer offering dance workshops, choreography, performances and learning experiences.",
       },
-      { property: "og:title", content: "Tejas D Dhoke — Fusion Dance Company" },
-      {
-        property: "og:description",
-        content:
-          "Train, perform, transform. Join Tejas D Dhoke's fusion dance classes, workshops and live shows.",
-      },
+      { property: "og:site_name", content: "Tejas Dhoke" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Tejas D Dhoke — Fusion Dance Company" },
-      { name: "description", content: "Tej Dance Hub is a comprehensive web platform for a dance company, facilitating class bookings and payments." },
-      { property: "og:description", content: "Tej Dance Hub is a comprehensive web platform for a dance company, facilitating class bookings and payments." },
-      { name: "twitter:description", content: "Tej Dance Hub is a comprehensive web platform for a dance company, facilitating class bookings and payments." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a8e36f1a-e1da-4cbb-9dbe-66d1287fa91c/id-preview-83fff700--51d20694-4b22-4fb9-b682-2a538b5c2de3.lovable.app-1782479432942.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a8e36f1a-e1da-4cbb-9dbe-66d1287fa91c/id-preview-83fff700--51d20694-4b22-4fb9-b682-2a538b5c2de3.lovable.app-1782479432942.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -123,8 +112,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       // blocking first paint on font download.
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Hind:wght@400;600;700&display=swap" },
     ],
-
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Tejas Dhoke",
+          url: "https://tejasdhoke.com/",
+        }),
+      },
+    ],
   }),
+
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,

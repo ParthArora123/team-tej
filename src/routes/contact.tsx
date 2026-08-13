@@ -23,6 +23,7 @@ export const Route = createFileRoute("/contact")({
         content: "Reach out for classes, bookings, or collabs.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://tejasdhoke.com/contact" }],
   }),
   component: Contact,
 });

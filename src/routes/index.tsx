@@ -292,29 +292,56 @@ function HeroSlideMedia({
 
 
 
+const SITE_URL = "https://tejasdhoke.com";
+
 export const Route = createFileRoute("/")({
   loader: loadHomeData,
   head: ({ loaderData }) => {
     const firstHero = uploadedHeroImg;
     const preload = preloadLinkForHeroMedia(firstHero);
     const preconnect = preconnectLinkForHeroMedia(firstHero);
+    const heroAbsolute = `${SITE_URL}${String(uploadedHeroImg)}`;
+    const socialDescription =
+      "Discover Tejas Dhoke's dance workshops, choreography, performances and dance experiences.";
     return {
     meta: [
-      { title: "Tejas D Dhoke — Fusion Dance Company" },
+      { title: "Tejas Dhoke | Dance Choreographer & Performer" },
       {
         name: "description",
         content:
-          "A fusion dance company shaping India's next generation of performers. Train, perform, transform.",
+          "Tejas Dhoke is a dance choreographer and performer offering dance workshops, choreography, performances and learning experiences.",
       },
-      { property: "og:title", content: "Tejas D Dhoke — Fusion Dance Company" },
+      { property: "og:title", content: "Tejas Dhoke | Dance Choreographer & Performer" },
+      { property: "og:description", content: socialDescription },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:image", content: heroAbsolute },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Tejas Dhoke | Dance Choreographer & Performer" },
+      { name: "twitter:description", content: socialDescription },
+      { name: "twitter:image", content: heroAbsolute },
+    ],
+    links: [{ rel: "canonical", href: `${SITE_URL}/` }, preconnect, preload].filter(Boolean) as any,
+    scripts: [
       {
-        property: "og:description",
-        content: "Train, perform, transform with Tejas D Dhoke.",
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Person",
+          name: "Tejas Dhoke",
+          url: `${SITE_URL}/`,
+          jobTitle: "Dance Choreographer & Performer",
+          image: heroAbsolute,
+          sameAs: [
+            "https://instagram.com/tejasdhoke",
+            "https://youtube.com/@tejasdhoke",
+          ],
+        }),
       },
     ],
-    links: [preconnect, preload].filter(Boolean) as any,
   };
   },
+
   component: Index,
 });
 
@@ -1317,7 +1344,7 @@ function FounderSection({ founder }: { founder: any | null }) {
             {image ? (
               <img
                 src={image}
-                alt={name}
+                alt={`${name} — dance choreographer and performer`}
                 loading="lazy"
                 decoding="async"
                 className="absolute inset-0 h-full w-full object-cover lg:object-contain transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
@@ -1353,10 +1380,15 @@ function FounderSection({ founder }: { founder: any | null }) {
         <div className="reveal-up lg:col-span-3 space-y-6" style={{ animationDelay: "100ms" }}>
           <div>
             <p className="text-xs uppercase tracking-widest text-primary">{title}</p>
-            <h2 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance leading-[1.05]">
-              Meet <span className="italic font-light">{name}.</span>
-            </h2>
+            <h1 className="mt-3 font-display text-4xl lg:text-5xl font-bold text-balance leading-[1.05]">
+              Tejas Dhoke <span className="italic font-light">— Dance Choreographer &amp; Performer</span>
+            </h1>
+            <p className="mt-4 text-lg text-muted-foreground max-w-2xl">
+              Tejas Dhoke is a dance choreographer and performer offering dance workshops,
+              choreography, performances and learning experiences.
+            </p>
             {intro && <p className="mt-4 text-lg text-muted-foreground max-w-2xl">{intro}</p>}
+
           </div>
 
           {biography && (

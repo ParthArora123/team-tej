@@ -19,6 +19,7 @@ export const Route = createFileRoute("/online-trainings")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://tejasdhoke.com/online-trainings" }],
   }),
   component: OnlineTrainingsPage,
 });

@@ -13,6 +13,7 @@ export const Route = createFileRoute("/reset-password")({
       { property: "og:description", content: "Set a new password for your Tejas D Dhoke account." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
 });

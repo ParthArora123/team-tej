@@ -53,7 +53,7 @@ export function EditorialHero({
         {/* The foreground always uses contain so the supplied artwork and all
             embedded text remain visible at every viewport ratio. */}
         <div className="relative z-0 aspect-[4/3] w-full">
-          <HeroFill image={image} clips={clips} alt={name} onReady={onReady} />
+          <HeroFill image={image} clips={clips} alt={`${name} — dance choreographer and performer`} onReady={onReady} />
         </div>
 
         {/* Keep controls outside the artwork so they never cover its text. */}
