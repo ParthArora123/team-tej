@@ -290,11 +290,18 @@ export const approveEnrollment = createServerFn({ method: "POST" })
           ticketId: ticket,
         });
       }
-      // Return the confirmed enrollment (with ticket + program details) so the
-      // caller can build and trigger the WhatsApp confirmation message, which
-      // is only ever sent after admin approval — never at submission time.
-      // `whatsappAlreadySent` lets the caller skip re-sending on a re-approval.
-      return { ok: true, enrollment: enr, ticketCode: ticket, whatsappAlreadySent };
+      // WhatsApp confirmation — fired ONLY on the transition
+      // (non-confirmed → confirmed) and only when nothing was sent before.
+      // Sent server-side through Twilio; failures never undo the approval.
+      let whatsapp: any = { sent: false, skipped: true };
+      if (!wasConfirmed && !whatsappAlreadySent) {
+        const { sendWhatsappConfirmation } = await import("./whatsapp-send.server");
+        whatsapp = await sendWhatsappConfirmation(data.enrollmentId);
+      }
+      // Return the confirmed enrollment (with ticket + program details) plus
+      // the WhatsApp delivery outcome for the admin UI.
+      return { ok: true, enrollment: enr, ticketCode: ticket, whatsappAlreadySent, whatsapp };
+
 
 
     } else {
@@ -332,6 +339,18 @@ export const markWhatsappConfirmationSent = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true, alreadySent: false };
   });
+
+// Admin-triggered retry for a confirmed registration whose WhatsApp
+// confirmation failed. Never sends twice: already-sent rows are skipped.
+export const retryWhatsappConfirmation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ enrollmentId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { sendWhatsappConfirmation } = await import("./whatsapp-send.server");
+    return await sendWhatsappConfirmation(data.enrollmentId);
+  });
+
 
 
 export const adminGetProofUrl = createServerFn({ method: "POST" })
