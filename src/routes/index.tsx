@@ -52,9 +52,6 @@ const FeaturedPerformances = lazy(() =>
 const SignatureProgramsGrid = lazy(() =>
   import("@/components/site/HomeSectionCards").then((m) => ({ default: m.SignatureProgramsGrid }))
 );
-const TestimonialsCarousel = lazy(() =>
-  import("@/components/site/TestimonialsCarousel").then((m) => ({ default: m.TestimonialsCarousel }))
-);
 
 
 
@@ -451,7 +448,6 @@ function Index() {
     danceStyles,
     choreos,
     founder,
-    testimonials,
     performances,
     sigPrograms,
   } = deferred;
@@ -722,20 +718,6 @@ function Index() {
         <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
           <IndiaToGlobeAndCounting globe={globe} stats={stats} />
         </section>
-
-        {/* TESTIMONIALS */}
-        <Suspense fallback={<div className="min-h-[420px]" aria-hidden="true" />}>
-          <TestimonialsCarousel
-            items={(testimonials ?? []).map((t: any) => ({
-              id: t.id,
-              name: t.name,
-              role: t.role,
-              story: t.story,
-              rating: t.rating,
-              avatar_url: t.avatar_url,
-            }))}
-          />
-        </Suspense>
       </Chapter>
 
 
