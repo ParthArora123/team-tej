@@ -293,7 +293,9 @@ export const approveEnrollment = createServerFn({ method: "POST" })
       // Return the confirmed enrollment (with ticket + program details) so the
       // caller can build and trigger the WhatsApp confirmation message, which
       // is only ever sent after admin approval — never at submission time.
-      return { ok: true, enrollment: enr, ticketCode: ticket };
+      // `whatsappAlreadySent` lets the caller skip re-sending on a re-approval.
+      return { ok: true, enrollment: enr, ticketCode: ticket, whatsappAlreadySent };
+
 
     } else {
       const { error } = await supabaseAdmin.from("enrollments").update({
