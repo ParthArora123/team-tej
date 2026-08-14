@@ -1313,29 +1313,22 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       if (approve && res?.ok && res.enrollment) {
         // Duplicate guard: a registration whose confirmation already went out
         // must never trigger a second message on re-approval.
-        if (res.whatsappAlreadySent) {
+        if (res.whatsappAlreadySent || res.whatsapp?.alreadySent) {
           toast.success("Approved. WhatsApp confirmation was already sent earlier — not sending again.");
           return;
         }
+        if (res.whatsapp?.sent) {
+          toast.success("Approved. WhatsApp confirmation sent to the student.");
+          return;
+        }
+        // Send failed — the registration stays confirmed. Offer a manual
+        // fallback link and let the admin retry the automated send.
+        toast.error(`Approved, but the WhatsApp confirmation failed: ${res.whatsapp?.error ?? "unknown error"}`);
         const senderNumber = waSenderNumber.trim() || waContactNumber;
         const waUrl = buildWaUrl(res.enrollment, res.ticketCode ?? null, waTemplate, senderNumber);
-        if (waUrl) {
-          // Open the pre-filled WhatsApp confirmation message so the admin
-          // just has to hit Send. Popup blockers can swallow window.open()
-          // calls that happen after an await, so warn if it's blocked.
-          const win = window.open(waUrl, "_blank", "noopener,noreferrer");
-          if (!win) {
-            toast.error("Approved, but the popup was blocked. Click below to send the WhatsApp confirmation.");
-            setBlockedWa((s) => ({ ...s, [id]: waUrl }));
-          } else {
-            // Only mark as sent once WhatsApp actually opened with the message.
-            try { await markWaSent({ data: { enrollmentId: id } }); } catch {}
-          }
-        } else {
-          toast.error("Approved, but this student's registration has no valid contact number — WhatsApp confirmation not sent.");
-        }
-
+        if (waUrl) setBlockedWa((s) => ({ ...s, [id]: waUrl }));
       }
+
     } catch (e: any) {
       alert(e.message ?? "Failed");
     } finally {
