@@ -301,6 +301,7 @@ export const Route = createFileRoute("/")({
     const preload = preloadLinkForHeroMedia(firstHero);
     const preconnect = preconnectLinkForHeroMedia(firstHero);
     const heroAbsolute = `${SITE_URL}${String(uploadedHeroImg)}`;
+    const personImage = `${SITE_URL}/tejas-d-dhoke.jpg`;
     const siteTitle =
       "Tejas D Dhoke — Official Website | Choreographer, Dancer & Dance Educator";
     const socialDescription =
@@ -313,12 +314,16 @@ export const Route = createFileRoute("/")({
       { property: "og:site_name", content: "Tejas D Dhoke" },
       { property: "og:description", content: socialDescription },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: SITE_URL },
-      { property: "og:image", content: heroAbsolute },
+      { property: "og:url", content: `${SITE_URL}/` },
+      { property: "og:image", content: personImage },
+      { property: "og:image:alt", content: "Tejas D Dhoke" },
+      { property: "og:image:width", content: "1066" },
+      { property: "og:image:height", content: "1600" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: siteTitle },
       { name: "twitter:description", content: socialDescription },
-      { name: "twitter:image", content: heroAbsolute },
+      { name: "twitter:image", content: personImage },
+      { name: "twitter:image:alt", content: "Tejas D Dhoke" },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}/` }, preconnect, preload].filter(Boolean) as any,
     scripts: [
@@ -332,14 +337,15 @@ export const Route = createFileRoute("/")({
               "@id": `${SITE_URL}/#person`,
               name: "Tejas D Dhoke",
               alternateName: "Tejas Dhoke",
-              url: SITE_URL,
-              jobTitle: "Choreographer, Dancer, Dance Educator & Entrepreneur",
-              image: heroAbsolute,
+              url: `${SITE_URL}/`,
+              jobTitle: "Professional Dancer, Choreographer & Dance Instructor",
+              image: personImage,
               sameAs: [
                 "https://instagram.com/tejasdhoke",
                 "https://youtube.com/@tejasdhoke",
               ],
             },
+
             {
               "@type": "WebSite",
               "@id": `${SITE_URL}/#website`,
