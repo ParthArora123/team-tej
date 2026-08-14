@@ -448,7 +448,6 @@ function Index() {
     danceStyles,
     choreos,
     founder,
-    testimonials,
     performances,
     sigPrograms,
   } = deferred;
