@@ -129,10 +129,10 @@ function AuthPage() {
               placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
           )}
           {mode === "signin" && (
-            <button type="button" onClick={() => switchMode("forgot")}
+            <Link to="/forgot-password"
               className="block ml-auto text-xs text-primary hover:underline">
               Forgot password?
-            </button>
+            </Link>
           )}
           {err && <p className="text-xs text-destructive">{err}</p>}
           {msg && <p className="text-xs text-primary">{msg}</p>}

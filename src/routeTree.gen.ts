@@ -16,6 +16,7 @@ import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OnlineTrainingsRouteImport } from './routes/online-trainings'
 import { Route as NrityaSadhanaRouteImport } from './routes/nritya-sadhana'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
@@ -65,6 +66,11 @@ const OnlineTrainingsRoute = OnlineTrainingsRouteImport.update({
 const NrityaSadhanaRoute = NrityaSadhanaRouteImport.update({
   id: '/nritya-sadhana',
   path: '/nritya-sadhana',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/nritya-sadhana': typeof NrityaSadhanaRoute
   '/online-trainings': typeof OnlineTrainingsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/nritya-sadhana': typeof NrityaSadhanaRoute
   '/online-trainings': typeof OnlineTrainingsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/nritya-sadhana': typeof NrityaSadhanaRoute
   '/online-trainings': typeof OnlineTrainingsRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/forgot-password'
     | '/nritya-sadhana'
     | '/online-trainings'
     | '/reset-password'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/forgot-password'
     | '/nritya-sadhana'
     | '/online-trainings'
     | '/reset-password'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/auth'
     | '/contact'
+    | '/forgot-password'
     | '/nritya-sadhana'
     | '/online-trainings'
     | '/reset-password'
@@ -296,6 +308,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   NrityaSadhanaRoute: typeof NrityaSadhanaRoute
   OnlineTrainingsRoute: typeof OnlineTrainingsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -361,6 +374,13 @@ declare module '@tanstack/react-router' {
       path: '/nritya-sadhana'
       fullPath: '/nritya-sadhana'
       preLoaderRoute: typeof NrityaSadhanaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -492,6 +512,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   NrityaSadhanaRoute: NrityaSadhanaRoute,
   OnlineTrainingsRoute: OnlineTrainingsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
