@@ -102,12 +102,38 @@ export async function sendWhatsappConfirmation(
   if (!to) return await fail("Registration has no valid WhatsApp/phone number.");
 
   const cfg = await loadWhatsappConfig(supabaseAdmin);
-  const from = toE164(cfg.sender);
+  // Sender priority: explicit TWILIO_WHATSAPP_FROM env (the number approved for
+  // WhatsApp in Twilio) → the number configured in the admin panel.
+  const from = toE164(process.env["TWILIO_WHATSAPP_FROM"] || cfg.sender);
   if (!from) return await fail("No business WhatsApp sender number configured in the admin panel.");
 
+  // Two supported transports:
+  //  1. Direct Twilio  — TWILIO_ACCOUNT_SID + (TWILIO_AUTH_TOKEN | TWILIO_API_KEY_SID + TWILIO_API_KEY_SECRET).
+  //     Works on any host (Vercel, self-hosted) with your own Twilio credentials.
+  //  2. Lovable connector gateway — LOVABLE_API_KEY + TWILIO_API_KEY (Lovable hosting).
+  const accountSid = process.env["TWILIO_ACCOUNT_SID"];
+  const authToken = process.env["TWILIO_AUTH_TOKEN"];
+  const apiKeySid = process.env["TWILIO_API_KEY_SID"];
+  const apiKeySecret = process.env["TWILIO_API_KEY_SECRET"];
   const lovableKey = process.env["LOVABLE_API_KEY"];
   const twilioKey = process.env["TWILIO_API_KEY"];
-  if (!lovableKey || !twilioKey) return await fail("WhatsApp provider is not configured.");
+
+  let endpoint: string;
+  let authHeaders: Record<string, string>;
+  if (accountSid && (authToken || (apiKeySid && apiKeySecret))) {
+    const user = authToken ? accountSid : apiKeySid!;
+    const pass = authToken ? authToken : apiKeySecret!;
+    endpoint = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+    authHeaders = { Authorization: `Basic ${btoa(`${user}:${pass}`)}` };
+  } else if (lovableKey && twilioKey) {
+    endpoint = `${GATEWAY_URL}/Messages.json`;
+    authHeaders = { Authorization: `Bearer ${lovableKey}`, "X-Connection-Api-Key": twilioKey };
+  } else {
+    return await fail(
+      "WhatsApp provider is not configured. Set TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN (plus TWILIO_WHATSAPP_FROM) in the hosting environment.",
+    );
+  }
+
 
   const prog: any = enr.program ?? {};
   const ticket = enr.ticket_code || enr.id;
