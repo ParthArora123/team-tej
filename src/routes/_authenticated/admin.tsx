@@ -1269,6 +1269,8 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const getProof = useServerFn(adminGetProofUrl);
   const loadContent = useServerFn(getSiteContent);
   const markWaSent = useServerFn(markWhatsappConfirmationSent);
+  const retryWaSend = useServerFn(retryWhatsappConfirmation);
+
   const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
   // FROM/sender: the WhatsApp number the admin configured in "WhatsApp message".
   // Falls back to the Contact page number only if no sender is configured yet.
