@@ -25,6 +25,7 @@ import { Route as WorkshopsIdRouteImport } from './routes/workshops.$id'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedPayEnrollmentIdRouteImport } from './routes/_authenticated/pay.$enrollmentId'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const ZeroToHeroRoute = ZeroToHeroRouteImport.update({
   id: '/zero-to-hero',
@@ -106,6 +107,12 @@ const AuthenticatedPayEnrollmentIdRoute =
     path: '/pay/$enrollmentId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops/': typeof WorkshopsIndexRoute
   '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -140,6 +148,7 @@ export interface FileRoutesByTo {
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops': typeof WorkshopsIndexRoute
   '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -159,6 +168,7 @@ export interface FileRoutesById {
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops/': typeof WorkshopsIndexRoute
   '/_authenticated/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/workshops/$id'
     | '/workshops/'
     | '/pay/$enrollmentId'
+    | '/lovable/email/queue/process'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -195,6 +206,7 @@ export interface FileRouteTypes {
     | '/workshops/$id'
     | '/workshops'
     | '/pay/$enrollmentId'
+    | '/lovable/email/queue/process'
   id:
     | '__root__'
     | '/'
@@ -213,6 +225,7 @@ export interface FileRouteTypes {
     | '/workshops/$id'
     | '/workshops/'
     | '/_authenticated/pay/$enrollmentId'
+    | '/lovable/email/queue/process'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -229,6 +242,7 @@ export interface RootRouteChildren {
   ZeroToHeroRoute: typeof ZeroToHeroRoute
   WorkshopsIdRoute: typeof WorkshopsIdRoute
   WorkshopsIndexRoute: typeof WorkshopsIndexRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -345,6 +359,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPayEnrollmentIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -377,6 +398,7 @@ const rootRouteChildren: RootRouteChildren = {
   ZeroToHeroRoute: ZeroToHeroRoute,
   WorkshopsIdRoute: WorkshopsIdRoute,
   WorkshopsIndexRoute: WorkshopsIndexRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
