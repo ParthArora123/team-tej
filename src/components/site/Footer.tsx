@@ -91,10 +91,6 @@ export function Footer() {
             <p className="mt-3 text-[14px] text-muted-foreground leading-relaxed">
               Dance • Choreography • Workshops
             </p>
-            <p className="mt-5 text-[14px] text-muted-foreground max-w-sm leading-relaxed">
-              Training movers, choreographing stages, and shaping India's next generation of
-              performers.
-            </p>
           </div>
 
           {/* Explore */}
