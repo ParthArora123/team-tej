@@ -1341,7 +1341,7 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const retryWa = async (id: string) => {
     setBusy(id);
     try {
-      const res: any = await retryWa Send({ data: { enrollmentId: id } });
+      const res: any = await retryWaSend({ data: { enrollmentId: id } });
       if (res?.sent) {
         toast.success("WhatsApp confirmation sent.");
         setBlockedWa((s) => { const n = { ...s }; delete n[id]; return n; });
