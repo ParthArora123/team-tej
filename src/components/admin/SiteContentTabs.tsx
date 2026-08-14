@@ -648,11 +648,14 @@ export function WhatsappTemplateTab() {
   const load = useServerFn(getSiteContent);
   const save = useServerFn(adminSaveSiteContent);
   const [template, setTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
+  // Admin-configured sender/FROM WhatsApp number used for confirmations.
+  const [senderNumber, setSenderNumber] = useState<string>("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     load({ data: { key: "whatsapp_template" } }).then((v: any) => {
       if (v && typeof v.template === "string") setTemplate(v.template);
+      if (v && typeof v.sender_number === "string") setSenderNumber(v.sender_number);
     }).catch(() => {});
   }, []);
 
@@ -660,13 +663,14 @@ export function WhatsappTemplateTab() {
     e.preventDefault();
     setBusy(true);
     try {
-      await save({ data: { key: "whatsapp_template", value: { template } } });
-      toast.success("WhatsApp template saved");
+      await save({ data: { key: "whatsapp_template", value: { template, sender_number: senderNumber } } });
+      toast.success("WhatsApp settings saved");
     } catch (e: any) { toast.error(e.message ?? "Save failed"); }
     finally { setBusy(false); }
   };
 
   const insert = (name: string) => setTemplate((t) => `${t}${t.endsWith(" ") || t === "" ? "" : " "}{{${name}}}`);
+
 
   const preview = renderWhatsappTemplate(template, {
     StudentName: "Priya Sharma",
