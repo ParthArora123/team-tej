@@ -52,6 +52,10 @@ const FeaturedPerformances = lazy(() =>
 const SignatureProgramsGrid = lazy(() =>
   import("@/components/site/HomeSectionCards").then((m) => ({ default: m.SignatureProgramsGrid }))
 );
+const TestimonialsCarousel = lazy(() =>
+  import("@/components/site/TestimonialsCarousel").then((m) => ({ default: m.TestimonialsCarousel }))
+);
+
 
 
 
