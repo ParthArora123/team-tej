@@ -158,13 +158,13 @@ export async function sendWhatsappConfirmation(
   });
 
   try {
-    const res = await fetch(`${GATEWAY_URL}/Messages.json`, {
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${lovableKey}`,
-        "X-Connection-Api-Key": twilioKey,
+        ...authHeaders,
         "Content-Type": "application/x-www-form-urlencoded",
       },
+
       body: new URLSearchParams({
         To: `whatsapp:${to}`,
         From: `whatsapp:${from}`,
