@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZeroToHeroRouteImport } from './routes/zero-to-hero'
 import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OnlineTrainingsRouteImport } from './routes/online-trainings'
@@ -39,6 +40,11 @@ const ZeroToHeroRoute = ZeroToHeroRouteImport.update({
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
   path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TestimonialsRoute = TestimonialsRouteImport.update({
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/online-trainings': typeof OnlineTrainingsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/testimonials': typeof TestimonialsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/verify': typeof VerifyRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -171,6 +178,7 @@ export interface FileRoutesByTo {
   '/online-trainings': typeof OnlineTrainingsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/testimonials': typeof TestimonialsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/verify': typeof VerifyRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/online-trainings': typeof OnlineTrainingsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/testimonials': typeof TestimonialsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/verify': typeof VerifyRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/online-trainings'
     | '/reset-password'
     | '/testimonials'
+    | '/unsubscribe'
     | '/verify'
     | '/zero-to-hero'
     | '/admin'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/online-trainings'
     | '/reset-password'
     | '/testimonials'
+    | '/unsubscribe'
     | '/verify'
     | '/zero-to-hero'
     | '/admin'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/online-trainings'
     | '/reset-password'
     | '/testimonials'
+    | '/unsubscribe'
     | '/verify'
     | '/zero-to-hero'
     | '/_authenticated/admin'
@@ -288,6 +300,7 @@ export interface RootRouteChildren {
   OnlineTrainingsRoute: typeof OnlineTrainingsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TestimonialsRoute: typeof TestimonialsRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   VerifyRoute: typeof VerifyRoute
   ZeroToHeroRoute: typeof ZeroToHeroRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
@@ -313,6 +326,13 @@ declare module '@tanstack/react-router' {
       path: '/verify'
       fullPath: '/verify'
       preLoaderRoute: typeof VerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/testimonials': {
@@ -476,6 +496,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnlineTrainingsRoute: OnlineTrainingsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TestimonialsRoute: TestimonialsRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   VerifyRoute: VerifyRoute,
   ZeroToHeroRoute: ZeroToHeroRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
