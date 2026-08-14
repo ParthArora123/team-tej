@@ -79,20 +79,22 @@ function normalizeWaNumber(raw: unknown): string {
 // TO   → the contact/WhatsApp number the student entered in the registration
 //        form (`enr.phone`). Never falls back to the business number, so a
 //        confirmation is never mis-delivered to the studio itself.
-// FROM → the WhatsApp number shown on the Contact page (passed in as
-//        `contactPageWhatsapp`). wa.me always sends from the signed-in
-//        WhatsApp account, so this number is what the student sees as the
-//        support/reply contact inside the message.
+// FROM → the WhatsApp sender number configured by the admin in the WhatsApp
+//        message settings (passed in as `senderWhatsapp`). It is never
+//        hardcoded and never the student's own number. wa.me sends from the
+//        WhatsApp account signed in on the admin's device, so this number is
+//        also what the student sees as the support/reply contact.
 export function buildWaUrl(
   enr: any,
   ticket: string | null,
   template: string,
-  contactPageWhatsapp: string,
+  senderWhatsapp: string,
 ): string | null {
   if (!enr) return null;
   const waNumber = normalizeWaNumber(enr.phone);
   if (!waNumber) return null;
-  const supportNumber = String(contactPageWhatsapp ?? "").trim();
+  const supportNumber = String(senderWhatsapp ?? "").trim();
+
   const verifyUrl = ticket && typeof window !== "undefined"
     ? `${window.location.origin}/verify?code=${encodeURIComponent(ticket)}`
     : "";

@@ -252,8 +252,10 @@ export const approveEnrollment = createServerFn({ method: "POST" })
       // actual transition into "confirmed" — re-opening or re-approving an
       // already-confirmed registration must not send another email.
       const { data: prior } = await supabaseAdmin
-        .from("enrollments").select("status").eq("id", data.enrollmentId).maybeSingle();
+        .from("enrollments").select("status, whatsapp_status").eq("id", data.enrollmentId).maybeSingle();
       const wasConfirmed = prior?.status === "confirmed";
+      const whatsappAlreadySent = prior?.whatsapp_status === "sent";
+
       const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       let ticket = genCode();
       for (let i = 0; i < 5; i++) {
@@ -291,7 +293,9 @@ export const approveEnrollment = createServerFn({ method: "POST" })
       // Return the confirmed enrollment (with ticket + program details) so the
       // caller can build and trigger the WhatsApp confirmation message, which
       // is only ever sent after admin approval — never at submission time.
-      return { ok: true, enrollment: enr, ticketCode: ticket };
+      // `whatsappAlreadySent` lets the caller skip re-sending on a re-approval.
+      return { ok: true, enrollment: enr, ticketCode: ticket, whatsappAlreadySent };
+
 
     } else {
       const { error } = await supabaseAdmin.from("enrollments").update({
@@ -301,6 +305,34 @@ export const approveEnrollment = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+// Records that the WhatsApp confirmation for an approved registration has been
+// handed off to WhatsApp. Called once, immediately after the pre-filled
+// message window opened successfully — never on submission, payment upload or
+// dashboard refresh. Writing `whatsapp_status = 'sent'` makes the send
+// idempotent: re-approving or reopening the registration will not send again.
+export const markWhatsappConfirmationSent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ enrollmentId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
+      .from("enrollments").select("status, whatsapp_status").eq("id", data.enrollmentId).maybeSingle();
+    // Only approved/confirmed registrations may be marked, and only once.
+    if (row?.status !== "confirmed" || row?.whatsapp_status === "sent") {
+      return { ok: true, alreadySent: row?.whatsapp_status === "sent" };
+    }
+    const { error } = await supabaseAdmin.from("enrollments").update({
+      whatsapp_status: "sent",
+      whatsapp_sent_at: new Date().toISOString(),
+      whatsapp_error: null,
+      notification_provider: "whatsapp_web",
+    }).eq("id", data.enrollmentId);
+    if (error) throw error;
+    return { ok: true, alreadySent: false };
+  });
+
 
 export const adminGetProofUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

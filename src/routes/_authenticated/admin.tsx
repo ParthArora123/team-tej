@@ -14,7 +14,7 @@ import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
   adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, adminGetProofUrl,
-  adminUploadWorkshopImage,
+  adminUploadWorkshopImage, markWhatsappConfirmationSent,
 } from "@/lib/enrollment.functions";
 import {
   adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
@@ -1268,18 +1268,24 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
   const getProof = useServerFn(adminGetProofUrl);
   const loadContent = useServerFn(getSiteContent);
+  const markWaSent = useServerFn(markWhatsappConfirmationSent);
   const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
-  // FROM/sender contact: the WhatsApp number already published on the Contact page.
-  const [waFallbackNumber, setWaFallbackNumber] = useState<string>("+91 98765 43210");
+  // FROM/sender: the WhatsApp number the admin configured in "WhatsApp message".
+  // Falls back to the Contact page number only if no sender is configured yet.
+  const [waSenderNumber, setWaSenderNumber] = useState<string>("");
+  const [waContactNumber, setWaContactNumber] = useState<string>("");
 
   const [blockedWa, setBlockedWa] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadContent({ data: { key: "whatsapp_template" } })
-      .then((v: any) => { if (v && typeof v.template === "string") setWaTemplate(v.template); })
+      .then((v: any) => {
+        if (v && typeof v.template === "string") setWaTemplate(v.template);
+        if (v && typeof v.sender_number === "string") setWaSenderNumber(v.sender_number);
+      })
       .catch(() => {});
     loadContent({ data: { key: "contact" } })
-      .then((v: any) => { if (v && typeof v.whatsapp === "string") setWaFallbackNumber(v.whatsapp); })
+      .then((v: any) => { if (v && typeof v.whatsapp === "string") setWaContactNumber(v.whatsapp); })
       .catch(() => {});
   }, []);
 
@@ -1305,7 +1311,14 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       const res = await onApprove({ data: { enrollmentId: id, approve } });
       await reload();
       if (approve && res?.ok && res.enrollment) {
-        const waUrl = buildWaUrl(res.enrollment, res.ticketCode ?? null, waTemplate, waFallbackNumber);
+        // Duplicate guard: a registration whose confirmation already went out
+        // must never trigger a second message on re-approval.
+        if (res.whatsappAlreadySent) {
+          toast.success("Approved. WhatsApp confirmation was already sent earlier — not sending again.");
+          return;
+        }
+        const senderNumber = waSenderNumber.trim() || waContactNumber;
+        const waUrl = buildWaUrl(res.enrollment, res.ticketCode ?? null, waTemplate, senderNumber);
         if (waUrl) {
           // Open the pre-filled WhatsApp confirmation message so the admin
           // just has to hit Send. Popup blockers can swallow window.open()
@@ -1314,6 +1327,9 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
           if (!win) {
             toast.error("Approved, but the popup was blocked. Click below to send the WhatsApp confirmation.");
             setBlockedWa((s) => ({ ...s, [id]: waUrl }));
+          } else {
+            // Only mark as sent once WhatsApp actually opened with the message.
+            try { await markWaSent({ data: { enrollmentId: id } }); } catch {}
           }
         } else {
           toast.error("Approved, but this student's registration has no valid contact number — WhatsApp confirmation not sent.");
@@ -1326,6 +1342,7 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       setBusy(null);
     }
   };
+
 
   return (
     <div className="mt-8 space-y-3">
