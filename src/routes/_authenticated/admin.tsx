@@ -1336,6 +1336,31 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
     }
   };
 
+  // Re-attempts the server-side Twilio send for a confirmed registration whose
+  // confirmation failed. Already-sent registrations are never re-sent.
+  const retryWa = async (id: string) => {
+    setBusy(id);
+    try {
+      const res: any = await retryWa Send({ data: { enrollmentId: id } });
+      if (res?.sent) {
+        toast.success("WhatsApp confirmation sent.");
+        setBlockedWa((s) => { const n = { ...s }; delete n[id]; return n; });
+      } else if (res?.alreadySent) {
+        toast.success("WhatsApp confirmation was already sent earlier.");
+        setBlockedWa((s) => { const n = { ...s }; delete n[id]; return n; });
+      } else {
+        toast.error(res?.error ?? "WhatsApp send failed.");
+      }
+      await reload();
+    } catch (e: any) {
+      toast.error(e?.message ?? "WhatsApp send failed.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+
+
 
   return (
     <div className="mt-8 space-y-3">
