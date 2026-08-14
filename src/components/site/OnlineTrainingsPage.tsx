@@ -197,6 +197,9 @@ function BeginnerCard() {
           <p className="mt-4 text-muted-foreground leading-relaxed">
             “Always wanted to dance with confidence but didn’t know where to start?”
           </p>
+          <p className="mt-3 text-muted-foreground leading-relaxed">
+            This program is specially designed for absolute beginners. Learn step by step from basic rhythm and body movement to freestyle, choreography, and stage presence, all from the comfort of your home!
+          </p>
 
           <div className="mt-6">
             <h3 className="text-xs font-bold uppercase tracking-widest text-primary">
