@@ -722,7 +722,22 @@ function Index() {
         <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
           <IndiaToGlobeAndCounting globe={globe} stats={stats} />
         </section>
+
+        {/* TESTIMONIALS */}
+        <LazySection minHeight={420}>
+          <TestimonialsCarousel
+            items={(testimonials ?? []).map((t: any) => ({
+              id: t.id,
+              name: t.name,
+              role: t.role,
+              story: t.story,
+              rating: t.rating,
+              avatar_url: t.avatar_url,
+            }))}
+          />
+        </LazySection>
       </Chapter>
+
 
       {/* SCREEN 2 — Register & Book Your Experience */}
       <Chapter index={2} total={5} kicker="Start Moving — Book Your Experience">
