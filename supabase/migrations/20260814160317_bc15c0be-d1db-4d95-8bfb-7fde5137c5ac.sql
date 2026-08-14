@@ -1,0 +1,1 @@
+DELETE FROM public.testimonials WHERE story = 'This is a browser test story for cross-device sync.';

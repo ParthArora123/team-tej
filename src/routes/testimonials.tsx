@@ -1,18 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Upload, Trash2, Quote, Play, Video } from "lucide-react";
+import { Upload, Trash2, Quote, Play, Video, Loader2 } from "lucide-react";
+import {
+  getTestimonials,
+  submitTestimonial,
+  createTestimonialUploadUrl,
+} from "@/lib/testimonials.functions";
 
 export const Route = createFileRoute("/testimonials")({
   head: () => ({
     meta: [
-      { title: "Testimonials — Tejas D Dhoke" },
+      { title: "Stories — Tejas D Dhoke" },
       {
         name: "description",
         content:
           "Stories from Tejas D Dhoke dancers — share your own video testimonial about your journey.",
       },
-      { property: "og:title", content: "Testimonials — Tejas D Dhoke" },
+      { property: "og:title", content: "Stories — Tejas D Dhoke" },
       {
         property: "og:description",
         content: "Hear from the movers who built their craft at Tejas D Dhoke.",
@@ -28,47 +34,60 @@ interface Testimonial {
   name: string;
   role: string;
   quote: string;
-  video: string; // data URL
+  video_url?: string;
   createdAt: number;
 }
 
-const STORAGE_KEY = "tt_testimonials_v1";
 const MAX_SIZE = 500 * 1024 * 1024; // 500 MB
 
-const seed: Testimonial[] = [
-
-];
-
 function Testimonials() {
-  const [items, setItems] = useState<Testimonial[]>(seed);
+  const load = useServerFn(getTestimonials);
+  const submit = useServerFn(submitTestimonial);
+  const createUploadUrl = useServerFn(createTestimonialUploadUrl);
+
+  const [items, setItems] = useState<Testimonial[]>([]);
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [quote, setQuote] = useState("");
-  const [video, setVideo] = useState<string>("");
-  const [videoName, setVideoName] = useState<string>("");
+  const [videoRef, setVideoRef] = useState(""); // "bucket:key" storage ref
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState(""); // signed playback URL
+  const [videoName, setVideoName] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed: Testimonial[] = JSON.parse(raw);
-        setItems([...parsed, ...seed]);
-      }
-    } catch {}
-  }, []);
+    let mounted = true;
+    load({ data: undefined })
+      .then((rows) => {
+        if (mounted) setItems(rows);
+      })
+      .catch((e) => {
+        if (mounted) setError(e?.message || "Could not load stories");
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [load]);
 
-  const persist = (list: Testimonial[]) => {
-    const user = list.filter((t) => !t.id.startsWith("seed-"));
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    } catch {
-      setError("Storage full — try a shorter clip.");
-    }
+  const reset = () => {
+    setName("");
+    setRole("");
+    setQuote("");
+    setVideoRef("");
+    setVideoPreviewUrl("");
+    setVideoName("");
+    setError("");
+    if (fileRef.current) fileRef.current.value = "";
   };
 
-  const onPick = (f: File | null) => {
+  const onPick = async (f: File | null) => {
     setError("");
     if (!f) return;
     if (!f.type.startsWith("video/")) {
@@ -79,44 +98,64 @@ function Testimonials() {
       setError("Video must be under 500 MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setVideo(String(reader.result || ""));
+
+    setUploading(true);
+    try {
+      const { bucket, path, token, ref } = await createUploadUrl({
+        data: { filename: f.name, contentType: f.type },
+      });
+      const { error: upErr } = await import("@/integrations/supabase/client").then(
+        ({ supabase }) => supabase.storage.from(bucket).uploadToSignedUrl(path, token, f, {
+          contentType: f.type,
+          upsert: false,
+        })
+      );
+      if (upErr) throw upErr;
+      setVideoRef(ref);
       setVideoName(f.name);
-    };
-    reader.readAsDataURL(f);
+      // Generate a temporary local preview for the form.
+      setVideoPreviewUrl(URL.createObjectURL(f));
+    } catch (e: any) {
+      setError(e?.message || "Video upload failed. Please try again.");
+      setVideoRef("");
+      setVideoName("");
+    } finally {
+      setUploading(false);
+    }
   };
 
-  const submit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !quote.trim()) {
       setError("Add your name and a short story.");
       return;
     }
-
-    const next: Testimonial = {
-      id: "u-" + Date.now().toString(36),
-      name: name.trim(),
-      role: role.trim() || "Student",
-      quote: quote.trim(),
-      video,
-      createdAt: Date.now(),
-    };
-    const updated = [next, ...items];
-    setItems(updated);
-    persist(updated);
-    setName("");
-    setRole("");
-    setQuote("");
-    setVideo("");
-    setVideoName("");
-    if (fileRef.current) fileRef.current.value = "";
+    setSubmitting(true);
+    setError("");
+    try {
+      await submit({
+        data: {
+          name: name.trim(),
+          role: role.trim() || "Student",
+          quote: quote.trim(),
+          video_url: videoRef || undefined,
+        },
+      });
+      const updated = await load({ data: undefined });
+      setItems(updated);
+      setSuccess(true);
+      reset();
+      setTimeout(() => setSuccess(false), 4000);
+    } catch (e: any) {
+      setError(e?.message || "Could not post your story.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const remove = (id: string) => {
-    const updated = items.filter((t) => t.id !== id);
-    setItems(updated);
-    persist(updated);
+  const remove = async (id: string) => {
+    // Only admins can delete stories in the backend; the client removes from local UI optimistically.
+    setItems((prev) => prev.filter((t) => t.id !== id));
   };
 
   return (
@@ -141,7 +180,7 @@ function Testimonials() {
       {/* Upload */}
       <section className="max-w-3xl mx-auto px-6 lg:px-10 pb-16">
         <motion.form
-          onSubmit={submit}
+          onSubmit={handleSubmit}
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -200,9 +239,11 @@ function Testimonials() {
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-muted hover:bg-secondary text-sm border border-border"
+                disabled={uploading}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-muted hover:bg-secondary text-sm border border-border disabled:opacity-60"
               >
-                <Upload size={14} /> {videoName ? "Change video" : "Choose video"}
+                {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                {videoName ? "Change video" : "Choose video"}
               </button>
               {videoName && (
                 <span className="text-xs text-muted-foreground truncate">{videoName}</span>
@@ -215,32 +256,47 @@ function Testimonials() {
                 onChange={(e) => onPick(e.target.files?.[0] || null)}
               />
             </div>
-            {video && (
+            {(videoPreviewUrl || videoRef) && (
               <video
-                src={video}
+                src={videoPreviewUrl || undefined}
                 controls
                 preload="metadata"
-                className="mt-3 w-full max-h-64 rounded-lg bg-jet"
+                className="mt-3 w-full max-h-64 rounded-lg bg-jet object-contain"
               />
             )}
           </div>
 
           {error && <p className="mt-3 text-xs text-destructive">{error}</p>}
+          {success && (
+            <p className="mt-3 text-xs text-green-600">Your story has been posted. Thank you!</p>
+          )}
 
           <button
             type="submit"
-            className="mt-5 w-full sm:w-auto px-5 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition text-sm"
+            disabled={submitting || uploading}
+            className="mt-5 w-full sm:w-auto px-5 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition text-sm disabled:opacity-60 inline-flex items-center gap-2"
           >
-            Post testimonial
+            {submitting && <Loader2 size={14} className="animate-spin" />}
+            {submitting ? "Posting…" : "Post testimonial"}
           </button>
           <p className="mt-3 text-[11px] text-muted-foreground">
-            Video is optional. Any uploaded videos are stored locally in your browser for this demo.
+            Video is optional. Approved stories are shared across the site.
           </p>
         </motion.form>
       </section>
 
       {/* Wall */}
       <section className="max-w-7xl mx-auto px-6 lg:px-10 pb-24 grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {loading && (
+          <div className="md:col-span-2 lg:col-span-3 flex items-center justify-center py-16">
+            <Loader2 className="animate-spin text-primary" size={28} />
+          </div>
+        )}
+        {!loading && items.length === 0 && (
+          <div className="md:col-span-2 lg:col-span-3 text-center py-16 text-muted-foreground">
+            No stories yet. Be the first to share yours.
+          </div>
+        )}
         <AnimatePresence>
           {items.map((t, i) => (
             <motion.article
@@ -254,9 +310,9 @@ function Testimonials() {
               whileHover={{ y: -4 }}
               className="group relative rounded-2xl border border-border bg-card overflow-hidden hover:border-primary transition-colors"
             >
-              {t.video ? (
+              {t.video_url ? (
                 <video
-                  src={t.video}
+                  src={t.video_url}
                   controls
                   preload="none"
                   className="w-full aspect-video bg-jet object-contain"
@@ -274,15 +330,13 @@ function Testimonials() {
                     <p className="font-display font-bold">{t.name}</p>
                     <p className="text-xs text-muted-foreground">{t.role}</p>
                   </div>
-                  {!t.id.startsWith("seed-") && (
-                    <button
-                      onClick={() => remove(t.id)}
-                      className="p-1.5 text-muted-foreground hover:text-destructive"
-                      aria-label="Remove"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
+                  <button
+                    onClick={() => remove(t.id)}
+                    className="p-1.5 text-muted-foreground hover:text-destructive"
+                    aria-label="Remove"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               </div>
             </motion.article>
