@@ -1366,11 +1366,18 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
               </button>
             </div>
             {blockedWa[r.id] && (
-              <a href={blockedWa[r.id]} target="_blank" rel="noreferrer"
-                className="mt-3 inline-block text-xs text-primary underline underline-offset-2">
-                Open WhatsApp confirmation message
-              </a>
+              <div className="mt-3 flex items-center gap-3">
+                <button type="button" disabled={busy === r.id} onClick={() => retryWa(r.id)}
+                  className="px-3 py-1.5 rounded-lg bg-muted border border-border text-xs disabled:opacity-50">
+                  Retry WhatsApp confirmation
+                </button>
+                <a href={blockedWa[r.id]} target="_blank" rel="noreferrer"
+                  className="text-xs text-primary underline underline-offset-2">
+                  Send manually instead
+                </a>
+              </div>
             )}
+
           </div>
           <div>
             {proofUrls[r.id] ? (
