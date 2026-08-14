@@ -724,7 +724,7 @@ function Index() {
         </section>
 
         {/* TESTIMONIALS */}
-        <LazySection minHeight={420}>
+        <Suspense fallback={<div className="min-h-[420px]" aria-hidden="true" />}>
           <TestimonialsCarousel
             items={(testimonials ?? []).map((t: any) => ({
               id: t.id,
@@ -735,7 +735,7 @@ function Index() {
               avatar_url: t.avatar_url,
             }))}
           />
-        </LazySection>
+        </Suspense>
       </Chapter>
 
 
