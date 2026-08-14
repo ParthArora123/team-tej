@@ -24,7 +24,7 @@ const dProFeatures = [
   "Tutorials of All Our Choreographies",
 ];
 
-const dProBatches = [
+const dProOneMonthBatches = [
   {
     time: "8:00 PM Live Class",
     duration: "1 Month",
@@ -40,6 +40,25 @@ const dProBatches = [
     schedule: "Monday to Friday",
     sessions: "1-hour sessions",
     link: "https://studio.dancefit.in/l/7315b416b4",
+  },
+];
+
+const dProThreeMonthBatches = [
+  {
+    time: "8:00 PM Live Class",
+    duration: "3 Months",
+    fees: "₹3,600",
+    schedule: "Monday to Friday",
+    sessions: "1-hour sessions",
+    link: "https://studio.dancefit.in/I/64a0c18378",
+  },
+  {
+    time: "9:00 PM Live Class",
+    duration: "3 Months",
+    fees: "₹3,600",
+    schedule: "Monday to Friday",
+    sessions: "1-hour sessions",
+    link: "https://studio.dancefit.in/l/75b1d36a03",
   },
 ];
 
@@ -92,7 +111,13 @@ function CtaButton({
   );
 }
 
-function DProCard() {
+function DProCard({
+  title,
+  batches,
+}: {
+  title: string;
+  batches: typeof dProOneMonthBatches;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -105,7 +130,7 @@ function DProCard() {
           <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
             <Sparkles size={12} /> Premium Online Training
           </p>
-          <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">D Pro</h2>
+          <h2 className="mt-2 font-display text-3xl sm:text-4xl font-bold">{title}</h2>
           <p className="mt-3 text-sm text-muted-foreground">
             An intensive online training program for dancers who want live classes, personal feedback, and full access to every choreography we teach.
           </p>
@@ -122,9 +147,9 @@ function DProCard() {
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4 w-full lg:w-auto">
-          {dProBatches.map((b) => (
+          {batches.map((b) => (
             <div
-              key={b.time}
+              key={b.link}
               className="rounded-xl border border-border bg-muted/40 p-5 flex flex-col"
             >
               <p className="font-display text-xl font-bold">{b.time}</p>
@@ -140,7 +165,7 @@ function DProCard() {
                 </p>
               </div>
               <p className="mt-4 font-display text-2xl font-bold text-foreground">
-                ₹1,499<span className="text-sm font-medium text-muted-foreground">/month</span>
+                {b.fees}
               </p>
               <CtaButton href={b.link} className="mt-4">
                 Register Now
@@ -163,11 +188,14 @@ function BeginnerCard() {
     >
       <div className="grid lg:grid-cols-2 gap-8">
         <div>
+          <p className="text-xs uppercase tracking-widest text-primary inline-flex items-center gap-1.5">
+            <Sparkles size={12} /> Beginner Friendly Program
+          </p>
           <h2 className="font-display text-2xl sm:text-3xl font-bold leading-tight">
-            “Always wanted to dance with confidence but didn’t know where to start?”
+            Zero to Hero
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            This program is specially designed for absolute beginners. Learn step by step from basic rhythm and body movement to freestyle, choreography, and stage presence, all from the comfort of your home!
+            “Always wanted to dance with confidence but didn’t know where to start?”
           </p>
 
           <div className="mt-6">
@@ -285,7 +313,8 @@ export function OnlineTrainingsPage() {
       </p>
 
       <div className="mt-10 grid gap-6">
-        <DProCard />
+        <DProCard title="D Pro — 1 Month" batches={dProOneMonthBatches} />
+        <DProCard title="D Pro — 3 Months — ₹3,600" batches={dProThreeMonthBatches} />
         <BeginnerCard />
       </div>
 
