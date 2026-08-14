@@ -252,8 +252,10 @@ export const approveEnrollment = createServerFn({ method: "POST" })
       // actual transition into "confirmed" — re-opening or re-approving an
       // already-confirmed registration must not send another email.
       const { data: prior } = await supabaseAdmin
-        .from("enrollments").select("status").eq("id", data.enrollmentId).maybeSingle();
+        .from("enrollments").select("status, whatsapp_status").eq("id", data.enrollmentId).maybeSingle();
       const wasConfirmed = prior?.status === "confirmed";
+      const whatsappAlreadySent = prior?.whatsapp_status === "sent";
+
       const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       let ticket = genCode();
       for (let i = 0; i < 5; i++) {
