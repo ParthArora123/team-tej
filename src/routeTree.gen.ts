@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZeroToHeroRouteImport } from './routes/zero-to-hero'
 import { Route as VerifyRouteImport } from './routes/verify'
+import { Route as UnsubscribeRouteImport } from './routes/unsubscribe'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OnlineTrainingsRouteImport } from './routes/online-trainings'
@@ -22,9 +23,14 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkshopsIndexRouteImport } from './routes/workshops.index'
 import { Route as WorkshopsIdRouteImport } from './routes/workshops.$id'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as AuthenticatedPayEnrollmentIdRouteImport } from './routes/_authenticated/pay.$enrollmentId'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 
 const ZeroToHeroRoute = ZeroToHeroRouteImport.update({
   id: '/zero-to-hero',
@@ -34,6 +40,11 @@ const ZeroToHeroRoute = ZeroToHeroRouteImport.update({
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
   path: '/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UnsubscribeRoute = UnsubscribeRouteImport.update({
+  id: '/unsubscribe',
+  path: '/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TestimonialsRoute = TestimonialsRouteImport.update({
@@ -90,6 +101,11 @@ const WorkshopsIdRoute = WorkshopsIdRouteImport.update({
   path: '/workshops/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -100,11 +116,34 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedPayEnrollmentIdRoute =
   AuthenticatedPayEnrollmentIdRouteImport.update({
     id: '/pay/$enrollmentId',
     path: '/pay/$enrollmentId',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -116,13 +155,19 @@ export interface FileRoutesByFullPath {
   '/online-trainings': typeof OnlineTrainingsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/testimonials': typeof TestimonialsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/verify': typeof VerifyRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops/': typeof WorkshopsIndexRoute
   '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -133,13 +178,19 @@ export interface FileRoutesByTo {
   '/online-trainings': typeof OnlineTrainingsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/testimonials': typeof TestimonialsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/verify': typeof VerifyRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops': typeof WorkshopsIndexRoute
   '/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -152,13 +203,19 @@ export interface FileRoutesById {
   '/online-trainings': typeof OnlineTrainingsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/testimonials': typeof TestimonialsRoute
+  '/unsubscribe': typeof UnsubscribeRoute
   '/verify': typeof VerifyRoute
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops/': typeof WorkshopsIndexRoute
   '/_authenticated/pay/$enrollmentId': typeof AuthenticatedPayEnrollmentIdRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,13 +228,19 @@ export interface FileRouteTypes {
     | '/online-trainings'
     | '/reset-password'
     | '/testimonials'
+    | '/unsubscribe'
     | '/verify'
     | '/zero-to-hero'
     | '/admin'
     | '/dashboard'
+    | '/email/unsubscribe'
     | '/workshops/$id'
     | '/workshops/'
     | '/pay/$enrollmentId'
+    | '/lovable/email/suppression'
+    | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -188,13 +251,19 @@ export interface FileRouteTypes {
     | '/online-trainings'
     | '/reset-password'
     | '/testimonials'
+    | '/unsubscribe'
     | '/verify'
     | '/zero-to-hero'
     | '/admin'
     | '/dashboard'
+    | '/email/unsubscribe'
     | '/workshops/$id'
     | '/workshops'
     | '/pay/$enrollmentId'
+    | '/lovable/email/suppression'
+    | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   id:
     | '__root__'
     | '/'
@@ -206,13 +275,19 @@ export interface FileRouteTypes {
     | '/online-trainings'
     | '/reset-password'
     | '/testimonials'
+    | '/unsubscribe'
     | '/verify'
     | '/zero-to-hero'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/email/unsubscribe'
     | '/workshops/$id'
     | '/workshops/'
     | '/_authenticated/pay/$enrollmentId'
+    | '/lovable/email/suppression'
+    | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -225,10 +300,16 @@ export interface RootRouteChildren {
   OnlineTrainingsRoute: typeof OnlineTrainingsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TestimonialsRoute: typeof TestimonialsRoute
+  UnsubscribeRoute: typeof UnsubscribeRoute
   VerifyRoute: typeof VerifyRoute
   ZeroToHeroRoute: typeof ZeroToHeroRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   WorkshopsIdRoute: typeof WorkshopsIdRoute
   WorkshopsIndexRoute: typeof WorkshopsIndexRoute
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -245,6 +326,13 @@ declare module '@tanstack/react-router' {
       path: '/verify'
       fullPath: '/verify'
       preLoaderRoute: typeof VerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/unsubscribe': {
+      id: '/unsubscribe'
+      path: '/unsubscribe'
+      fullPath: '/unsubscribe'
+      preLoaderRoute: typeof UnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/testimonials': {
@@ -324,6 +412,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkshopsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -338,12 +433,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/pay/$enrollmentId': {
       id: '/_authenticated/pay/$enrollmentId'
       path: '/pay/$enrollmentId'
       fullPath: '/pay/$enrollmentId'
       preLoaderRoute: typeof AuthenticatedPayEnrollmentIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -373,10 +496,16 @@ const rootRouteChildren: RootRouteChildren = {
   OnlineTrainingsRoute: OnlineTrainingsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TestimonialsRoute: TestimonialsRoute,
+  UnsubscribeRoute: UnsubscribeRoute,
   VerifyRoute: VerifyRoute,
   ZeroToHeroRoute: ZeroToHeroRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   WorkshopsIdRoute: WorkshopsIdRoute,
   WorkshopsIndexRoute: WorkshopsIndexRoute,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

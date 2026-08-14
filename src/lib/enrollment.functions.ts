@@ -248,6 +248,12 @@ export const approveEnrollment = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.approve) {
+      // Snapshot the prior state so the confirmation email is only sent on the
+      // actual transition into "confirmed" — re-opening or re-approving an
+      // already-confirmed registration must not send another email.
+      const { data: prior } = await supabaseAdmin
+        .from("enrollments").select("status").eq("id", data.enrollmentId).maybeSingle();
+      const wasConfirmed = prior?.status === "confirmed";
       const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
       let ticket = genCode();
       for (let i = 0; i < 5; i++) {
@@ -267,10 +273,26 @@ export const approveEnrollment = createServerFn({ method: "POST" })
         const { data: p } = await supabaseAdmin.from("programs").select("seats_taken").eq("id", enr.program_id).single();
         await supabaseAdmin.from("programs").update({ seats_taken: (p?.seats_taken ?? 0) + 1 }).eq("id", enr.program_id);
       }
+      // Email confirmation — same admin approval event that drives the existing
+      // WhatsApp confirmation. Fired only on the transition into "confirmed".
+      if (!wasConfirmed && (enr as any)?.email) {
+        const { sendConfirmationEmail } = await import("./email-confirmation.server");
+        const prog: any = (enr as any).program ?? {};
+        await sendConfirmationEmail({
+          to: (enr as any).email,
+          participantName: (enr as any).full_name || "there",
+          workshopName: prog.name || "the workshop",
+          workshopDate: prog.event_date ? new Date(prog.event_date).toDateString() : null,
+          workshopTime: prog.event_time ?? null,
+          venue: prog.venue ?? null,
+          ticketId: ticket,
+        });
+      }
       // Return the confirmed enrollment (with ticket + program details) so the
       // caller can build and trigger the WhatsApp confirmation message, which
       // is only ever sent after admin approval — never at submission time.
       return { ok: true, enrollment: enr, ticketCode: ticket };
+
     } else {
       const { error } = await supabaseAdmin.from("enrollments").update({
         status: "rejected", approved_by: context.userId, approved_at: new Date().toISOString(),

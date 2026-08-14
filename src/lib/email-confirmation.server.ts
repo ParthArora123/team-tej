@@ -1,18 +1,16 @@
-// Sends the workshop confirmation email via the project's Lovable email
-// queue. If the email infrastructure hasn't been provisioned yet (no
-// `enqueue_email` RPC / no `transactional-confirmation` template), the send
-// is skipped gracefully so ticket generation still succeeds.
+// Sends the workshop registration confirmation email through the project's
+// email infrastructure (`/lovable/email/transactional/send`). This is only ever
+// invoked right after an admin approval transitions a registration to
+// "confirmed" — never on submission, payment upload or dashboard refresh.
 
 export interface ConfirmationEmailPayload {
   to: string;
-  studentName: string;
+  participantName: string;
   workshopName: string;
-  eventDate?: string | null;
-  eventTime?: string | null;
+  workshopDate?: string | null;
+  workshopTime?: string | null;
   venue?: string | null;
-  ticketCode: string;
-  amount: number;
-  verifyUrl: string;
+  ticketId: string;
 }
 
 export async function sendConfirmationEmail(p: ConfirmationEmailPayload): Promise<void> {
@@ -21,30 +19,40 @@ export async function sendConfirmationEmail(p: ConfirmationEmailPayload): Promis
     return;
   }
 
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { getRequest } = await import("@tanstack/react-start/server");
+  const request = getRequest();
+  const authHeader = request?.headers?.get("authorization");
+  if (!request || !authHeader) {
+    console.warn("[email-confirmation] no request context; skipping");
+    return;
+  }
 
-  const templateData = {
-    studentName: p.studentName,
-    workshopName: p.workshopName,
-    eventDate: p.eventDate ?? "",
-    eventTime: p.eventTime ?? "",
-    venue: p.venue ?? "",
-    ticketCode: p.ticketCode,
-    amount: p.amount,
-    verifyUrl: p.verifyUrl,
-  };
+  const origin = new URL(request.url).origin;
 
-  const { error } = await (supabaseAdmin.rpc as any)("enqueue_email", {
-    queue_name: "transactional_emails",
-    template_name: "workshop-confirmation",
-    recipient_email: p.to,
-    template_data: templateData,
-    idempotency_key: `confirm-${p.ticketCode}`,
-  });
-
-
-  if (error) {
-    // RPC not present yet (email infra not provisioned) — skip silently but log.
-    console.warn("[email-confirmation] enqueue skipped:", error.message);
+  try {
+    const res = await fetch(`${origin}/lovable/email/transactional/send`, {
+      method: "POST",
+      headers: { "content-type": "application/json", Authorization: authHeader },
+      body: JSON.stringify({
+        templateName: "workshop-confirmation",
+        recipientEmail: p.to,
+        // One confirmation per issued ticket — retries never duplicate a send.
+        idempotencyKey: `workshop-confirmation-${p.ticketId}`,
+        templateData: {
+          participantName: p.participantName,
+          workshopName: p.workshopName,
+          workshopDate: p.workshopDate ?? "",
+          workshopTime: p.workshopTime ?? "",
+          venue: p.venue ?? "",
+          ticketId: p.ticketId,
+        },
+      }),
+    });
+    if (!res.ok) {
+      console.warn("[email-confirmation] send failed:", res.status, await res.text());
+    }
+  } catch (e) {
+    // Never let email delivery break ticket generation / approval.
+    console.warn("[email-confirmation] send error:", e);
   }
 }
