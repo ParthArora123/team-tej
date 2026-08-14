@@ -692,9 +692,19 @@ export function WhatsappTemplateTab() {
       <div>
         <p className="font-display text-lg">WhatsApp confirmation message</p>
         <p className="text-xs text-muted-foreground mt-1">
-          Sent to the student's WhatsApp automatically after a successful payment. Use the placeholders below — they'll be replaced with real registration details.
+          Sent to the student's WhatsApp after an admin approves their registration. Use the placeholders below — they'll be replaced with real registration details.
         </p>
       </div>
+
+      <div>
+        <label className="text-xs uppercase tracking-widest text-muted-foreground">Sender (FROM) WhatsApp number</label>
+        <input value={senderNumber} onChange={(e) => setSenderNumber(e.target.value)} placeholder="+91 …"
+          className="mt-2 w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
+        <p className="text-[11px] text-muted-foreground mt-1">
+          The business WhatsApp number confirmations are sent from. Shown to the student as the support contact.
+        </p>
+      </div>
+
 
       <div>
         <label className="text-xs uppercase tracking-widest text-muted-foreground">Available placeholders</label>
