@@ -121,7 +121,10 @@ function Dashboard() {
 
       await submitPayment({ data: { enrollmentId, proofPath, paymentReference: ref } });
 
-      toast.success("Payment submitted! We'll confirm it shortly.");
+      toast.success("Payment completed successfully. Your registration is awaiting admin approval.", {
+        description: "Your ticket will be generated and appear here once an admin approves it.",
+      });
+
       setProofFile((s) => ({ ...s, [enrollmentId]: null }));
       setReference((s) => ({ ...s, [enrollmentId]: "" }));
       await reload();

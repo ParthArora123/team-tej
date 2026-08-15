@@ -13,7 +13,7 @@ import {
 import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
-  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, adminGetProofUrl,
+  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, approveAllPendingEnrollments, adminGetProofUrl,
   adminUploadWorkshopImage, markWhatsappConfirmationSent,
 } from "@/lib/enrollment.functions";
 import {
@@ -1265,6 +1265,9 @@ function ProfilesTab() {
 function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any; reload: () => void }) {
   const pending = rows.filter((r) => r.status === "payment_submitted");
   const [busy, setBusy] = useState<string | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const approveAll = useServerFn(approveAllPendingEnrollments);
+
   const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
   const getProof = useServerFn(adminGetProofUrl);
   const loadContent = useServerFn(getSiteContent);
@@ -1346,16 +1349,44 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
     await reload();
   };
 
-
-
-
+  // Bulk approval — only the registrations currently pending approval are
+  // touched; each gets its ticket generated server-side by the same logic as
+  // the individual Approve action.
+  const approveAllPending = async () => {
+    if (!pending.length) return;
+    if (!confirm(`Approve all ${pending.length} pending registration(s) and generate their tickets?`)) return;
+    setBulkBusy(true);
+    try {
+      const res: any = await approveAll({});
+      await reload();
+      if (res?.failed?.length) {
+        toast.error("Approval completed with some errors. Please review the affected registrations.");
+      } else {
+        toast.success("All eligible registrations approved and tickets generated successfully.");
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Bulk approval failed.");
+    } finally {
+      setBulkBusy(false);
+    }
+  };
 
   return (
     <div className="mt-8 space-y-3">
-      <p className="text-sm text-muted-foreground">
-        Review each uploaded payment screenshot, then approve to issue the ticket and increment seats.
-        Approving opens WhatsApp with the confirmation message pre-filled — just hit Send.
-      </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <p className="text-sm text-muted-foreground max-w-2xl">
+          Review each uploaded payment screenshot, then approve to issue the ticket and increment seats.
+          Approving opens WhatsApp with the confirmation message pre-filled — just hit Send.
+        </p>
+        <button
+          type="button"
+          disabled={bulkBusy || pending.length === 0}
+          onClick={approveAllPending}
+          className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-medium disabled:opacity-50 shrink-0">
+          {bulkBusy ? "Approving…" : `Approve All (${pending.length})`}
+        </button>
+      </div>
+
       {pending.length === 0 && (
         <div className="bg-card border border-border rounded-2xl p-8 text-center text-sm text-muted-foreground">
           No payments awaiting verification.
