@@ -1315,7 +1315,7 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
           toast.success("Approved. WhatsApp confirmation was already sent earlier — not sending again.");
           return;
         }
-        // Restored pre-Twilio flow: open WhatsApp with the admin-configured
+        // Open WhatsApp with the admin-configured
         // template pre-filled, addressed to the student's registered number.
         const waUrl = buildWaUrl(res.enrollment, res.ticketCode ?? null, waTemplate, waContactNumber);
         if (!waUrl) {
