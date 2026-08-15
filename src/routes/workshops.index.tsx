@@ -104,7 +104,7 @@ function WorkshopsPage() {
   const load = () => {
     cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
       .then((fresh: any) => {
-        setRows(fresh);
+        setRows(sortWorkshopsByDateDesc(fresh ?? []));
         void idbSet(WORKSHOPS_CACHE_KEY, fresh);
       })
       .catch(() => {})
