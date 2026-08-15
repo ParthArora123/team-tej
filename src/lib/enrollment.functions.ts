@@ -334,16 +334,6 @@ export const markWhatsappConfirmationSent = createServerFn({ method: "POST" })
     return { ok: true, alreadySent: false };
   });
 
-// Admin-triggered retry for a confirmed registration whose WhatsApp
-// confirmation failed. Never sends twice: already-sent rows are skipped.
-export const retryWhatsappConfirmation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ enrollmentId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { sendWhatsappConfirmation } = await import("./whatsapp-send.server");
-    return await sendWhatsappConfirmation(data.enrollmentId);
-  });
 
 
 
