@@ -11,6 +11,7 @@ const WORKSHOPS_CACHE_KEY = "programs:workshop";
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import { sortWorkshopsByDateDesc } from "@/lib/workshop-order";
 
 import { WorkshopHero } from "@/components/site/WorkshopHero";
 import { WorkshopGallery } from "@/components/site/WorkshopGallery";
@@ -104,7 +105,7 @@ function WorkshopsPage() {
   const load = () => {
     cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
       .then((fresh: any) => {
-        setRows(fresh);
+        setRows(sortWorkshopsByDateDesc(fresh ?? []));
         void idbSet(WORKSHOPS_CACHE_KEY, fresh);
       })
       .catch(() => {})
@@ -115,7 +116,7 @@ function WorkshopsPage() {
     let cancelled = false;
     idbGet<any[]>(WORKSHOPS_CACHE_KEY, { maxAgeMs: 24 * 60 * 60_000 }).then((cached) => {
       if (!cancelled && cached?.length) {
-        setRows((current) => (current.length ? current : cached));
+        setRows((current) => (current.length ? current : sortWorkshopsByDateDesc(cached)));
         setLoaded(true);
       }
     });
