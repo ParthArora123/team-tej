@@ -157,26 +157,74 @@ export async function sendWhatsappConfirmation(
     TicketUrl: verifyUrl,
   });
 
-  try {
-    const res = await fetch(endpoint, {
+  // WhatsApp business numbers that are outside a 24-hour customer service
+  // window can only receive an approved template ("Content") message — Twilio
+  // rejects free-form Body with error 21654 (ContentSid Required).
+  // If TWILIO_CONTENT_SID is configured we use the approved template; we also
+  // fall back to it automatically when Twilio returns 21654.
+  const contentSid = process.env["TWILIO_CONTENT_SID"];
+  const messagingServiceSid = process.env["TWILIO_MESSAGING_SERVICE_SID"];
+
+  const contentVars = JSON.stringify({
+    "1": enr.full_name || "there",
+    "2": prog.name || enr.selected_workshop || "the workshop",
+    "3": ticket || "",
+    "4": prog.event_date ? new Date(prog.event_date).toDateString() : "",
+    "5": prog.event_time || "",
+    "6": prog.venue || "",
+  });
+
+  const buildParams = (useContent: boolean) => {
+    const p = new URLSearchParams({ To: `whatsapp:${to}` });
+    if (messagingServiceSid) p.set("MessagingServiceSid", messagingServiceSid);
+    else p.set("From", `whatsapp:${from}`);
+    if (useContent && contentSid) {
+      p.set("ContentSid", contentSid);
+      p.set("ContentVariables", contentVars);
+    } else {
+      p.set("Body", body);
+    }
+    return p;
+  };
+
+  const post = (useContent: boolean) =>
+    fetch(endpoint, {
       method: "POST",
       headers: {
         ...authHeaders,
         "Content-Type": "application/x-www-form-urlencoded",
       },
-
-      body: new URLSearchParams({
-        To: `whatsapp:${to}`,
-        From: `whatsapp:${from}`,
-        Body: body,
-      }),
+      body: buildParams(useContent),
     });
 
-    const text = await res.text();
+  try {
+    let res = await post(Boolean(contentSid));
+    let text = await res.text();
+
+    if (!res.ok && !contentSid && text.includes("21654")) {
+      return await fail(
+        "WhatsApp rejected the free-form message (Twilio 21654: ContentSid Required). " +
+          "The recipient is outside the 24-hour session window, so Twilio needs an approved " +
+          "WhatsApp template. Create/approve a template in Twilio Content Template Builder and " +
+          "set TWILIO_CONTENT_SID (and optionally TWILIO_MESSAGING_SERVICE_SID) in the hosting environment.",
+      );
+    }
+
+    // Approved template configured but rejected → try free-form as a fallback.
+    if (!res.ok && contentSid) {
+      const retry = await post(false);
+      const retryText = await retry.text();
+      if (retry.ok) {
+        res = retry;
+        text = retryText;
+      }
+    }
+
     if (!res.ok) {
       console.error(`Twilio WhatsApp send failed [${res.status}]: ${text}`);
       return await fail(`Provider error [${res.status}]: ${text.slice(0, 300)}`);
     }
+
 
     let sid: string | null = null;
     try {
