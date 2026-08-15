@@ -1427,6 +1427,28 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
         </button>
       </div>
 
+      {Object.keys(blockedWa).filter((id) => !pending.some((p) => p.id === id)).length > 0 && (
+        <div className="bg-card border border-amber-500/40 rounded-2xl p-4 space-y-2">
+          <p className="text-sm font-medium">WhatsApp confirmations pending send</p>
+          <p className="text-xs text-muted-foreground">
+            These students are approved and ticketed, but their WhatsApp window was blocked. Open each link and hit Send — each message is sent only once.
+          </p>
+          <div className="flex flex-col gap-1 pt-1">
+            {Object.keys(blockedWa).filter((id) => !pending.some((p) => p.id === id)).map((id) => {
+              const r = rows.find((x) => x.id === id);
+              return (
+                <a key={id} href={blockedWa[id]} target="_blank" rel="noreferrer"
+                  onClick={() => openBlockedWa(id)}
+                  className="text-xs text-primary underline underline-offset-2">
+                  Open WhatsApp confirmation — {r?.full_name ?? id}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+
       {pending.length === 0 && (
         <div className="bg-card border border-border rounded-2xl p-8 text-center text-sm text-muted-foreground">
           No payments awaiting verification.
