@@ -270,6 +270,46 @@ export const approveEnrollment = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+// Bulk "Approve All": approves every registration currently pending approval
+// (status = payment_submitted) and generates each one's ticket + QR code via
+// the same shared logic as the individual approve action. Already approved,
+// rejected or unpaid registrations are never touched, and failures are
+// reported per-registration instead of failing silently.
+export const approveAllPendingEnrollments = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { approveEnrollmentById } = await import("./approve-enrollment.server");
+
+    const { data: pending, error } = await supabaseAdmin
+      .from("enrollments")
+      .select("id")
+      .eq("status", "payment_submitted")
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+
+    const approved: Array<{ enrollment: any; ticketCode: string; whatsappAlreadySent: boolean }> = [];
+    const failed: Array<{ id: string; message: string }> = [];
+
+    for (const row of pending ?? []) {
+      try {
+        const res = await approveEnrollmentById(supabaseAdmin, row.id, context.userId);
+        approved.push({
+          enrollment: res.enrollment,
+          ticketCode: res.ticketCode,
+          whatsappAlreadySent: res.whatsappAlreadySent,
+        });
+      } catch (e: any) {
+        failed.push({ id: row.id, message: e?.message ?? "Approval failed" });
+      }
+    }
+
+    return { ok: failed.length === 0, total: (pending ?? []).length, approved, failed };
+  });
+
+
+
 // Records that the WhatsApp confirmation for an approved registration has been
 // handed off to WhatsApp. Called once, immediately after the pre-filled
 // message window opened successfully — never on submission, payment upload or
