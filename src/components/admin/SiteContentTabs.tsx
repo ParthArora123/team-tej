@@ -648,14 +648,11 @@ export function WhatsappTemplateTab() {
   const load = useServerFn(getSiteContent);
   const save = useServerFn(adminSaveSiteContent);
   const [template, setTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
-  // Admin-configured sender/FROM WhatsApp number used for confirmations.
-  const [senderNumber, setSenderNumber] = useState<string>("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     load({ data: { key: "whatsapp_template" } }).then((v: any) => {
       if (v && typeof v.template === "string") setTemplate(v.template);
-      if (v && typeof v.sender_number === "string") setSenderNumber(v.sender_number);
     }).catch(() => {});
   }, []);
 
@@ -663,7 +660,7 @@ export function WhatsappTemplateTab() {
     e.preventDefault();
     setBusy(true);
     try {
-      await save({ data: { key: "whatsapp_template", value: { template, sender_number: senderNumber } } });
+      await save({ data: { key: "whatsapp_template", value: { template } } });
       toast.success("WhatsApp settings saved");
     } catch (e: any) { toast.error(e.message ?? "Save failed"); }
     finally { setBusy(false); }
@@ -695,16 +692,6 @@ export function WhatsappTemplateTab() {
           Sent to the student's WhatsApp after an admin approves their registration. Use the placeholders below — they'll be replaced with real registration details.
         </p>
       </div>
-
-      <div>
-        <label className="text-xs uppercase tracking-widest text-muted-foreground">Sender (FROM) WhatsApp number</label>
-        <input value={senderNumber} onChange={(e) => setSenderNumber(e.target.value)} placeholder="+91 …"
-          className="mt-2 w-full px-3 py-2 rounded-lg border border-border bg-background text-sm" />
-        <p className="text-[11px] text-muted-foreground mt-1">
-          The business WhatsApp number confirmations are sent from. Shown to the student as the support contact.
-        </p>
-      </div>
-
 
       <div>
         <label className="text-xs uppercase tracking-widest text-muted-foreground">Available placeholders</label>
