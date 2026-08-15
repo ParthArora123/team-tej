@@ -290,17 +290,11 @@ export const approveEnrollment = createServerFn({ method: "POST" })
           ticketId: ticket,
         });
       }
-      // WhatsApp confirmation — fired ONLY on the transition
-      // (non-confirmed → confirmed) and only when nothing was sent before.
-      // Sent server-side through Twilio; failures never undo the approval.
-      let whatsapp: any = { sent: false, skipped: true };
-      if (!wasConfirmed && !whatsappAlreadySent) {
-        const { sendWhatsappConfirmation } = await import("./whatsapp-send.server");
-        whatsapp = await sendWhatsappConfirmation(data.enrollmentId);
-      }
-      // Return the confirmed enrollment (with ticket + program details) plus
-      // the WhatsApp delivery outcome for the admin UI.
-      return { ok: true, enrollment: enr, ticketCode: ticket, whatsappAlreadySent, whatsapp };
+      // WhatsApp confirmation is handed off to the admin's WhatsApp (wa.me
+      // deep link) in the UI right after approval, then recorded via
+      // markWhatsappConfirmationSent. Nothing is sent from the server here.
+      return { ok: true, enrollment: enr, ticketCode: ticket, whatsappAlreadySent };
+
 
 
 
@@ -340,16 +334,6 @@ export const markWhatsappConfirmationSent = createServerFn({ method: "POST" })
     return { ok: true, alreadySent: false };
   });
 
-// Admin-triggered retry for a confirmed registration whose WhatsApp
-// confirmation failed. Never sends twice: already-sent rows are skipped.
-export const retryWhatsappConfirmation = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ enrollmentId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { sendWhatsappConfirmation } = await import("./whatsapp-send.server");
-    return await sendWhatsappConfirmation(data.enrollmentId);
-  });
 
 
 
