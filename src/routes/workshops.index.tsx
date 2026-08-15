@@ -116,7 +116,7 @@ function WorkshopsPage() {
     let cancelled = false;
     idbGet<any[]>(WORKSHOPS_CACHE_KEY, { maxAgeMs: 24 * 60 * 60_000 }).then((cached) => {
       if (!cancelled && cached?.length) {
-        setRows((current) => (current.length ? current : cached));
+        setRows((current) => (current.length ? current : sortWorkshopsByDateDesc(cached)));
         setLoaded(true);
       }
     });
