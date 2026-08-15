@@ -17,6 +17,7 @@ import { listDanceStyles, getSiteContent } from "./site-content.functions";
 import { listChoreographies } from "./choreographies.functions";
 import { listPublicTestimonials } from "./testimonials.functions";
 import { listPerformances, listSignaturePrograms } from "./home-sections.functions";
+import { sortWorkshopsByDateDesc } from "./workshop-order";
 
 export type HomeBundle = {
   heroSlides: any[];
