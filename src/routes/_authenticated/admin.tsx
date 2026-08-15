@@ -1351,18 +1351,57 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
 
   // Bulk approval — only the registrations currently pending approval are
   // touched; each gets its ticket generated server-side by the same logic as
-  // the individual Approve action.
+  // the individual Approve action. Afterwards one separate WhatsApp
+  // confirmation is initiated per approved student (never a combined message),
+  // addressed to that student's own registered number and carrying only their
+  // own ticket details. Registrations whose confirmation already went out are
+  // skipped, so clicking Approve All again never re-sends.
   const approveAllPending = async () => {
     if (!pending.length) return;
-    if (!confirm(`Approve all ${pending.length} pending registration(s) and generate their tickets?`)) return;
+    if (!confirm(`Approve all ${pending.length} pending registration(s), generate their tickets and send each student their WhatsApp confirmation?`)) return;
     setBulkBusy(true);
     try {
       const res: any = await approveAll({});
+      const approvedList: any[] = res?.approved ?? [];
+      const failedApprovals: any[] = res?.failed ?? [];
+
+      let waSent = 0;
+      let waFailed = 0;
+      const blocked: Record<string, string> = {};
+
+      for (const item of approvedList) {
+        const enr = item?.enrollment;
+        if (!enr) continue;
+        // Duplicate protection — already-sent confirmations are never resent.
+        if (item.whatsappAlreadySent) continue;
+        const waUrl = buildWaUrl(enr, item.ticketCode ?? null, waTemplate, waContactNumber);
+        if (!waUrl) { waFailed++; continue; }
+        const win = window.open(waUrl, "_blank", "noopener,noreferrer");
+        if (win) {
+          try { await markWaSent({ data: { enrollmentId: enr.id } }); } catch {}
+          waSent++;
+        } else {
+          // Approval + ticket stay intact; the send can be retried from the
+          // per-registration link without creating a duplicate.
+          blocked[enr.id] = waUrl;
+          waFailed++;
+        }
+        await new Promise((r) => setTimeout(r, 400));
+      }
+
+      if (Object.keys(blocked).length) setBlockedWa((s) => ({ ...s, ...blocked }));
       await reload();
-      if (res?.failed?.length) {
-        toast.error("Approval completed with some errors. Please review the affected registrations.");
+
+      const approvedCount = approvedList.length;
+      const base = `${approvedCount} registration(s) approved, ${approvedCount} ticket(s) generated, ${waSent} WhatsApp confirmation(s) sent`;
+      if (waFailed || failedApprovals.length) {
+        toast.error(
+          `${base}, ${waFailed} failed.` +
+          (failedApprovals.length ? ` ${failedApprovals.length} approval(s) failed.` : "") +
+          (Object.keys(blocked).length ? " Allow pop-ups, then use the WhatsApp link on each registration to retry." : "")
+        );
       } else {
-        toast.success("All eligible registrations approved and tickets generated successfully.");
+        toast.success(`${base}.`);
       }
     } catch (e: any) {
       toast.error(e?.message ?? "Bulk approval failed.");
@@ -1370,6 +1409,7 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       setBulkBusy(false);
     }
   };
+
 
   return (
     <div className="mt-8 space-y-3">
