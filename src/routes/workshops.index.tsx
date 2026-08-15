@@ -11,6 +11,7 @@ const WORKSHOPS_CACHE_KEY = "programs:workshop";
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import { sortWorkshopsByDateDesc } from "@/lib/workshop-order";
 
 import { WorkshopHero } from "@/components/site/WorkshopHero";
 import { WorkshopGallery } from "@/components/site/WorkshopGallery";
