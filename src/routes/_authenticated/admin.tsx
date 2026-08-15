@@ -1269,12 +1269,9 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const getProof = useServerFn(adminGetProofUrl);
   const loadContent = useServerFn(getSiteContent);
   const markWaSent = useServerFn(markWhatsappConfirmationSent);
-  const retryWaSend = useServerFn(retryWhatsappConfirmation);
 
   const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
-  // FROM/sender: the WhatsApp number the admin configured in "WhatsApp message".
-  // Falls back to the Contact page number only if no sender is configured yet.
-  const [waSenderNumber, setWaSenderNumber] = useState<string>("");
+  // FROM/sender: the WhatsApp/contact number shown on the Contact page.
   const [waContactNumber, setWaContactNumber] = useState<string>("");
 
   const [blockedWa, setBlockedWa] = useState<Record<string, string>>({});
@@ -1283,7 +1280,6 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
     loadContent({ data: { key: "whatsapp_template" } })
       .then((v: any) => {
         if (v && typeof v.template === "string") setWaTemplate(v.template);
-        if (v && typeof v.sender_number === "string") setWaSenderNumber(v.sender_number);
       })
       .catch(() => {});
     loadContent({ data: { key: "contact" } })
@@ -1315,20 +1311,26 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       if (approve && res?.ok && res.enrollment) {
         // Duplicate guard: a registration whose confirmation already went out
         // must never trigger a second message on re-approval.
-        if (res.whatsappAlreadySent || res.whatsapp?.alreadySent) {
+        if (res.whatsappAlreadySent) {
           toast.success("Approved. WhatsApp confirmation was already sent earlier — not sending again.");
           return;
         }
-        if (res.whatsapp?.sent) {
-          toast.success("Approved. WhatsApp confirmation sent to the student.");
+        // Restored pre-Twilio flow: open WhatsApp with the admin-configured
+        // template pre-filled, addressed to the student's registered number.
+        const waUrl = buildWaUrl(res.enrollment, res.ticketCode ?? null, waTemplate, waContactNumber);
+        if (!waUrl) {
+          toast.error("Approved, but this registration has no valid WhatsApp number.");
           return;
         }
-        // Send failed — the registration stays confirmed. Offer a manual
-        // fallback link and let the admin retry the automated send.
-        toast.error(`Approved, but the WhatsApp confirmation failed: ${res.whatsapp?.error ?? "unknown error"}`);
-        const senderNumber = waSenderNumber.trim() || waContactNumber;
-        const waUrl = buildWaUrl(res.enrollment, res.ticketCode ?? null, waTemplate, senderNumber);
-        if (waUrl) setBlockedWa((s) => ({ ...s, [id]: waUrl }));
+        const win = window.open(waUrl, "_blank", "noopener,noreferrer");
+        if (win) {
+          try { await markWaSent({ data: { enrollmentId: id } }); } catch {}
+          toast.success("Approved. WhatsApp opened with the confirmation message — hit Send.");
+          await reload();
+        } else {
+          toast.error("Approved, but the browser blocked the WhatsApp window. Use the link below.");
+          setBlockedWa((s) => ({ ...s, [id]: waUrl }));
+        }
       }
 
     } catch (e: any) {
@@ -1338,28 +1340,12 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
     }
   };
 
-  // Re-attempts the server-side Twilio send for a confirmed registration whose
-  // confirmation failed. Already-sent registrations are never re-sent.
-  const retryWa = async (id: string) => {
-    setBusy(id);
-    try {
-      const res: any = await retryWaSend({ data: { enrollmentId: id } });
-      if (res?.sent) {
-        toast.success("WhatsApp confirmation sent.");
-        setBlockedWa((s) => { const n = { ...s }; delete n[id]; return n; });
-      } else if (res?.alreadySent) {
-        toast.success("WhatsApp confirmation was already sent earlier.");
-        setBlockedWa((s) => { const n = { ...s }; delete n[id]; return n; });
-      } else {
-        toast.error(res?.error ?? "WhatsApp send failed.");
-      }
-      await reload();
-    } catch (e: any) {
-      toast.error(e?.message ?? "WhatsApp send failed.");
-    } finally {
-      setBusy(null);
-    }
+  const openBlockedWa = async (id: string) => {
+    try { await markWaSent({ data: { enrollmentId: id } }); } catch {}
+    setBlockedWa((s) => { const n = { ...s }; delete n[id]; return n; });
+    await reload();
   };
+
 
 
 
