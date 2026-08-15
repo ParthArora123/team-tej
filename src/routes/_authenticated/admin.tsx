@@ -13,7 +13,7 @@ import {
 import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
-  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, adminGetProofUrl,
+  adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, approveAllPendingEnrollments, adminGetProofUrl,
   adminUploadWorkshopImage, markWhatsappConfirmationSent,
 } from "@/lib/enrollment.functions";
 import {
