@@ -32,7 +32,7 @@ export function Footer() {
   }, []);
 
   const waNumber = String(contact?.whatsapp ?? DEFAULT_WHATSAPP).replace(/[^\d]/g, "");
-  const waPrefill = "Hi Tejas, I’m interested in joining your dance workshops. Please share the upcoming details.";
+  const waPrefill = "Hi Prafull, I’m interested in joining your dance workshops. Please share the upcoming details.";
   const waHref = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waPrefill)}` : undefined;
 
   const connect = [
