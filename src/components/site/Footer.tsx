@@ -1,6 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Instagram, Youtube, Mail, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { WhatsAppIcon } from "@/components/site/WhatsAppIcon";
+import { getSiteContent } from "@/lib/site-content.functions";
+import { cachedCall } from "@/lib/public-data-cache";
 
 const explore = [
   { to: "/", label: "Home" },
@@ -9,14 +13,35 @@ const explore = [
   { to: "/about", label: "About" },
 ] as const;
 
-const connect = [
-  { href: "https://instagram.com/tejasdhoke", label: "Instagram", icon: Instagram, external: true },
-  { href: "https://youtube.com/@tejasdhoke", label: "YouTube", icon: Youtube, external: true },
-  { href: "https://wa.me/919876543210", label: "WhatsApp", icon: WhatsAppIcon, external: true },
-  { href: "mailto:hello@teamtej.com", label: "Email", icon: Mail, external: false },
-] as const;
+const DEFAULT_WHATSAPP = "+91 98765 43210";
 
 export function Footer() {
+  const loadContent = useServerFn(getSiteContent);
+  const [contact, setContact] = useState<any>({
+    email: "hello@teamtej.com",
+    phone: "+91 98765 43210",
+    whatsapp: DEFAULT_WHATSAPP,
+    address: "12 Linking Road, Bandra West, Mumbai 400050",
+  });
+
+  useEffect(() => {
+    cachedCall("siteContent:contact", () => loadContent({ data: { key: "contact" } }))
+      .then((v: any) => v && setContact((prev: any) => ({ ...prev, ...v })))
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const waNumber = String(contact?.whatsapp ?? DEFAULT_WHATSAPP).replace(/[^\d]/g, "");
+  const waPrefill = "Hi Tejas, I’m interested in joining your dance workshops. Please share the upcoming details.";
+  const waHref = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waPrefill)}` : undefined;
+
+  const connect = [
+    { href: "https://instagram.com/tejasdhoke", label: "Instagram", icon: Instagram, external: true },
+    { href: "https://youtube.com/@tejasdhoke", label: "YouTube", icon: Youtube, external: true },
+    { href: waHref ?? "#", label: "WhatsApp", icon: WhatsAppIcon, external: true, isWa: true },
+    { href: contact?.email ? `mailto:${contact.email}` : "mailto:hello@teamtej.com", label: "Email", icon: Mail, external: false },
+  ] as const;
+
   return (
     <footer className="relative mt-24 md:mt-32 overflow-hidden">
       {/* Subtle top divider — anchors the footer */}
@@ -36,10 +61,51 @@ export function Footer() {
         }}
       />
 
-
       <div className="relative max-w-7xl mx-auto px-6 lg:px-10 pb-8">
+        {/* WhatsApp CTA Footer — premium glass invitation */}
+        <a
+          href={waHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group relative flex flex-col sm:flex-row items-center justify-between gap-6 rounded-[2rem] md:rounded-[2.5rem] border border-[#25D366]/30 bg-surface/70 backdrop-blur-sm p-6 md:p-8 lg:p-10 text-left shadow-[0_24px_70px_-30px_rgba(0,0,0,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:border-[#25D366]/50 hover:shadow-[0_28px_80px_-30px_rgba(37,211,102,0.14)]"
+        >
+          {/* Soft green wash behind the card */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-30 transition-opacity duration-300 group-hover:opacity-45"
+            style={{
+              background:
+                "radial-gradient(ellipse 80% 60% at 20% 0%, color-mix(in oklab, #25D366 20%, transparent), transparent 65%), radial-gradient(ellipse 70% 50% at 90% 100%, color-mix(in oklab, var(--platinum) 35%, transparent), transparent 60%)",
+            }}
+          />
+          <div className="relative flex items-center gap-4 md:gap-5">
+            <div
+              className="grid h-14 w-14 md:h-16 md:w-16 shrink-0 place-items-center rounded-2xl transition-transform duration-300 group-hover:scale-105"
+              style={{ background: "color-mix(in oklab, #25D366 15%, transparent)" }}
+            >
+              <WhatsAppIcon size={32} className="text-[#25D366]" />
+            </div>
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Quick chat</p>
+              <h3 className="mt-1 font-display text-2xl md:text-3xl lg:text-4xl tracking-tight text-foreground">
+                Chat with Tejas on WhatsApp
+              </h3>
+              <p className="mt-1 max-w-md text-sm md:text-[15px] text-muted-foreground leading-relaxed">
+                Have a question about workshops? Send a message and get upcoming details directly.
+              </p>
+            </div>
+          </div>
+          <span
+            className="relative inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-[14px] font-semibold transition-all duration-300 group-hover:gap-3"
+            style={{ background: "#25D366", color: "#ffffff" }}
+          >
+            Start WhatsApp Chat
+            <ArrowRight size={16} strokeWidth={2.5} className="transition-transform duration-300 group-hover:translate-x-1" />
+          </span>
+        </a>
+
         {/* Main CTA Card — warm invitation */}
-        <div className="relative rounded-[2rem] md:rounded-[2.5rem] border border-border bg-surface/70 backdrop-blur-sm p-10 md:p-14 lg:p-18 text-center shadow-[0_24px_70px_-30px_rgba(0,0,0,0.08)]">
+        <div className="mt-10 md:mt-12 relative rounded-[2rem] md:rounded-[2.5rem] border border-border bg-surface/70 backdrop-blur-sm p-10 md:p-14 lg:p-18 text-center shadow-[0_24px_70px_-30px_rgba(0,0,0,0.08)]">
           {/* Soft gradient wash behind the card */}
           <div
             aria-hidden
@@ -135,6 +201,11 @@ export function Footer() {
                         {c.label}
                         <span className="absolute left-0 -bottom-px h-px w-0 bg-foreground transition-all duration-300 group-hover:w-full" />
                       </span>
+                      {(c as any).isWa && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#25D366]/15 text-[#25D366]">
+                          Chat
+                        </span>
+                      )}
                     </a>
                   </li>
                 );
