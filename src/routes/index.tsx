@@ -21,7 +21,7 @@ import meetTejasImg from "@/assets/tejas-meet.webp";
 import classesImg from "@/assets/classes.jpg";
 
 import { MotionImage } from "@/components/site/MotionImage";
-import { MagneticButton } from "@/components/site/MagneticButton";
+
 import { TiltCard } from "@/components/site/TiltCard";
 import { StageLights } from "@/components/site/StageLights";
 import { MouseParallax } from "@/components/site/MouseParallax";
