@@ -32,7 +32,7 @@ export function Footer() {
   }, []);
 
   const waNumber = String(contact?.whatsapp ?? DEFAULT_WHATSAPP).replace(/[^\d]/g, "");
-  const waPrefill = "Hi Tejas, I’m interested in joining your dance workshops. Please share the upcoming details.";
+  const waPrefill = "Hi Prafull, I’m interested in joining your dance workshops. Please share the upcoming details.";
   const waHref = waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waPrefill)}` : undefined;
 
   const connect = [
@@ -88,7 +88,7 @@ export function Footer() {
             <div>
               <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Quick chat</p>
               <h3 className="mt-1 font-display text-2xl md:text-3xl lg:text-4xl tracking-tight text-foreground">
-                Chat with Tejas on WhatsApp
+                Let&apos;s Create Something Together
               </h3>
               <p className="mt-1 max-w-md text-sm md:text-[15px] text-muted-foreground leading-relaxed">
                 Have a question about workshops? Send a message and get upcoming details directly.
