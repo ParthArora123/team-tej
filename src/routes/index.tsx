@@ -924,7 +924,7 @@ function Index() {
           {[
             { icon: "✨", title: "Workshops & Events", desc: "High-energy live sessions combining choreography and community energy.", tone: "var(--df-1)" },
             { icon: "🎗️", title: "Nritya Sadhana", desc: "A meditative movement exploration focusing on stillness and breath.", tone: "var(--df-2)" },
-            { icon: "👥", title: "DanceFit App & Online", desc: "Structured online learning, live feedback, and dance fitness anywhere.", href: "https://dancefitstudio.app", cta: "Download App & Register", tone: "var(--df-3)" },
+            { icon: "👥", title: "DanceFit Studio", desc: "Structured online learning, live feedback, and dance fitness anywhere.", href: "https://www.dancefit.in", cta: "Visit DanceFit Studio", tone: "var(--df-3)" },
             { icon: "⚡", title: "The Tej Method", desc: "Core philosophy integrating body awareness and confidence.", tone: "var(--df-4)" },
             { icon: "🚀", title: "Zero to Hero", desc: "Step-by-step beginner program to eliminate stage fear.", to: "/zero-to-hero", tone: "var(--df-5)" },
             { icon: "🪔", title: "Bhakti Experience", desc: "A spiritual blend of grace, devotion, and movement.", tone: "var(--df-2)" },
