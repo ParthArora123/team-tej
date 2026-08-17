@@ -139,7 +139,7 @@
   --role-educator: #2563EB;
   --role-performer: #059669;
   --role-choreographer: #D946EF;
-  --gradient-jet: linear-gradient(135deg, #1D1D1B 0%, #121212 55%, #0A0A0A 100%);
+  
   --gradient-beige-wash: linear-gradient(135deg, color-mix(in oklab, var(--beige) 55%, transparent), color-mix(in oklab, var(--platinum) 40%, transparent) 60%, transparent);
 
 }
@@ -1135,19 +1135,6 @@ main section:first-of-type {
   content-visibility: visible;
 }
 
-/* Final-CTA orbs — compositor-only keyframes (replaces JS spring loops). */
-@keyframes cta-orb-a {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50%      { transform: translate3d(12px, -20px, 0); }
-}
-@keyframes cta-orb-b {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50%      { transform: translate3d(-18px, 24px, 0); }
-}
-@keyframes cta-orb-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
 
 /* Hidden horizontal-pager slides must not animate: display:none already
    stops CSS animations, but keep transitions off so re-showing a slide
