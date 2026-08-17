@@ -88,7 +88,7 @@ export function Footer() {
             <div>
               <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Quick chat</p>
               <h3 className="mt-1 font-display text-2xl md:text-3xl lg:text-4xl tracking-tight text-foreground">
-                Chat with Tejas on WhatsApp
+                Let&apos;s Create Something Together
               </h3>
               <p className="mt-1 max-w-md text-sm md:text-[15px] text-muted-foreground leading-relaxed">
                 Have a question about workshops? Send a message and get upcoming details directly.
