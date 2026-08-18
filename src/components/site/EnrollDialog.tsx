@@ -181,7 +181,17 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
               <div className="mt-5 grid grid-cols-2 gap-3">
                 <Field label="Full name" v={d.fullName} on={(v) => setD({...d, fullName: v})} span2 />
                 <Field label="Email" type="email" v={d.email} on={(v) => setD({...d, email: v})} />
-                <Field label="Mobile" v={d.phone} on={(v) => setD({...d, phone: v})} />
+                <Field
+                  label="Mobile"
+                  type="tel"
+                  v={d.phone}
+                  on={(v) => setD({ ...d, phone: v.replace(/\D/g, "").slice(0, 10) })}
+                  inputMode="numeric"
+                  pattern="\d{10}"
+                  maxLength={10}
+                  title="Please enter a valid 10-digit mobile number."
+                />
+
                 <label className="block">
                   <span className="text-xs uppercase tracking-wider text-muted-foreground">Gender</span>
                   <select value={d.gender} onChange={(e) => setD({...d, gender: e.target.value})}
