@@ -678,6 +678,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               </div>
               <div className="flex flex-col gap-1.5">
                 <button onClick={() => edit(r)} className="px-3 py-1 text-xs rounded bg-muted">Edit</button>
+                <button onClick={() => setTierProgram(r)} className="px-3 py-1 text-xs rounded bg-muted">Pricing Tiers</button>
                 <button onClick={async () => { await onPub({ data: { id: r.id, published: !r.published }}); reload(); }}
                   className="px-3 py-1 text-xs rounded bg-muted">{r.published ? "Unpublish" : "Publish"}</button>
                 <button onClick={() => setToDelete(r)}
