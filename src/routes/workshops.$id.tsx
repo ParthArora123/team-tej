@@ -900,6 +900,31 @@ function WorkshopDetailPage() {
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />
 
+          {tier && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="mt-10 mx-auto max-w-2xl rounded-2xl border border-primary/45 bg-gradient-to-r from-primary/12 to-primary/5 px-5 py-4 text-center backdrop-blur-md"
+            >
+              <p className="text-[10px] tracking-[0.32em] uppercase text-primary/80">
+                {tier.label || "Current Offer"}
+              </p>
+              <p className="mt-2 text-sm text-primary">
+                Applicable price right now: <strong>₹{singlePrice.toLocaleString("en-IN")}</strong>
+                {allowSingle && allowBoth && bothPrice > 0 && (
+                  <> · Both workshops <strong>₹{bothPrice.toLocaleString("en-IN")}</strong></>
+                )}
+              </p>
+              {tier.remaining > 0 ? (
+                <p className="mt-1 text-xs text-primary/70">
+                  Only {tier.remaining} {tier.remaining === 1 ? "registration" : "registrations"} left at this price — the price increases after that.
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-primary/70">Final pricing tier is now active.</p>
+              )}
+            </motion.div>
+          )}
+
+
           <div className={`mt-14 grid gap-6 items-stretch ${allowSingle && allowBoth ? "md:grid-cols-2" : "max-w-md mx-auto"}`}>
             {allowSingle && (
               <motion.div
