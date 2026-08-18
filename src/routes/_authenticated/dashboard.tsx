@@ -381,6 +381,11 @@ function Dashboard() {
                         <Ticket size={16} /><span className="text-xs uppercase tracking-widest font-semibold">Ticket · Confirmed</span>
                       </div>
                       <p className="mt-2 font-mono text-lg break-all">{r.ticket_code}</p>
+                      {(() => {
+                        const ws = getSelectedWorkshopNames(r);
+                        if (!ws) return null;
+                        return <p className="mt-1 text-sm text-foreground font-medium">{ws}</p>;
+                      })()}
                       <p className="text-xs text-muted-foreground">Show this at the studio on your first day.</p>
                     </div>
                     <div className="flex flex-col items-center gap-2 w-full sm:w-auto shrink-0">
