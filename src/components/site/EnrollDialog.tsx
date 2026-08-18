@@ -343,11 +343,11 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
 }
 
 
-function Field({ label, v, on, type = "text", span2 }: { label: string; v: string; on: (v: string) => void; type?: string; span2?: boolean }) {
+function Field({ label, v, on, type = "text", span2, ...rest }: { label: string; v: string; on: (v: string) => void; type?: string; span2?: boolean } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type">) {
   return (
     <label className={`block ${span2 ? "col-span-2" : ""}`}>
       <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
-      <input type={type} value={v} onChange={(e) => on(e.target.value)}
+      <input type={type} value={v} onChange={(e) => on(e.target.value)} {...rest}
         className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" required />
     </label>
   );
