@@ -289,6 +289,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   const [uploading, setUploading] = useState(false);
   const [payerDefaults, setPayerDefaults] = useState<WsPayerDefaults | null>(null);
   const [toDelete, setToDelete] = useState<any>(null);
+  const [tierProgram, setTierProgram] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -689,6 +690,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         ))}
         {rows.length === 0 && <p className="text-muted-foreground text-sm">No workshops yet.</p>}
       </div>
+
+      <PriceTiersDialog program={tierProgram} onClose={() => setTierProgram(null)} />
 
       <AlertDialog open={!!toDelete} onOpenChange={(v) => { if (!v && !deleting) setToDelete(null); }}>
         <AlertDialogContent>
