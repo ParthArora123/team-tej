@@ -87,6 +87,23 @@ function StatusPill({ s }: { s: string }) {
   return <span className={`inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${m.cls}`}><m.Icon size={12} />{m.label}</span>;
 }
 
+function getSelectedWorkshopNames(enrollment: any): string | null {
+  const program = enrollment?.program ?? {};
+  const regType = enrollment?.registration_type;
+  const selected = enrollment?.selected_workshop;
+  const w1 = program.workshop1_name || "Workshop 1";
+  const w2 = program.workshop2_name || "Workshop 2";
+
+  if (regType === "both") {
+    return [w1, w2].filter(Boolean).join(" + ");
+  }
+  if (regType === "single") {
+    if (selected === "w2") return w2;
+    return w1;
+  }
+  return null;
+}
+
 function Dashboard() {
   const navigate = useNavigate();
   const fetchEnrollments = useServerFn(listMyEnrollments);
@@ -364,6 +381,11 @@ function Dashboard() {
                         <Ticket size={16} /><span className="text-xs uppercase tracking-widest font-semibold">Ticket · Confirmed</span>
                       </div>
                       <p className="mt-2 font-mono text-lg break-all">{r.ticket_code}</p>
+                      {(() => {
+                        const ws = getSelectedWorkshopNames(r);
+                        if (!ws) return null;
+                        return <p className="mt-1 text-sm text-foreground font-medium">{ws}</p>;
+                      })()}
                       <p className="text-xs text-muted-foreground">Show this at the studio on your first day.</p>
                     </div>
                     <div className="flex flex-col items-center gap-2 w-full sm:w-auto shrink-0">
