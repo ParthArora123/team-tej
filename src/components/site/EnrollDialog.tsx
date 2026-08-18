@@ -108,6 +108,10 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!/^\d{10}$/.test(d.phone)) {
+      setErr("Please enter a valid 10-digit mobile number.");
+      return;
+    }
     setErr(""); setBusy(true);
     try {
       // For "single" with named workshops, silverW1/W2 map to selectedWorkshop.
