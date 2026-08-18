@@ -551,8 +551,10 @@ function WorkshopDetailPage() {
   const fetchProgram = useServerFn(getProgram);
   const fetchMedia = useServerFn(listWorkshopMedia);
   const fetchSiteContent = useServerFn(getSiteContent);
+  const fetchPricing = useServerFn(getProgramPricing);
 
   const [program, setProgram] = useState<any>(initialProgram ?? null);
+  const [pricing, setPricing] = useState<ProgramPricing | null>(null);
   const [media, setMedia] = useState<Media[]>([]);
   const [heroIdx, setHeroIdx] = useState(0);
   const [sel, setSel] = useState<EnrollClass | null>(null);
