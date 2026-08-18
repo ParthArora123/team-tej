@@ -6,7 +6,7 @@ import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Download, Upload, Loa
 import { toast } from "sonner";
 import { validatePaymentProofFile } from "@/lib/payment-proof-validation";
 
-async function downloadQrPng(containerId: string, filename: string, size = 720) {
+async function buildQrCanvas(containerId: string, size = 720): Promise<HTMLCanvasElement | null> {
   const sourceCanvas = document.querySelector(`#${containerId} canvas`) as HTMLCanvasElement | null;
   if (sourceCanvas) {
     const padding = Math.round(size * 0.08);
@@ -19,15 +19,11 @@ async function downloadQrPng(containerId: string, filename: string, size = 720) 
     ctx.fillRect(0, 0, size, size);
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(sourceCanvas, padding, padding, qrSize, qrSize);
-    const a = document.createElement("a");
-    a.href = canvas.toDataURL("image/png");
-    a.download = filename;
-    a.click();
-    return;
+    return canvas;
   }
 
   const svg = document.querySelector(`#${containerId} svg`) as SVGSVGElement | null;
-  if (!svg) return;
+  if (!svg) return null;
   const xml = new XMLSerializer().serializeToString(svg);
   const svg64 = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(xml)));
   const img = new Image();
@@ -38,11 +34,39 @@ async function downloadQrPng(containerId: string, filename: string, size = 720) 
   const ctx = canvas.getContext("2d")!;
   ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, size, size);
   ctx.drawImage(img, 0, 0, size, size);
+  return canvas;
+}
+
+async function downloadQrPng(containerId: string, filename: string, size = 720) {
+  const canvas = await buildQrCanvas(containerId, size);
+  if (!canvas) return;
   const a = document.createElement("a");
   a.href = canvas.toDataURL("image/png");
   a.download = filename;
   a.click();
 }
+
+// Saves the exact same QR image — no regeneration or resizing. Uses the native
+// share/save sheet when available (mobile "Save to Photos"), else falls back to download.
+async function saveQrPng(containerId: string, filename: string, size = 720) {
+  const canvas = await buildQrCanvas(containerId, size);
+  if (!canvas) return;
+  const blob: Blob | null = await new Promise((res) => canvas.toBlob(res, "image/png"));
+  if (blob && typeof navigator !== "undefined" && (navigator as any).canShare) {
+    const file = new File([blob], filename, { type: "image/png" });
+    if ((navigator as any).canShare({ files: [file] })) {
+      try {
+        await (navigator as any).share({ files: [file], title: "Payment QR" });
+        return;
+      } catch (e: any) {
+        if (e?.name === "AbortError") return;
+      }
+    }
+  }
+  await downloadQrPng(containerId, filename, size);
+  toast.success("Payment QR saved to your device");
+}
+
 import { useServerFn } from "@tanstack/react-start";
 import { listMyEnrollments, checkIsAdmin, markPaymentSubmitted } from "@/lib/enrollment.functions";
 import { supabase } from "@/integrations/supabase/client";
