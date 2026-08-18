@@ -95,6 +95,7 @@ export const createEnrollment = createServerFn({ method: "POST" })
       full_name: data.fullName, email: data.email, phone: data.phone,
       gender: data.gender, address: data.address, city: data.city, state: data.state,
       emergency_contact: data.emergencyContact,
+      silver_amount_inr: silverAdd,
       silver_seat: wantSilverLegacy,
       silver_seat_w1: silverW1,
       silver_seat_w2: silverW2,
