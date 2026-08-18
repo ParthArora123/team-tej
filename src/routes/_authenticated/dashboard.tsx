@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { QRCodeCanvas } from "qrcode.react";
-import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Download, Upload, Loader2 } from "lucide-react";
+import { Check, Clock, X as XIcon, Ticket, LogOut, Shield, Download, Save, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { validatePaymentProofFile } from "@/lib/payment-proof-validation";
 
