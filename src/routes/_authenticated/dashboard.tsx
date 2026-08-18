@@ -260,17 +260,21 @@ function Dashboard() {
                       {upiUrl ? (
                         <>
                           <div id={`pay-qr-${r.id}`} className="p-3 bg-white rounded-lg"><QRCodeCanvas value={upiUrl} size={220} level="Q" marginSize={4} bgColor="#ffffff" fgColor="#000000" /></div>
-                          <button
-                            type="button"
-                            onClick={() => downloadQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
-                            className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
-                            <Download size={12} /> Download QR
-                          </button>
-                          <a
-                            href={upiUrl}
-                            className="mt-2 text-[11px] text-primary underline underline-offset-2">
-                            Or tap here to open in your UPI app
-                          </a>
+                          <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => downloadQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-secondary text-xs font-medium">
+                              <Download size={12} /> Download QR
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => saveQrPng(`pay-qr-${r.id}`, `payment-qr-${r.id}.png`)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-medium">
+                              <Save size={12} /> Save QR
+                            </button>
+                          </div>
+
                         </>
                       ) : (
                         <p className="text-xs text-destructive text-center max-w-xs">
