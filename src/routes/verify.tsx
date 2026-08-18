@@ -86,9 +86,18 @@ function Verify() {
   }
 
   const t = state.data;
+  const w1 = t.program?.workshop1_name || "Workshop 1";
+  const w2 = t.program?.workshop2_name || "Workshop 2";
+  const workshopName =
+    t.registration_type === "both"
+      ? [w1, w2].filter(Boolean).join(" + ")
+      : t.selected_workshop === "w2"
+        ? w2
+        : w1;
   const rows: [string, string | undefined][] = [
     ["Student", t.student],
     ["Class", t.program?.name],
+    ["Workshop", workshopName],
     ["Duration", t.program?.duration],
     ["Venue", t.program?.venue],
     ["Event date", t.program?.event_date ? new Date(t.program.event_date).toDateString() : undefined],
