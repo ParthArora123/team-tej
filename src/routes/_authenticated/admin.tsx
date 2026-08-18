@@ -34,6 +34,7 @@ import { buildWaUrl, DEFAULT_WHATSAPP_TEMPLATE } from "@/lib/whatsapp-template";
 import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
 import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
 import { MediaUploader } from "@/components/admin/MediaUploader";
+import { PriceTiersDialog } from "@/components/admin/PriceTiersDialog";
 import { ZeroToHeroMediaTab } from "@/components/admin/ZeroToHeroMediaTab";
 import { HomeSectionsTab } from "@/components/admin/HomeSectionsTab";
 import { compressImageFile } from "@/lib/compress-image";
@@ -289,6 +290,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   const [uploading, setUploading] = useState(false);
   const [payerDefaults, setPayerDefaults] = useState<WsPayerDefaults | null>(null);
   const [toDelete, setToDelete] = useState<any>(null);
+  const [tierProgram, setTierProgram] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -678,6 +680,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               </div>
               <div className="flex flex-col gap-1.5">
                 <button onClick={() => edit(r)} className="px-3 py-1 text-xs rounded bg-muted">Edit</button>
+                <button onClick={() => setTierProgram(r)} className="px-3 py-1 text-xs rounded bg-muted">Pricing Tiers</button>
                 <button onClick={async () => { await onPub({ data: { id: r.id, published: !r.published }}); reload(); }}
                   className="px-3 py-1 text-xs rounded bg-muted">{r.published ? "Unpublish" : "Publish"}</button>
                 <button onClick={() => setToDelete(r)}
@@ -688,6 +691,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         ))}
         {rows.length === 0 && <p className="text-muted-foreground text-sm">No workshops yet.</p>}
       </div>
+
+      <PriceTiersDialog program={tierProgram} onClose={() => setTierProgram(null)} />
 
       <AlertDialog open={!!toDelete} onOpenChange={(v) => { if (!v && !deleting) setToDelete(null); }}>
         <AlertDialogContent>

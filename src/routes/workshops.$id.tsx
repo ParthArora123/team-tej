@@ -12,6 +12,7 @@ import { getProgram } from "@/lib/catalog.functions";
 import { listWorkshopMedia } from "@/lib/workshop-media.functions";
 import { getSiteContent } from "@/lib/site-content.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import { getProgramPricing, type ProgramPricing } from "@/lib/pricing-tiers.functions";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { ViewportVideo } from "@/components/site/ViewportVideo";
 
@@ -550,8 +551,10 @@ function WorkshopDetailPage() {
   const fetchProgram = useServerFn(getProgram);
   const fetchMedia = useServerFn(listWorkshopMedia);
   const fetchSiteContent = useServerFn(getSiteContent);
+  const fetchPricing = useServerFn(getProgramPricing);
 
   const [program, setProgram] = useState<any>(initialProgram ?? null);
+  const [pricing, setPricing] = useState<ProgramPricing | null>(null);
   const [media, setMedia] = useState<Media[]>([]);
   const [heroIdx, setHeroIdx] = useState(0);
   const [sel, setSel] = useState<EnrollClass | null>(null);
@@ -562,6 +565,7 @@ function WorkshopDetailPage() {
 
   useEffect(() => {
     if (!initialProgram) fetchProgram({ data: { id: params.id } }).then(setProgram).catch(() => {});
+    fetchPricing({ data: { programId: params.id } }).then((r: any) => setPricing(r)).catch(() => {});
     fetchMedia({ data: { programId: params.id } }).then((r: any[]) => setMedia(r as Media[])).catch(() => {});
     fetchSiteContent({ data: { key: "contact" } }).then((v: any) => v && setContactInfo((prev) => ({ ...prev, ...v }))).catch(() => {});
   }, [params.id]);
@@ -600,8 +604,13 @@ function WorkshopDetailPage() {
 
   const allowSingle = (program as any).allow_single !== false;
   const allowBoth = !!(program as any).allow_both;
-  const singlePrice = program?.price_inr ?? 0;
-  const bothPrice = allowBoth ? ((program as any).both_price ?? singlePrice) : 0;
+  const tier = pricing?.current ?? null;
+  const baseSinglePrice = program?.price_inr ?? 0;
+  const baseBothPrice = allowBoth ? ((program as any).both_price ?? baseSinglePrice) : 0;
+  const singlePrice = tier ? Number(tier.price_inr) : baseSinglePrice;
+  const bothPrice = allowBoth
+    ? (tier?.both_price != null ? Number(tier.both_price) : baseBothPrice)
+    : 0;
   const w1Name = (program as any).workshop1_name || "Workshop 1";
   const w2Name = (program as any).workshop2_name || "Workshop 2";
 
@@ -613,10 +622,10 @@ function WorkshopDetailPage() {
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
 
   const enrollKlass: EnrollClass | null = program ? {
-    id: program.id, name: program.name, price: program.price_inr, duration: program.duration ?? "",
+    id: program.id, name: program.name, price: singlePrice, duration: program.duration ?? "",
     silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice,
     allowSingle: (program as any).allow_single !== false, allowBoth: !!(program as any).allow_both,
-    bothPrice: (program as any).both_price ?? null,
+    bothPrice: allowBoth ? bothPrice : null,
     workshop1Name: (program as any).workshop1_name ?? null,
     workshop2Name: (program as any).workshop2_name ?? null,
     eventTime: formattedEventTime ?? sessions[0]?.time ?? null,
@@ -890,6 +899,31 @@ function WorkshopDetailPage() {
       <section className="relative py-14 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />
+
+          {tier && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              className="mt-10 mx-auto max-w-2xl rounded-2xl border border-primary/45 bg-gradient-to-r from-primary/12 to-primary/5 px-5 py-4 text-center backdrop-blur-md"
+            >
+              <p className="text-[10px] tracking-[0.32em] uppercase text-primary/80">
+                {tier.label || "Current Offer"}
+              </p>
+              <p className="mt-2 text-sm text-primary">
+                Applicable price right now: <strong>₹{singlePrice.toLocaleString("en-IN")}</strong>
+                {allowSingle && allowBoth && bothPrice > 0 && (
+                  <> · Both workshops <strong>₹{bothPrice.toLocaleString("en-IN")}</strong></>
+                )}
+              </p>
+              {tier.remaining > 0 ? (
+                <p className="mt-1 text-xs text-primary/70">
+                  Only {tier.remaining} {tier.remaining === 1 ? "registration" : "registrations"} left at this price — the price increases after that.
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-primary/70">Final pricing tier is now active.</p>
+              )}
+            </motion.div>
+          )}
+
 
           <div className={`mt-14 grid gap-6 items-stretch ${allowSingle && allowBoth ? "md:grid-cols-2" : "max-w-md mx-auto"}`}>
             {allowSingle && (

@@ -382,9 +382,11 @@ export type Database = {
           payment_proof_sha256: string | null
           payment_reference: string | null
           phone: string | null
+          price_tier_id: string | null
           program_id: string
           registration_type: string
           selected_workshop: string | null
+          silver_amount_inr: number
           silver_seat: boolean
           silver_seat_w1: boolean
           silver_seat_w2: boolean
@@ -396,6 +398,7 @@ export type Database = {
           status: Database["public"]["Enums"]["enrollment_status"]
           ticket_code: string | null
           ticket_generated_at: string | null
+          tier_price_inr: number | null
           updated_at: string
           user_id: string
           whatsapp_error: string | null
@@ -424,9 +427,11 @@ export type Database = {
           payment_proof_sha256?: string | null
           payment_reference?: string | null
           phone?: string | null
+          price_tier_id?: string | null
           program_id: string
           registration_type?: string
           selected_workshop?: string | null
+          silver_amount_inr?: number
           silver_seat?: boolean
           silver_seat_w1?: boolean
           silver_seat_w2?: boolean
@@ -438,6 +443,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["enrollment_status"]
           ticket_code?: string | null
           ticket_generated_at?: string | null
+          tier_price_inr?: number | null
           updated_at?: string
           user_id: string
           whatsapp_error?: string | null
@@ -466,9 +472,11 @@ export type Database = {
           payment_proof_sha256?: string | null
           payment_reference?: string | null
           phone?: string | null
+          price_tier_id?: string | null
           program_id?: string
           registration_type?: string
           selected_workshop?: string | null
+          silver_amount_inr?: number
           silver_seat?: boolean
           silver_seat_w1?: boolean
           silver_seat_w2?: boolean
@@ -480,6 +488,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["enrollment_status"]
           ticket_code?: string | null
           ticket_generated_at?: string | null
+          tier_price_inr?: number | null
           updated_at?: string
           user_id?: string
           whatsapp_error?: string | null
@@ -488,6 +497,13 @@ export type Database = {
           whatsapp_status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "enrollments_price_tier_id_fkey"
+            columns: ["price_tier_id"]
+            isOneToOne: false
+            referencedRelation: "program_price_tiers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "enrollments_program_id_fkey"
             columns: ["program_id"]
@@ -791,6 +807,57 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      program_price_tiers: {
+        Row: {
+          both_price: number | null
+          created_at: string
+          id: string
+          label: string | null
+          max_registrations: number
+          price_inr: number
+          program_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          both_price?: number | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          max_registrations: number
+          price_inr: number
+          program_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          both_price?: number | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          max_registrations?: number
+          price_inr?: number
+          program_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_price_tiers_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_price_tiers_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       programs: {
         Row: {
@@ -1399,6 +1466,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_program_pricing: { Args: { _program_id: string }; Returns: Json }
       move_to_dlq: {
         Args: {
           dlq_name: string
