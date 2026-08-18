@@ -12,7 +12,7 @@ export const verifyTicket = createServerFn({ method: "POST" })
     const code = data.code.toUpperCase();
     const { data: row } = await supabaseAdmin
       .from("enrollments")
-      .select("ticket_code, status, full_name, amount_inr, approved_at, program:programs(name, duration, event_date, venue)")
+      .select("ticket_code, status, full_name, amount_inr, approved_at, registration_type, selected_workshop, program:programs(name, duration, event_date, venue, workshop1_name, workshop2_name)")
       .eq("ticket_code", code)
       .maybeSingle();
     if (!row || row.status !== "confirmed") {
@@ -24,6 +24,8 @@ export const verifyTicket = createServerFn({ method: "POST" })
       student: row.full_name,
       amount: row.amount_inr,
       approved_at: row.approved_at,
+      registration_type: row.registration_type,
+      selected_workshop: row.selected_workshop,
       program: row.program,
     };
   });
