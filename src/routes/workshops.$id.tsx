@@ -12,6 +12,7 @@ import { getProgram } from "@/lib/catalog.functions";
 import { listWorkshopMedia } from "@/lib/workshop-media.functions";
 import { getSiteContent } from "@/lib/site-content.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import { getProgramPricing, type ProgramPricing } from "@/lib/pricing-tiers.functions";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { ViewportVideo } from "@/components/site/ViewportVideo";
 
@@ -562,6 +563,7 @@ function WorkshopDetailPage() {
 
   useEffect(() => {
     if (!initialProgram) fetchProgram({ data: { id: params.id } }).then(setProgram).catch(() => {});
+    fetchPricing({ data: { programId: params.id } }).then((r: any) => setPricing(r)).catch(() => {});
     fetchMedia({ data: { programId: params.id } }).then((r: any[]) => setMedia(r as Media[])).catch(() => {});
     fetchSiteContent({ data: { key: "contact" } }).then((v: any) => v && setContactInfo((prev) => ({ ...prev, ...v }))).catch(() => {});
   }, [params.id]);
@@ -600,8 +602,13 @@ function WorkshopDetailPage() {
 
   const allowSingle = (program as any).allow_single !== false;
   const allowBoth = !!(program as any).allow_both;
-  const singlePrice = program?.price_inr ?? 0;
-  const bothPrice = allowBoth ? ((program as any).both_price ?? singlePrice) : 0;
+  const tier = pricing?.current ?? null;
+  const baseSinglePrice = program?.price_inr ?? 0;
+  const baseBothPrice = allowBoth ? ((program as any).both_price ?? baseSinglePrice) : 0;
+  const singlePrice = tier ? Number(tier.price_inr) : baseSinglePrice;
+  const bothPrice = allowBoth
+    ? (tier?.both_price != null ? Number(tier.both_price) : baseBothPrice)
+    : 0;
   const w1Name = (program as any).workshop1_name || "Workshop 1";
   const w2Name = (program as any).workshop2_name || "Workshop 2";
 
@@ -613,10 +620,10 @@ function WorkshopDetailPage() {
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
 
   const enrollKlass: EnrollClass | null = program ? {
-    id: program.id, name: program.name, price: program.price_inr, duration: program.duration ?? "",
+    id: program.id, name: program.name, price: singlePrice, duration: program.duration ?? "",
     silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice,
     allowSingle: (program as any).allow_single !== false, allowBoth: !!(program as any).allow_both,
-    bothPrice: (program as any).both_price ?? null,
+    bothPrice: allowBoth ? bothPrice : null,
     workshop1Name: (program as any).workshop1_name ?? null,
     workshop2Name: (program as any).workshop2_name ?? null,
     eventTime: formattedEventTime ?? sessions[0]?.time ?? null,
