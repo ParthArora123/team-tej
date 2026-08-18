@@ -34,6 +34,7 @@ import { buildWaUrl, DEFAULT_WHATSAPP_TEMPLATE } from "@/lib/whatsapp-template";
 import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
 import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
 import { MediaUploader } from "@/components/admin/MediaUploader";
+import { PriceTiersDialog } from "@/components/admin/PriceTiersDialog";
 import { ZeroToHeroMediaTab } from "@/components/admin/ZeroToHeroMediaTab";
 import { HomeSectionsTab } from "@/components/admin/HomeSectionsTab";
 import { compressImageFile } from "@/lib/compress-image";
