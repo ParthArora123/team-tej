@@ -96,7 +96,7 @@ export function FloatingWorldScene() {
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
-      style={{ contain: "paint" }}
+      style={{ contain: "layout style" }}
     >
       {/* ================= SKY LAYER ================= */}
       <motion.div className="absolute inset-0" style={{ opacity: skyOpacity }}>

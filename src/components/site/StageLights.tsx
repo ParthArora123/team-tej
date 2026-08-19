@@ -10,7 +10,7 @@ export function StageLights() {
     <div
       aria-hidden
       className="pointer-events-none absolute inset-0 overflow-hidden"
-      style={{ contain: "strict" }}
+      style={{ contain: "layout style" }}
     >
       {/* Plain (non-blended) beam layer. mix-blend-mode forced a full-screen
           compositor readback on every animation frame — measured as the

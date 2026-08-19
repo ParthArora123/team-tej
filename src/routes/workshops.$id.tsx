@@ -361,7 +361,7 @@ function WorkshopLiveBackdrop({ media }: { media: Media | null }) {
     <div
       aria-hidden
       className="workshop-live-backdrop pointer-events-none fixed inset-0 z-0 overflow-hidden bg-background"
-      style={{ contain: "paint" }}
+      style={{ contain: "layout style" }}
     >
       <motion.div style={{ y: mediaY }} className="absolute -inset-[6%] will-change-transform transform-gpu">
         {media?.media_kind === "video" && media.poster_url ? (
