@@ -516,6 +516,7 @@
   .glass,
   .glass-card,
   .eyebrow-pill {
+    -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     }
   .ambient-blobs::before,
@@ -539,6 +540,7 @@ body:has(.workshop-detail-page) .backdrop-blur-lg,
 body:has(.workshop-detail-page) .backdrop-blur-xl,
 body:has(.workshop-detail-page) .backdrop-blur-2xl,
 body:has(.workshop-detail-page) .backdrop-blur-3xl {
+  -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
@@ -949,6 +951,7 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
    heavy decorative filters/shadows there too. */
 @media (max-width: 768px) {
   [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     }
   .grain-bg::before,
@@ -985,6 +988,7 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
    backdrop-filter entirely and soften ambient blurs further. */
 @media (max-width: 1024px), (hover: none), (pointer: coarse) {
   [class*="backdrop-blur"] {
+    -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     }
   .blur-3xl { --tw-blur: blur(18px); filter: blur(18px); }
@@ -996,6 +1000,7 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
    frame). Suspend them during scroll and restore the moment it stops — the
    look is identical at rest, scrolling gets its frame budget back. */
 html[data-scrolling="1"] [class*="backdrop-blur"] {
+  -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 html[data-scrolling="1"] .blur-3xl,
@@ -1013,6 +1018,7 @@ html[data-scrolling="1"] .glass,
 html[data-scrolling="1"] .glass-card,
 html[data-scrolling="1"] .eyebrow-pill,
 html[data-scrolling="1"] header .rounded-full {
+  -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
 
