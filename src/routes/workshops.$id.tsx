@@ -685,8 +685,8 @@ function WorkshopDetailPage() {
         </motion.div>
 
         <motion.div style={{ opacity: fadeHero }}
-          className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-12 pt-24 pb-14 md:pt-28 md:pb-24 grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
-          <div>
+          className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-12 pt-24 pb-14 md:pt-28 md:pb-24 grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
+          <div className="min-w-0">
             <Link to="/workshops" className="inline-flex items-center gap-1.5 text-xs text-primary/70 hover:text-primary mb-8 w-fit">
               <ArrowLeft size={14} /> All workshops
             </Link>
@@ -716,7 +716,7 @@ function WorkshopDetailPage() {
 
             <motion.h1
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
-              className="mt-4 md:mt-5 font-display text-4xl sm:text-6xl lg:text-8xl font-semibold leading-[0.95] text-foreground"
+              className="mt-4 md:mt-5 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.0] text-foreground break-words"
               style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}
             >
               {program.name}
