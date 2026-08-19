@@ -7,7 +7,7 @@ export function AuroraBackground() {
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 -z-20 overflow-hidden"
-      style={{ contain: "strict" }}
+      style={{ contain: "layout style" }}
     >
       <div className="aurora aurora-a" />
       <div className="aurora aurora-b" />

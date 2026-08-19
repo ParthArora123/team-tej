@@ -41,7 +41,7 @@ export function WorkshopLivingBackdrop() {
   );
 
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" style={{ contain: "paint" }}>
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" style={{ contain: "layout style" }}>
       {/* Smooth ambient gradient washes (transform-only, no opacity pulses) */}
       <motion.div
         style={{ y: y1 }}

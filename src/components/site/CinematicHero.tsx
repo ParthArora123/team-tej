@@ -183,7 +183,7 @@ export function CinematicHero({
           style={{
             visibility: loaded ? "visible" : "hidden",
             willChange: "transform",
-            contain: "paint",
+            contain: "layout style",
           }}
           loading="eager"
           decoding="async"
