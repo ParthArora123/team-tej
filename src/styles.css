@@ -979,7 +979,6 @@ html:not(.dark) body:has(.workshop-detail-page) footer {
 [class*="backdrop-blur-xl"] {
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Tablets, laptops with touch, and any coarse-pointer device: drop
