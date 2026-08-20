@@ -1,8 +1,6 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { pauseHomepageVideo, playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
 import { isIOSDevice, isSafariBrowser, pickVideoSource } from "@/lib/video-source";
-import { capturePosterFrame } from "@/lib/poster-frame";
-
 
 const IS_IOS = isIOSDevice();
 /** WebKit caps simultaneous inline decoders — never warm a second clip there. */
@@ -55,60 +53,17 @@ export const OptimizedVideo = memo(function OptimizedVideo({
 
   const src = pickVideoSource({ desktopSrc, mobileSrc });
 
-  // No stored thumbnail? Derive one from the clip's own first frame in the
-  // browser — no database column, no server round-trip.
-  const [autoPoster, setAutoPoster] = useState<string | null>(null);
-  const [autoPending, setAutoPending] = useState(false);
-  useEffect(() => {
-    setAutoPoster(null);
-    if (poster || !src) {
-      setAutoPending(false);
-      return;
-    }
-    let alive = true;
-    setAutoPending(true);
-    void capturePosterFrame(src).then((p) => {
-      if (!alive) return;
-      setAutoPoster(p);
-      setAutoPending(false);
-    });
-    return () => { alive = false; };
-  }, [poster, src]);
-
-  const effectivePoster = poster ?? autoPoster;
-  /** Capture failed (tainted canvas / decode error): show a paused frame instead. */
-  const frameFallback = !effectivePoster && !autoPending && !!src;
-
-  const imgRef = useRef<HTMLImageElement>(null);
-  const [posterPainted, setPosterPainted] = useState(!poster);
-
   // Any source or intent change puts the poster back on top immediately
   // (layout effect => happens in the same commit as the carousel switch).
-  // An <img> that is already decoded will never fire `onLoad` again, so the
-  // gate must be re-opened here or the card would stay frozen on its poster.
   useLayoutEffect(() => {
     setShowing(false);
     setFailed(false);
-    setPosterPainted(
-      (!effectivePoster && !autoPending) || imgRef.current?.complete === true
-    );
     nudges.current = 0;
-  }, [src, play, effectivePoster, autoPending]);
-
-  // Safety net: never let a poster that refuses to report `load` (cached,
-  // decoded off-thread, or lazily skipped) block playback forever.
-  useEffect(() => {
-    if (posterPainted || !play) return;
-    const t = window.setTimeout(() => setPosterPainted(true), 600);
-    return () => window.clearTimeout(t);
-  }, [posterPainted, play]);
-
-
-
+  }, [src, play]);
 
   useEffect(() => {
     const v = ref.current;
-    if (!v || !posterPainted) return;
+    if (!v) return;
     v.muted = play ? muted : true;
 
     if (!play) {
@@ -198,14 +153,14 @@ export const OptimizedVideo = memo(function OptimizedVideo({
         vf.cancelVideoFrameCallback(rvfcHandle);
       }
     };
-  }, [play, muted, src, posterPainted]);
+  }, [play, muted, src]);
 
   // Lookahead: while this clip is the *next* one, prime a short buffer without
   // playing it. iOS ignores `preload` until a user gesture, so we nudge the
   // element with a muted play/pause to fill the first seconds, then park it.
   useEffect(() => {
     const v = ref.current;
-    if (!v || !posterPainted || play || !warm || !src || NO_WARM_PRIME) return;
+    if (!v || play || !warm || !src || NO_WARM_PRIME) return;
     let cancelled = false;
     let started = false;
 
@@ -257,7 +212,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       v.removeEventListener("loadeddata", prime);
       v.pause();
     };
-  }, [play, warm, src, posterPainted]);
+  }, [play, warm, src]);
 
   // Release decoder + in-flight bytes on unmount.
   useEffect(() => {
@@ -269,40 +224,13 @@ export const OptimizedVideo = memo(function OptimizedVideo({
 
   return (
     <>
-      {effectivePoster && (
+      {poster && (
         <img
-          ref={imgRef}
-          src={effectivePoster}
+          src={poster}
           alt={alt}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
           decoding="async"
-          onLoad={() => {
-            // Wait until the loaded thumbnail has crossed a real paint boundary
-            // before attaching the video source. This prevents a fast cached
-            // clip from winning the race and exposing its first frame first.
-            requestAnimationFrame(() => requestAnimationFrame(() => setPosterPainted(true)));
-          }}
-          onError={() => setPosterPainted(true)}
-          className={className}
-          style={{
-            opacity: showing ? 0 : 1,
-            transition: "opacity 260ms ease",
-            zIndex: 2,
-            pointerEvents: "none",
-          }}
-        />
-      )}
-      {/* Last-resort thumbnail: a paused, metadata-only frame of the clip
-          itself when the canvas capture was blocked. */}
-      {frameFallback && (
-        <video
-          src={`${src}#t=0.1`}
-          muted
-          playsInline
-          preload="metadata"
-          aria-hidden
-          tabIndex={-1}
           className={className}
           style={{
             opacity: showing ? 0 : 1,
@@ -315,15 +243,14 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       {/* One persistent element for the active clip AND the single lookahead
           neighbour: the buffer built while warm survives the switch, so
           playback starts without a fresh network round-trip. */}
-      {posterPainted && (play || (warm && !NO_WARM_PRIME)) && src && !failed && (
+      {(play || (warm && !NO_WARM_PRIME)) && src && !failed && (
         <video
           key={src}
           ref={(element) => {
             ref.current = element;
             if (element) prepareHomepageVideo(element, src);
           }}
-          poster={effectivePoster ?? undefined}
-
+          poster={poster ?? undefined}
           muted
           loop
           playsInline

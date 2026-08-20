@@ -1,6 +1,8 @@
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
-import { OptimizedVideo } from "@/components/site/OptimizedVideo";
+import { useEffect, useRef } from "react";
+import { playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
+import { pickVideoSource } from "@/lib/video-source";
 
 export type StyleCard = {
   name: string;
@@ -12,9 +14,18 @@ export type StyleCard = {
 };
 
 function Media({ s, active }: { s: StyleCard; active: boolean }) {
-  const hasVideo = !!(s.video_url || s.video_url_mobile);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const src = pickVideoSource({ desktopSrc: s.video_url, mobileSrc: s.video_url_mobile });
 
-  if (hasVideo) {
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (active) void playHomepageVideo(video);
+    else releaseHomepageVideo(video);
+    return () => releaseHomepageVideo(video);
+  }, [active, src]);
+
+  if (src && active) {
     return (
       <>
         {s.image_url && (
@@ -25,16 +36,25 @@ function Media({ s, active }: { s: StyleCard; active: boolean }) {
             className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-80"
           />
         )}
-        {/* Poster stays visible until the clip has painted a real frame. */}
-        <OptimizedVideo
-          desktopSrc={s.video_url}
-          mobileSrc={s.video_url_mobile}
-          poster={s.image_url}
-          alt={s.name}
-          play={active}
-          priority={active}
+        <video
+          key={src}
+          ref={(el) => {
+            videoRef.current = el;
+            if (src) prepareHomepageVideo(el, src);
+          }}
+          poster={s.image_url ?? undefined}
+          loop
+          muted
+          playsInline
+          preload="auto"
+          disableRemotePlayback
+          disablePictureInPicture
+          onLoadedData={() => {
+            if (videoRef.current) void playHomepageVideo(videoRef.current);
+          }}
           className="absolute inset-0 h-full w-full object-contain"
         />
+
       </>
     );
   }

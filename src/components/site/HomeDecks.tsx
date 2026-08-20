@@ -3,16 +3,11 @@ import { Calendar, MapPin, ArrowUpRight, Play, Navigation as NavigationIcon } fr
 import { buildMapsUrl } from "@/lib/maps-link";
 
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
-import { useState } from "react";
-import { OptimizedVideo } from "@/components/site/OptimizedVideo";
+import { useEffect, useRef, useState } from "react";
+import { playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
+import { pickVideoSource } from "@/lib/video-source";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
-/**
- * Poster-first reel surface. The shared OptimizedVideo player keeps the poster
- * on screen until a real decoded frame exists (no black/partial frames, no
- * layout shift), picks the 720p encode on Safari/mobile, and guarantees a
- * single active decoder across the page.
- */
 function ReelVideo({
   src,
   mobileSrc,
@@ -26,20 +21,54 @@ function ReelVideo({
   active: boolean;
   title: string;
 }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [ready, setReady] = useState(false);
+  // Safari / phones get the optimized 720p encode from the very first byte.
+  const chosen = pickVideoSource({ desktopSrc: src, mobileSrc }) ?? src;
+
+  useEffect(() => {
+    if (!active) setReady(false);
+  }, [active, chosen]);
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return;
+    if (active) void playHomepageVideo(video);
+    else releaseHomepageVideo(video);
+    return () => releaseHomepageVideo(video);
+  }, [active, chosen]);
+
   return (
     <>
       {poster && (
         <img src={poster} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl" />
       )}
-      <OptimizedVideo
-        desktopSrc={src}
-        mobileSrc={mobileSrc}
-        poster={poster}
-        alt={title}
-        play={active}
-        priority={active}
-        className="absolute inset-0 h-full w-full object-contain"
-      />
+      {poster && <img src={poster} alt={title} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain" />}
+      {/* Only the active card ever holds a decoder / network stream. */}
+      {active && (
+        <video
+          key={chosen}
+          ref={(el) => {
+            ref.current = el;
+            prepareHomepageVideo(el, chosen);
+          }}
+          poster={poster ?? undefined}
+          muted
+          loop
+          playsInline
+          preload="auto"
+          disableRemotePlayback
+          disablePictureInPicture
+          onLoadedData={() => {
+            setReady(true);
+            if (ref.current) void playHomepageVideo(ref.current);
+          }}
+          onCanPlay={() => setReady(true)}
+          className="absolute inset-0 h-full w-full object-contain"
+          style={{ visibility: active && ready ? "visible" : "hidden" }}
+        />
+      )}
+
     </>
   );
 }
