@@ -49,19 +49,45 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   const ref = useRef<HTMLVideoElement>(null);
   const [showing, setShowing] = useState(false);
   const [failed, setFailed] = useState(false);
-  const [posterPainted, setPosterPainted] = useState(!poster);
   const nudges = useRef(0);
 
   const src = pickVideoSource({ desktopSrc, mobileSrc });
+
+  // No stored thumbnail? Derive one from the clip's own first frame in the
+  // browser — no database column, no server round-trip.
+  const [autoPoster, setAutoPoster] = useState<string | null>(null);
+  const [autoPending, setAutoPending] = useState(false);
+  useEffect(() => {
+    setAutoPoster(null);
+    if (poster || !src) {
+      setAutoPending(false);
+      return;
+    }
+    let alive = true;
+    setAutoPending(true);
+    void capturePosterFrame(src).then((p) => {
+      if (!alive) return;
+      setAutoPoster(p);
+      setAutoPending(false);
+    });
+    return () => { alive = false; };
+  }, [poster, src]);
+
+  const effectivePoster = poster ?? autoPoster;
+  /** Capture failed (tainted canvas / decode error): show a paused frame instead. */
+  const frameFallback = !effectivePoster && !autoPending && !!src;
+
+  const [posterPainted, setPosterPainted] = useState(!poster);
 
   // Any source or intent change puts the poster back on top immediately
   // (layout effect => happens in the same commit as the carousel switch).
   useLayoutEffect(() => {
     setShowing(false);
     setFailed(false);
-    setPosterPainted(!poster);
+    setPosterPainted(!effectivePoster && !autoPending);
     nudges.current = 0;
-  }, [src, play, poster]);
+  }, [src, play, effectivePoster, autoPending]);
+
 
   useEffect(() => {
     const v = ref.current;
