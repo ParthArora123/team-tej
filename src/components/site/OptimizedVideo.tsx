@@ -1,5 +1,5 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { pauseHomepageVideo, playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
+import { pauseHomepageVideo, playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
 import { isIOSDevice, isSafariBrowser, pickVideoSource } from "@/lib/video-source";
 
 const IS_IOS = isIOSDevice();
@@ -245,13 +245,16 @@ export const OptimizedVideo = memo(function OptimizedVideo({
           playback starts without a fresh network round-trip. */}
       {(play || (warm && !NO_WARM_PRIME)) && src && !failed && (
         <video
-          ref={ref}
-          src={src}
+          key={src}
+          ref={(element) => {
+            ref.current = element;
+            if (element) prepareHomepageVideo(element, src);
+          }}
           poster={poster ?? undefined}
           muted
           loop
           playsInline
-          preload={IS_IOS ? "metadata" : "auto"}
+          preload="auto"
           disableRemotePlayback
           disablePictureInPicture
           aria-hidden={!play}
