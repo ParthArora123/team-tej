@@ -48,6 +48,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
 }: OptimizedVideoProps) {
   const ref = useRef<HTMLVideoElement>(null);
   const [showing, setShowing] = useState(false);
+  const [failed, setFailed] = useState(false);
   const nudges = useRef(0);
 
   const src = pickVideoSource({ desktopSrc, mobileSrc });
@@ -56,6 +57,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   // (layout effect => happens in the same commit as the carousel switch).
   useLayoutEffect(() => {
     setShowing(false);
+    setFailed(false);
     nudges.current = 0;
   }, [src, play]);
 
