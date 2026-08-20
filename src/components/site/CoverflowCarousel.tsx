@@ -129,6 +129,8 @@ export function CoverflowCarousel({
   const rootRef = useRef<HTMLDivElement>(null);
   const touchX = useRef<number | null>(null);
   const touchY = useRef<number | null>(null);
+  const touchIdentifier = useRef<number | null>(null);
+  const touchGestureValid = useRef(false);
   const swiped = useRef(false);
 
   // Responsive metrics
@@ -214,19 +216,40 @@ export function CoverflowCarousel({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onTouchStart={(e) => {
-        touchX.current = e.touches[0]?.clientX ?? null;
-        touchY.current = e.touches[0]?.clientY ?? null;
+        if (e.touches.length !== 1) {
+          touchGestureValid.current = false;
+          touchX.current = null;
+          touchY.current = null;
+          touchIdentifier.current = null;
+          return;
+        }
+        const touch = e.touches[0];
+        touchGestureValid.current = true;
+        touchX.current = touch?.clientX ?? null;
+        touchY.current = touch?.clientY ?? null;
+        touchIdentifier.current = touch?.identifier ?? null;
         swiped.current = false;
         setHovered(true);
       }}
       // Fire as soon as the gesture clears the threshold — no waiting for
       // touchend, and never for a vertical (page scroll) gesture.
       onTouchMove={(e) => {
-        if (swiped.current) return;
+        if (e.touches.length !== 1) {
+          // Preserve native Safari pinch-zoom. A gesture that ever contains
+          // two fingers must not advance the carousel after either finger lifts.
+          touchGestureValid.current = false;
+          touchX.current = null;
+          touchY.current = null;
+          touchIdentifier.current = null;
+          return;
+        }
+        if (!touchGestureValid.current || swiped.current) return;
         const start = touchX.current;
         const startY = touchY.current;
-        const x = e.touches[0]?.clientX ?? null;
-        const y = e.touches[0]?.clientY ?? null;
+        const identifier = touchIdentifier.current;
+        const touch = Array.from(e.touches).find((entry) => entry.identifier === identifier);
+        const x = touch?.clientX ?? null;
+        const y = touch?.clientY ?? null;
         if (start == null || x == null) return;
         const dx = x - start;
         const dy = startY != null && y != null ? y - startY : 0;
@@ -239,8 +262,21 @@ export function CoverflowCarousel({
         }
       }}
       onTouchEnd={(e) => {
+        if (!touchGestureValid.current || e.touches.length !== 0) {
+          if (e.touches.length === 0) {
+            touchGestureValid.current = false;
+            touchX.current = null;
+            touchY.current = null;
+            touchIdentifier.current = null;
+            swiped.current = false;
+            setHovered(false);
+          }
+          return;
+        }
         const start = touchX.current;
-        const end = e.changedTouches[0]?.clientX ?? null;
+        const identifier = touchIdentifier.current;
+        const touch = Array.from(e.changedTouches).find((entry) => entry.identifier === identifier);
+        const end = touch?.clientX ?? null;
         if (!swiped.current && start != null && end != null && Math.abs(end - start) > 28) {
           swiped.current = true;
           go(end < start ? 1 : -1);
@@ -248,6 +284,16 @@ export function CoverflowCarousel({
         if (swiped.current) e.stopPropagation();
         touchX.current = null;
         touchY.current = null;
+        touchIdentifier.current = null;
+        touchGestureValid.current = false;
+        swiped.current = false;
+        setHovered(false);
+      }}
+      onTouchCancel={() => {
+        touchX.current = null;
+        touchY.current = null;
+        touchIdentifier.current = null;
+        touchGestureValid.current = false;
         swiped.current = false;
         setHovered(false);
       }}

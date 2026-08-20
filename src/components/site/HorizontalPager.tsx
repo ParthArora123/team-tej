@@ -24,7 +24,8 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState<number[]>([0]);
   const pending = useRef<{ next: number; dir: number } | null>(null);
   const slideRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const touchStart = useRef<{ x: number; y: number; identifier: number } | null>(null);
+  const touchGestureValid = useRef(false);
 
   const [nav, setNav] = useState(0);
 
@@ -171,16 +172,48 @@ export function HorizontalPager({ children }: { children: React.ReactNode }) {
       className="relative w-full overflow-hidden"
       style={{ minHeight: "100svh" }}
       onTouchStart={(e) => {
+        if (e.touches.length !== 1) {
+          touchGestureValid.current = false;
+          touchStart.current = null;
+          return;
+        }
         const t = e.touches[0];
-        touchStart.current = { x: t.clientX, y: t.clientY };
+        touchGestureValid.current = true;
+        touchStart.current = { x: t.clientX, y: t.clientY, identifier: t.identifier };
+      }}
+      onTouchMove={(e) => {
+        // Safari sends the same touch events for pinch-zoom. Once another
+        // finger joins, permanently disqualify this gesture from paging so a
+        // pinch can never be mistaken for a large horizontal swipe.
+        if (e.touches.length !== 1) {
+          touchGestureValid.current = false;
+          touchStart.current = null;
+        }
       }}
       onTouchEnd={(e) => {
         const s = touchStart.current;
-        if (!s) return;
-        const t = e.changedTouches[0];
+        // A finger still down means this was (or became) a multi-touch gesture.
+        if (!touchGestureValid.current || !s || e.touches.length !== 0) {
+          if (e.touches.length === 0) {
+            touchGestureValid.current = false;
+            touchStart.current = null;
+          }
+          return;
+        }
+        const t = Array.from(e.changedTouches).find((touch) => touch.identifier === s.identifier);
+        if (!t) {
+          touchGestureValid.current = false;
+          touchStart.current = null;
+          return;
+        }
         const dx = t.clientX - s.x;
         const dy = t.clientY - s.y;
         if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+        touchGestureValid.current = false;
+        touchStart.current = null;
+      }}
+      onTouchCancel={() => {
+        touchGestureValid.current = false;
         touchStart.current = null;
       }}
     >
