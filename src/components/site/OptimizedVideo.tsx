@@ -1,5 +1,5 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { pauseHomepageVideo, playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
+import { pauseHomepageVideo, playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo, setVideoSoundAllowed } from "@/lib/home-video-playback";
 import { isIOSDevice, isSafariBrowser, pickVideoSource } from "@/lib/video-source";
 
 const IS_IOS = isIOSDevice();
