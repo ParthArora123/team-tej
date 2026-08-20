@@ -1,5 +1,6 @@
 import { ArrowUpRight, MapPin, Trophy, Play } from "lucide-react";
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
+import { ViewportVideo } from "@/components/site/ViewportVideo";
 
 export type HomeCard = {
   id: string;
