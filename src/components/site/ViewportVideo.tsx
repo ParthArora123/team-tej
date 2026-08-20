@@ -23,6 +23,11 @@ export const ViewportVideo = memo(function ViewportVideo({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [near, setNear] = useState(false);
   const [visible, setVisible] = useState(false);
+  // A failed source (decode error, 404, unsupported codec) permanently falls
+  // back to the poster instead of leaving a broken black player behind.
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => setFailed(false), [src]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -56,13 +61,17 @@ export const ViewportVideo = memo(function ViewportVideo({
     return () => pauseHomepageVideo(video);
   }, [active, autoPlay, visible, near, releaseOnExit]);
 
-  const mounted = near || !releaseOnExit;
+  const mounted = (near || !releaseOnExit) && !failed;
 
   return (
     <video
       {...props}
       ref={videoRef}
       src={mounted ? src : undefined}
+      onError={(e) => {
+        setFailed(true);
+        props.onError?.(e);
+      }}
       muted={muted}
       autoPlay={false}
       playsInline
