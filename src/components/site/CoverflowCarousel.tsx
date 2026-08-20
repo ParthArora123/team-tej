@@ -113,6 +113,8 @@ const CardMedia = memo(function CardMedia({
  * Active clip is centred and largest; neighbours float behind with depth,
  * blur and dimming. Auto-advances every `interval` ms with smooth spring motion.
  */
+const cfFlag = () => (typeof window !== "undefined" ? (new URLSearchParams(window.location.search).get("cf") || "") : "");
+
 export function CoverflowCarousel({
   items,
   interval = 5000,
@@ -303,7 +305,7 @@ export function CoverflowCarousel({
               onClick={() => !active && jumpTo(i)}
             >
               <motion.div
-                animate={{ y: active && inView ? [0, -8, 0] : 0 }}
+                animate={{ y: active && inView && !cfFlag().includes("nofloat") ? [0, -8, 0] : 0 }}
                 transition={
                   active && inView
                     ? { duration: 6, repeat: Infinity, ease: "easeInOut" }
@@ -316,7 +318,7 @@ export function CoverflowCarousel({
                     : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
-                <CardMedia item={item} active={active} near={abs <= 1} next={count > 1 && abs === 1} playing={inView} muted={muted} />
+                {!cfFlag().includes("nomedia") && <CardMedia item={item} active={active} near={abs <= 1} next={count > 1 && abs === 1} playing={inView} muted={muted} />}
 
                 <div
                   className="pointer-events-none absolute inset-0"
