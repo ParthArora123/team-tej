@@ -243,7 +243,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       {/* One persistent element for the active clip AND the single lookahead
           neighbour: the buffer built while warm survives the switch, so
           playback starts without a fresh network round-trip. */}
-      {(play || warm) && src && !failed && (
+      {(play || (warm && !NO_WARM_PRIME)) && src && !failed && (
         <video
           ref={ref}
           src={src}
