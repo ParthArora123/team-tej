@@ -1,5 +1,9 @@
 let activeVideo: HTMLVideoElement | null = null;
 
+/** Videos that asked to play while Safari refused autoplay — retried on the first gesture. */
+const pendingGesturePlay = new Set<HTMLVideoElement>();
+let gestureHookInstalled = false;
+
 function stop(video: HTMLVideoElement) {
   try {
     video.pause();
@@ -11,8 +15,37 @@ function stop(video: HTMLVideoElement) {
 
 function release(video: HTMLVideoElement) {
   stop(video);
-  video.removeAttribute("src");
-  video.load();
+  try {
+    video.removeAttribute("src");
+    // Safari keeps the decoder + connection alive until an explicit load().
+    video.load();
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Safari (iOS especially) rejects `play()` with NotAllowedError until a user
+ * gesture has happened on the document. Instead of retrying in a loop — which
+ * thrashes the decoder and causes the stutter/freeze — we park the element and
+ * resume it once on the next real interaction.
+ */
+function installGestureHook() {
+  if (gestureHookInstalled || typeof document === "undefined") return;
+  gestureHookInstalled = true;
+  const flush = () => {
+    const queued = Array.from(pendingGesturePlay);
+    pendingGesturePlay.clear();
+    // Only the currently-active element is resumed: never two at once.
+    for (const v of queued) {
+      if (v === activeVideo && v.isConnected) void v.play().catch(() => undefined);
+    }
+  };
+  const opts = { passive: true } as AddEventListenerOptions;
+  document.addEventListener("touchend", flush, opts);
+  document.addEventListener("pointerup", flush, opts);
+  document.addEventListener("click", flush, opts);
+  document.addEventListener("keydown", flush, opts);
 }
 
 /**
@@ -24,23 +57,48 @@ export function playHomepageVideo(video: HTMLVideoElement) {
   if (activeVideo && activeVideo !== video) stop(activeVideo);
 
   activeVideo = video;
+  pendingGesturePlay.delete(video);
+  video.muted = true;
   if (!video.paused) return Promise.resolve();
-  return video.play().catch(() => undefined);
+
+  installGestureHook();
+  const attempt = video.play();
+  if (!attempt || typeof attempt.catch !== "function") return Promise.resolve();
+  return attempt.catch((err: unknown) => {
+    // Autoplay refused / interrupted / unsupported source: stay on the poster
+    // and wait for a gesture rather than hammering play().
+    const name = (err as { name?: string } | null)?.name;
+    if (name !== "AbortError") pendingGesturePlay.add(video);
+    return undefined;
+  });
 }
 
 export function pauseHomepageVideo(video: HTMLVideoElement) {
   stop(video);
+  pendingGesturePlay.delete(video);
   if (activeVideo === video) activeVideo = null;
 }
 
 /** Fully release network/decoder resources for media that has left its stage. */
 export function releaseHomepageVideo(video: HTMLVideoElement) {
   release(video);
+  pendingGesturePlay.delete(video);
   if (activeVideo === video) activeVideo = null;
 }
 
 if (typeof document !== "undefined") {
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden && activeVideo) activeVideo.pause();
+    if (document.hidden && activeVideo) {
+      try {
+        activeVideo.pause();
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+  // Safari bfcache: leaving with a live decoder is the classic "glitched video
+  // on back-navigation" source.
+  window.addEventListener("pagehide", () => {
+    if (activeVideo) stop(activeVideo);
   });
 }
