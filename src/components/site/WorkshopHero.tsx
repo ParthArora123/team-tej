@@ -59,13 +59,21 @@ export function WorkshopHero() {
                 preload="metadata"
                 className="w-full h-full object-contain"
               />
-            : <motion.img
-                src={s.media_url ?? undefined}
-                alt={s.title ?? ""}
-                initial={{ scale: 1.05 }} animate={{ scale: 1 }} transition={{ duration: 8, ease: "linear" }}
-                className="w-full h-full object-cover lg:object-contain"
-                loading="eager"
-              />}
+            : <>
+                <img
+                  src={s.media_url ?? undefined}
+                  alt=""
+                  aria-hidden
+                  className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl opacity-60"
+                />
+                <motion.img
+                  src={s.media_url ?? undefined}
+                  alt={s.title ?? ""}
+                  initial={{ scale: 1.02 }} animate={{ scale: 1 }} transition={{ duration: 8, ease: "linear" }}
+                  className="absolute inset-0 h-full w-full object-contain"
+                  loading="eager"
+                />
+              </>}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
         </motion.div>
       </AnimatePresence>
