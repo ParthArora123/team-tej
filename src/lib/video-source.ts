@@ -76,3 +76,14 @@ export function pickVideoSource(item: VideoSources): string | undefined {
   if (isMobileDevice() || isSlowConnection()) return mobile || desktop;
   return desktop || mobile;
 }
+
+/**
+ * WebKit-based Safari (desktop or iOS). Chrome/Edge/Firefox on macOS all carry
+ * "Safari" in their UA, so they must be excluded explicitly.
+ */
+export function isSafariBrowser(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const s = ua();
+  if (/CriOS|FxiOS|EdgiOS|OPiOS|Chrome|Chromium|Edg\//.test(s)) return isIOSDevice();
+  return /Safari/.test(s) || isIOSDevice();
+}
