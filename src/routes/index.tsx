@@ -687,8 +687,11 @@ function Index() {
 
 
 
+  const hide = typeof window !== "undefined" ? (new URLSearchParams(window.location.search).get("hide") || "") : "";
+
   return (
     <>
+
 
       {/* Sticky mobile CTA */}
       <Link
