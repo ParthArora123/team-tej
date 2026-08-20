@@ -113,6 +113,13 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       // Bounded nudges — no reload loops, no infinite retries.
       if (nudges.current++ < 2) window.setTimeout(tryPlay, 1200);
     };
+    // Decode error / unsupported codec / dead network: unmount the element and
+    // keep the poster on screen forever instead of a broken black player.
+    const onError = () => {
+      onHold();
+      setFailed(true);
+    };
+
 
     v.addEventListener("loadedmetadata", tryPlay);
     v.addEventListener("loadeddata", tryPlay);
