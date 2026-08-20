@@ -1,7 +1,7 @@
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
 import { useEffect, useRef } from "react";
-import { playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
+import { playHomepageVideo, primeVideoElement, releaseHomepageVideo } from "@/lib/home-video-playback";
 import { pickVideoSource } from "@/lib/video-source";
 
 export type StyleCard = {
@@ -38,7 +38,10 @@ function Media({ s, active }: { s: StyleCard; active: boolean }) {
         )}
         <video
           key={src}
-          ref={videoRef}
+          ref={(el) => {
+            videoRef.current = el;
+            primeVideoElement(el);
+          }}
           src={src}
           poster={s.image_url ?? undefined}
           loop

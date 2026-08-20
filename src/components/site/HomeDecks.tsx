@@ -4,7 +4,7 @@ import { buildMapsUrl } from "@/lib/maps-link";
 
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { useEffect, useRef, useState } from "react";
-import { playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
+import { playHomepageVideo, primeVideoElement, releaseHomepageVideo } from "@/lib/home-video-playback";
 import { pickVideoSource } from "@/lib/video-source";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
@@ -48,7 +48,10 @@ function ReelVideo({
       {active && (
         <video
           key={chosen}
-          ref={ref}
+          ref={(el) => {
+            ref.current = el;
+            primeVideoElement(el);
+          }}
           src={chosen}
           poster={poster ?? undefined}
           muted
