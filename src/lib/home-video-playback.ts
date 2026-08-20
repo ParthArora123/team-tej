@@ -62,6 +62,19 @@ export function playHomepageVideo(video: HTMLVideoElement) {
   if (!video.paused) return Promise.resolve();
 
   installGestureHook();
+
+  // A freshly-mounted element often has no decoded frames yet: play() then
+  // rejects with AbortError ("interrupted by a new load request"). Retry once
+  // the media is actually ready instead of leaving the card frozen on poster.
+  const retryWhenReady = () => {
+    if (video !== activeVideo || !video.isConnected || !video.paused) return;
+    void video.play().catch((err: unknown) => {
+      if ((err as { name?: string } | null)?.name !== "AbortError") pendingGesturePlay.add(video);
+    });
+  };
+  video.addEventListener("loadeddata", retryWhenReady, { once: true });
+  video.addEventListener("canplay", retryWhenReady, { once: true });
+
   const attempt = video.play();
   if (!attempt || typeof attempt.catch !== "function") return Promise.resolve();
   return attempt.catch((err: unknown) => {
@@ -69,9 +82,11 @@ export function playHomepageVideo(video: HTMLVideoElement) {
     // and wait for a gesture rather than hammering play().
     const name = (err as { name?: string } | null)?.name;
     if (name !== "AbortError") pendingGesturePlay.add(video);
+    if (video.readyState >= 2) retryWhenReady();
     return undefined;
   });
 }
+
 
 export function pauseHomepageVideo(video: HTMLVideoElement) {
   stop(video);

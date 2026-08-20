@@ -37,17 +37,23 @@ function Media({ s, active }: { s: StyleCard; active: boolean }) {
           />
         )}
         <video
+          key={src}
           ref={videoRef}
           src={src}
           poster={s.image_url ?? undefined}
           loop
           muted
           playsInline
-          preload="metadata"
+          autoPlay
+          preload="auto"
           disableRemotePlayback
           disablePictureInPicture
+          onLoadedData={() => {
+            if (videoRef.current) void playHomepageVideo(videoRef.current);
+          }}
           className="absolute inset-0 h-full w-full object-contain"
         />
+
       </>
     );
   }
