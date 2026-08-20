@@ -1,9 +1,11 @@
 {
   "version": 1,
-  "asset_id": "aa2890bd-6731-4850-be7e-6aabfc1b504d",
+  "asset_id": "e26ba992-b791-43e5-9652-402facf1bc0a",
   "project_id": "51d20694-4b22-4fb9-b682-2a538b5c2de3",
-  "url": "/__l5e/assets-v1/aa2890bd-6731-4850-be7e-6aabfc1b504d/style-bollywood.mp4",
+  "url": "/__l5e/assets-v1/e26ba992-b791-43e5-9652-402facf1bc0a/style-bollywood.mp4",
+  "r2_key": "a/v1/51d20694-4b22-4fb9-b682-2a538b5c2de3/e26ba992-b791-43e5-9652-402facf1bc0a/style-bollywood.mp4",
   "original_filename": "style-bollywood.mp4",
-  "size": 2416344,
-  "created_at": "2026-06-28T06:24:13Z"
+  "size": 542857,
+  "content_type": "video/mp4",
+  "created_at": "2026-08-20T08:02:08Z"
 }
