@@ -64,7 +64,9 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    v.muted = play ? muted : true;
+    setVideoSoundAllowed(v, play && !muted);
+    // Unmuting can pause playback in some browsers — make sure it resumes.
+    if (play && !muted && v.paused) void playHomepageVideo(v);
 
     if (!play) {
       pauseHomepageVideo(v);
