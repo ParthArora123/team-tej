@@ -1,8 +1,10 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { pauseHomepageVideo, playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
-import { isIOSDevice, pickVideoSource } from "@/lib/video-source";
+import { isIOSDevice, isSafariBrowser, pickVideoSource } from "@/lib/video-source";
 
 const IS_IOS = isIOSDevice();
+/** WebKit caps simultaneous inline decoders — never warm a second clip there. */
+const NO_WARM_PRIME = IS_IOS || isSafariBrowser();
 
 export type OptimizedVideoProps = {
   /** High-quality master used on desktop. */
