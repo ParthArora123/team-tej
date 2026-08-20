@@ -47,20 +47,27 @@ function ReelVideo({
       {/* Only the active card ever holds a decoder / network stream. */}
       {active && (
         <video
+          key={chosen}
           ref={ref}
           src={chosen}
           poster={poster ?? undefined}
           muted
           loop
           playsInline
-          preload="metadata"
+          autoPlay
+          preload="auto"
           disableRemotePlayback
           disablePictureInPicture
+          onLoadedData={() => {
+            setReady(true);
+            if (ref.current) void playHomepageVideo(ref.current);
+          }}
           onCanPlay={() => setReady(true)}
           className="absolute inset-0 h-full w-full object-contain"
           style={{ visibility: active && ready ? "visible" : "hidden" }}
         />
       )}
+
     </>
   );
 }
