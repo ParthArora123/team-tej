@@ -1,6 +1,8 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { pauseHomepageVideo, playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
 import { isIOSDevice, isSafariBrowser, pickVideoSource } from "@/lib/video-source";
+import { capturePosterFrame } from "@/lib/poster-frame";
+
 
 const IS_IOS = isIOSDevice();
 /** WebKit caps simultaneous inline decoders — never warm a second clip there. */
