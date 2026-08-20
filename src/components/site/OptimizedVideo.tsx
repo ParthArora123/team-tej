@@ -79,16 +79,31 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   /** Capture failed (tainted canvas / decode error): show a paused frame instead. */
   const frameFallback = !effectivePoster && !autoPending && !!src;
 
+  const imgRef = useRef<HTMLImageElement>(null);
   const [posterPainted, setPosterPainted] = useState(!poster);
 
   // Any source or intent change puts the poster back on top immediately
   // (layout effect => happens in the same commit as the carousel switch).
+  // An <img> that is already decoded will never fire `onLoad` again, so the
+  // gate must be re-opened here or the card would stay frozen on its poster.
   useLayoutEffect(() => {
     setShowing(false);
     setFailed(false);
-    setPosterPainted(!effectivePoster && !autoPending);
+    setPosterPainted(
+      (!effectivePoster && !autoPending) || imgRef.current?.complete === true
+    );
     nudges.current = 0;
   }, [src, play, effectivePoster, autoPending]);
+
+  // Safety net: never let a poster that refuses to report `load` (cached,
+  // decoded off-thread, or lazily skipped) block playback forever.
+  useEffect(() => {
+    if (posterPainted || !play) return;
+    const t = window.setTimeout(() => setPosterPainted(true), 600);
+    return () => window.clearTimeout(t);
+  }, [posterPainted, play]);
+
+
 
 
   useEffect(() => {
@@ -256,6 +271,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     <>
       {effectivePoster && (
         <img
+          ref={imgRef}
           src={effectivePoster}
           alt={alt}
           loading={priority ? "eager" : "lazy"}
