@@ -38,7 +38,10 @@ function Media({ s, active }: { s: StyleCard; active: boolean }) {
         )}
         <video
           key={src}
-          ref={videoRef}
+          ref={(el) => {
+            videoRef.current = el;
+            primeVideoElement(el);
+          }}
           src={src}
           poster={s.image_url ?? undefined}
           loop
