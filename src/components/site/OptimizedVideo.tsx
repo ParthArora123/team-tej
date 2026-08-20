@@ -1,8 +1,10 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { pauseHomepageVideo, playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
-import { isIOSDevice, pickVideoSource } from "@/lib/video-source";
+import { isIOSDevice, isSafariBrowser, pickVideoSource } from "@/lib/video-source";
 
 const IS_IOS = isIOSDevice();
+/** WebKit caps simultaneous inline decoders — never warm a second clip there. */
+const NO_WARM_PRIME = IS_IOS || isSafariBrowser();
 
 export type OptimizedVideoProps = {
   /** High-quality master used on desktop. */
@@ -46,6 +48,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
 }: OptimizedVideoProps) {
   const ref = useRef<HTMLVideoElement>(null);
   const [showing, setShowing] = useState(false);
+  const [failed, setFailed] = useState(false);
   const nudges = useRef(0);
 
   const src = pickVideoSource({ desktopSrc, mobileSrc });
@@ -54,6 +57,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   // (layout effect => happens in the same commit as the carousel switch).
   useLayoutEffect(() => {
     setShowing(false);
+    setFailed(false);
     nudges.current = 0;
   }, [src, play]);
 
@@ -109,6 +113,13 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       // Bounded nudges — no reload loops, no infinite retries.
       if (nudges.current++ < 2) window.setTimeout(tryPlay, 1200);
     };
+    // Decode error / unsupported codec / dead network: unmount the element and
+    // keep the poster on screen forever instead of a broken black player.
+    const onError = () => {
+      onHold();
+      setFailed(true);
+    };
+
 
     v.addEventListener("loadedmetadata", tryPlay);
     v.addEventListener("loadeddata", tryPlay);
@@ -117,7 +128,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     v.addEventListener("pause", onHold);
     v.addEventListener("waiting", onSoftStall);
     v.addEventListener("stalled", onSoftStall);
-    v.addEventListener("error", onHold);
+    v.addEventListener("error", onError);
     v.addEventListener("seeking", onHold);
     v.addEventListener("emptied", onHold);
     v.addEventListener("ended", onHold);
@@ -132,7 +143,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       v.removeEventListener("pause", onHold);
       v.removeEventListener("waiting", onSoftStall);
       v.removeEventListener("stalled", onSoftStall);
-      v.removeEventListener("error", onHold);
+      v.removeEventListener("error", onError);
       v.removeEventListener("seeking", onHold);
       v.removeEventListener("emptied", onHold);
       v.removeEventListener("ended", onHold);
@@ -149,7 +160,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   // element with a muted play/pause to fill the first seconds, then park it.
   useEffect(() => {
     const v = ref.current;
-    if (!v || play || !warm || !src) return;
+    if (!v || play || !warm || !src || NO_WARM_PRIME) return;
     let cancelled = false;
     let started = false;
 
@@ -232,7 +243,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       {/* One persistent element for the active clip AND the single lookahead
           neighbour: the buffer built while warm survives the switch, so
           playback starts without a fresh network round-trip. */}
-      {(play || warm) && src && (
+      {(play || (warm && !NO_WARM_PRIME)) && src && !failed && (
         <video
           ref={ref}
           src={src}

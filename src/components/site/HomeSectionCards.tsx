@@ -1,5 +1,6 @@
 import { ArrowUpRight, MapPin, Trophy, Play } from "lucide-react";
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
+import { ViewportVideo } from "@/components/site/ViewportVideo";
 
 export type HomeCard = {
   id: string;
@@ -29,16 +30,32 @@ function Media({ c, front }: { c: HomeCard; front: boolean }) {
   }
   if (c.media_kind === "video" && front) {
     return (
-      <video
-        src={c.media_url}
-        poster={c.poster_url ?? undefined}
-        muted
-        loop
-        playsInline
-        autoPlay
-        preload="metadata"
-        className="absolute inset-0 h-full w-full object-contain"
-      />
+      <>
+        {(c.poster_url || c.media_url) && (
+          <img
+            src={c.poster_url ?? undefined}
+            alt=""
+            aria-hidden
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-contain"
+          />
+        )}
+        {/* Only mounted/preloaded while the card is actually on screen, and
+            routed through the single-player registry so no two clips stream. */}
+        <ViewportVideo
+          src={c.media_url}
+          poster={c.poster_url ?? undefined}
+          muted
+          loop
+          playsInline
+          autoPlay
+          preload="metadata"
+          disableRemotePlayback
+          disablePictureInPicture
+          className="absolute inset-0 h-full w-full object-contain"
+        />
+      </>
     );
   }
   return (

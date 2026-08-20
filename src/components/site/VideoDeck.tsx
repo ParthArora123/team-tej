@@ -18,8 +18,12 @@ const ROTATE_MS = DECK_ROTATE_MS;
 function DeckMedia({ item, front, near = false }: { item: DeckItem; front: boolean; near?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  useEffect(() => setReady(false), [item.video]);
+  useEffect(() => {
+    setReady(false);
+    setFailed(false);
+  }, [item.video]);
 
   useEffect(() => {
     const v = ref.current;
@@ -51,7 +55,7 @@ function DeckMedia({ item, front, near = false }: { item: DeckItem; front: boole
           className="absolute inset-0 h-full w-full object-contain"
         />
       )}
-      {front && item.video && (
+      {front && item.video && !failed && (
       <video
         ref={ref}
         src={item.video}
@@ -64,8 +68,13 @@ function DeckMedia({ item, front, near = false }: { item: DeckItem; front: boole
         disablePictureInPicture
         onLoadedData={() => setReady(true)}
         onCanPlay={() => setReady(true)}
+        onError={() => {
+          setReady(false);
+          setFailed(true);
+        }}
+        onStalled={() => setReady(false)}
         className="absolute inset-0 h-full w-full object-contain"
-        style={{ visibility: front && ready ? "visible" : "hidden" }}
+        style={{ visibility: front && ready && !failed ? "visible" : "hidden" }}
       />
       )}
 
