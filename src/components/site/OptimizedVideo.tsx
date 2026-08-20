@@ -262,6 +262,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     <>
       {effectivePoster && (
         <img
+          ref={imgRef}
           src={effectivePoster}
           alt={alt}
           loading={priority ? "eager" : "lazy"}
