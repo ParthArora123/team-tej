@@ -238,7 +238,7 @@ function Dashboard() {
               className="bg-card border border-border rounded-2xl overflow-hidden">
               {r.program?.banner_url && (
                 <div className="w-full overflow-hidden bg-muted">
-                  <img src={r.program.banner_url} alt={r.program?.name ?? ""} className="w-full h-auto object-contain" loading="lazy" />
+                  <img src={r.program.banner_url} alt={r.program?.name ?? ""} className="w-full h-auto object-contain mx-auto md:max-w-[320px]" loading="lazy" />
                 </div>
               )}
               <div className="p-6">
