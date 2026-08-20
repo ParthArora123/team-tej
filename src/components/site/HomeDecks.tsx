@@ -80,8 +80,8 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-18px_color-mix(in_oklab,var(--foreground)_16%,transparent)]">
-      {/* Media — full image, never cropped */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-muted">
+      {/* Media — natural aspect ratio, full image, never cropped */}
+      <div className="relative w-full overflow-hidden bg-muted">
 
         {hasImage ? (
           <>
@@ -98,18 +98,19 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
               alt={w.name}
               loading="lazy"
               decoding="async"
-              className="absolute inset-0 h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+              className="relative block h-auto w-full object-contain"
             />
           </>
         ) : (
           <div
-            className="h-full w-full"
+            className="aspect-[4/5] w-full"
             style={{
               background:
                 "linear-gradient(135deg, color-mix(in oklab, var(--primary) 45%, transparent), transparent 70%)",
             }}
           />
         )}
+
         {w.category && (
           <span className="absolute left-3 top-3 rounded-full border border-white/20 bg-foreground/40 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
             {w.category}
