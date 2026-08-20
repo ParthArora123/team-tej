@@ -1,0 +1,1 @@
+UPDATE public.choreographies SET thumbnail_url = 'workshop-images:choreographies/77375e40-889a-4895-b7d7-2bee6c246ebb-thumb.jpg' WHERE id = '7ad8176b-91e8-47c5-9359-bc4196e8eb52' AND thumbnail_url IS NULL;
