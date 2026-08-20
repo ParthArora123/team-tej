@@ -80,8 +80,9 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-18px_color-mix(in_oklab,var(--foreground)_16%,transparent)]">
-      {/* Media — fixed, medium aspect ratio */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+      {/* Media — full image, never cropped */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-muted">
+
         {hasImage ? (
           <>
             <img
