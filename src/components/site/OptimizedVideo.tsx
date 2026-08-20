@@ -95,6 +95,15 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     nudges.current = 0;
   }, [src, play, effectivePoster, autoPending]);
 
+  // Safety net: never let a poster that refuses to report `load` (cached,
+  // decoded off-thread, or lazily skipped) block playback forever.
+  useEffect(() => {
+    if (posterPainted || !play) return;
+    const t = window.setTimeout(() => setPosterPainted(true), 600);
+    return () => window.clearTimeout(t);
+  }, [posterPainted, play]);
+
+
 
 
   useEffect(() => {
