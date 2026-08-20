@@ -48,7 +48,10 @@ function ReelVideo({
       {active && (
         <video
           key={chosen}
-          ref={ref}
+          ref={(el) => {
+            ref.current = el;
+            primeVideoElement(el);
+          }}
           src={chosen}
           poster={poster ?? undefined}
           muted
