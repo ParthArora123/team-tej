@@ -1,5 +1,5 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { pauseHomepageVideo, playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
+import { pauseHomepageVideo, playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo, setVideoSoundAllowed } from "@/lib/home-video-playback";
 import { isIOSDevice, isSafariBrowser, pickVideoSource } from "@/lib/video-source";
 
 const IS_IOS = isIOSDevice();
@@ -64,7 +64,9 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   useEffect(() => {
     const v = ref.current;
     if (!v) return;
-    v.muted = play ? muted : true;
+    setVideoSoundAllowed(v, play && !muted);
+    // Unmuting can pause playback in some browsers — make sure it resumes.
+    if (play && !muted && v.paused) void playHomepageVideo(v);
 
     if (!play) {
       pauseHomepageVideo(v);
