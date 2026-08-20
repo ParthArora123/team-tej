@@ -155,6 +155,8 @@ function HeroFill({ image, clips, alt, onReady }: { image: string; clips: string
   const [idx, setIdx] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+  // Video decode/network failure -> fall back to the still hero image.
+  const [clipFailed, setClipFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -191,7 +193,7 @@ function HeroFill({ image, clips, alt, onReady }: { image: string; clips: string
     };
   }, [idx, clips.length]);
 
-  const clip = clips[idx];
+  const clip = clipFailed ? undefined : clips[idx];
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -227,6 +229,10 @@ function HeroFill({ image, clips, alt, onReady }: { image: string; clips: string
           style={{ opacity: loaded ? 1 : 0 }}
           onLoadedData={() => {
             setLoaded(true);
+            onReady?.();
+          }}
+          onError={() => {
+            setClipFailed(true);
             onReady?.();
           }}
         />
