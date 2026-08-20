@@ -49,6 +49,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   const ref = useRef<HTMLVideoElement>(null);
   const [showing, setShowing] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [posterPainted, setPosterPainted] = useState(!poster);
   const nudges = useRef(0);
 
   const src = pickVideoSource({ desktopSrc, mobileSrc });
@@ -58,12 +59,13 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   useLayoutEffect(() => {
     setShowing(false);
     setFailed(false);
+    setPosterPainted(!poster);
     nudges.current = 0;
-  }, [src, play]);
+  }, [src, play, poster]);
 
   useEffect(() => {
     const v = ref.current;
-    if (!v) return;
+    if (!v || !posterPainted) return;
     v.muted = play ? muted : true;
 
     if (!play) {
@@ -153,14 +155,14 @@ export const OptimizedVideo = memo(function OptimizedVideo({
         vf.cancelVideoFrameCallback(rvfcHandle);
       }
     };
-  }, [play, muted, src]);
+  }, [play, muted, src, posterPainted]);
 
   // Lookahead: while this clip is the *next* one, prime a short buffer without
   // playing it. iOS ignores `preload` until a user gesture, so we nudge the
   // element with a muted play/pause to fill the first seconds, then park it.
   useEffect(() => {
     const v = ref.current;
-    if (!v || play || !warm || !src || NO_WARM_PRIME) return;
+    if (!v || !posterPainted || play || !warm || !src || NO_WARM_PRIME) return;
     let cancelled = false;
     let started = false;
 
@@ -212,7 +214,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       v.removeEventListener("loadeddata", prime);
       v.pause();
     };
-  }, [play, warm, src]);
+  }, [play, warm, src, posterPainted]);
 
   // Release decoder + in-flight bytes on unmount.
   useEffect(() => {
@@ -231,6 +233,13 @@ export const OptimizedVideo = memo(function OptimizedVideo({
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
           decoding="async"
+          onLoad={() => {
+            // Wait until the loaded thumbnail has crossed a real paint boundary
+            // before attaching the video source. This prevents a fast cached
+            // clip from winning the race and exposing its first frame first.
+            requestAnimationFrame(() => requestAnimationFrame(() => setPosterPainted(true)));
+          }}
+          onError={() => setPosterPainted(true)}
           className={className}
           style={{
             opacity: showing ? 0 : 1,
@@ -243,7 +252,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       {/* One persistent element for the active clip AND the single lookahead
           neighbour: the buffer built while warm survives the switch, so
           playback starts without a fresh network round-trip. */}
-      {(play || (warm && !NO_WARM_PRIME)) && src && !failed && (
+      {posterPainted && (play || (warm && !NO_WARM_PRIME)) && src && !failed && (
         <video
           key={src}
           ref={(element) => {
