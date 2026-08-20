@@ -705,6 +705,7 @@ function Index() {
       {/* HERO — Cinematic split-screen: portrait carousel + editorial intro */}
 
       <Chapter index={1} total={5} bleed>
+        {!hide.includes("hero") && (
         <EditorialHero
           founder={founder}
           workshops={workshops}
@@ -716,12 +717,16 @@ function Index() {
           onExplore={() => goToHomeSection("workshops", "/workshops")}
           onWatch={() => goToHomeSection("showcase", "/#showcase")}
         />
-        <FounderSection founder={founder} />
-        <CinematicShowreel choreos={choreos} workshops={workshops} />
+        )}
+        {!hide.includes("founder") && <FounderSection founder={founder} />}
+        {!hide.includes("showreel") && <CinematicShowreel choreos={choreos} workshops={workshops} />}
+        {!hide.includes("globe") && (
         <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24 border-t border-border">
           <IndiaToGlobeAndCounting globe={globe} stats={stats} />
         </section>
+        )}
       </Chapter>
+
 
 
       {/* SCREEN 2 — Register & Book Your Experience */}
