@@ -128,7 +128,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     v.addEventListener("pause", onHold);
     v.addEventListener("waiting", onSoftStall);
     v.addEventListener("stalled", onSoftStall);
-    v.addEventListener("error", onHold);
+    v.addEventListener("error", onError);
     v.addEventListener("seeking", onHold);
     v.addEventListener("emptied", onHold);
     v.addEventListener("ended", onHold);
@@ -143,7 +143,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       v.removeEventListener("pause", onHold);
       v.removeEventListener("waiting", onSoftStall);
       v.removeEventListener("stalled", onSoftStall);
-      v.removeEventListener("error", onHold);
+      v.removeEventListener("error", onError);
       v.removeEventListener("seeking", onHold);
       v.removeEventListener("emptied", onHold);
       v.removeEventListener("ended", onHold);
@@ -160,7 +160,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
   // element with a muted play/pause to fill the first seconds, then park it.
   useEffect(() => {
     const v = ref.current;
-    if (!v || play || !warm || !src) return;
+    if (!v || play || !warm || !src || NO_WARM_PRIME) return;
     let cancelled = false;
     let started = false;
 
@@ -243,7 +243,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       {/* One persistent element for the active clip AND the single lookahead
           neighbour: the buffer built while warm survives the switch, so
           playback starts without a fresh network round-trip. */}
-      {(play || warm) && src && (
+      {(play || warm) && src && !failed && (
         <video
           ref={ref}
           src={src}
