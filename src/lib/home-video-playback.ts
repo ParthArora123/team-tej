@@ -53,15 +53,41 @@ function installGestureHook() {
  * pauses + rewinds whichever clip was playing before, so no two videos ever
  * consume decode/network bandwidth at the same time.
  */
+/**
+ * Safari only honours muted-autoplay when the element is *already* muted at the
+ * moment the source starts loading. React assigns the `muted` prop after `src`,
+ * so the very first card on a fresh page load gets refused. Call this from a ref
+ * callback — it runs before the browser kicks off the network request.
+ */
+export function primeVideoElement(video: HTMLVideoElement | null) {
+  if (!video) return;
+  video.muted = true;
+  video.defaultMuted = true;
+  video.setAttribute("muted", "");
+  video.setAttribute("playsinline", "");
+  video.setAttribute("webkit-playsinline", "");
+}
+
 export function playHomepageVideo(video: HTMLVideoElement) {
   if (activeVideo && activeVideo !== video) stop(activeVideo);
 
   activeVideo = video;
   pendingGesturePlay.delete(video);
-  video.muted = true;
+  primeVideoElement(video);
   if (!video.paused) return Promise.resolve();
 
   installGestureHook();
+
+  // Fresh page load in Safari: the decoder may still be warming up and the
+  // first few play() calls are refused outright. A short bounded ladder of
+  // retries fixes "first video never starts until you switch cards".
+  const delays = [80, 250, 600, 1200, 2000];
+  delays.forEach((ms) =>
+    setTimeout(() => {
+      if (video !== activeVideo || !video.isConnected || !video.paused) return;
+      void video.play().catch(() => undefined);
+    }, ms),
+  );
 
   // A freshly-mounted element often has no decoded frames yet: play() then
   // rejects with AbortError ("interrupted by a new load request"). Retry once
