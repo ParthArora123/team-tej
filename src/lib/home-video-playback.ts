@@ -63,9 +63,25 @@ export function primeVideoElement(video: HTMLVideoElement | null) {
   if (!video) return;
   video.muted = true;
   video.defaultMuted = true;
+  video.autoplay = true;
+  video.playsInline = true;
   video.setAttribute("muted", "");
+  video.setAttribute("autoplay", "");
   video.setAttribute("playsinline", "");
   video.setAttribute("webkit-playsinline", "");
+}
+
+/**
+ * Attach the source only after muted/inline autoplay has been established.
+ * Safari can inspect a declarative React `src` before the ref callback runs,
+ * permanently classifying that first load as non-autoplay media.
+ */
+export function prepareHomepageVideo(video: HTMLVideoElement | null, src: string) {
+  if (!video) return;
+  primeVideoElement(video);
+  if (video.getAttribute("src") === src) return;
+  video.setAttribute("src", src);
+  video.load();
 }
 
 export function playHomepageVideo(video: HTMLVideoElement) {
@@ -77,17 +93,6 @@ export function playHomepageVideo(video: HTMLVideoElement) {
   if (!video.paused) return Promise.resolve();
 
   installGestureHook();
-
-  // Fresh page load in Safari: the decoder may still be warming up and the
-  // first few play() calls are refused outright. A short bounded ladder of
-  // retries fixes "first video never starts until you switch cards".
-  const delays = [80, 250, 600, 1200, 2000];
-  delays.forEach((ms) =>
-    setTimeout(() => {
-      if (video !== activeVideo || !video.isConnected || !video.paused) return;
-      void video.play().catch(() => undefined);
-    }, ms),
-  );
 
   // A freshly-mounted element often has no decoded frames yet: play() then
   // rejects with AbortError ("interrupted by a new load request"). Retry once
