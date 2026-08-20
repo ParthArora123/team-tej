@@ -83,13 +83,23 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
       {/* Media — fixed, medium aspect ratio */}
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         {hasImage ? (
-          <img
-            src={w.banner_url}
-            alt={w.name}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover lg:object-contain transition-transform duration-500 group-hover:scale-105"
-          />
+          <>
+            <img
+              src={w.banner_url}
+              alt=""
+              aria-hidden
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-70"
+            />
+            <img
+              src={w.banner_url}
+              alt={w.name}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 h-full w-full object-contain transition-transform duration-500 group-hover:scale-105"
+            />
+          </>
         ) : (
           <div
             className="h-full w-full"
