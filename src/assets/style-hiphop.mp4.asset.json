@@ -1,9 +1,11 @@
 {
   "version": 1,
-  "asset_id": "cad6d097-4f59-459d-b19c-8db9e0eed26d",
+  "asset_id": "fd3a1c5a-290d-4112-a057-c3e7081ce6d0",
   "project_id": "51d20694-4b22-4fb9-b682-2a538b5c2de3",
-  "url": "/__l5e/assets-v1/cad6d097-4f59-459d-b19c-8db9e0eed26d/style-hiphop.mp4",
+  "url": "/__l5e/assets-v1/fd3a1c5a-290d-4112-a057-c3e7081ce6d0/style-hiphop.mp4",
+  "r2_key": "a/v1/51d20694-4b22-4fb9-b682-2a538b5c2de3/fd3a1c5a-290d-4112-a057-c3e7081ce6d0/style-hiphop.mp4",
   "original_filename": "style-hiphop.mp4",
-  "size": 2076139,
-  "created_at": "2026-06-28T06:24:15Z"
+  "size": 338376,
+  "content_type": "video/mp4",
+  "created_at": "2026-08-20T08:02:19Z"
 }

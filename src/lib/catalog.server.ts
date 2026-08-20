@@ -1,3 +1,4 @@
+import { mobileVariantKey } from "@/lib/video-variants";
 import { createPublicClient } from "@/integrations/supabase/client.public";
 
 const PUBLIC_COLS =
@@ -36,6 +37,11 @@ async function decorateBanners(rows: any[]): Promise<any[]> {
       banner_url:
         row.banner_url || (await signBucketPath("workshop-images", row.banner_path)),
       banner_video_url: await signBucketPath("workshop-videos", row.banner_video_path),
+      // Optimized 720p H.264 sibling (see src/lib/video-variants.ts); null when absent.
+      banner_video_url_mobile: await signBucketPath(
+        "workshop-videos",
+        mobileVariantKey(row.banner_video_path),
+      ),
       banner_gif_url: await signBucketPath("workshop-images", row.banner_gif_path),
     })),
   );

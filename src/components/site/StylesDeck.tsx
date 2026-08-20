@@ -1,27 +1,31 @@
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { StyleAnimation } from "@/components/site/StyleAnimation";
 import { useEffect, useRef } from "react";
-import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
+import { playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
+import { pickVideoSource } from "@/lib/video-source";
 
 export type StyleCard = {
   name: string;
   tagline?: string | null;
   image_url?: string | null;
   video_url?: string | null;
+  /** Optimized 720p H.264 encode used by Safari / phones. */
+  video_url_mobile?: string | null;
 };
 
 function Media({ s, active }: { s: StyleCard; active: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const src = pickVideoSource({ desktopSrc: s.video_url, mobileSrc: s.video_url_mobile });
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
     if (active) void playHomepageVideo(video);
-    else pauseHomepageVideo(video);
-    return () => pauseHomepageVideo(video);
-  }, [active, s.video_url]);
+    else releaseHomepageVideo(video);
+    return () => releaseHomepageVideo(video);
+  }, [active, src]);
 
-  if (s.video_url && active) {
+  if (src && active) {
     return (
       <>
         {s.image_url && (
@@ -34,7 +38,7 @@ function Media({ s, active }: { s: StyleCard; active: boolean }) {
         )}
         <video
           ref={videoRef}
-          src={s.video_url}
+          src={src}
           poster={s.image_url ?? undefined}
           loop
           muted

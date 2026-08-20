@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createPublicClient } from "@/integrations/supabase/client.public";
 import { z } from "zod";
+import { mobileVariantKey } from "@/lib/video-variants";
 
 function pub() {
   return createPublicClient();
@@ -68,6 +69,8 @@ async function decorateStyles(rows: any[]) {
     ...r,
     image_url: await signIfNeeded(r.image_url),
     video_url: await signIfNeeded(r.video_url),
+    // 720p H.264 sibling for Safari / phones — null when it does not exist.
+    video_url_mobile: await signIfNeeded(mobileVariantKey(r.video_url)),
   })));
 }
 

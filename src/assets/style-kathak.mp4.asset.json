@@ -1,9 +1,11 @@
 {
   "version": 1,
-  "asset_id": "ad716622-8b8b-47fa-9d88-66f217fc7efe",
+  "asset_id": "10ff7fea-28ff-48a0-8803-3726e33c44c3",
   "project_id": "51d20694-4b22-4fb9-b682-2a538b5c2de3",
-  "url": "/__l5e/assets-v1/ad716622-8b8b-47fa-9d88-66f217fc7efe/style-kathak.mp4",
+  "url": "/__l5e/assets-v1/10ff7fea-28ff-48a0-8803-3726e33c44c3/style-kathak.mp4",
+  "r2_key": "a/v1/51d20694-4b22-4fb9-b682-2a538b5c2de3/10ff7fea-28ff-48a0-8803-3726e33c44c3/style-kathak.mp4",
   "original_filename": "style-kathak.mp4",
-  "size": 2542269,
-  "created_at": "2026-06-28T06:24:12Z"
+  "size": 535527,
+  "content_type": "video/mp4",
+  "created_at": "2026-08-20T08:02:24Z"
 }
