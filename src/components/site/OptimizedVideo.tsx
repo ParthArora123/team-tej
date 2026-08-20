@@ -252,9 +252,9 @@ export const OptimizedVideo = memo(function OptimizedVideo({
 
   return (
     <>
-      {poster && (
+      {effectivePoster && (
         <img
-          src={poster}
+          src={effectivePoster}
           alt={alt}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
@@ -275,6 +275,25 @@ export const OptimizedVideo = memo(function OptimizedVideo({
           }}
         />
       )}
+      {/* Last-resort thumbnail: a paused, metadata-only frame of the clip
+          itself when the canvas capture was blocked. */}
+      {frameFallback && (
+        <video
+          src={`${src}#t=0.1`}
+          muted
+          playsInline
+          preload="metadata"
+          aria-hidden
+          tabIndex={-1}
+          className={className}
+          style={{
+            opacity: showing ? 0 : 1,
+            transition: "opacity 260ms ease",
+            zIndex: 2,
+            pointerEvents: "none",
+          }}
+        />
+      )}
       {/* One persistent element for the active clip AND the single lookahead
           neighbour: the buffer built while warm survives the switch, so
           playback starts without a fresh network round-trip. */}
@@ -285,7 +304,8 @@ export const OptimizedVideo = memo(function OptimizedVideo({
             ref.current = element;
             if (element) prepareHomepageVideo(element, src);
           }}
-          poster={poster ?? undefined}
+          poster={effectivePoster ?? undefined}
+
           muted
           loop
           playsInline
