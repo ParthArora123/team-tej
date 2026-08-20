@@ -690,6 +690,7 @@ function Index() {
   return (
     <>
 
+
       {/* Sticky mobile CTA */}
       <Link
         to="/workshops"
@@ -719,6 +720,7 @@ function Index() {
           <IndiaToGlobeAndCounting globe={globe} stats={stats} />
         </section>
       </Chapter>
+
 
 
       {/* SCREEN 2 — Register & Book Your Experience */}
