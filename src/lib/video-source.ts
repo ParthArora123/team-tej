@@ -69,11 +69,15 @@ export function isSlowConnection(): boolean {
 /**
  * Pick the source BEFORE the element ever gets a `src`, so the browser never
  * downloads the desktop master first and swaps afterwards.
+ *
+ * Safari (desktop included) always gets the optimized 720p encode: WebKit's
+ * decoder budget is what produces the freeze/glitch on high-bitrate clips.
+ * Chrome/Edge/Firefox on desktop keep the higher-quality master.
  */
 export function pickVideoSource(item: VideoSources): string | undefined {
   const desktop = item.desktopSrc ?? undefined;
   const mobile = item.mobileSrc ?? undefined;
-  if (isMobileDevice() || isSlowConnection()) return mobile || desktop;
+  if (isMobileDevice() || isSlowConnection() || isSafariBrowser()) return mobile || desktop;
   return desktop || mobile;
 }
 

@@ -1133,6 +1133,7 @@ function buildReelItems(choreos: Choreo[], workshops: any[]): ReelItem[] {
       subtitle: [w.city, w.instructor].filter(Boolean).join(" · ") || "Workshop highlight",
       badge: "Workshop",
       videoSrc: w.banner_video_url as string,
+      videoSrcMobile: (w.banner_video_url_mobile as string | null) ?? null,
       embedSrc: null,
       poster: w.banner_url ?? null,
       ctaLabel: "View workshop",

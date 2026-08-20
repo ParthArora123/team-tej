@@ -4,20 +4,39 @@ import { buildMapsUrl } from "@/lib/maps-link";
 
 import { StackedDeck, DeckShell, type StackedDeckItem } from "@/components/site/StackedDeck";
 import { useEffect, useRef, useState } from "react";
-import { pauseHomepageVideo, playHomepageVideo } from "@/lib/home-video-playback";
+import { playHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
+import { pickVideoSource } from "@/lib/video-source";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 
-function ReelVideo({ src, poster, active, title }: { src: string; poster?: string | null; active: boolean; title: string }) {
+function ReelVideo({
+  src,
+  mobileSrc,
+  poster,
+  active,
+  title,
+}: {
+  src: string;
+  mobileSrc?: string | null;
+  poster?: string | null;
+  active: boolean;
+  title: string;
+}) {
   const ref = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
+  // Safari / phones get the optimized 720p encode from the very first byte.
+  const chosen = pickVideoSource({ desktopSrc: src, mobileSrc }) ?? src;
+
+  useEffect(() => {
+    if (!active) setReady(false);
+  }, [active, chosen]);
 
   useEffect(() => {
     const video = ref.current;
     if (!video) return;
     if (active) void playHomepageVideo(video);
-    else pauseHomepageVideo(video);
-    return () => pauseHomepageVideo(video);
-  }, [active]);
+    else releaseHomepageVideo(video);
+    return () => releaseHomepageVideo(video);
+  }, [active, chosen]);
 
   return (
     <>
@@ -25,18 +44,23 @@ function ReelVideo({ src, poster, active, title }: { src: string; poster?: strin
         <img src={poster} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl" />
       )}
       {poster && <img src={poster} alt={title} loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-contain" />}
-      <video
-        ref={ref}
-        src={src}
-        poster={poster ?? undefined}
-        muted
-        loop
-        playsInline
-        preload={active ? "metadata" : "none"}
-        onCanPlay={() => setReady(true)}
-        className="absolute inset-0 h-full w-full object-contain"
-        style={{ visibility: active && ready ? "visible" : "hidden" }}
-      />
+      {/* Only the active card ever holds a decoder / network stream. */}
+      {active && (
+        <video
+          ref={ref}
+          src={chosen}
+          poster={poster ?? undefined}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          disableRemotePlayback
+          disablePictureInPicture
+          onCanPlay={() => setReady(true)}
+          className="absolute inset-0 h-full w-full object-contain"
+          style={{ visibility: active && ready ? "visible" : "hidden" }}
+        />
+      )}
     </>
   );
 }

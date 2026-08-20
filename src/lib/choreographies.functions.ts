@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createPublicClient } from "@/integrations/supabase/client.public";
 import { z } from "zod";
+import { mobileVariantKey } from "@/lib/video-variants";
 
 function pub() {
   return createPublicClient();
@@ -28,14 +29,12 @@ async function signIfNeeded(url: string | null | undefined): Promise<string | nu
 }
 
 /**
- * Optimised clips are stored as `<name>-1080.mp4` with a `<name>-720.mp4`
- * sibling. Signed URLs are path-bound, so the lighter mobile variant has to be
- * signed here on the server rather than string-swapped in the browser.
+ * Optimised clips are stored with a `<name>-720.mp4` sibling (see
+ * src/lib/video-variants.ts). Signed URLs are path-bound, so the lighter
+ * mobile variant has to be signed here on the server rather than
+ * string-swapped in the browser.
  */
-function mobileVariant(url: string | null | undefined): string | null {
-  if (!url || /^https?:\/\//i.test(url)) return null;
-  return url.includes("-1080.mp4") ? url.replace("-1080.mp4", "-720.mp4") : null;
-}
+const mobileVariant = mobileVariantKey;
 
 async function decorate(rows: any[]) {
   return Promise.all((rows ?? []).map(async (r) => ({
