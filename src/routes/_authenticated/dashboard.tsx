@@ -236,26 +236,6 @@ function Dashboard() {
           return (
             <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               className="bg-card border border-border rounded-2xl overflow-hidden">
-              {r.program?.banner_url && (
-                <div className="relative w-full overflow-hidden bg-muted h-[140px] sm:h-[160px] md:h-[180px]">
-                  <img
-                    src={r.program.banner_url}
-                    alt=""
-                    aria-hidden
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-70"
-                  />
-                  <img
-                    src={r.program.banner_url}
-                    alt={r.program?.name ?? ""}
-                    loading="lazy"
-                    decoding="async"
-                    className="relative mx-auto h-full w-auto max-w-full object-contain"
-                  />
-                </div>
-              )}
-
               <div className="p-6">
               <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
