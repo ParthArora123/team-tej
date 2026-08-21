@@ -61,33 +61,14 @@ function installGestureHook() {
  */
 export function primeVideoElement(video: HTMLVideoElement | null) {
   if (!video) return;
-  // A user has explicitly unmuted this element — never force it back to muted,
-  // otherwise the first "unmute" tap is silently reverted by the next play().
-  const soundAllowed = video.dataset["soundOn"] === "1";
-  if (!soundAllowed) {
-    video.muted = true;
-    video.defaultMuted = true;
-    video.setAttribute("muted", "");
-  }
+  video.muted = true;
+  video.defaultMuted = true;
   video.autoplay = true;
   video.playsInline = true;
+  video.setAttribute("muted", "");
   video.setAttribute("autoplay", "");
   video.setAttribute("playsinline", "");
   video.setAttribute("webkit-playsinline", "");
-}
-
-/** Mark/unmark an element as user-unmuted so autoplay priming keeps its sound. */
-export function setVideoSoundAllowed(video: HTMLVideoElement | null, allowed: boolean) {
-  if (!video) return;
-  if (allowed) {
-    video.dataset["soundOn"] = "1";
-    video.removeAttribute("muted");
-    video.defaultMuted = false;
-    video.muted = false;
-  } else {
-    delete video.dataset["soundOn"];
-    video.muted = true;
-  }
 }
 
 /**

@@ -2,8 +2,6 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
-import { useServerFn } from "@tanstack/react-start";
-import { requestPasswordReset } from "@/lib/password-reset.functions";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
@@ -27,7 +25,6 @@ function safeNext(next: string): string | null {
 
 function AuthPage() {
   const navigate = useNavigate();
-  const sendReset = useServerFn(requestPasswordReset);
   const { next } = Route.useSearch();
   const nextPath = safeNext(next ?? "");
 
@@ -62,9 +59,11 @@ function AuthPage() {
         : window.location.origin;
 
       if (mode === "forgot") {
-        // Site-owned reset flow — no Supabase Auth recovery emails involved.
-        await sendReset({ data: { email } });
-        setMsg("If an account exists for that email, a password reset link is on its way. Check your inbox and spam folder. The link expires in 30 minutes.");
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        setMsg("If an account exists for that email, a password reset link is on its way. Check your inbox and spam folder.");
         return;
       }
 
@@ -130,12 +129,10 @@ function AuthPage() {
               placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
           )}
           {mode === "signin" && (
-            // Hidden until email DNS verification is complete
-            // <Link to="/forgot-password"
-            //   className="block ml-auto text-xs text-primary hover:underline">
-            //   Forgot password?
-            // </Link>
-            null
+            <Link to="/forgot-password"
+              className="block ml-auto text-xs text-primary hover:underline">
+              Forgot password?
+            </Link>
           )}
           {err && <p className="text-xs text-destructive">{err}</p>}
           {msg && <p className="text-xs text-primary">{msg}</p>}
