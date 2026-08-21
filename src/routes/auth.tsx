@@ -59,11 +59,9 @@ function AuthPage() {
         : window.location.origin;
 
       if (mode === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-        if (error) throw error;
-        setMsg("If an account exists for that email, a password reset link is on its way. Check your inbox and spam folder.");
+        // Site-owned reset flow — no Supabase Auth recovery emails involved.
+        await sendReset({ data: { email } });
+        setMsg("If an account exists for that email, a password reset link is on its way. Check your inbox and spam folder. The link expires in 30 minutes.");
         return;
       }
 
