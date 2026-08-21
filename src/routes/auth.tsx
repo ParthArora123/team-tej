@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { requestPasswordReset } from "@/lib/password-reset.functions";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
@@ -25,6 +27,7 @@ function safeNext(next: string): string | null {
 
 function AuthPage() {
   const navigate = useNavigate();
+  const sendReset = useServerFn(requestPasswordReset);
   const { next } = Route.useSearch();
   const nextPath = safeNext(next ?? "");
 
