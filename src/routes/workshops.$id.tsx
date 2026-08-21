@@ -535,7 +535,7 @@ function SectionHeader({ eyebrow, title, center = true }: { eyebrow: string; tit
     <div className={center ? "text-center" : ""}>
       <p className="text-[11px] tracking-[0.35em] uppercase text-primary/90">{eyebrow}</p>
       <h2
-        className="mt-3 font-display text-4xl md:text-5xl lg:text-6xl font-semibold text-foreground"
+        className="mt-3 font-display text-[clamp(1.75rem,4.5vw,3rem)] font-semibold text-foreground"
         style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}
       >
         {title}
@@ -716,14 +716,14 @@ function WorkshopDetailPage() {
 
             <motion.h1
               initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}
-              className="mt-4 md:mt-5 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-semibold leading-[1.0] text-foreground break-words"
+              className="mt-4 md:mt-5 font-display text-[clamp(2rem,5.6vw,4rem)] font-semibold leading-[1.0] text-foreground break-words"
               style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}
             >
               {program.name}
             </motion.h1>
 
             {program.style && (
-              <p className="mt-3 font-display italic text-xl sm:text-2xl text-primary/85"
+              <p className="mt-3 font-display italic text-[clamp(1rem,2.4vw,1.5rem)] text-primary/85"
                  style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                 The {program.style} Experience
               </p>
@@ -732,7 +732,7 @@ function WorkshopDetailPage() {
             <div className="mt-6 h-px w-32 bg-gradient-to-r from-primary/70 to-transparent" />
 
             {program.description && (
-              <p className="mt-6 text-base sm:text-lg text-primary/70 max-w-xl leading-relaxed line-clamp-4">
+              <p className="mt-6 text-[clamp(0.875rem,1.5vw,1.0625rem)] text-primary/70 max-w-xl leading-relaxed line-clamp-4">
                 {program.description}
               </p>
             )}
@@ -782,7 +782,7 @@ function WorkshopDetailPage() {
               <div className="pointer-events-none absolute bottom-4 right-4 w-10 h-10 border-b border-r border-primary/70 rounded-br-lg" />
               <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-jet/90 via-black/50 to-transparent">
                 <p className="text-[10px] tracking-[0.3em] uppercase text-primary">Tejas D Dhoke Presents</p>
-                <p className="font-display text-xl text-primary mt-1" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                <p className="font-display text-[clamp(1rem,2vw,1.25rem)] text-primary mt-1" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                   {program.name}
                 </p>
               </div>
@@ -812,7 +812,7 @@ function WorkshopDetailPage() {
               ].map((c, i) => (
                 <div key={c.l} className="text-center">
                   <div className="relative">
-                    <p className="font-display text-4xl sm:text-6xl font-semibold text-primary tabular-nums drop-shadow-[0_4px_20px_rgba(231,223,206,0.4)]"
+                    <p className="font-display text-[clamp(1.75rem,5vw,3rem)] font-semibold text-primary tabular-nums drop-shadow-[0_4px_20px_rgba(231,223,206,0.4)]"
                        style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {String(c.v).padStart(2, "0")}
                     </p>
@@ -857,7 +857,7 @@ function WorkshopDetailPage() {
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(231,223,206,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
                 <c.icon className="mx-auto text-primary" size={28} />
                 <p className="mt-4 text-[11px] tracking-[0.3em] uppercase text-primary">{c.label}</p>
-                <p className="mt-3 font-display text-2xl text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>{c.main}</p>
+                <p className="mt-3 font-display text-[clamp(1.15rem,2.2vw,1.5rem)] text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>{c.main}</p>
                 <p className="mt-2 text-xs text-primary/50">{c.sub}</p>
               </motion.div>
             ))}
@@ -877,12 +877,12 @@ function WorkshopDetailPage() {
                   className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)] items-center gap-3 sm:gap-5 rounded-2xl border border-primary/25 bg-gradient-to-r from-background/28 to-jet/72 px-4 py-3.5 sm:px-6 sm:py-5 hover:border-primary/55 transition-colors">
                   <div className="flex items-center gap-2 shrink-0">
                     <Clock size={16} className="text-primary" />
-                    <span className="font-display text-sm sm:text-lg text-primary tabular-nums"
+                    <span className="font-display text-[clamp(0.8125rem,1.6vw,1rem)] text-primary tabular-nums"
                           style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {s.time || "TBA"}
                     </span>
                   </div>
-                  <p className="min-w-0 truncate text-sm sm:text-base text-primary/80">{s.name || "Session"}</p>
+                  <p className="min-w-0 truncate text-[clamp(0.8125rem,1.5vw,0.9375rem)] text-primary/80">{s.name || "Session"}</p>
                 </motion.div>
               ))}
             </div>
@@ -934,12 +934,12 @@ function WorkshopDetailPage() {
                 <div className="absolute -inset-4 rounded-3xl bg-[radial-gradient(ellipse_at_center,rgba(231,223,206,0.25),transparent_70%)] blur-2xl" />
                 <div className="relative">
                   <p className="text-[11px] tracking-[0.35em] uppercase text-primary">Single Workshop</p>
-                  <h3 className="mt-3 font-display text-3xl text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Individual Entry</h3>
+                  <h3 className="mt-3 font-display text-[clamp(1.35rem,2.6vw,1.75rem)] text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Individual Entry</h3>
                   <p className="mt-2 text-sm text-primary/60">Register for an individual workshop.</p>
 
                   <div className="mt-6 flex items-baseline gap-1">
                     <span className="text-primary text-xl">₹</span>
-                    <span className="font-display text-5xl font-semibold text-primary drop-shadow-[0_6px_30px_rgba(231,223,206,0.5)]" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                    <span className="font-display text-[clamp(2rem,4.4vw,2.75rem)] font-semibold text-primary drop-shadow-[0_6px_30px_rgba(231,223,206,0.5)]" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {singlePrice.toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -978,12 +978,12 @@ function WorkshopDetailPage() {
                     </div>
                   )}
                   <p className="text-[11px] tracking-[0.35em] uppercase text-primary">Both Workshops</p>
-                  <h3 className="mt-3 font-display text-3xl text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Combined Pass</h3>
+                  <h3 className="mt-3 font-display text-[clamp(1.35rem,2.6vw,1.75rem)] text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Combined Pass</h3>
                   <p className="mt-2 text-sm text-primary/60">Register for both workshops with a single registration.</p>
 
                   <div className="mt-6 flex items-baseline gap-1">
                     <span className="text-primary text-xl">₹</span>
-                    <span className="font-display text-5xl font-semibold text-primary drop-shadow-[0_6px_30px_rgba(231,223,206,0.5)]" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                    <span className="font-display text-[clamp(2rem,4.4vw,2.75rem)] font-semibold text-primary drop-shadow-[0_6px_30px_rgba(231,223,206,0.5)]" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {bothPrice.toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -1042,7 +1042,7 @@ function WorkshopDetailPage() {
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.07 }}
                 className="group relative rounded-2xl border border-primary/20 bg-jet/52 p-5 text-center hover:border-primary/60 hover:-translate-y-1 transition-all">
-                <p className="font-display text-4xl text-primary/90" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                <p className="font-display text-[clamp(1.6rem,3.4vw,2.25rem)] text-primary/90" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                   Step {s.n}
                 </p>
                 <p className="mt-3 text-[10px] tracking-[0.25em] uppercase text-primary">{s.t}</p>
@@ -1067,7 +1067,7 @@ function WorkshopDetailPage() {
               <div className="rounded-3xl border border-primary/30 bg-gradient-to-b from-background/38 to-jet/82 p-8 flex flex-col">
                 <MapPin className="text-primary" size={22} />
                 <p className="mt-3 text-[11px] tracking-[0.3em] uppercase text-primary">Venue</p>
-                <p className="mt-2 font-display text-2xl text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                <p className="mt-2 font-display text-[clamp(1.15rem,2.2vw,1.5rem)] text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                   {program.venue}
                 </p>
                 {program.city && <p className="text-sm text-primary/60 mt-1">{program.city}</p>}
@@ -1084,7 +1084,7 @@ function WorkshopDetailPage() {
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center">
             <p className="text-[11px] tracking-[0.35em] uppercase text-primary">Need Help?</p>
-            <h2 className="mt-3 font-display text-4xl md:text-5xl text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Contact Support</h2>
+            <h2 className="mt-3 font-display text-[clamp(1.75rem,4vw,2.75rem)] text-primary" style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>Contact Support</h2>
             <p className="mt-4 max-w-2xl mx-auto text-primary/60 text-sm">
               Questions about payment, venue, dates or booking confirmation? Reach out — we're happy to help.
             </p>
@@ -1107,7 +1107,7 @@ function WorkshopDetailPage() {
                 <p className="text-[11px] tracking-[0.3em] uppercase text-primary">{c.label}</p>
                 {c.href ? (
                   <a href={c.href} target={c.isWa ? "_blank" : undefined} rel={c.isWa ? "noreferrer" : undefined}
-                    className="mt-2 inline-flex items-center gap-2 text-lg text-primary hover:text-primary transition break-words">
+                    className="mt-2 inline-flex items-center gap-2 text-[clamp(0.95rem,1.8vw,1.0625rem)] text-primary hover:text-primary transition break-words">
                     <span>{c.value}</span>
                     {c.isWa && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#25D366]/15 text-[#25D366]">
@@ -1116,7 +1116,7 @@ function WorkshopDetailPage() {
                     )}
                   </a>
                 ) : (
-                  <p className="mt-2 text-lg text-primary">{c.value}</p>
+                  <p className="mt-2 text-[clamp(0.95rem,1.8vw,1.0625rem)] text-primary">{c.value}</p>
                 )}
               </motion.div>
             ))}
