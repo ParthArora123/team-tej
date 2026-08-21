@@ -237,7 +237,7 @@ function Dashboard() {
             <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               className="bg-card border border-border rounded-2xl overflow-hidden">
               {r.program?.banner_url && (
-                <div className="relative w-full overflow-hidden bg-muted h-[220px] sm:h-[260px] md:h-[300px]">
+                <div className="relative w-full overflow-hidden bg-muted h-[140px] sm:h-[160px] md:h-[180px]">
                   <img
                     src={r.program.banner_url}
                     alt=""
