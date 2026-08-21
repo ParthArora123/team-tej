@@ -130,10 +130,12 @@ function AuthPage() {
               placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
           )}
           {mode === "signin" && (
-            <Link to="/forgot-password"
-              className="block ml-auto text-xs text-primary hover:underline">
-              Forgot password?
-            </Link>
+            // Hidden until email DNS verification is complete
+            // <Link to="/forgot-password"
+            //   className="block ml-auto text-xs text-primary hover:underline">
+            //   Forgot password?
+            // </Link>
+            null
           )}
           {err && <p className="text-xs text-destructive">{err}</p>}
           {msg && <p className="text-xs text-primary">{msg}</p>}
