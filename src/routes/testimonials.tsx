@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Upload, Trash2, Quote, Play, Video, Loader2 } from "lucide-react";
+import { Upload, Trash2, Quote, Video, Loader2 } from "lucide-react";
 import {
   getTestimonials,
   submitTestimonial,
