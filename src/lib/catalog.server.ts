@@ -68,20 +68,51 @@ async function selectPrograms(kind?: string, id?: string) {
   return result;
 }
 
+/** Date-only key (YYYY-MM-DD) for "today" in India Standard Time. */
+function todayKeyIST(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date());
+}
+
+function dateKey(value: unknown): string | null {
+  if (!value) return null;
+  const raw = String(value).slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(raw) ? raw : null;
+}
+
+/**
+ * A workshop stays public through the end of its last day (event date or the
+ * latest date in its session schedule). Purely dynamic — no hardcoded dates.
+ */
+function isPastProgram(row: any): boolean {
+  if (row?.kind !== "workshop") return false;
+  const keys: string[] = [];
+  const main = dateKey(row?.event_date);
+  if (main) keys.push(main);
+  const schedule = Array.isArray(row?.session_schedule) ? row.session_schedule : [];
+  for (const s of schedule) {
+    const k = dateKey(s?.date ?? s?.event_date ?? s?.day);
+    if (k) keys.push(k);
+  }
+  if (!keys.length) return false; // undated workshops stay visible
+  const last = keys.sort().at(-1)!;
+  return last < todayKeyIST();
+}
+
 export async function listPublicPrograms(kind?: string) {
   const { data, error } = await selectPrograms(kind);
   if (error) throw error;
-  return decorateBanners(data ?? []);
+  return decorateBanners((data ?? []).filter((row: any) => !isPastProgram(row)));
 }
 
 export async function getPublicProgram(id: string) {
   const { data, error } = await selectPrograms(undefined, id);
   if (error) throw error;
   const row = data?.[0] ?? null;
-  if (!row) return null;
+  if (!row || isPastProgram(row)) return null;
   const [decorated] = await decorateBanners([row]);
   return decorated ?? null;
 }
+
 
 export async function listPublicEvents() {
   const { data, error } = await createPublicClient()

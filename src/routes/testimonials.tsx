@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Upload, Trash2, Quote, Play, Video, Loader2 } from "lucide-react";
+import { Upload, Trash2, Quote, Video, Loader2 } from "lucide-react";
 import {
   getTestimonials,
   submitTestimonial,
@@ -317,11 +317,8 @@ function Testimonials() {
                   preload="none"
                   className="w-full aspect-video bg-jet object-contain"
                 />
-              ) : (
-                <div className="w-full aspect-video bg-gradient-to-br from-primary/20 to-muted flex items-center justify-center">
-                  <Play className="text-primary/60" size={36} />
-                </div>
-              )}
+              ) : null}
+
               <div className="p-5">
                 <Quote className="text-primary" size={16} />
                 <p className="mt-2 text-sm leading-relaxed">{t.quote}</p>
