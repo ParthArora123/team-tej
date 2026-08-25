@@ -1265,9 +1265,39 @@ function ProfilesTab() {
 
 function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any; reload: () => void }) {
   const pending = rows.filter((r) => r.status === "payment_submitted");
+  // Approved registrations whose Salesforce confirmation email is still
+  // unsent — these get a retry button. Retrying never re-approves or
+  // re-tickets; it only calls /api/send-confirmation once per click.
+  const emailPending = rows.filter((r) => r.status === "confirmed" && !r.confirmation_email_sent);
+  const [emailBusy, setEmailBusy] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
   const approveAll = useServerFn(approveAllPendingEnrollments);
+
+  const retryConfirmationEmail = async (id: string) => {
+    setEmailBusy(id);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) throw new Error("Your session expired — please sign in again.");
+      const res = await fetch("/api/send-confirmation", {
+        method: "POST",
+        headers: { "content-type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ enrollmentId: id }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && (json?.emailSent || json?.alreadySent)) {
+        toast.success(json?.alreadySent ? "Confirmation email was already sent." : "Confirmation Email Sent ✓");
+      } else {
+        toast.error(json?.error ?? "Confirmation Email Failed — please try again.");
+      }
+      await reload();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Confirmation Email Failed — please try again.");
+    } finally {
+      setEmailBusy(null);
+    }
+  };
 
   const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
   const getProof = useServerFn(adminGetProofUrl);
