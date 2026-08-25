@@ -12,6 +12,16 @@ export type ApproveResult = {
 
 const genCode = () => "TTJ-" + Math.random().toString(36).slice(2, 8).toUpperCase();
 
+// Resolves the human-readable selected workshop/class name(s) exactly like the
+// student ticket does, so the confirmation email matches the ticket.
+function selectedWorkshopNames(enr: any, prog: any): string | null {
+  const w1 = prog?.workshop1_name || "Workshop 1";
+  const w2 = prog?.workshop2_name || "Workshop 2";
+  if (enr?.registration_type === "both") return [w1, w2].filter(Boolean).join(" + ");
+  if (enr?.registration_type === "single") return enr?.selected_workshop === "w2" ? w2 : w1;
+  return null;
+}
+
 export async function approveEnrollmentById(
   supabaseAdmin: any,
   enrollmentId: string,
@@ -66,6 +76,12 @@ export async function approveEnrollmentById(
       workshopDate: prog.event_date ? new Date(prog.event_date).toDateString() : null,
       workshopTime: prog.event_time ?? null,
       venue: prog.venue ?? null,
+      selectedWorkshop: selectedWorkshopNames(enr, prog),
+      amountPaid:
+        typeof enr.amount_inr === "number"
+          ? `₹${enr.amount_inr.toLocaleString("en-IN")}`
+          : null,
+      paymentReference: enr.payment_reference ?? null,
       ticketId: ticket,
     });
   }

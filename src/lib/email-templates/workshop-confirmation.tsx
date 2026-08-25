@@ -6,6 +6,7 @@ import {
   Heading,
   Hr,
   Html,
+  Img,
   Preview,
   Section,
   Text,
@@ -18,7 +19,11 @@ interface Props {
   workshopDate?: string
   workshopTime?: string
   venue?: string
+  selectedWorkshop?: string
   ticketId?: string
+  amountPaid?: string
+  paymentReference?: string
+  qrCodeUrl?: string
 }
 
 const main = { backgroundColor: '#ffffff', fontFamily: 'Georgia, "Times New Roman", serif' }
@@ -33,6 +38,8 @@ const detailBox = {
 }
 const detailLine = { fontSize: '15px', lineHeight: '1.7', color: '#222222', margin: '0' }
 const label = { color: '#6b6b6b' }
+const qrWrap = { textAlign: 'center' as const, margin: '24px 0 8px' }
+const qrCaption = { fontSize: '13px', color: '#6b6b6b', margin: '8px 0 0', textAlign: 'center' as const }
 const hr = { borderColor: '#e6e2db', margin: '26px 0 16px' }
 const signature = { fontSize: '15px', color: '#141414', margin: '0' }
 
@@ -42,7 +49,11 @@ const WorkshopConfirmationEmail = ({
   workshopDate,
   workshopTime,
   venue,
+  selectedWorkshop,
   ticketId,
+  amountPaid,
+  paymentReference,
+  qrCodeUrl,
 }: Props) => {
   const name = participantName || 'there'
   const workshop = workshopName || 'the workshop'
@@ -55,7 +66,8 @@ const WorkshopConfirmationEmail = ({
           <Heading style={heading}>Registration Confirmed</Heading>
           <Text style={text}>Hi {name},</Text>
           <Text style={text}>
-            Your registration for {workshop} has been successfully confirmed.
+            Great news — your registration for {workshop} has been approved and your
+            payment is confirmed. Your ticket details are below.
           </Text>
 
           <Section style={detailBox}>
@@ -63,6 +75,12 @@ const WorkshopConfirmationEmail = ({
               <span style={label}>Workshop: </span>
               {workshop}
             </Text>
+            {selectedWorkshop ? (
+              <Text style={detailLine}>
+                <span style={label}>Selected Workshop / Class: </span>
+                {selectedWorkshop}
+              </Text>
+            ) : null}
             {workshopDate ? (
               <Text style={detailLine}>
                 <span style={label}>Date: </span>
@@ -91,7 +109,34 @@ const WorkshopConfirmationEmail = ({
               <span style={label}>Payment Status: </span>
               Confirmed
             </Text>
+            {amountPaid ? (
+              <Text style={detailLine}>
+                <span style={label}>Amount Paid: </span>
+                {amountPaid}
+              </Text>
+            ) : null}
+            {paymentReference ? (
+              <Text style={detailLine}>
+                <span style={label}>Payment Reference ID: </span>
+                {paymentReference}
+              </Text>
+            ) : null}
           </Section>
+
+          {qrCodeUrl ? (
+            <Section style={qrWrap}>
+              <Img
+                src={qrCodeUrl}
+                alt={`Ticket QR code for ${ticketId || 'your registration'}`}
+                width="180"
+                height="180"
+                style={{ margin: '0 auto', borderRadius: '8px' }}
+              />
+              <Text style={qrCaption}>
+                Show this QR code at the venue for check-in.
+              </Text>
+            </Section>
+          ) : null}
 
           <Text style={text}>
             Please keep your ticket/QR code available for the workshop.
@@ -117,6 +162,12 @@ export const template = {
     workshopDate: 'Sat, 20 Sep 2026',
     workshopTime: '3:00 PM',
     venue: 'Studio One, Pune',
+    selectedWorkshop: 'Workshop 1 + Workshop 2',
     ticketId: 'TTJ-8F2K1A',
+    amountPaid: '₹1,500',
+    paymentReference: 'UTR123456789',
+    qrCodeUrl:
+      'https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=16&data=' +
+      encodeURIComponent('https://tejasdhoke.com/verify?code=TTJ-8F2K1A'),
   },
 } satisfies TemplateEntry
