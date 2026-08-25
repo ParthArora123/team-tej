@@ -368,6 +368,8 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           city: string | null
+          confirmation_email_error: string | null
+          confirmation_email_sent: boolean
           created_at: string
           email: string | null
           emergency_contact: string | null
@@ -413,6 +415,8 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           city?: string | null
+          confirmation_email_error?: string | null
+          confirmation_email_sent?: boolean
           created_at?: string
           email?: string | null
           emergency_contact?: string | null
@@ -458,6 +462,8 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           city?: string | null
+          confirmation_email_error?: string | null
+          confirmation_email_sent?: boolean
           created_at?: string
           email?: string | null
           emergency_contact?: string | null

@@ -250,13 +250,22 @@ export const approveEnrollment = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.approve) {
       // Approval + ticket generation live in one shared server-only helper so
-      // the single and bulk ("Approve All") paths behave identically.
+      // the single and bulk ("Approve All") paths behave identically. The
+      // helper also sends the participant confirmation email via the
+      // Salesforce REST API (once per registration, failure-tolerant).
       const { approveEnrollmentById } = await import("./approve-enrollment.server");
       const res = await approveEnrollmentById(supabaseAdmin, data.enrollmentId, context.userId);
       // WhatsApp confirmation is handed off to the admin's WhatsApp (wa.me
       // deep link) in the UI right after approval, then recorded via
       // markWhatsappConfirmationSent. Nothing is sent from the server here.
-      return { ok: true, enrollment: res.enrollment, ticketCode: res.ticketCode, whatsappAlreadySent: res.whatsappAlreadySent };
+      return {
+        ok: true,
+        enrollment: res.enrollment,
+        ticketCode: res.ticketCode,
+        whatsappAlreadySent: res.whatsappAlreadySent,
+        emailSent: res.emailSent,
+        emailError: res.emailError,
+      };
 
 
 
@@ -290,7 +299,13 @@ export const approveAllPendingEnrollments = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true });
     if (error) throw error;
 
-    const approved: Array<{ enrollment: any; ticketCode: string; whatsappAlreadySent: boolean }> = [];
+    const approved: Array<{
+      enrollment: any;
+      ticketCode: string;
+      whatsappAlreadySent: boolean;
+      emailSent: boolean;
+      emailError: string | null;
+    }> = [];
     const failed: Array<{ id: string; message: string }> = [];
 
     for (const row of pending ?? []) {
@@ -300,6 +315,8 @@ export const approveAllPendingEnrollments = createServerFn({ method: "POST" })
           enrollment: res.enrollment,
           ticketCode: res.ticketCode,
           whatsappAlreadySent: res.whatsappAlreadySent,
+          emailSent: res.emailSent,
+          emailError: res.emailError,
         });
       } catch (e: any) {
         failed.push({ id: row.id, message: e?.message ?? "Approval failed" });
