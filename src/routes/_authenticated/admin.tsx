@@ -270,7 +270,7 @@ const emptyWs = () => ({
   silver_seat_enabled: true,
   silver_seat_price: "1000",
   allow_single: true,
-  allow_both: false,
+  allow_both: true,
   both_price: "",
   workshop1_name: "",
   workshop2_name: "",
@@ -569,10 +569,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration Configuration</p>
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <input type="checkbox" checked={!!f.allow_single} onChange={(e) => setF({ ...f, allow_single: e.target.checked })} />
-                Enable Single Workshop registration
-              </label>
               <label className="flex items-center gap-2 text-sm font-medium">
                 <input type="checkbox" checked={!!f.allow_both} onChange={(e) => setF({ ...f, allow_both: e.target.checked })} />
                 Enable Both Workshops registration
