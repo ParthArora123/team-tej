@@ -573,10 +573,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 <input type="checkbox" checked={!!f.allow_both} onChange={(e) => setF({ ...f, allow_both: e.target.checked })} />
                 Enable Both Workshops registration
               </label>
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <input type="checkbox" checked={!!f.allow_both} onChange={(e) => setF({ ...f, allow_both: e.target.checked })} />
-                Enable Both Workshops registration
-              </label>
               <FieldRow label="Single Workshop Price (₹) *">
                 <In type="number" placeholder="Enter Single Workshop price" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
               </FieldRow>
