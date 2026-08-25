@@ -1490,6 +1490,35 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       )}
 
 
+      {emailPending.length > 0 && (
+        <div className="bg-card border border-amber-500/40 rounded-2xl p-4 space-y-2">
+          <p className="text-sm font-medium">Confirmation emails pending</p>
+          <p className="text-xs text-muted-foreground">
+            These registrations are approved and ticketed, but the confirmation email has not been sent yet.
+            Retrying only sends the email — it never re-approves or issues a new ticket, and each registration gets at most one email.
+          </p>
+          <div className="flex flex-col gap-2 pt-1">
+            {emailPending.map((r) => (
+              <div key={r.id} className="flex items-center justify-between gap-3 flex-wrap">
+                <span className="text-xs">
+                  {r.full_name ?? "—"} · {r.email} · {r.ticket_code ?? "no ticket"}
+                  {r.confirmation_email_error ? (
+                    <span className="block text-[11px] text-destructive/80">Last error: {r.confirmation_email_error}</span>
+                  ) : null}
+                </span>
+                <button
+                  type="button"
+                  disabled={emailBusy === r.id}
+                  onClick={() => retryConfirmationEmail(r.id)}
+                  className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50">
+                  {emailBusy === r.id ? "Sending…" : "Retry confirmation email"}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {pending.length === 0 && (
         <div className="bg-card border border-border rounded-2xl p-8 text-center text-sm text-muted-foreground">
           No payments awaiting verification.
