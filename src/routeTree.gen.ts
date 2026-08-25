@@ -25,6 +25,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorkshopsIndexRouteImport } from './routes/workshops.index'
 import { Route as WorkshopsIdRouteImport } from './routes/workshops.$id'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as ApiSendConfirmationRouteImport } from './routes/api/send-confirmation'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
@@ -112,6 +113,11 @@ const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
   path: '/email/unsubscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSendConfirmationRoute = ApiSendConfirmationRouteImport.update({
+  id: '/api/send-confirmation',
+  path: '/api/send-confirmation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -167,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/send-confirmation': typeof ApiSendConfirmationRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops/': typeof WorkshopsIndexRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/send-confirmation': typeof ApiSendConfirmationRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops': typeof WorkshopsIndexRoute
@@ -217,6 +225,7 @@ export interface FileRoutesById {
   '/zero-to-hero': typeof ZeroToHeroRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/send-confirmation': typeof ApiSendConfirmationRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/workshops/$id': typeof WorkshopsIdRoute
   '/workshops/': typeof WorkshopsIndexRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/zero-to-hero'
     | '/admin'
     | '/dashboard'
+    | '/api/send-confirmation'
     | '/email/unsubscribe'
     | '/workshops/$id'
     | '/workshops/'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/zero-to-hero'
     | '/admin'
     | '/dashboard'
+    | '/api/send-confirmation'
     | '/email/unsubscribe'
     | '/workshops/$id'
     | '/workshops'
@@ -292,6 +303,7 @@ export interface FileRouteTypes {
     | '/zero-to-hero'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
+    | '/api/send-confirmation'
     | '/email/unsubscribe'
     | '/workshops/$id'
     | '/workshops/'
@@ -316,6 +328,7 @@ export interface RootRouteChildren {
   UnsubscribeRoute: typeof UnsubscribeRoute
   VerifyRoute: typeof VerifyRoute
   ZeroToHeroRoute: typeof ZeroToHeroRoute
+  ApiSendConfirmationRoute: typeof ApiSendConfirmationRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   WorkshopsIdRoute: typeof WorkshopsIdRoute
   WorkshopsIndexRoute: typeof WorkshopsIndexRoute
@@ -439,6 +452,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EmailUnsubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/send-confirmation': {
+      id: '/api/send-confirmation'
+      path: '/api/send-confirmation'
+      fullPath: '/api/send-confirmation'
+      preLoaderRoute: typeof ApiSendConfirmationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -520,6 +540,7 @@ const rootRouteChildren: RootRouteChildren = {
   UnsubscribeRoute: UnsubscribeRoute,
   VerifyRoute: VerifyRoute,
   ZeroToHeroRoute: ZeroToHeroRoute,
+  ApiSendConfirmationRoute: ApiSendConfirmationRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   WorkshopsIdRoute: WorkshopsIdRoute,
   WorkshopsIndexRoute: WorkshopsIndexRoute,

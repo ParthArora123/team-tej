@@ -299,7 +299,13 @@ export const approveAllPendingEnrollments = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true });
     if (error) throw error;
 
-    const approved: Array<{ enrollment: any; ticketCode: string; whatsappAlreadySent: boolean }> = [];
+    const approved: Array<{
+      enrollment: any;
+      ticketCode: string;
+      whatsappAlreadySent: boolean;
+      emailSent: boolean;
+      emailError: string | null;
+    }> = [];
     const failed: Array<{ id: string; message: string }> = [];
 
     for (const row of pending ?? []) {
@@ -309,6 +315,8 @@ export const approveAllPendingEnrollments = createServerFn({ method: "POST" })
           enrollment: res.enrollment,
           ticketCode: res.ticketCode,
           whatsappAlreadySent: res.whatsappAlreadySent,
+          emailSent: res.emailSent,
+          emailError: res.emailError,
         });
       } catch (e: any) {
         failed.push({ id: row.id, message: e?.message ?? "Approval failed" });
