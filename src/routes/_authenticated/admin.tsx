@@ -269,7 +269,7 @@ const emptyWs = () => ({
   category: "", style: "", published: true,
   silver_seat_enabled: true,
   silver_seat_price: "1000",
-  allow_single: false,
+  allow_single: true,
   allow_both: true,
   both_price: "",
   workshop1_name: "",
