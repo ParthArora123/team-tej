@@ -10,6 +10,9 @@ export interface ConfirmationEmailPayload {
   workshopDate?: string | null;
   workshopTime?: string | null;
   venue?: string | null;
+  selectedWorkshop?: string | null;
+  amountPaid?: string | null;
+  paymentReference?: string | null;
   ticketId: string;
 }
 
@@ -29,6 +32,12 @@ export async function sendConfirmationEmail(p: ConfirmationEmailPayload): Promis
 
   const origin = new URL(request.url).origin;
 
+  // Ticket QR encodes the same public verify URL used on the student ticket,
+  // so the emailed code is scannable for attendance exactly like the ticket.
+  const verifyUrl = `${origin}/verify?code=${encodeURIComponent(p.ticketId)}`;
+  const qrCodeUrl =
+    `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=16&data=${encodeURIComponent(verifyUrl)}`;
+
   try {
     const res = await fetch(`${origin}/lovable/email/transactional/send`, {
       method: "POST",
@@ -44,7 +53,11 @@ export async function sendConfirmationEmail(p: ConfirmationEmailPayload): Promis
           workshopDate: p.workshopDate ?? "",
           workshopTime: p.workshopTime ?? "",
           venue: p.venue ?? "",
+          selectedWorkshop: p.selectedWorkshop ?? "",
+          amountPaid: p.amountPaid ?? "",
+          paymentReference: p.paymentReference ?? "",
           ticketId: p.ticketId,
+          qrCodeUrl,
         },
       }),
     });
