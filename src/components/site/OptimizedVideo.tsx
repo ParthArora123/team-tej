@@ -110,8 +110,8 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     };
     const onSoftStall = () => {
       setShowing(false);
-      // Bounded nudges — no reload loops, no infinite retries.
-      if (nudges.current++ < 2) window.setTimeout(tryPlay, 1200);
+      // Bounded, immediate nudges — never an artificial wait before playback.
+      if (nudges.current++ < 3) tryPlay();
     };
     // Decode error / unsupported codec / dead network: unmount the element and
     // keep the poster on screen forever instead of a broken black player.
@@ -192,7 +192,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       if (p && typeof p.then === "function") {
         p.then(() => {
           if (cancelled) return;
-          window.setTimeout(stopWhenReady, 350);
+          stopWhenReady();
         }).catch(() => {
           /* autoplay refused — `preload` still buffers what it can */
         });

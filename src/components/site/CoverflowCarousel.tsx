@@ -356,46 +356,51 @@ export function CoverflowCarousel({
                     : { duration: 0.4 }
                 }
 
-                className={`group relative h-full w-full overflow-hidden rounded-3xl border ${
+                className={`group relative flex h-full w-full flex-col overflow-hidden rounded-3xl border ${
                   active
                     ? "border-primary/40 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)]"
                     : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
-                <CardMedia item={item} active={active} near={abs <= 1} next={count > 1 && abs === 1} playing={inView} muted={muted} />
+                {/* Media area — the title never sits on top of it. */}
+                <div className="relative min-h-0 flex-1 overflow-hidden">
+                  <CardMedia item={item} active={active} near={abs <= 1} next={count > 1 && abs === 1} playing={inView} muted={muted} />
 
-                <div
-                  className="pointer-events-none absolute inset-0"
-                  style={{ background: "linear-gradient(to top, color-mix(in oklab, var(--foreground) 70%, transparent) 0%, color-mix(in oklab, var(--foreground) 10%, transparent) 55%, transparent 100%)" }}
-                />
+                  <div
+                    className="pointer-events-none absolute inset-0"
+                    style={{ background: "linear-gradient(to top, color-mix(in oklab, var(--foreground) 55%, transparent) 0%, color-mix(in oklab, var(--foreground) 8%, transparent) 45%, transparent 100%)" }}
+                  />
 
-                {item.badge && (
-                  <span className="absolute left-4 top-4 rounded-full border border-white/25 bg-foreground/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
-                    {item.badge}
-                  </span>
-                )}
+                  {item.badge && (
+                    <span className="absolute left-4 top-4 max-w-[calc(100%-4.5rem)] truncate rounded-full border border-white/25 bg-foreground/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
+                      {item.badge}
+                    </span>
+                  )}
 
-                {active && item.videoSrc && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMuted((m) => !m);
-                    }}
-                    aria-label={muted ? "Unmute video" : "Mute video"}
-                    className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/20 text-white transition hover:bg-white/30"
-                  >
-                    {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                  </button>
-                )}
+                  {active && item.videoSrc && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMuted((m) => !m);
+                      }}
+                      aria-label={muted ? "Unmute video" : "Mute video"}
+                      className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/20 text-white transition hover:bg-white/30"
+                    >
+                      {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                    </button>
+                  )}
+                </div>
 
-                <div className="absolute inset-x-0 bottom-0 p-5">
+                {/* Dedicated title band — fixed, non-overlapping, same height
+                    for every card so switching clips causes no layout shift. */}
+                <div className="relative z-10 shrink-0 bg-foreground/85 px-5 pb-4 pt-3 backdrop-blur-sm">
                   {item.subtitle && (
-                    <p className="text-[10px] uppercase tracking-widest text-white/70">
+                    <p className="truncate text-[10px] uppercase tracking-widest text-white/70">
                       {item.subtitle}
                     </p>
                   )}
-                  <h3 className="mt-1 font-display text-xl font-bold leading-tight text-white line-clamp-2">
+                  <h3 className="mt-1 font-display text-lg font-bold leading-snug text-white line-clamp-2 sm:text-xl">
                     {item.title}
                   </h3>
 
