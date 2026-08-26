@@ -1368,7 +1368,11 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
         if (res.emailSent) {
           toast.success("Registration Approved ✓ Confirmation Email Sent ✓");
         } else if (res.emailError) {
-          toast.error("Registration Approved ✓ — Confirmation Email Failed. Use “Retry confirmation email” below.");
+          toast.error("Registration Approved ✓ — Confirmation Email Failed", {
+            description: String(res.emailError).slice(0, 400),
+            duration: 12000,
+          });
+
         }
         // Duplicate guard: a registration whose confirmation already went out
         // must never trigger a second message on re-approval.
