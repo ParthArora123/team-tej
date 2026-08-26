@@ -50,34 +50,7 @@ export const Route = createFileRoute("/_authenticated/admin")({ component: Admin
 
 type Tab = "overview" | "approvals" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "attendance" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero" | "home_sections" | "whatsapp_template" | "hero_portrait";
 
-const adminTabs: Array<{ id: Tab; label: string; emphasis?: boolean }> = [
-  { id: "overview", label: "Overview" },
-  { id: "approvals", label: "Payment approvals", emphasis: true },
-  { id: "messages", label: "Messages" },
-  { id: "team", label: "Team roles" },
-  { id: "profiles", label: "Home profiles" },
-  { id: "hero_portrait", label: "Hero photo", emphasis: true },
-  { id: "hero", label: "Hero carousel" },
-  { id: "featured", label: "Featured experience" },
-  { id: "gallery", label: "Gallery" },
-  { id: "styles", label: "Dance styles" },
-  { id: "choreographies", label: "Choreographies", emphasis: true },
-  { id: "founder", label: "Founder section" },
-  { id: "zero_to_hero", label: "Zero to Hero media", emphasis: true },
-  { id: "home_sections", label: "Home sections", emphasis: true },
-  { id: "contact_info", label: "Contact info" },
-  { id: "about_page", label: "About page" },
-  { id: "whatsapp_template", label: "WhatsApp message", emphasis: true },
-
-  { id: "workshops", label: "Workshops" },
-  { id: "workshop_hero", label: "Workshop hero", emphasis: true },
-  { id: "celebrities", label: "Celebrities" },
-  { id: "brands", label: "Brands" },
-  { id: "globe", label: "Globe" },
-  { id: "students", label: "Students" },
-  { id: "scan", label: "Scan" },
-  { id: "attendance", label: "Attendance scanner", emphasis: true },
-];
+// Navigation lives in @/components/admin/AdminNav (grouped by usage frequency).
 
 
 
