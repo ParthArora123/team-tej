@@ -15,6 +15,9 @@ export const WHATSAPP_PLACEHOLDERS = [
   "CustomInstructions",
   "QRCodeUrl",
   "TicketUrl",
+  "SessionDetails",
+  "SessionName",
+  "SessionTiming",
 ] as const;
 
 export type WhatsappPlaceholder = (typeof WHATSAPP_PLACEHOLDERS)[number];
@@ -25,8 +28,8 @@ export const DEFAULT_WHATSAPP_TEMPLATE = `🎉 Hi {{StudentName}},
 ✅ Your seat has been confirmed.
 
 Workshop: {{WorkshopName}}
+{{SessionDetails}}
 Date: {{WorkshopDate}}
-Time: {{WorkshopTime}}
 Venue: {{Venue}}
 
 🎫 Ticket ID: {{RegistrationId}}
@@ -59,6 +62,93 @@ export function renderWhatsappTemplate(
     .filter((line, i, arr) => !(line.trim() === "" && arr[i - 1]?.trim() === ""))
     .join("\n")
     .trim();
+}
+
+// Formats a raw session time ("15:00", "1500", "3 pm") into "3:00 PM".
+// Mirrors the workshop detail page formatting so the WhatsApp message shows
+// exactly the timing the participant saw when registering.
+function formatSessionTime(time: unknown): string {
+  const raw = String(time ?? "").trim();
+  if (!raw) return "";
+  const withMeridiem = raw.match(/^(\d{1,2})(?::(\d{1,2}))?\s*([AaPp])\.?[Mm]\.?$/);
+  if (withMeridiem) {
+    const h = Number(withMeridiem[1]) % 12 || 12;
+    const m = String(Number(withMeridiem[2] ?? 0)).padStart(2, "0");
+    return `${h}:${m} ${withMeridiem[3].toUpperCase()}M`;
+  }
+  const hm = raw.match(/^(\d{1,2}):(\d{1,2})(?::\d{1,2})?$/) ?? raw.match(/^(\d{2})(\d{2})$/) ?? raw.match(/^(\d{1,2})$/);
+  if (!hm) return raw;
+  const h24 = Number(hm[1]);
+  const mins = String(Number(hm[2] ?? 0)).padStart(2, "0");
+  if (h24 > 24) return raw;
+  const meridiem = h24 >= 12 ? "PM" : "AM";
+  const h12 = h24 % 12 || 12;
+  return `${h12}:${mins} ${meridiem}`;
+}
+
+export type SelectedSession = { name: string; time: string };
+
+/**
+ * Resolves the class/session(s) a participant actually selected, using the
+ * Admin-configured Class / Session Schedule (`programs.session_schedule`) as
+ * the source of truth. Session entries map to the two split workshops first
+ * by matching the Admin workshop names, then by position (entry 1 →
+ * Workshop 1, entry 2 → Workshop 2). A non-split registration gets the full
+ * schedule of its workshop. Timings are never hardcoded.
+ */
+export function getSelectedSessions(enr: any): SelectedSession[] {
+  const prog = enr?.program;
+  const schedule: SelectedSession[] = Array.isArray(prog?.session_schedule)
+    ? prog.session_schedule
+        .map((s: any) => ({ name: String(s?.name ?? "").trim(), time: formatSessionTime(s?.time) }))
+        .filter((s: SelectedSession) => s.name || s.time)
+    : [];
+  if (!schedule.length) return [];
+
+  const w1Name = String(prog?.workshop1_name ?? "").trim().toLowerCase();
+  const w2Name = String(prog?.workshop2_name ?? "").trim().toLowerCase();
+  const hasSplit = !!(w1Name || w2Name);
+
+  const sessionFor = (which: "w1" | "w2"): SelectedSession | null => {
+    const target = which === "w1" ? w1Name : w2Name;
+    if (target) {
+      const byName = schedule.find((s) => s.name.trim().toLowerCase() === target);
+      if (byName) return byName;
+    }
+    const idx = which === "w1" ? 0 : 1;
+    return schedule[idx] ?? schedule[0] ?? null;
+  };
+
+  if (enr?.registration_type === "both") {
+    if (!hasSplit) return schedule;
+    const first = sessionFor("w1");
+    const second = sessionFor("w2");
+    const out: SelectedSession[] = [];
+    if (first) out.push(first);
+    if (second && second !== first) out.push(second);
+    return out.length ? out : schedule;
+  }
+  if (hasSplit) {
+    const which = enr?.selected_workshop === "w2" ? "w2" : "w1";
+    const s = sessionFor(which);
+    return s ? [s] : [];
+  }
+  return schedule;
+}
+
+// Renders the selected session(s) as the confirmation-message block, e.g.
+//   Session: Bol Na Halke — 3:00 PM
+// or, when the participant selected multiple sessions:
+//   Sessions:
+//   • Bol Na Halke — 3:00 PM
+//   • Mehebooba — 5:00 PM
+export function renderSessionDetails(sessions: SelectedSession[]): string {
+  const list = sessions.filter((s) => s.name || s.time);
+  if (!list.length) return "";
+  const line = (s: SelectedSession) =>
+    s.name && s.time ? `${s.name} — ${s.time}` : s.name || s.time;
+  if (list.length === 1) return `Session: ${line(list[0])}`;
+  return `Sessions:\n${list.map((s) => `• ${line(s)}`).join("\n")}`;
 }
 
 // Normalises a raw phone string into a wa.me-compatible international number.
@@ -101,20 +191,40 @@ export function buildWaUrl(
   const qrImageUrl = verifyUrl
     ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrl)}`
     : "";
-  const message = renderWhatsappTemplate(template || DEFAULT_WHATSAPP_TEMPLATE, {
+
+  // Resolve the participant's actually-selected class/session(s) from the
+  // Admin-configured schedule so the confirmation only mentions what they
+  // booked — timings come from the selected session, never hardcoded.
+  const sessions = getSelectedSessions(enr);
+  const sessionDetails = renderSessionDetails(sessions);
+  const sessionNames = sessions.map((s) => s.name).filter(Boolean).join(" & ");
+  const sessionTimings = sessions.map((s) => s.time).filter(Boolean).join(" & ");
+
+  const activeTemplate = template || DEFAULT_WHATSAPP_TEMPLATE;
+  let message = renderWhatsappTemplate(activeTemplate, {
     StudentName: enr.full_name || "there",
     WorkshopName: enr.program?.name || "the workshop",
     RegistrationId: ticket || enr.id || "",
     PaymentStatus: "Verified",
     WorkshopDate: enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "",
-    WorkshopTime: enr.program?.event_time || "",
+    WorkshopTime: enr.program?.event_time ? formatSessionTime(enr.program.event_time) : "",
     Venue: enr.program?.venue || "",
     InstructorName: "Tejas D Dhoke",
     SupportContact: supportNumber,
     CustomInstructions: "",
     QRCodeUrl: qrImageUrl,
     TicketUrl: verifyUrl,
+    SessionDetails: sessionDetails,
+    SessionName: sessionNames,
+    SessionTiming: sessionTimings,
   });
+
+  // Older admin-saved templates predate the session placeholders — append the
+  // session block so the participant still gets their selected class + timing.
+  if (sessionDetails && !activeTemplate.includes("{{Session")) {
+    message = `${message}\n\n${sessionDetails}`;
+  }
+
   return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
 }
 
