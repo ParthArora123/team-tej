@@ -1315,17 +1315,6 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       const res = await onApprove({ data: { enrollmentId: id, approve } });
       await reload();
       if (approve && res?.ok && res.enrollment) {
-        // Confirmation email status (Salesforce). Approval never reverts on
-        // email failure — the admin can retry from the list below.
-        if (res.emailSent) {
-          toast.success("Registration Approved ✓ Confirmation Email Sent ✓");
-        } else if (res.emailError) {
-          toast.error("Registration Approved ✓ — Confirmation Email Failed", {
-            description: String(res.emailError).slice(0, 400),
-            duration: 12000,
-          });
-
-        }
         // Duplicate guard: a registration whose confirmation already went out
         // must never trigger a second message on re-approval.
         if (res.whatsappAlreadySent) {
