@@ -114,8 +114,8 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
       setErr(NAME_ERROR_MESSAGE);
       return;
     }
-    if (!/^\d{10}$/.test(d.phone)) {
-      setErr("Please enter a valid 10-digit mobile number.");
+    if (!isValidPhone(d.phone) || !isValidPhone(d.emergencyContact)) {
+      setErr(PHONE_ERROR_MESSAGE);
       return;
     }
     setErr(""); setBusy(true);
@@ -190,11 +190,11 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
                   label="Mobile"
                   type="tel"
                   v={d.phone}
-                  on={(v) => setD({ ...d, phone: v.replace(/\D/g, "").slice(0, 10) })}
+                  on={(v) => setD({ ...d, phone: sanitizePhone(v) })}
                   inputMode="numeric"
-                  pattern="\d{10}"
+                  pattern="[0-9]{10}"
                   maxLength={10}
-                  title="Please enter a valid 10-digit mobile number."
+                  title={PHONE_ERROR_MESSAGE}
                 />
 
                 <label className="block">
@@ -204,7 +204,20 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
                     <option>Female</option><option>Male</option><option>Other</option>
                   </select>
                 </label>
-                <Field label="Emergency contact" v={d.emergencyContact} on={(v) => setD({...d, emergencyContact: v})} span2 />
+                <Field
+                  label="Emergency contact"
+                  type="tel"
+                  v={d.emergencyContact}
+                  on={(v) => setD({ ...d, emergencyContact: sanitizePhone(v) })}
+                  inputMode="numeric"
+                  pattern="[0-9]{10}"
+                  maxLength={10}
+                  title={PHONE_ERROR_MESSAGE}
+                  span2
+                />
+                {((d.phone && !isValidPhone(d.phone)) || (d.emergencyContact && !isValidPhone(d.emergencyContact))) && (
+                  <p className="col-span-2 -mt-1 text-xs text-destructive">{PHONE_ERROR_MESSAGE}</p>
+                )}
 
                 {(allowSingle || allowBoth) && (allowSingle && allowBoth ? (
                   <div className="col-span-2 rounded-xl border border-primary/40 bg-primary/5 p-3 space-y-2">
