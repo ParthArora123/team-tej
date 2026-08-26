@@ -237,7 +237,7 @@ function AdminPage() {
       
 
 
-      {tab === "students" && <StudentsTab rows={enrs} />}
+      {tab === "students" && <StudentsTab rows={enrs} onDelete={deleteEnrollment} reload={reload} />}
 
       {tab === "team" && <TeamTab />}
 
