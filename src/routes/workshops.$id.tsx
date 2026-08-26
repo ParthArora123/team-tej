@@ -18,6 +18,10 @@ import { ViewportVideo } from "@/components/site/ViewportVideo";
 
 const SITE_URL = "https://tejasdhoke.com";
 
+const LEGACY_SESSION_TIMES: Record<string, string[]> = {
+  "1abd383c-917e-4320-aa38-3e8b9891990f": ["4:00 PM", "7:00 PM"],
+};
+
 export const Route = createFileRoute("/workshops/$id")({
   component: WorkshopDetailPage,
   loader: async ({ params }: any) => {
@@ -650,7 +654,8 @@ function WorkshopDetailPage() {
           (session) => session.name.trim().toLocaleLowerCase() === normalizedName,
         );
         const indexedRow = rawSessions[index];
-        return { name, time: namedRow?.time ?? indexedRow?.time ?? "" };
+        const legacyTime = LEGACY_SESSION_TIMES[program.id]?.[index] ?? "";
+        return { name, time: namedRow?.time ?? indexedRow?.time ?? legacyTime };
       })
     : rawSessions.length > 0
       ? rawSessions
@@ -786,7 +791,7 @@ function WorkshopDetailPage() {
                     <Clock size={12} className="shrink-0 text-primary" />
                     <span className="min-w-0 break-words font-semibold">{s.name || `Session ${i + 1}`}</span>
                     <span className="text-primary/50">—</span>
-                    <span className="shrink-0 whitespace-nowrap font-semibold tabular-nums">{s.time || "TBA"}</span>
+                    <span className="shrink-0 whitespace-nowrap font-semibold tabular-nums">{s.time}</span>
                   </div>
                 ))}
               </div>
@@ -941,7 +946,7 @@ function WorkshopDetailPage() {
                     <Clock size={15} className="text-primary" />
                     <span className="font-display text-[clamp(0.8125rem,1.6vw,1rem)] text-primary tabular-nums whitespace-nowrap"
                           style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
-                      {s.time || "TBA"}
+                      {s.time}
                     </span>
                   </div>
                 </div>
