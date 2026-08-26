@@ -775,19 +775,17 @@ function WorkshopDetailPage() {
             )}
 
             {sessions.length > 0 && (
-              <div className="mt-6 flex flex-wrap gap-2.5 max-w-xl">
+              <div className="mt-6 grid w-full max-w-xl gap-2.5 sm:flex sm:flex-wrap">
                 {sessions.map((s, i) => (
-                  <motion.span
+                  <div
                     key={`hero-session-${i}`}
-                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 + i * 0.08 }}
-                    className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-surface/50 px-4 py-2 text-[11px] sm:text-xs text-primary backdrop-blur-md"
+                    className="grid min-h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 rounded-lg border border-primary/40 bg-surface/70 px-3 py-2 text-xs text-primary backdrop-blur-md sm:inline-flex sm:min-h-0 sm:w-auto sm:rounded-full sm:px-4"
                   >
                     <Clock size={12} className="shrink-0 text-primary" />
-                    <span className="font-semibold">{s.name || `Session ${i + 1}`}</span>
+                    <span className="min-w-0 break-words font-semibold">{s.name || `Session ${i + 1}`}</span>
                     <span className="text-primary/50">—</span>
-                    <span className="tabular-nums">{s.time || "TBA"}</span>
-                  </motion.span>
+                    <span className="shrink-0 whitespace-nowrap font-semibold tabular-nums">{s.time || "TBA"}</span>
+                  </div>
                 ))}
               </div>
             )}
@@ -926,10 +924,8 @@ function WorkshopDetailPage() {
             <SectionHeader eyebrow="Class Timings" title="Session Schedule" />
             <div className="mt-8 md:mt-12 space-y-3">
               {sessions.map((s, i) => (
-                <motion.div key={`${s.time}-${i}`}
-                  initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.5, delay: i * 0.06 }}
-                  className="flex items-center justify-between gap-3 sm:gap-5 rounded-2xl border border-primary/25 bg-gradient-to-r from-background/28 to-jet/72 px-4 py-3.5 sm:px-6 sm:py-5 hover:border-primary/55 transition-colors">
+                <div key={`${s.time}-${i}`}
+                  className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-primary/25 bg-gradient-to-r from-background/28 to-jet/72 px-3 py-3.5 transition-colors hover:border-primary/55 sm:gap-5 sm:rounded-2xl sm:px-6 sm:py-5">
                   <div className="flex min-w-0 items-center gap-3">
                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-primary/30 bg-primary/10 font-display text-[11px] text-primary"
                           style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
@@ -946,7 +942,7 @@ function WorkshopDetailPage() {
                       {s.time || "TBA"}
                     </span>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
