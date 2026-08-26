@@ -113,13 +113,23 @@ export async function trySendConfirmationEmail(
     }).eq("id", enr.id);
     return true;
   } catch (e: any) {
-    const message = e?.message ?? "Confirmation email failed";
+    const d = e?.details;
+    const message = [
+      e?.message ?? "Confirmation email failed",
+      d?.step ? `step=${d.step}` : "",
+      d?.authPath ? `auth=${d.authPath}` : "",
+      d?.status ? `status=${d.status}${d.statusText ? " " + d.statusText : ""}` : "",
+      d?.endpoint ? `endpoint=${d.endpoint}` : "",
+      d?.responseBody ? `response=${d.responseBody}` : "",
+      d?.hint ? `hint=${d.hint}` : "",
+    ].filter(Boolean).join("\n");
     console.warn("[approve-enrollment] salesforce email failed:", message);
     await supabaseAdmin.from("enrollments").update({
       confirmation_email_sent: false,
-      confirmation_email_error: message.slice(0, 500),
+      confirmation_email_error: message.slice(0, 2000),
     }).eq("id", enr.id).catch(() => {});
     onError?.(message);
     return false;
   }
+
 }

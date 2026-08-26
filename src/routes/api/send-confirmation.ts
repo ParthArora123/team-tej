@@ -73,14 +73,25 @@ export const Route = createFileRoute("/api/send-confirmation")({
           try {
             await sendConfirmationViaSalesforce(buildConfirmationPayload(enr, origin));
           } catch (e: any) {
+            const details = e?.details ?? { step: "unknown", authPath: "none" };
             const message = (e?.message ?? "Confirmation email failed").slice(0, 500);
+            const stored = [
+              message,
+              details.step ? `step=${details.step}` : "",
+              details.authPath ? `auth=${details.authPath}` : "",
+              details.status ? `status=${details.status}${details.statusText ? " " + details.statusText : ""}` : "",
+              details.endpoint ? `endpoint=${details.endpoint}` : "",
+              details.responseBody ? `response=${details.responseBody}` : "",
+              details.hint ? `hint=${details.hint}` : "",
+            ].filter(Boolean).join("\n").slice(0, 2000);
             await supabaseAdmin.from("enrollments").update({
               confirmation_email_sent: false,
-              confirmation_email_error: message,
+              confirmation_email_error: stored,
             }).eq("id", enr.id);
             // Registration stays approved; the admin can retry.
-            return json({ ok: false, emailSent: false, error: message }, 502);
+            return json({ ok: false, emailSent: false, error: message, details }, 502);
           }
+
 
           await supabaseAdmin.from("enrollments").update({
             confirmation_email_sent: true,

@@ -1274,6 +1274,8 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const [bulkBusy, setBulkBusy] = useState(false);
   const approveAll = useServerFn(approveAllPendingEnrollments);
 
+  const [emailDiag, setEmailDiag] = useState<Record<string, string>>({});
+
   const retryConfirmationEmail = async (id: string) => {
     setEmailBusy(id);
     try {
@@ -1287,17 +1289,35 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok && (json?.emailSent || json?.alreadySent)) {
+        setEmailDiag((d) => ({ ...d, [id]: "" }));
         toast.success(json?.alreadySent ? "Confirmation email was already sent." : "Confirmation Email Sent ✓");
       } else {
-        toast.error(json?.error ?? "Confirmation Email Failed — please try again.");
+        const d = json?.details ?? {};
+        const diag = [
+          `HTTP ${res.status} ${res.statusText}`,
+          `message: ${json?.error ?? "Confirmation Email Failed"}`,
+          d.step ? `failing step: ${d.step}` : "",
+          d.authPath ? `auth path: ${d.authPath}` : "",
+          d.status ? `salesforce status: ${d.status}${d.statusText ? " " + d.statusText : ""}` : "",
+          d.endpoint ? `endpoint: ${d.endpoint}` : "",
+          d.responseBody ? `response body:\n${d.responseBody}` : "",
+          d.hint ? `hint: ${d.hint}` : "",
+        ].filter(Boolean).join("\n");
+        setEmailDiag((prev) => ({ ...prev, [id]: diag }));
+        toast.error(
+          `${json?.error ?? "Confirmation Email Failed"}${d.step ? ` · step: ${d.step}` : ""}${d.status ? ` · status: ${d.status}` : ""}`,
+          { description: d.hint ?? d.responseBody?.slice(0, 200), duration: 12000 },
+        );
       }
       await reload();
     } catch (e: any) {
+      setEmailDiag((prev) => ({ ...prev, [id]: `client error: ${e?.message ?? e}` }));
       toast.error(e?.message ?? "Confirmation Email Failed — please try again.");
     } finally {
       setEmailBusy(null);
     }
   };
+
 
   const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
   const getProof = useServerFn(adminGetProofUrl);
@@ -1348,7 +1368,11 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
         if (res.emailSent) {
           toast.success("Registration Approved ✓ Confirmation Email Sent ✓");
         } else if (res.emailError) {
-          toast.error("Registration Approved ✓ — Confirmation Email Failed. Use “Retry confirmation email” below.");
+          toast.error("Registration Approved ✓ — Confirmation Email Failed", {
+            description: String(res.emailError).slice(0, 400),
+            duration: 12000,
+          });
+
         }
         // Duplicate guard: a registration whose confirmation already went out
         // must never trigger a second message on re-approval.
@@ -1500,23 +1524,45 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
             Retrying only sends the email — it never re-approves or issues a new ticket, and each registration gets at most one email.
           </p>
           <div className="flex flex-col gap-2 pt-1">
-            {emailPending.map((r) => (
-              <div key={r.id} className="flex items-center justify-between gap-3 flex-wrap">
-                <span className="text-xs">
-                  {r.full_name ?? "—"} · {r.email} · {r.ticket_code ?? "no ticket"}
-                  {r.confirmation_email_error ? (
-                    <span className="block text-[11px] text-destructive/80">Last error: {r.confirmation_email_error}</span>
-                  ) : null}
-                </span>
-                <button
-                  type="button"
-                  disabled={emailBusy === r.id}
-                  onClick={() => retryConfirmationEmail(r.id)}
-                  className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50">
-                  {emailBusy === r.id ? "Sending…" : "Retry confirmation email"}
-                </button>
+            {emailPending.map((r) => {
+              const diag = emailDiag[r.id] || r.confirmation_email_error || "";
+              return (
+              <div key={r.id} className="flex flex-col gap-2 border-t border-border/40 pt-2 first:border-0 first:pt-0">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <span className="text-xs">
+                    {r.full_name ?? "—"} · {r.email} · {r.ticket_code ?? "no ticket"}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={emailBusy === r.id}
+                    onClick={() => retryConfirmationEmail(r.id)}
+                    className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50">
+                    {emailBusy === r.id ? "Sending…" : "Retry confirmation email"}
+                  </button>
+                </div>
+                {diag ? (
+                  <details className="rounded-lg border border-destructive/40 bg-destructive/5 p-2">
+                    <summary className="cursor-pointer text-[11px] font-medium text-destructive">
+                      Error details — {diag.split("\n")[0]}
+                    </summary>
+                    <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap break-all text-[11px] leading-relaxed text-destructive/90">
+{diag}
+                    </pre>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(diag);
+                        toast.success("Error details copied");
+                      }}
+                      className="mt-2 px-2 py-1 rounded-md border border-border text-[11px]">
+                      Copy error details
+                    </button>
+                  </details>
+                ) : null}
               </div>
-            ))}
+              );
+            })}
+
           </div>
         </div>
       )}
