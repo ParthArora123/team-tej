@@ -378,10 +378,17 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enter both Workshop 1 and Workshop 2 names.");
       return;
     }
-    const schedule = (f.session_schedule ?? []).map((s: any) => ({
+    const enteredSchedule = (f.session_schedule ?? []).map((s: any) => ({
       time: String(s.time ?? "").trim(),
       name: String(s.name ?? "").trim(),
     }));
+    const schedule = f.allow_both
+      ? [
+          { name: f.workshop1_name.trim(), time: enteredSchedule[0]?.time ?? "" },
+          { name: f.workshop2_name.trim(), time: enteredSchedule[1]?.time ?? "" },
+          ...enteredSchedule.slice(2),
+        ]
+      : enteredSchedule;
     if (schedule.some((s: any) => !s.name || !s.time)) {
       toast.error("Each session must have both a class name and its own time.");
       return;
@@ -559,23 +566,37 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Class / Session Schedule</p>
-              <p className="text-[11px] text-muted-foreground">Add each class with its own time and name (e.g. 3:00 PM — Bol Na Halke). Shown on the workshop detail page.</p>
-              {(f.session_schedule ?? []).map((s: any, i: number) => (
+              <p className="text-[11px] text-muted-foreground">Each time below is saved separately and shown beside its matching class on the workshop detail page.</p>
+              {(f.allow_both
+                ? [
+                    { name: f.workshop1_name || "Workshop 1", time: f.session_schedule?.[0]?.time ?? "" },
+                    { name: f.workshop2_name || "Workshop 2", time: f.session_schedule?.[1]?.time ?? "" },
+                    ...(f.session_schedule ?? []).slice(2),
+                  ]
+                : (f.session_schedule ?? [])
+              ).map((s: any, i: number) => (
                 <div key={i} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)_auto] gap-2 items-center">
                   <In type="time" placeholder="Select session time" v={s.time} on={(v) => {
-                    const next = [...(f.session_schedule ?? [])]; next[i] = { ...next[i], time: v }; setF({ ...f, session_schedule: next });
+                    const next = [...(f.session_schedule ?? [])];
+                    while (next.length <= i) next.push({ time: "", name: "" });
+                    next[i] = {
+                      ...next[i],
+                      time: v,
+                      name: f.allow_both && i < 2 ? (i === 0 ? f.workshop1_name : f.workshop2_name) : (next[i]?.name ?? ""),
+                    };
+                    setF({ ...f, session_schedule: next });
                   }} />
                   <In placeholder="Bol Na Halke" v={s.name} on={(v) => {
                     const next = [...(f.session_schedule ?? [])]; next[i] = { ...next[i], name: v }; setF({ ...f, session_schedule: next });
-                  }} />
-                  <button type="button"
+                  }} disabled={f.allow_both && i < 2} />
+                  {(!f.allow_both || i >= 2) ? <button type="button"
                     onClick={() => setF({ ...f, session_schedule: (f.session_schedule ?? []).filter((_: any, j: number) => j !== i) })}
-                    className="px-2 py-1.5 rounded-lg border border-border text-destructive text-xs">Remove</button>
+                    className="px-2 py-1.5 rounded-lg border border-border text-destructive text-xs">Remove</button> : <span className="w-14 text-center text-[10px] text-muted-foreground">Required</span>}
                 </div>
               ))}
               <button type="button"
                 onClick={() => setF({ ...f, session_schedule: [...(f.session_schedule ?? []), { time: "", name: "" }] })}
-                className="px-3 py-1.5 rounded-lg border border-border text-xs">+ Add session</button>
+                className="px-3 py-1.5 rounded-lg border border-border text-xs">+ Add extra session</button>
             </div>
 
 
@@ -594,10 +615,20 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                     <In type="number" placeholder="Enter Both Workshops price" v={f.both_price} on={(v) => setF({ ...f, both_price: v })} />
                   </FieldRow>
                   <FieldRow label="Workshop 1 Name *">
-                    <In placeholder="e.g. Bollywood Fusion" v={f.workshop1_name} on={(v) => setF({ ...f, workshop1_name: v })} />
+                    <In placeholder="e.g. Bollywood Fusion" v={f.workshop1_name} on={(v) => {
+                      const next = [...(f.session_schedule ?? [])];
+                      while (next.length < 2) next.push({ time: "", name: "" });
+                      next[0] = { ...next[0], name: v };
+                      setF({ ...f, workshop1_name: v, session_schedule: next });
+                    }} />
                   </FieldRow>
                   <FieldRow label="Workshop 2 Name *">
-                    <In placeholder="e.g. Contemporary" v={f.workshop2_name} on={(v) => setF({ ...f, workshop2_name: v })} />
+                    <In placeholder="e.g. Contemporary" v={f.workshop2_name} on={(v) => {
+                      const next = [...(f.session_schedule ?? [])];
+                      while (next.length < 2) next.push({ time: "", name: "" });
+                      next[1] = { ...next[1], name: v };
+                      setF({ ...f, workshop2_name: v, session_schedule: next });
+                    }} />
                   </FieldRow>
                 </>
               )}
