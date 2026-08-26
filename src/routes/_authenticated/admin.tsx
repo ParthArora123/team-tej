@@ -42,13 +42,15 @@ import { compressImageFile } from "@/lib/compress-image";
 import { OverviewTab } from "@/components/admin/OverviewTab";
 import { AttendanceTab } from "@/components/admin/AttendanceTab";
 import { AdminNav, adminNavGroups, adminNavLabel } from "@/components/admin/AdminNav";
+import { MyProfileTab, type AdminProfile } from "@/components/admin/MyProfileTab";
+import { getMyProfile } from "@/lib/admin-profile.functions";
 
 
 
 
 export const Route = createFileRoute("/_authenticated/admin")({ component: AdminPage });
 
-type Tab = "overview" | "approvals" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "attendance" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero" | "home_sections" | "whatsapp_template" | "hero_portrait";
+type Tab = "overview" | "approvals" | "workshops" | "workshop_hero" | "profiles" | "students" | "team" | "scan" | "attendance" | "celebrities" | "brands" | "globe" | "hero" | "featured" | "gallery" | "messages" | "contact_info" | "about_page" | "styles" | "choreographies" | "founder" | "zero_to_hero" | "home_sections" | "whatsapp_template" | "hero_portrait" | "my_profile";
 
 // Navigation lives in @/components/admin/AdminNav (grouped by usage frequency).
 
@@ -73,6 +75,8 @@ function AdminPage() {
   const [enrs, setEnrs] = useState<any[]>([]);
   const [workshops, setWorkshops] = useState<any[]>([]);
   const [access, setAccess] = useState<"checking" | "granted" | "denied">("checking");
+  const [myProfile, setMyProfile] = useState<AdminProfile | null>(null);
+  const loadMyProfile = useServerFn(getMyProfile);
 
   const reload = async () => {
     setStats(await fetchStats());
@@ -90,6 +94,7 @@ function AdminPage() {
         if (!r.isAdmin) { setAccess("denied"); return; }
         setAccess("granted");
         reload();
+        loadMyProfile().then((p: any) => setMyProfile(p)).catch(() => {});
       } catch { setAccess("denied"); }
     })();
   }, []);
@@ -145,6 +150,11 @@ function AdminPage() {
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Admin</p>
               <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl">Control room</h1>
+              {myProfile && (
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                  Signed in as {myProfile.full_name || myProfile.email}
+                </p>
+              )}
               <p className="mt-1 text-sm text-muted-foreground">
                 {adminNavLabel(tab)}
                 {pendingApprovals > 0 && (
@@ -178,10 +188,10 @@ function AdminPage() {
               ))}
               <button
                 type="button"
-                onClick={() => setTab("team")}
+                onClick={() => setTab("my_profile")}
                 className="rounded-full border border-border bg-background px-3.5 py-2 text-xs font-semibold hover:bg-muted sm:text-sm"
               >
-                Team roles
+                My profile
               </button>
             </div>
           </div>
@@ -238,6 +248,8 @@ function AdminPage() {
 
 
       {tab === "students" && <StudentsTab rows={enrs} onDelete={deleteEnrollment} reload={reload} />}
+
+      {tab === "my_profile" && <MyProfileTab profile={myProfile} onSaved={setMyProfile} />}
 
       {tab === "team" && <TeamTab />}
 
