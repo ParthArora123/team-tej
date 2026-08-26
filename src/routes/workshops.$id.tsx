@@ -737,6 +737,24 @@ function WorkshopDetailPage() {
               </p>
             )}
 
+            {sessions.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-2.5 max-w-xl">
+                {sessions.map((s, i) => (
+                  <motion.span
+                    key={`hero-session-${i}`}
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 + i * 0.08 }}
+                    className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-surface/50 px-4 py-2 text-[11px] sm:text-xs text-primary backdrop-blur-md"
+                  >
+                    <Clock size={12} className="shrink-0 text-primary" />
+                    <span className="font-semibold">{s.name || `Session ${i + 1}`}</span>
+                    <span className="text-primary/50">—</span>
+                    <span className="tabular-nums">{s.time || "TBA"}</span>
+                  </motion.span>
+                ))}
+              </div>
+            )}
+
             <div className="mt-8 flex flex-wrap gap-4">
               <button
                 onClick={scrollToRegister}
@@ -874,15 +892,23 @@ function WorkshopDetailPage() {
                 <motion.div key={`${s.time}-${i}`}
                   initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.5, delay: i * 0.06 }}
-                  className="grid grid-cols-[minmax(0,auto)_minmax(0,1fr)] items-center gap-3 sm:gap-5 rounded-2xl border border-primary/25 bg-gradient-to-r from-background/28 to-jet/72 px-4 py-3.5 sm:px-6 sm:py-5 hover:border-primary/55 transition-colors">
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Clock size={16} className="text-primary" />
-                    <span className="font-display text-[clamp(0.8125rem,1.6vw,1rem)] text-primary tabular-nums"
+                  className="flex items-center justify-between gap-3 sm:gap-5 rounded-2xl border border-primary/25 bg-gradient-to-r from-background/28 to-jet/72 px-4 py-3.5 sm:px-6 sm:py-5 hover:border-primary/55 transition-colors">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-primary/30 bg-primary/10 font-display text-[11px] text-primary"
+                          style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <p className="min-w-0 break-words font-display text-[clamp(0.875rem,1.6vw,1.05rem)] font-semibold text-primary">
+                      {s.name || `Session ${i + 1}`}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <Clock size={15} className="text-primary" />
+                    <span className="font-display text-[clamp(0.8125rem,1.6vw,1rem)] text-primary tabular-nums whitespace-nowrap"
                           style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}>
                       {s.time || "TBA"}
                     </span>
                   </div>
-                  <p className="min-w-0 truncate text-[clamp(0.8125rem,1.5vw,0.9375rem)] text-primary/80">{s.name || "Session"}</p>
                 </motion.div>
               ))}
             </div>
