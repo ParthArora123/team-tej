@@ -1539,7 +1539,7 @@ function ProfilesTab() {
 }
 
 
-function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any; reload: () => void }) {
+function ApprovalsTab({ rows, onApprove, reload, adminProfile }: { rows: any[]; onApprove: any; reload: () => void; adminProfile: AdminProfile | null }) {
   const pending = rows.filter((r) => r.status === "payment_submitted");
   const [busy, setBusy] = useState<string | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
@@ -1553,8 +1553,8 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const markWaSent = useServerFn(markWhatsappConfirmationSent);
 
   const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
-  // FROM/sender: the WhatsApp/contact number shown on the Contact page.
-  const [waContactNumber, setWaContactNumber] = useState<string>("");
+  // FROM/sender: the logged-in admin's profile phone number (set in My profile).
+  const waContactNumber = adminProfile?.phone ?? "";
 
   const [blockedWa, setBlockedWa] = useState<Record<string, string>>({});
 
@@ -1563,9 +1563,6 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       .then((v: any) => {
         if (v && typeof v.template === "string") setWaTemplate(v.template);
       })
-      .catch(() => {});
-    loadContent({ data: { key: "contact" } })
-      .then((v: any) => { if (v && typeof v.whatsapp === "string") setWaContactNumber(v.whatsapp); })
       .catch(() => {});
   }, []);
 
