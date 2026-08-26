@@ -1398,13 +1398,10 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       await reload();
 
       const approvedCount = approvedList.length;
-      const emailsSent = approvedList.filter((i) => i?.emailSent).length;
-      const emailsFailed = approvedCount - emailsSent;
-      const base = `${approvedCount} registration(s) approved, ${approvedCount} ticket(s) generated, ${emailsSent} confirmation email(s) sent, ${waSent} WhatsApp confirmation(s) sent`;
-      if (waFailed || failedApprovals.length || emailsFailed) {
+      const base = `${approvedCount} registration(s) approved, ${approvedCount} ticket(s) generated, ${waSent} WhatsApp confirmation(s) sent`;
+      if (waFailed || failedApprovals.length) {
         toast.error(
           `${base}.` +
-          (emailsFailed ? ` ${emailsFailed} confirmation email(s) failed — use “Retry confirmation email”.` : "") +
           (failedApprovals.length ? ` ${failedApprovals.length} approval(s) failed.` : "") +
           (Object.keys(blocked).length ? " Allow pop-ups, then use the WhatsApp link on each registration to retry." : "")
         );
