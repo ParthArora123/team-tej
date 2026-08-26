@@ -902,7 +902,6 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Phone", (r: any) => r.phone ?? ""],
     ["Gender", (r: any) => r.gender ?? ""],
     ["Emergency contact", (r: any) => r.emergency_contact ?? ""],
-    ["Medical info", (r: any) => r.medical_info ?? ""],
     ["Workshop", (r: any) => r.program?.name ?? ""],
     ["Workshop date", (r: any) => r.program?.event_date ?? ""],
     ["Amount (INR)", (r: any) => r.amount_inr ?? 0],
