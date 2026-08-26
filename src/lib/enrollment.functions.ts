@@ -250,9 +250,7 @@ export const approveEnrollment = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.approve) {
       // Approval + ticket generation live in one shared server-only helper so
-      // the single and bulk ("Approve All") paths behave identically. The
-      // helper also sends the participant confirmation email via the
-      // Salesforce REST API (once per registration, failure-tolerant).
+      // the single and bulk ("Approve All") paths behave identically.
       const { approveEnrollmentById } = await import("./approve-enrollment.server");
       const res = await approveEnrollmentById(supabaseAdmin, data.enrollmentId, context.userId);
       // WhatsApp confirmation is handed off to the admin's WhatsApp (wa.me
@@ -263,9 +261,8 @@ export const approveEnrollment = createServerFn({ method: "POST" })
         enrollment: res.enrollment,
         ticketCode: res.ticketCode,
         whatsappAlreadySent: res.whatsappAlreadySent,
-        emailSent: res.emailSent,
-        emailError: res.emailError,
       };
+
 
 
 
