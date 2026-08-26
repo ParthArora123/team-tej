@@ -4,10 +4,11 @@ export const NAME_MAX_LENGTH = 100;
 export const NAME_ERROR_MESSAGE =
   "Please enter a valid name using letters, spaces, hyphens, apostrophes, or periods.";
 
-// Unicode letters (any script, incl. Devanagari and accented Latin) plus
-// combining marks, single spaces, hyphens, apostrophes and periods.
-const NAME_PATTERN =
-  /^\p{L}[\p{L}\p{M}]*(?:[ '\u2019.\-][\p{L}\p{M}]*\p{L}[\p{L}\p{M}]*)*\.?$/u;
+// One name token: Unicode letters (any script, incl. Devanagari and accented
+// Latin) plus combining marks, joined by single hyphens/apostrophes/periods,
+// with an optional trailing period for initials ("A.").
+const TOKEN_PATTERN =
+  /^\p{L}[\p{L}\p{M}]*(?:['\u2019.\-]\p{L}[\p{L}\p{M}]*)*\.?$/u;
 
 // Defence in depth: explicitly reject injection-ish payloads even if the
 // pattern above somehow allowed them.
@@ -23,8 +24,9 @@ export function isValidName(value: string): boolean {
   const v = normalizeName(value);
   if (v.length < 2 || v.length > NAME_MAX_LENGTH) return false;
   if (FORBIDDEN.test(v) || SCRIPTISH.test(v)) return false;
-  return NAME_PATTERN.test(v);
+  return v.split(" ").every((t) => TOKEN_PATTERN.test(t));
 }
+
 
 /** Zod schema: trims/normalizes then validates. */
 export const nameSchema = z
