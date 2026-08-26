@@ -15,6 +15,9 @@ export const WHATSAPP_PLACEHOLDERS = [
   "CustomInstructions",
   "QRCodeUrl",
   "TicketUrl",
+  "SessionDetails",
+  "SessionName",
+  "SessionTiming",
 ] as const;
 
 export type WhatsappPlaceholder = (typeof WHATSAPP_PLACEHOLDERS)[number];
