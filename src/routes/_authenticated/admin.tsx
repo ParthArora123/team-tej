@@ -1265,58 +1265,10 @@ function ProfilesTab() {
 
 function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any; reload: () => void }) {
   const pending = rows.filter((r) => r.status === "payment_submitted");
-  // Approved registrations whose Salesforce confirmation email is still
-  // unsent — these get a retry button. Retrying never re-approves or
-  // re-tickets; it only calls /api/send-confirmation once per click.
-  const emailPending = rows.filter((r) => r.status === "confirmed" && !r.confirmation_email_sent);
-  const [emailBusy, setEmailBusy] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
   const approveAll = useServerFn(approveAllPendingEnrollments);
 
-  const [emailDiag, setEmailDiag] = useState<Record<string, string>>({});
-
-  const retryConfirmationEmail = async (id: string) => {
-    setEmailBusy(id);
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData?.session?.access_token;
-      if (!token) throw new Error("Your session expired — please sign in again.");
-      const res = await fetch("/api/send-confirmation", {
-        method: "POST",
-        headers: { "content-type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ enrollmentId: id }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok && (json?.emailSent || json?.alreadySent)) {
-        setEmailDiag((d) => ({ ...d, [id]: "" }));
-        toast.success(json?.alreadySent ? "Confirmation email was already sent." : "Confirmation Email Sent ✓");
-      } else {
-        const d = json?.details ?? {};
-        const diag = [
-          `HTTP ${res.status} ${res.statusText}`,
-          `message: ${json?.error ?? "Confirmation Email Failed"}`,
-          d.step ? `failing step: ${d.step}` : "",
-          d.authPath ? `auth path: ${d.authPath}` : "",
-          d.status ? `salesforce status: ${d.status}${d.statusText ? " " + d.statusText : ""}` : "",
-          d.endpoint ? `endpoint: ${d.endpoint}` : "",
-          d.responseBody ? `response body:\n${d.responseBody}` : "",
-          d.hint ? `hint: ${d.hint}` : "",
-        ].filter(Boolean).join("\n");
-        setEmailDiag((prev) => ({ ...prev, [id]: diag }));
-        toast.error(
-          `${json?.error ?? "Confirmation Email Failed"}${d.step ? ` · step: ${d.step}` : ""}${d.status ? ` · status: ${d.status}` : ""}`,
-          { description: d.hint ?? d.responseBody?.slice(0, 200), duration: 12000 },
-        );
-      }
-      await reload();
-    } catch (e: any) {
-      setEmailDiag((prev) => ({ ...prev, [id]: `client error: ${e?.message ?? e}` }));
-      toast.error(e?.message ?? "Confirmation Email Failed — please try again.");
-    } finally {
-      setEmailBusy(null);
-    }
-  };
 
 
   const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
@@ -1363,17 +1315,6 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       const res = await onApprove({ data: { enrollmentId: id, approve } });
       await reload();
       if (approve && res?.ok && res.enrollment) {
-        // Confirmation email status (Salesforce). Approval never reverts on
-        // email failure — the admin can retry from the list below.
-        if (res.emailSent) {
-          toast.success("Registration Approved ✓ Confirmation Email Sent ✓");
-        } else if (res.emailError) {
-          toast.error("Registration Approved ✓ — Confirmation Email Failed", {
-            description: String(res.emailError).slice(0, 400),
-            duration: 12000,
-          });
-
-        }
         // Duplicate guard: a registration whose confirmation already went out
         // must never trigger a second message on re-approval.
         if (res.whatsappAlreadySent) {
@@ -1457,13 +1398,10 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       await reload();
 
       const approvedCount = approvedList.length;
-      const emailsSent = approvedList.filter((i) => i?.emailSent).length;
-      const emailsFailed = approvedCount - emailsSent;
-      const base = `${approvedCount} registration(s) approved, ${approvedCount} ticket(s) generated, ${emailsSent} confirmation email(s) sent, ${waSent} WhatsApp confirmation(s) sent`;
-      if (waFailed || failedApprovals.length || emailsFailed) {
+      const base = `${approvedCount} registration(s) approved, ${approvedCount} ticket(s) generated, ${waSent} WhatsApp confirmation(s) sent`;
+      if (waFailed || failedApprovals.length) {
         toast.error(
           `${base}.` +
-          (emailsFailed ? ` ${emailsFailed} confirmation email(s) failed — use “Retry confirmation email”.` : "") +
           (failedApprovals.length ? ` ${failedApprovals.length} approval(s) failed.` : "") +
           (Object.keys(blocked).length ? " Allow pop-ups, then use the WhatsApp link on each registration to retry." : "")
         );
@@ -1516,56 +1454,7 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       )}
 
 
-      {emailPending.length > 0 && (
-        <div className="bg-card border border-amber-500/40 rounded-2xl p-4 space-y-2">
-          <p className="text-sm font-medium">Confirmation emails pending</p>
-          <p className="text-xs text-muted-foreground">
-            These registrations are approved and ticketed, but the confirmation email has not been sent yet.
-            Retrying only sends the email — it never re-approves or issues a new ticket, and each registration gets at most one email.
-          </p>
-          <div className="flex flex-col gap-2 pt-1">
-            {emailPending.map((r) => {
-              const diag = emailDiag[r.id] || r.confirmation_email_error || "";
-              return (
-              <div key={r.id} className="flex flex-col gap-2 border-t border-border/40 pt-2 first:border-0 first:pt-0">
-                <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <span className="text-xs">
-                    {r.full_name ?? "—"} · {r.email} · {r.ticket_code ?? "no ticket"}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={emailBusy === r.id}
-                    onClick={() => retryConfirmationEmail(r.id)}
-                    className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50">
-                    {emailBusy === r.id ? "Sending…" : "Retry confirmation email"}
-                  </button>
-                </div>
-                {diag ? (
-                  <details className="rounded-lg border border-destructive/40 bg-destructive/5 p-2">
-                    <summary className="cursor-pointer text-[11px] font-medium text-destructive">
-                      Error details — {diag.split("\n")[0]}
-                    </summary>
-                    <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap break-all text-[11px] leading-relaxed text-destructive/90">
-{diag}
-                    </pre>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard?.writeText(diag);
-                        toast.success("Error details copied");
-                      }}
-                      className="mt-2 px-2 py-1 rounded-md border border-border text-[11px]">
-                      Copy error details
-                    </button>
-                  </details>
-                ) : null}
-              </div>
-              );
-            })}
 
-          </div>
-        </div>
-      )}
 
       {pending.length === 0 && (
         <div className="bg-card border border-border rounded-2xl p-8 text-center text-sm text-muted-foreground">

@@ -17,11 +17,9 @@ export interface TemplateEntry {
  *   import { template as welcomeTemplate } from './welcome'
  *   // then add to TEMPLATES: 'welcome': welcomeTemplate
  */
-import { template as workshopConfirmationTemplate } from './workshop-confirmation'
 import { template as passwordResetTemplate } from './password-reset'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
-  'workshop-confirmation': workshopConfirmationTemplate,
   'password-reset': passwordResetTemplate,
 }
 
