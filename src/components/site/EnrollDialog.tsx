@@ -275,7 +275,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
                         {hasNamedWorkshops && <span className="text-muted-foreground">· {selectedWorkshop === "w2" ? w2Name : w1Name}</span>}
                       </span>
                       <span className="block text-xs text-muted-foreground mt-0.5">
-                        Premium seating · adds ₹{silverAddon.toLocaleString("en-IN")}.
+                        Get our Silver Seat Offer where we’ll shoot and professionally edit your solo dance video using a professional camera setup, so you get a high-quality video of your performance. (+₹{silverAddon.toLocaleString("en-IN")})
                       </span>
                     </span>
                     <span className="text-sm font-medium">+₹{silverAddon.toLocaleString("en-IN")}</span>
