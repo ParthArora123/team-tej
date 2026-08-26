@@ -5,6 +5,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { createEnrollment } from "@/lib/enrollment.functions";
+import { isValidName, normalizeName, NAME_ERROR_MESSAGE, NAME_MAX_LENGTH } from "@/lib/name-validation";
 
 export interface EnrollClass {
   id: string;
@@ -108,6 +109,11 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanName = normalizeName(d.fullName);
+    if (!isValidName(cleanName)) {
+      setErr(NAME_ERROR_MESSAGE);
+      return;
+    }
     if (!/^\d{10}$/.test(d.phone)) {
       setErr("Please enter a valid 10-digit mobile number.");
       return;
@@ -116,7 +122,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
     try {
       // For "single" with named workshops, silverW1/W2 map to selectedWorkshop.
       const payload: any = {
-        programId: klass.id, fullName: d.fullName, email: d.email, phone: d.phone,
+        programId: klass.id, fullName: cleanName, email: d.email, phone: d.phone,
         gender: d.gender, emergencyContact: d.emergencyContact,
         registrationType: regType,
       };
@@ -178,7 +184,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
               )}
 
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <Field label="Full name" v={d.fullName} on={(v) => setD({...d, fullName: v})} span2 />
+                <Field label="Full name" v={d.fullName} on={(v) => setD({...d, fullName: v})} span2 maxLength={NAME_MAX_LENGTH} title={NAME_ERROR_MESSAGE} />
                 <Field label="Email" type="email" v={d.email} on={(v) => setD({...d, email: v})} />
                 <Field
                   label="Mobile"

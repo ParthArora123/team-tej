@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createPublicClient } from "@/integrations/supabase/client.public";
 import { z } from "zod";
+import { nameSchema } from "@/lib/name-validation";
 
 function pub() {
   return createPublicClient();
@@ -16,7 +17,7 @@ async function assertAdmin(context: any) {
 
 export const submitContactMessage = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({
-    name: z.string().trim().min(1).max(100),
+    name: nameSchema,
     email: z.string().trim().email().max(255),
     subject: z.string().trim().max(200).optional().nullable(),
     message: z.string().trim().min(1).max(4000),

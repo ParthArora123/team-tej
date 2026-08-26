@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { cachedCall } from "@/lib/public-data-cache";
 import { toast } from "sonner";
 import { submitContactMessage } from "@/lib/contact.functions";
+import { isValidName, normalizeName, NAME_ERROR_MESSAGE, NAME_MAX_LENGTH } from "@/lib/name-validation";
 import { getSiteContent } from "@/lib/site-content.functions";
 
 export const Route = createFileRoute("/contact")({
@@ -54,13 +55,17 @@ function Contact() {
     if (busy) return;
     const fd = new FormData(e.currentTarget);
     const payload = {
-      name: String(fd.get("name") ?? "").trim(),
+      name: normalizeName(String(fd.get("name") ?? "")),
       email: String(fd.get("email") ?? "").trim(),
       subject: String(fd.get("subject") ?? "").trim() || null,
       message: String(fd.get("message") ?? "").trim(),
     };
     if (!payload.name || !payload.email || !payload.message) {
       toast.error("Name, email, and message are required.");
+      return;
+    }
+    if (!isValidName(payload.name)) {
+      toast.error(NAME_ERROR_MESSAGE);
       return;
     }
     setBusy(true);
@@ -186,7 +191,7 @@ function Contact() {
           ) : (
             <>
               <div className="grid sm:grid-cols-2 gap-5">
-                <Field label="Name" name="name" required />
+                <Field label="Name" name="name" required maxLength={NAME_MAX_LENGTH} title={NAME_ERROR_MESSAGE} />
                 <Field label="Email" name="email" type="email" required />
               </div>
               <Field label="Subject" name="subject" />

@@ -1,10 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { nameSchema } from "@/lib/name-validation";
 
 const detailsSchema = z.object({
   programId: z.string().uuid(),
-  fullName: z.string().min(2).max(100),
+  fullName: nameSchema,
   email: z.string().email(),
   phone: z.string().min(7).max(20),
   gender: z.string().min(1).max(20),

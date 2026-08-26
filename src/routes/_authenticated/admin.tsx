@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { csvSafe } from "@/lib/name-validation";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
@@ -854,7 +855,7 @@ function StudentsTab({ rows }: { rows: any[] }) {
 
   const exportCsv = () => {
     const esc = (v: any) => {
-      const s = String(v ?? "");
+      const s = csvSafe(v);
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
     const header = cols.map(([h]) => esc(h)).join(",");
