@@ -638,9 +638,22 @@ function WorkshopDetailPage() {
   const w1Name = (program as any).workshop1_name || "Workshop 1";
   const w2Name = (program as any).workshop2_name || "Workshop 2";
 
-  const sessions: { time: string; name: string }[] = rawSessions;
-
   const formattedEventTime = formatTime(program?.event_time);
+
+  // Sessions come from the admin Class / Session Schedule. When that list is
+  // empty, fall back to the configured workshop names / program name with the
+  // workshop's own start time — still fully dynamic, nothing hardcoded.
+  const sessions: { time: string; name: string }[] = rawSessions.length
+    ? rawSessions
+    : (allowBoth && ((program as any).workshop1_name || (program as any).workshop2_name)
+        ? [
+            (program as any).workshop1_name ? { name: w1Name, time: formattedEventTime ?? "" } : null,
+            (program as any).workshop2_name ? { name: w2Name, time: formattedEventTime ?? "" } : null,
+          ].filter(Boolean) as { time: string; name: string }[]
+        : formattedEventTime
+          ? [{ name: program.name, time: formattedEventTime }]
+          : []);
+
 
 
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
