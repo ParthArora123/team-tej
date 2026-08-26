@@ -15,7 +15,7 @@ import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
   adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, approveAllPendingEnrollments, adminGetProofUrl,
-  adminUploadWorkshopImage, markWhatsappConfirmationSent,
+  adminUploadWorkshopImage, markWhatsappConfirmationSent, adminDeleteEnrollment,
 } from "@/lib/enrollment.functions";
 import {
   adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
