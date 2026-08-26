@@ -1,12 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { nameSchema } from "@/lib/name-validation";
 
 const SIGN_TTL = 60 * 60 * 24 * 7; // 7 days for playback URLs
 
 const videoBucket = "testimonial-videos";
 
 const TestimonialSchema = z.object({
-  name: z.string().min(1).max(120),
+  name: nameSchema,
   role: z.string().max(120).default("Student"),
   quote: z.string().min(1).max(2000),
   video_url: z.string().max(500).optional(),
@@ -18,7 +19,7 @@ const UploadUrlSchema = z.object({
 });
 
 const FeedbackSchema = z.object({
-  name: z.string().min(1).max(120),
+  name: nameSchema,
   role: z.string().max(120).nullable().optional(),
   story: z.string().min(1).max(2000),
   rating: z.number().int().min(1).max(5).default(5),
