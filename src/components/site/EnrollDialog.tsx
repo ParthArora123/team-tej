@@ -30,7 +30,7 @@ interface Props {
 
 const initial = {
   fullName: "", email: "", phone: "", gender: "Female",
-  city: "", state: "",
+  city: "", state: "", emergencyContact: "",
 };
 
 export function EnrollDialog({ klass, onClose, inline = false }: Props) {
@@ -117,7 +117,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
       // For "single" with named workshops, silverW1/W2 map to selectedWorkshop.
       const payload: any = {
         programId: klass.id, fullName: d.fullName, email: d.email, phone: d.phone,
-        gender: d.gender, city: d.city, state: d.state,
+        gender: d.gender, city: d.city, state: d.state, emergencyContact: d.emergencyContact,
         registrationType: regType,
       };
       if (regType === "both") {
@@ -200,6 +200,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
                 </label>
                 <Field label="City" v={d.city} on={(v) => setD({...d, city: v})} />
                 <Field label="State" v={d.state} on={(v) => setD({...d, state: v})} />
+                <Field label="Emergency contact" v={d.emergencyContact} on={(v) => setD({...d, emergencyContact: v})} span2 />
 
                 {(allowSingle || allowBoth) && (allowSingle && allowBoth ? (
                   <div className="col-span-2 rounded-xl border border-primary/40 bg-primary/5 p-3 space-y-2">
