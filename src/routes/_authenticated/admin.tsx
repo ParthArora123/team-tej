@@ -887,11 +887,22 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
 
   const programs = Array.from(new Set(rows.map((r) => r.program?.name).filter(Boolean))) as string[];
 
+  const formatRegistration = (r: any) => {
+    const type = r.registration_type === "both" ? "Both" : "Single";
+    if (r.registration_type === "both") return `Both workshops`;
+    const p = r.program ?? {};
+    const w1 = p.workshop1_name || "Workshop 1";
+    const w2 = p.workshop2_name || "Workshop 2";
+    if (r.selected_workshop === "w2") return `${type} · ${w2}`;
+    if (r.selected_workshop === "w1") return `${type} · ${w1}`;
+    return type;
+  };
+
   const filtered = rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
     if (prog !== "all" && r.program?.name !== prog) return false;
     if (!q.trim()) return true;
-    const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""}`.toLowerCase();
+    const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${formatRegistration(r)}`.toLowerCase();
     return hay.includes(q.trim().toLowerCase());
   });
 
@@ -903,6 +914,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Gender", (r: any) => r.gender ?? ""],
     ["Emergency contact", (r: any) => r.emergency_contact ?? ""],
     ["Workshop", (r: any) => r.program?.name ?? ""],
+    ["Registration", (r: any) => formatRegistration(r)],
     ["Workshop date", (r: any) => r.program?.event_date ?? ""],
     ["Amount (INR)", (r: any) => r.amount_inr ?? 0],
     ["Status", (r: any) => r.status ?? ""],
