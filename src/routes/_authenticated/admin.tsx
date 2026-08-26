@@ -1375,7 +1375,9 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       }
 
     } catch (e: any) {
-      alert(e.message ?? "Failed");
+      const message = e?.message ?? "Approval failed.";
+      toast.error(message);
+      if (message === "Registration not found") await reload();
     } finally {
       setBusy(null);
     }
