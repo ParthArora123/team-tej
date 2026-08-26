@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Star, Send, Check } from "lucide-react";
 import { submitFeedback } from "@/lib/testimonials.functions";
 import { supabase } from "@/integrations/supabase/client";
+import { isValidName, normalizeName, NAME_ERROR_MESSAGE, NAME_MAX_LENGTH } from "@/lib/name-validation";
 
 export function FeedbackForm() {
   const submit = useServerFn(submitFeedback);
@@ -30,6 +31,7 @@ export function FeedbackForm() {
     if (busy) return;
     setErr(null);
     if (story.trim().length < 3) { setErr("Please share a few words about your experience."); return; }
+    if (normalizeName(name) && !isValidName(name)) { setErr(NAME_ERROR_MESSAGE); return; }
     setBusy(true);
     try {
       await submit({ data: {
@@ -64,7 +66,8 @@ export function FeedbackForm() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              maxLength={100}
+              maxLength={NAME_MAX_LENGTH}
+              title={NAME_ERROR_MESSAGE}
               required
               className="w-full px-3 py-2 rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-primary/40"
             />

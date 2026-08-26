@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { cachedCall } from "@/lib/public-data-cache";
 import { toast } from "sonner";
 import { submitContactMessage } from "@/lib/contact.functions";
+import { isValidName, normalizeName, NAME_ERROR_MESSAGE, NAME_MAX_LENGTH } from "@/lib/name-validation";
 import { getSiteContent } from "@/lib/site-content.functions";
 
 export const Route = createFileRoute("/contact")({
