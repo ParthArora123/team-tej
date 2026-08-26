@@ -70,7 +70,7 @@ const CardMedia = memo(function CardMedia({
             alt={item.title}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 h-full w-full object-contain"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         )}
         {active && (
@@ -103,6 +103,7 @@ const CardMedia = memo(function CardMedia({
         muted={muted}
         priority={active || near}
         warm={warm}
+        className="absolute inset-0 h-full w-full object-cover"
       />
     </>
   );
@@ -356,19 +357,19 @@ export function CoverflowCarousel({
                     : { duration: 0.4 }
                 }
 
-                className={`group relative flex h-full w-full flex-col overflow-hidden rounded-3xl border ${
+                className={`group relative h-full w-full overflow-hidden rounded-3xl border ${
                   active
                     ? "border-primary/40 shadow-[0_40px_100px_-30px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)]"
                     : "border-border/60 shadow-[0_20px_40px_-20px_color-mix(in_oklab,var(--accent-gold)_22%,transparent)] cursor-pointer"
                 } bg-card transition-shadow duration-300`}
               >
-                {/* Media area — the title never sits on top of it. */}
-                <div className="relative min-h-0 flex-1 overflow-hidden">
+                {/* Full-bleed media — fills the whole card. */}
+                <div className="absolute inset-0 overflow-hidden">
                   <CardMedia item={item} active={active} near={abs <= 1} next={count > 1 && abs === 1} playing={inView} muted={muted} />
 
                   <div
                     className="pointer-events-none absolute inset-0"
-                    style={{ background: "linear-gradient(to top, color-mix(in oklab, var(--foreground) 55%, transparent) 0%, color-mix(in oklab, var(--foreground) 8%, transparent) 45%, transparent 100%)" }}
+                    style={{ background: "linear-gradient(to top, color-mix(in oklab, var(--foreground) 88%, transparent) 0%, color-mix(in oklab, var(--foreground) 55%, transparent) 28%, color-mix(in oklab, var(--foreground) 10%, transparent) 55%, transparent 100%)" }}
                   />
 
                   {item.badge && (
@@ -392,9 +393,9 @@ export function CoverflowCarousel({
                   )}
                 </div>
 
-                {/* Dedicated title band — fixed, non-overlapping, same height
-                    for every card so switching clips causes no layout shift. */}
-                <div className="relative z-10 shrink-0 bg-foreground/85 px-5 pb-4 pt-3 backdrop-blur-sm">
+                {/* Title overlay — sits over the full-bleed video, readable
+                    thanks to the gradient scrim above. */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 px-5 pb-5 pt-8 [&_a]:pointer-events-auto">
                   {item.subtitle && (
                     <p className="truncate text-[10px] uppercase tracking-widest text-white/70">
                       {item.subtitle}
