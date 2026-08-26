@@ -883,7 +883,7 @@ function StudentsTab({ rows }: { rows: any[] }) {
     if (status !== "all" && r.status !== status) return false;
     if (prog !== "all" && r.program?.name !== prog) return false;
     if (!q.trim()) return true;
-    const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${r.city ?? ""} ${r.state ?? ""}`.toLowerCase();
+    const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""}`.toLowerCase();
     return hay.includes(q.trim().toLowerCase());
   });
 
@@ -893,8 +893,6 @@ function StudentsTab({ rows }: { rows: any[] }) {
     ["Email", (r: any) => r.email ?? ""],
     ["Phone", (r: any) => r.phone ?? ""],
     ["Gender", (r: any) => r.gender ?? ""],
-    ["State", (r: any) => r.state ?? ""],
-    ["Address", (r: any) => r.address ?? ""],
     ["Emergency contact", (r: any) => r.emergency_contact ?? ""],
     ["Medical info", (r: any) => r.medical_info ?? ""],
     ["Workshop", (r: any) => r.program?.name ?? ""],
