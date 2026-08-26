@@ -880,6 +880,10 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const [prog, setProg] = useState<string>("all");
   const [toDelete, setToDelete] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkConfirm, setBulkConfirm] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const bulkDeleteEnrollments = useServerFn(adminDeleteEnrollments);
 
   const programs = Array.from(new Set(rows.map((r) => r.program?.name).filter(Boolean))) as string[];
 
@@ -939,6 +943,44 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     }
   };
 
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every((r) => selected.has(r.id));
+  const toggleAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allFilteredSelected) {
+        filtered.forEach((r) => next.delete(r.id));
+      } else {
+        filtered.forEach((r) => next.add(r.id));
+      }
+      return next;
+    });
+  };
+
+  const confirmBulkDelete = async () => {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    setBulkDeleting(true);
+    try {
+      await bulkDeleteEnrollments({ data: { ids } });
+      toast.success(`${ids.length} participant${ids.length > 1 ? "s" : ""} deleted`);
+      setSelected(new Set());
+      setBulkConfirm(false);
+      await reload();
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to delete selected participants");
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
   return (
     <div className="mt-8">
       <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -961,19 +1003,43 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
           Export to Excel ({filtered.length})
         </button>
+        {selected.size > 0 && (
+          <button onClick={() => setBulkConfirm(true)}
+            className="px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm">
+            Delete selected ({selected.size})
+          </button>
+        )}
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="text-xs uppercase tracking-wider text-muted-foreground bg-muted/40">
             <tr>
+              <th className="px-3 py-2 w-10">
+                <input
+                  type="checkbox"
+                  aria-label="Select all participants"
+                  checked={allFilteredSelected}
+                  onChange={toggleAll}
+                  className="h-4 w-4 accent-primary cursor-pointer align-middle"
+                />
+              </th>
               {cols.map(([h]) => <th key={h} className="text-left px-3 py-2 whitespace-nowrap">{h}</th>)}
               <th className="text-left px-3 py-2 whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((r) => (
-              <tr key={r.id} className="border-t border-border/60 hover:bg-muted/30">
+              <tr key={r.id} className={`border-t border-border/60 hover:bg-muted/30 ${selected.has(r.id) ? "bg-muted/40" : ""}`}>
+                <td className="px-3 py-2 w-10">
+                  <input
+                    type="checkbox"
+                    aria-label={`Select ${r.full_name ?? "participant"}`}
+                    checked={selected.has(r.id)}
+                    onChange={() => toggleOne(r.id)}
+                    className="h-4 w-4 accent-primary cursor-pointer align-middle"
+                  />
+                </td>
                 {cols.map(([h, get]) => (
                   <td key={h} className="px-3 py-2 whitespace-nowrap">{String(get(r) ?? "")}</td>
                 ))}
@@ -989,7 +1055,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={cols.length + 1} className="px-3 py-6 text-center text-muted-foreground">No students match.</td></tr>
+              <tr><td colSpan={cols.length + 2} className="px-3 py-6 text-center text-muted-foreground">No students match.</td></tr>
             )}
           </tbody>
         </table>
@@ -1019,6 +1085,27 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={bulkConfirm} onOpenChange={(open) => { if (!open && !bulkDeleting) setBulkConfirm(false); }}>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selected.size} participant{selected.size > 1 ? "s" : ""}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the {selected.size} selected participant{selected.size > 1 ? "s" : ""}? This action is permanent and cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBulkConfirm(false)} disabled={bulkDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmBulkDelete}
+              disabled={bulkDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {bulkDeleting ? "Deleting…" : `Delete ${selected.size}`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
