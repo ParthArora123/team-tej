@@ -598,6 +598,30 @@ function WorkshopDetailPage() {
   }, [program]);
   const countdown = useCountdown(eventDateObj);
 
+  // Past or unpublished workshops return null from the loader — show a calm
+  // unavailable state instead of crashing the page.
+  if (!program) {
+    return (
+      <main className="min-h-[70vh] grid place-items-center px-6 pt-28 pb-20 text-center">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">Workshop</p>
+          <h1 className="mt-3 font-display text-3xl md:text-4xl tracking-tight text-foreground">
+            This workshop is no longer available
+          </h1>
+          <p className="mt-3 text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+            This workshop has already taken place or has been unpublished. Take a look at our upcoming workshops instead.
+          </p>
+          <Link
+            to="/workshops"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            <ArrowLeft size={15} /> View Workshops
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   const seatsLeft = program?.capacity != null ? Math.max(0, program.capacity - (program.seats_taken ?? 0)) : null;
   const full = seatsLeft === 0;
   const silverPrice = program?.silver_seat_price ?? 1000;
