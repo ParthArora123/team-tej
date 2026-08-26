@@ -2,14 +2,15 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { nameSchema } from "@/lib/name-validation";
+import { phoneSchema } from "@/lib/phone-validation";
 
 const detailsSchema = z.object({
   programId: z.string().uuid(),
   fullName: nameSchema,
   email: z.string().email(),
-  phone: z.string().min(7).max(20),
+  phone: phoneSchema,
   gender: z.string().min(1).max(20),
-  emergencyContact: z.string().min(1).max(100),
+  emergencyContact: phoneSchema,
   silverSeat: z.boolean().optional(),
   registrationType: z.enum(["single", "both"]).optional(),
   selectedWorkshop: z.enum(["w1", "w2"]).optional(),
