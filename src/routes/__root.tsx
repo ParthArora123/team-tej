@@ -153,7 +153,13 @@ function RootComponent() {
   // Before that the server-rendered HTML stays fully visible, which removes
   // the blank/flashing first paint on slow networks and mobile browsers.
   useEffect(() => {
-    document.documentElement.classList.add("js-ready");
+    // Wait one frame + a tick so in-view chapters have already latched their
+    // `chapter-in` state; otherwise enabling the rule could blink them out.
+    const id = window.setTimeout(
+      () => document.documentElement.classList.add("js-ready"),
+      250,
+    );
+    return () => window.clearTimeout(id);
   }, []);
 
 
