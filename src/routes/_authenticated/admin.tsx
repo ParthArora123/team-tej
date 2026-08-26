@@ -304,6 +304,9 @@ function AdminPage() {
       {tab === "scan" && <ScanTab onScan={scan} />}
 
       {tab === "attendance" && <AttendanceTab />}
+          </main>
+        </div>
+      </div>
     </div>
   );
 }
