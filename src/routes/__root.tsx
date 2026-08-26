@@ -149,6 +149,14 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  // Entrance animations are only allowed to hide content once React is live.
+  // Before that the server-rendered HTML stays fully visible, which removes
+  // the blank/flashing first paint on slow networks and mobile browsers.
+  useEffect(() => {
+    document.documentElement.classList.add("js-ready");
+  }, []);
+
+
   return (
     <QueryClientProvider client={queryClient}>
       <DeferMount delay={200}>
