@@ -25,11 +25,12 @@ export async function approveEnrollmentById(
   enrollmentId: string,
   adminUserId: string,
 ): Promise<ApproveResult> {
-  const { data: prior } = await supabaseAdmin
+  const { data: prior, error: priorError } = await supabaseAdmin
     .from("enrollments")
     .select("status, whatsapp_status, ticket_code, confirmation_email_sent")
     .eq("id", enrollmentId)
     .maybeSingle();
+  if (priorError) throw priorError;
   if (!prior) throw new Error("Registration not found");
 
   const wasConfirmed = prior.status === "confirmed";
