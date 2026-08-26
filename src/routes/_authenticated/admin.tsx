@@ -15,7 +15,7 @@ import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
   adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, approveAllPendingEnrollments, adminGetProofUrl,
-  adminUploadWorkshopImage, markWhatsappConfirmationSent,
+  adminUploadWorkshopImage, markWhatsappConfirmationSent, adminDeleteEnrollment,
 } from "@/lib/enrollment.functions";
 import {
   adminListTeamProfiles, adminSaveTeamProfile, adminDeleteTeamProfile,
@@ -66,6 +66,7 @@ function AdminPage() {
   const delWorkshop = useServerFn(adminDeleteWorkshop);
   const scan = useServerFn(adminScanTicket);
   const adminCheck = useServerFn(checkIsAdmin);
+  const deleteEnrollment = useServerFn(adminDeleteEnrollment);
 
   const [tab, setTab] = useState<Tab>("overview");
   const [stats, setStats] = useState<any>(null);
@@ -236,7 +237,7 @@ function AdminPage() {
       
 
 
-      {tab === "students" && <StudentsTab rows={enrs} />}
+      {tab === "students" && <StudentsTab rows={enrs} onDelete={deleteEnrollment} reload={reload} />}
 
       {tab === "team" && <TeamTab />}
 
@@ -873,10 +874,12 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
   );
 }
 
-function StudentsTab({ rows }: { rows: any[] }) {
+function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; reload: () => Promise<void> }) {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [prog, setProg] = useState<string>("all");
+  const [toDelete, setToDelete] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const programs = Array.from(new Set(rows.map((r) => r.program?.name).filter(Boolean))) as string[];
 
@@ -921,6 +924,21 @@ function StudentsTab({ rows }: { rows: any[] }) {
     URL.revokeObjectURL(url);
   };
 
+  const confirmDelete = async () => {
+    if (!toDelete) return;
+    setDeleting(true);
+    try {
+      await onDelete({ data: { id: toDelete.id } });
+      toast.success("Participant deleted");
+      setToDelete(null);
+      await reload();
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to delete participant");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="mt-8">
       <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -950,6 +968,7 @@ function StudentsTab({ rows }: { rows: any[] }) {
           <thead className="text-xs uppercase tracking-wider text-muted-foreground bg-muted/40">
             <tr>
               {cols.map(([h]) => <th key={h} className="text-left px-3 py-2 whitespace-nowrap">{h}</th>)}
+              <th className="text-left px-3 py-2 whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -958,15 +977,52 @@ function StudentsTab({ rows }: { rows: any[] }) {
                 {cols.map(([h, get]) => (
                   <td key={h} className="px-3 py-2 whitespace-nowrap">{String(get(r) ?? "")}</td>
                 ))}
+                <td className="px-3 py-2 whitespace-nowrap">
+                  <button
+                    type="button"
+                    onClick={() => setToDelete(r)}
+                    className="inline-flex items-center rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive hover:bg-destructive/20 transition-colors"
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={cols.length} className="px-3 py-6 text-center text-muted-foreground">No students match.</td></tr>
+              <tr><td colSpan={cols.length + 1} className="px-3 py-6 text-center text-muted-foreground">No students match.</td></tr>
             )}
           </tbody>
         </table>
       </div>
       <p className="text-[11px] text-muted-foreground mt-2">Export downloads a UTF-8 CSV that opens directly in Excel or Google Sheets.</p>
+
+      <AlertDialog open={!!toDelete} onOpenChange={(open) => { if (!open) setToDelete(null); }}>
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete participant?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this participant? This action is permanent and cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          {toDelete && (
+            <div className="rounded-lg bg-muted p-3 text-sm space-y-1">
+              <p><span className="text-muted-foreground">Name:</span> {toDelete.full_name}</p>
+              <p><span className="text-muted-foreground">Email:</span> {toDelete.email}</p>
+              <p><span className="text-muted-foreground">Workshop:</span> {toDelete.program?.name}</p>
+            </div>
+          )}
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setToDelete(null)} disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

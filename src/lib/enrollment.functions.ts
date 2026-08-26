@@ -497,6 +497,20 @@ export const adminDeleteWorkshop = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const adminDeleteEnrollment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // Cascade delete: remove dependent attendance records first (FK is ON DELETE RESTRICT).
+    const { error: attErr } = await supabaseAdmin.from("attendance").delete().eq("enrollment_id", data.id);
+    if (attErr) throw attErr;
+    const { error } = await supabaseAdmin.from("enrollments").delete().eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
 export const adminListWorkshops = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
