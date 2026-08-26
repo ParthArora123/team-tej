@@ -1167,8 +1167,12 @@ main section:first-of-type {
    `will-change` is dropped as soon as the animation finishes so the
    compositor stops holding a full-screen layer per chapter forever.
    --------------------------------------------------------------- */
-.chapter-body,
-.chapter-rail {
+/* IMPORTANT: content must never be hidden before the app has hydrated.
+   These blocks are only pre-hidden once React is live on the page
+   (`html.js-ready`), so the server-rendered HTML paints immediately on slow
+   networks, slow devices, or if the JS bundle is delayed/blocked. */
+html.js-ready .chapter-body:not(.chapter-in),
+html.js-ready .chapter-rail:not(.chapter-in) {
   opacity: 0;
   transform: translate3d(0, 22px, 0);
 }
