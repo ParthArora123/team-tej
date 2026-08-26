@@ -737,6 +737,24 @@ function WorkshopDetailPage() {
               </p>
             )}
 
+            {sessions.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-2.5 max-w-xl">
+                {sessions.map((s, i) => (
+                  <motion.span
+                    key={`hero-session-${i}`}
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 + i * 0.08 }}
+                    className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-surface/50 px-4 py-2 text-[11px] sm:text-xs text-primary backdrop-blur-md"
+                  >
+                    <Clock size={12} className="shrink-0 text-primary" />
+                    <span className="font-semibold">{s.name || `Session ${i + 1}`}</span>
+                    <span className="text-primary/50">—</span>
+                    <span className="tabular-nums">{s.time || "TBA"}</span>
+                  </motion.span>
+                ))}
+              </div>
+            )}
+
             <div className="mt-8 flex flex-wrap gap-4">
               <button
                 onClick={scrollToRegister}
