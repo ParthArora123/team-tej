@@ -192,7 +192,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       if (p && typeof p.then === "function") {
         p.then(() => {
           if (cancelled) return;
-          window.setTimeout(stopWhenReady, 350);
+          stopWhenReady();
         }).catch(() => {
           /* autoplay refused — `preload` still buffers what it can */
         });
