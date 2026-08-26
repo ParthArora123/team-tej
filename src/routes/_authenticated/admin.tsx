@@ -566,7 +566,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Class / Session Schedule</p>
-              <p className="text-[11px] text-muted-foreground">Each time below is saved separately and shown beside its matching class on the workshop detail page.</p>
+              <p className="text-[11px] text-muted-foreground">Enter the specific time for each workshop. The workshop name and this exact time are shown together on the detail page.</p>
               {(f.allow_both
                 ? [
                     { name: f.workshop1_name || "Workshop 1", time: f.session_schedule?.[0]?.time ?? "" },
@@ -622,12 +622,28 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                       setF({ ...f, workshop1_name: v, session_schedule: next });
                     }} />
                   </FieldRow>
+                  <FieldRow label="Workshop 1 Time *">
+                    <In type="time" placeholder="Select Workshop 1 time" v={f.session_schedule?.[0]?.time ?? ""} on={(v) => {
+                      const next = [...(f.session_schedule ?? [])];
+                      while (next.length < 2) next.push({ time: "", name: "" });
+                      next[0] = { name: f.workshop1_name, time: v };
+                      setF({ ...f, session_schedule: next });
+                    }} />
+                  </FieldRow>
                   <FieldRow label="Workshop 2 Name *">
                     <In placeholder="e.g. Contemporary" v={f.workshop2_name} on={(v) => {
                       const next = [...(f.session_schedule ?? [])];
                       while (next.length < 2) next.push({ time: "", name: "" });
                       next[1] = { ...next[1], name: v };
                       setF({ ...f, workshop2_name: v, session_schedule: next });
+                    }} />
+                  </FieldRow>
+                  <FieldRow label="Workshop 2 Time *">
+                    <In type="time" placeholder="Select Workshop 2 time" v={f.session_schedule?.[1]?.time ?? ""} on={(v) => {
+                      const next = [...(f.session_schedule ?? [])];
+                      while (next.length < 2) next.push({ time: "", name: "" });
+                      next[1] = { name: f.workshop2_name, time: v };
+                      setF({ ...f, session_schedule: next });
                     }} />
                   </FieldRow>
                 </>

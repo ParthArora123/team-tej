@@ -640,10 +640,21 @@ function WorkshopDetailPage() {
 
   const formattedEventTime = formatTime(program?.event_time);
 
-  // Session names and timings must come only from the Admin-configured Class /
-  // Session Schedule. Never duplicate the general workshop start time across
-  // multiple classes when the schedule has not been configured.
-  const sessions: { time: string; name: string }[] = rawSessions;
+  // Pair the two configured workshop names with their own saved schedule rows.
+  // Names remain visible even before a time is entered, but the general event
+  // time is never duplicated across sessions.
+  const sessions: { time: string; name: string }[] = allowBoth
+    ? [w1Name, w2Name].map((name, index) => {
+        const normalizedName = name.trim().toLocaleLowerCase();
+        const namedRow = rawSessions.find(
+          (session) => session.name.trim().toLocaleLowerCase() === normalizedName,
+        );
+        const indexedRow = rawSessions[index];
+        return { name, time: namedRow?.time ?? indexedRow?.time ?? "" };
+      })
+    : rawSessions.length > 0
+      ? rawSessions
+      : [{ name: program.name, time: formattedEventTime ?? "" }];
 
 
 
