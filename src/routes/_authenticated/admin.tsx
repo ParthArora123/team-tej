@@ -130,6 +130,7 @@ function AdminPage() {
     { id: "overview", label: "Dashboard" },
     { id: "approvals", label: "Registrations" },
     { id: "attendance", label: "Attendance" },
+    { id: "students", label: "Participants" },
     { id: "workshops", label: "Workshops" },
   ];
 
