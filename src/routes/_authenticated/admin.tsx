@@ -241,7 +241,7 @@ function AdminPage() {
         <WorkshopsTab rows={workshops.filter((w: any) => (w.kind ?? "workshop") === "workshop")} onSave={saveWorkshop} onDel={delWorkshop} onPub={setPublished} reload={reload} />
       )}
 
-      {tab === "approvals" && <ApprovalsTab rows={enrs} onApprove={approve} reload={reload} />}
+      {tab === "approvals" && <ApprovalsTab rows={enrs} onApprove={approve} reload={reload} adminProfile={myProfile} />}
 
 
       

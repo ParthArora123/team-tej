@@ -87,7 +87,9 @@ export function MyProfileTab({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-display text-lg font-bold">My profile</h2>
-          <p className="text-sm text-muted-foreground">Your admin account details.</p>
+          <p className="text-sm text-muted-foreground">
+            Your admin account details. The phone number below is used as the WhatsApp sender/support contact in student confirmation messages.
+          </p>
         </div>
         {!editing && (
           <button type="button" onClick={startEdit}
