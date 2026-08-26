@@ -393,9 +393,9 @@ export function CoverflowCarousel({
                   )}
                 </div>
 
-                {/* Dedicated title band — fixed, non-overlapping, same height
-                    for every card so switching clips causes no layout shift. */}
-                <div className="relative z-10 shrink-0 bg-foreground/85 px-5 pb-4 pt-3 backdrop-blur-sm">
+                {/* Title overlay — sits over the full-bleed video, readable
+                    thanks to the gradient scrim above. */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 px-5 pb-5 pt-8 [&_a]:pointer-events-auto">
                   {item.subtitle && (
                     <p className="truncate text-[10px] uppercase tracking-widest text-white/70">
                       {item.subtitle}
