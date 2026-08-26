@@ -378,6 +378,18 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enter both Workshop 1 and Workshop 2 names.");
       return;
     }
+    const schedule = (f.session_schedule ?? []).map((s: any) => ({
+      time: String(s.time ?? "").trim(),
+      name: String(s.name ?? "").trim(),
+    }));
+    if (schedule.some((s: any) => !s.name || !s.time)) {
+      toast.error("Each session must have both a class name and its own time.");
+      return;
+    }
+    if (f.allow_both && schedule.length < 2) {
+      toast.error("Add a separate class name and time for both workshops in the Session Schedule.");
+      return;
+    }
     setBusy(true);
     try {
       await onSave({ data: {
@@ -392,7 +404,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         workshop2_name: f.allow_both ? (f.workshop2_name?.trim() || null) : null,
         silver_capacity_w1: f.silver_capacity_w1 !== "" ? Number(f.silver_capacity_w1) : null,
         silver_capacity_w2: f.allow_both && f.silver_capacity_w2 !== "" ? Number(f.silver_capacity_w2) : null,
-        session_schedule: (f.session_schedule ?? []).map((s: any) => ({ time: s.time ?? "", name: s.name ?? "" })),
+        session_schedule: schedule,
         upi_id: f.upi_id?.trim() || undefined,
         clear_upi: !!f.clear_upi,
         silver_seat_enabled: !!f.silver_seat_enabled,
@@ -550,7 +562,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               <p className="text-[11px] text-muted-foreground">Add each class with its own time and name (e.g. 3:00 PM — Bol Na Halke). Shown on the workshop detail page.</p>
               {(f.session_schedule ?? []).map((s: any, i: number) => (
                 <div key={i} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)_auto] gap-2 items-center">
-                  <In placeholder="3:00 PM" v={s.time} on={(v) => {
+                  <In type="time" placeholder="Select session time" v={s.time} on={(v) => {
                     const next = [...(f.session_schedule ?? [])]; next[i] = { ...next[i], time: v }; setF({ ...f, session_schedule: next });
                   }} />
                   <In placeholder="Bol Na Halke" v={s.name} on={(v) => {

@@ -640,19 +640,10 @@ function WorkshopDetailPage() {
 
   const formattedEventTime = formatTime(program?.event_time);
 
-  // Sessions come from the admin Class / Session Schedule. When that list is
-  // empty, fall back to the configured workshop names / program name with the
-  // workshop's own start time — still fully dynamic, nothing hardcoded.
-  const sessions: { time: string; name: string }[] = rawSessions.length
-    ? rawSessions
-    : (allowBoth && ((program as any).workshop1_name || (program as any).workshop2_name)
-        ? [
-            (program as any).workshop1_name ? { name: w1Name, time: formattedEventTime ?? "" } : null,
-            (program as any).workshop2_name ? { name: w2Name, time: formattedEventTime ?? "" } : null,
-          ].filter(Boolean) as { time: string; name: string }[]
-        : formattedEventTime
-          ? [{ name: program.name, time: formattedEventTime }]
-          : []);
+  // Session names and timings must come only from the Admin-configured Class /
+  // Session Schedule. Never duplicate the general workshop start time across
+  // multiple classes when the schedule has not been configured.
+  const sessions: { time: string; name: string }[] = rawSessions;
 
 
 
