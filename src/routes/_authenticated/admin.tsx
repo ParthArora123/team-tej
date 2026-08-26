@@ -41,6 +41,7 @@ import { HomeSectionsTab } from "@/components/admin/HomeSectionsTab";
 import { compressImageFile } from "@/lib/compress-image";
 import { OverviewTab } from "@/components/admin/OverviewTab";
 import { AttendanceTab } from "@/components/admin/AttendanceTab";
+import { AdminNav, adminNavGroups, adminNavLabel } from "@/components/admin/AdminNav";
 
 
 
