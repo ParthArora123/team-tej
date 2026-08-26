@@ -94,9 +94,9 @@ export function AttendanceTab() {
   const selected = workshops.find((w) => w.id === programId);
 
   return (
-    <div className="mt-8 space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div className="w-full sm:max-w-sm">
+    <div className="mt-8 min-w-0 space-y-6 overflow-x-hidden">
+      <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-end sm:justify-between">
+        <div className="min-w-0 sm:max-w-sm">
           <label className="text-xs uppercase tracking-widest text-muted-foreground">Select workshop</label>
           <select
             value={programId}
@@ -110,11 +110,11 @@ export function AttendanceTab() {
               </option>
             ))}
           </select>
-          {selected?.venue && <p className="mt-1 text-xs text-muted-foreground">{selected.venue}{selected.city ? `, ${selected.city}` : ""}</p>}
+          {selected?.venue && <p className="mt-1 truncate text-xs text-muted-foreground">{selected.venue}{selected.city ? `, ${selected.city}` : ""}</p>}
         </div>
         <button
           onClick={() => refresh()}
-          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm hover:bg-muted"
+          className="inline-flex shrink-0 items-center gap-2 self-start px-3 py-2 rounded-lg border border-border text-sm hover:bg-muted sm:self-auto"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
         </button>
@@ -129,22 +129,22 @@ export function AttendanceTab() {
             ["Not checked in", summary.notCheckedIn],
             ["Attendance", `${summary.attendancePct}%`],
           ].map(([label, val]) => (
-            <div key={label as string} className="rounded-xl border border-border bg-card/70 p-4">
-              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{label}</p>
+            <div key={label as string} className="min-w-0 rounded-xl border border-border bg-card/70 p-4">
+              <p className="truncate text-[11px] uppercase tracking-widest text-muted-foreground">{label}</p>
               <p className="mt-1 text-2xl font-semibold tabular-nums">{val}</p>
             </div>
           ))}
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card/70 p-5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold">QR scanner</h3>
+      <div className="grid min-w-0 gap-6 lg:grid-cols-2">
+        <div className="min-w-0 rounded-xl border border-border bg-card/70 p-5">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-between">
+            <h3 className="truncate text-sm font-semibold">QR scanner</h3>
             <button
               onClick={() => { setCamError(""); setScanning((s) => !s); }}
               disabled={!programId}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs disabled:opacity-50"
+              className="inline-flex shrink-0 items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs disabled:opacity-50"
             >
               {scanning ? <><CameraOff className="h-4 w-4" /> Stop</> : <><Camera className="h-4 w-4" /> Start camera</>}
             </button>
@@ -161,19 +161,19 @@ export function AttendanceTab() {
             <p className="mt-3 text-xs text-destructive">{camError} Use manual check-in below.</p>
           )}
 
-          <div className="mt-5">
+          <div className="mt-5 min-w-0">
             <label className="text-xs uppercase tracking-widest text-muted-foreground">Manual ticket entry</label>
-            <div className="mt-2 flex gap-2">
+            <div className="mt-2 flex min-w-0 gap-2">
               <input
                 value={manual}
                 onChange={(e) => setManual(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && manual.trim()) { submit({ code: manual.trim(), method: "manual" }); setManual(""); } }}
                 placeholder="TTJ-XXXXXX or scan URL"
-                className="flex-1 px-3 py-2 rounded-lg bg-muted border border-border text-sm"
+                className="min-w-0 flex-1 px-3 py-2 rounded-lg bg-muted border border-border text-sm"
               />
               <button
                 onClick={() => { if (manual.trim()) { submit({ code: manual.trim(), method: "manual" }); setManual(""); } }}
-                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm"
+                className="shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm"
               >
                 Check in
               </button>
@@ -181,26 +181,26 @@ export function AttendanceTab() {
           </div>
 
           {result && (
-            <div className={`mt-5 rounded-xl border p-4 ${result.ok ? "border-emerald-500/40 bg-emerald-500/10" : result.reason === "already" ? "border-amber-500/40 bg-amber-500/10" : "border-destructive/40 bg-destructive/10"}`}>
+            <div className={`mt-5 min-w-0 rounded-xl border p-4 ${result.ok ? "border-emerald-500/40 bg-emerald-500/10" : result.reason === "already" ? "border-amber-500/40 bg-amber-500/10" : "border-destructive/40 bg-destructive/10"}`}>
               <p className="flex items-center gap-2 text-sm font-semibold">
-                {result.ok ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <XCircle className="h-4 w-4" />}
+                {result.ok ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" /> : <XCircle className="h-4 w-4 shrink-0" />}
                 {result.ok ? "Attendance marked" : result.reason === "already" ? "Already checked in" : "Not marked"}
               </p>
-              <div className="mt-2 space-y-0.5 text-xs">
-                {result.participant && <p><span className="text-muted-foreground">Participant:</span> {result.participant}</p>}
-                {result.workshop && <p><span className="text-muted-foreground">Workshop:</span> {result.workshop}</p>}
-                {result.ticket_code && <p><span className="text-muted-foreground">Ticket ID:</span> <span className="font-mono">{result.ticket_code}</span></p>}
-                {result.checked_in_at && <p><span className="text-muted-foreground">Check-in:</span> {timeFmt(result.checked_in_at)}</p>}
-                {!result.ok && result.message && <p className="text-muted-foreground">{result.message}</p>}
+              <div className="mt-2 min-w-0 space-y-0.5 text-xs">
+                {result.participant && <p className="break-words"><span className="text-muted-foreground">Participant:</span> {result.participant}</p>}
+                {result.workshop && <p className="break-words"><span className="text-muted-foreground">Workshop:</span> {result.workshop}</p>}
+                {result.ticket_code && <p className="break-words"><span className="text-muted-foreground">Ticket ID:</span> <span className="font-mono">{result.ticket_code}</span></p>}
+                {result.checked_in_at && <p className="break-words"><span className="text-muted-foreground">Check-in:</span> {timeFmt(result.checked_in_at)}</p>}
+                {!result.ok && result.message && <p className="break-words text-muted-foreground">{result.message}</p>}
               </div>
             </div>
           )}
         </div>
 
-        <div className="rounded-xl border border-border bg-card/70 p-5">
+        <div className="min-w-0 rounded-xl border border-border bg-card/70 p-5">
           <h3 className="text-sm font-semibold">Attendance list</h3>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-            <div className="relative flex-1">
+            <div className="relative min-w-0 flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 value={q} onChange={(e) => setQ(e.target.value)}
@@ -235,9 +235,9 @@ export function AttendanceTab() {
               <tbody>
                 {filtered.map((r) => (
                   <tr key={r.id} className="border-t border-border/60">
-                    <td className="p-2">
-                      <p className="font-medium">{r.full_name ?? "—"}</p>
-                      <p className="text-muted-foreground">{r.phone ?? r.email ?? ""}</p>
+                    <td className="p-2 min-w-0">
+                      <p className="truncate font-medium">{r.full_name ?? "—"}</p>
+                      <p className="truncate text-muted-foreground">{r.phone ?? r.email ?? ""}</p>
                     </td>
                     <td className="p-2 font-mono">{r.ticket_code ?? "—"}</td>
                     <td className="p-2">{r.status === "confirmed" ? "Confirmed" : r.status.replace(/_/g, " ")}</td>
