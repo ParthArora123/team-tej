@@ -306,6 +306,3 @@ export async function sendConfirmationViaSalesforce(
     hint: "Link the Salesforce connector (managed OAuth), or set SALESFORCE_CLIENT_ID / SECRET / USERNAME / PASSWORD server variables.",
   });
 }
-
-  );
-}
