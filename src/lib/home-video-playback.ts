@@ -59,13 +59,30 @@ function installGestureHook() {
  * so the very first card on a fresh page load gets refused. Call this from a ref
  * callback — it runs before the browser kicks off the network request.
  */
+let audioUnlocked = false;
+
+/**
+ * Flipped once the user turns sound on. From then on we never force-mute an
+ * element again, so every subsequent clip starts with audio immediately
+ * (the original gesture is the browser's autoplay authorization).
+ */
+export function setHomepageAudioUnlocked(next: boolean) {
+  audioUnlocked = next;
+}
+
+export function isHomepageAudioUnlocked() {
+  return audioUnlocked;
+}
+
 export function primeVideoElement(video: HTMLVideoElement | null) {
   if (!video) return;
-  video.muted = true;
-  video.defaultMuted = true;
+  if (!audioUnlocked) {
+    video.muted = true;
+    video.defaultMuted = true;
+    video.setAttribute("muted", "");
+  }
   video.autoplay = true;
   video.playsInline = true;
-  video.setAttribute("muted", "");
   video.setAttribute("autoplay", "");
   video.setAttribute("playsinline", "");
   video.setAttribute("webkit-playsinline", "");
