@@ -33,7 +33,7 @@ export function FeedbackForm() {
     setBusy(true);
     try {
       await submit({ data: {
-        name: name.trim() || "Anonymous",
+        name: normalizeName(name) || "Anonymous",
         role: role.trim() || null,
         story: story.trim(),
         rating,

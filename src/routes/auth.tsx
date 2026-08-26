@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
+import { isValidName, normalizeName, NAME_ERROR_MESSAGE, NAME_MAX_LENGTH } from "@/lib/name-validation";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
@@ -67,10 +68,15 @@ function AuthPage() {
         return;
       }
 
+      if (mode === "signup" && !isValidName(name)) {
+        setErr(NAME_ERROR_MESSAGE);
+        return;
+      }
+
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: emailRedirect, data: { full_name: name, phone } },
+          options: { emailRedirectTo: emailRedirect, data: { full_name: normalizeName(name), phone } },
         });
         if (error) throw error;
         if (!data.session) {
@@ -117,7 +123,7 @@ function AuthPage() {
           {mode === "signup" && (
             <>
               <input className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm"
-                placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} required />
+                placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} required maxLength={NAME_MAX_LENGTH} title={NAME_ERROR_MESSAGE} />
               <input className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm"
                 placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
             </>
