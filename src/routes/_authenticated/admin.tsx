@@ -1640,6 +1640,10 @@ function ApprovalsTab({ rows, onApprove, reload, adminProfile }: { rows: any[]; 
   // skipped, so clicking Approve All again never re-sends.
   const approveAllPending = async () => {
     if (!pending.length) return;
+    if (!waContactNumber) {
+      toast.error("Your admin phone number is missing. Add it in My profile before sending WhatsApp confirmations.");
+      return;
+    }
     if (!confirm(`Approve all ${pending.length} pending registration(s), generate their tickets and send each student their WhatsApp confirmation?`)) return;
     setBulkBusy(true);
     try {
