@@ -66,6 +66,7 @@ function AdminPage() {
   const delWorkshop = useServerFn(adminDeleteWorkshop);
   const scan = useServerFn(adminScanTicket);
   const adminCheck = useServerFn(checkIsAdmin);
+  const deleteEnrollment = useServerFn(adminDeleteEnrollment);
 
   const [tab, setTab] = useState<Tab>("overview");
   const [stats, setStats] = useState<any>(null);
