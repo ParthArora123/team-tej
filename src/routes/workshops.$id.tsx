@@ -781,21 +781,6 @@ function WorkshopDetailPage() {
               </p>
             )}
 
-            {sessions.length > 0 && (
-              <div className="mt-6 grid w-full max-w-xl gap-2.5 sm:flex sm:flex-wrap">
-                {sessions.map((s, i) => (
-                  <div
-                    key={`hero-session-${i}`}
-                    className="grid min-h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-2 rounded-lg border border-primary/40 bg-surface/70 px-3 py-2 text-xs text-primary backdrop-blur-md sm:inline-flex sm:min-h-0 sm:w-auto sm:rounded-full sm:px-4"
-                  >
-                    <Clock size={12} className="shrink-0 text-primary" />
-                    <span className="min-w-0 break-words font-semibold">{s.name || `Session ${i + 1}`}</span>
-                    <span className="text-primary/50">—</span>
-                    <span className="shrink-0 whitespace-nowrap font-semibold tabular-nums">{s.time}</span>
-                  </div>
-                ))}
-              </div>
-            )}
 
             <div className="mt-8 flex flex-wrap gap-4">
               <button
