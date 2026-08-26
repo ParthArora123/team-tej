@@ -1274,6 +1274,8 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const [bulkBusy, setBulkBusy] = useState(false);
   const approveAll = useServerFn(approveAllPendingEnrollments);
 
+  const [emailDiag, setEmailDiag] = useState<Record<string, string>>({});
+
   const retryConfirmationEmail = async (id: string) => {
     setEmailBusy(id);
     try {
@@ -1287,17 +1289,35 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok && (json?.emailSent || json?.alreadySent)) {
+        setEmailDiag((d) => ({ ...d, [id]: "" }));
         toast.success(json?.alreadySent ? "Confirmation email was already sent." : "Confirmation Email Sent ✓");
       } else {
-        toast.error(json?.error ?? "Confirmation Email Failed — please try again.");
+        const d = json?.details ?? {};
+        const diag = [
+          `HTTP ${res.status} ${res.statusText}`,
+          `message: ${json?.error ?? "Confirmation Email Failed"}`,
+          d.step ? `failing step: ${d.step}` : "",
+          d.authPath ? `auth path: ${d.authPath}` : "",
+          d.status ? `salesforce status: ${d.status}${d.statusText ? " " + d.statusText : ""}` : "",
+          d.endpoint ? `endpoint: ${d.endpoint}` : "",
+          d.responseBody ? `response body:\n${d.responseBody}` : "",
+          d.hint ? `hint: ${d.hint}` : "",
+        ].filter(Boolean).join("\n");
+        setEmailDiag((prev) => ({ ...prev, [id]: diag }));
+        toast.error(
+          `${json?.error ?? "Confirmation Email Failed"}${d.step ? ` · step: ${d.step}` : ""}${d.status ? ` · status: ${d.status}` : ""}`,
+          { description: d.hint ?? d.responseBody?.slice(0, 200), duration: 12000 },
+        );
       }
       await reload();
     } catch (e: any) {
+      setEmailDiag((prev) => ({ ...prev, [id]: `client error: ${e?.message ?? e}` }));
       toast.error(e?.message ?? "Confirmation Email Failed — please try again.");
     } finally {
       setEmailBusy(null);
     }
   };
+
 
   const [proofUrls, setProofUrls] = useState<Record<string, string>>({});
   const getProof = useServerFn(adminGetProofUrl);
