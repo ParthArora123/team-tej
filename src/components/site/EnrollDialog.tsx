@@ -6,6 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { createEnrollment } from "@/lib/enrollment.functions";
 import { isValidName, normalizeName, NAME_ERROR_MESSAGE, NAME_MAX_LENGTH } from "@/lib/name-validation";
+import { isValidPhone, sanitizePhone, PHONE_ERROR_MESSAGE } from "@/lib/phone-validation";
 
 export interface EnrollClass {
   id: string;
