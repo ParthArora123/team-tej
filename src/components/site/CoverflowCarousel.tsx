@@ -103,6 +103,7 @@ const CardMedia = memo(function CardMedia({
         muted={muted}
         priority={active || near}
         warm={warm}
+        className="absolute inset-0 h-full w-full object-cover"
       />
     </>
   );
