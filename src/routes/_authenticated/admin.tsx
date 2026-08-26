@@ -1457,56 +1457,7 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       )}
 
 
-      {emailPending.length > 0 && (
-        <div className="bg-card border border-amber-500/40 rounded-2xl p-4 space-y-2">
-          <p className="text-sm font-medium">Confirmation emails pending</p>
-          <p className="text-xs text-muted-foreground">
-            These registrations are approved and ticketed, but the confirmation email has not been sent yet.
-            Retrying only sends the email — it never re-approves or issues a new ticket, and each registration gets at most one email.
-          </p>
-          <div className="flex flex-col gap-2 pt-1">
-            {emailPending.map((r) => {
-              const diag = emailDiag[r.id] || r.confirmation_email_error || "";
-              return (
-              <div key={r.id} className="flex flex-col gap-2 border-t border-border/40 pt-2 first:border-0 first:pt-0">
-                <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <span className="text-xs">
-                    {r.full_name ?? "—"} · {r.email} · {r.ticket_code ?? "no ticket"}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={emailBusy === r.id}
-                    onClick={() => retryConfirmationEmail(r.id)}
-                    className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50">
-                    {emailBusy === r.id ? "Sending…" : "Retry confirmation email"}
-                  </button>
-                </div>
-                {diag ? (
-                  <details className="rounded-lg border border-destructive/40 bg-destructive/5 p-2">
-                    <summary className="cursor-pointer text-[11px] font-medium text-destructive">
-                      Error details — {diag.split("\n")[0]}
-                    </summary>
-                    <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap break-all text-[11px] leading-relaxed text-destructive/90">
-{diag}
-                    </pre>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard?.writeText(diag);
-                        toast.success("Error details copied");
-                      }}
-                      className="mt-2 px-2 py-1 rounded-md border border-border text-[11px]">
-                      Copy error details
-                    </button>
-                  </details>
-                ) : null}
-              </div>
-              );
-            })}
 
-          </div>
-        </div>
-      )}
 
       {pending.length === 0 && (
         <div className="bg-card border border-border rounded-2xl p-8 text-center text-sm text-muted-foreground">
