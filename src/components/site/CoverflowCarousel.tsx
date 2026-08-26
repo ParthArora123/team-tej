@@ -70,7 +70,7 @@ const CardMedia = memo(function CardMedia({
             alt={item.title}
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 h-full w-full object-contain"
+            className="absolute inset-0 h-full w-full object-cover"
           />
         )}
         {active && (
