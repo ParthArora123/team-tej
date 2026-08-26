@@ -191,20 +191,40 @@ export function buildWaUrl(
   const qrImageUrl = verifyUrl
     ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrl)}`
     : "";
-  const message = renderWhatsappTemplate(template || DEFAULT_WHATSAPP_TEMPLATE, {
+
+  // Resolve the participant's actually-selected class/session(s) from the
+  // Admin-configured schedule so the confirmation only mentions what they
+  // booked — timings come from the selected session, never hardcoded.
+  const sessions = getSelectedSessions(enr);
+  const sessionDetails = renderSessionDetails(sessions);
+  const sessionNames = sessions.map((s) => s.name).filter(Boolean).join(" & ");
+  const sessionTimings = sessions.map((s) => s.time).filter(Boolean).join(" & ");
+
+  const activeTemplate = template || DEFAULT_WHATSAPP_TEMPLATE;
+  let message = renderWhatsappTemplate(activeTemplate, {
     StudentName: enr.full_name || "there",
     WorkshopName: enr.program?.name || "the workshop",
     RegistrationId: ticket || enr.id || "",
     PaymentStatus: "Verified",
     WorkshopDate: enr.program?.event_date ? new Date(enr.program.event_date).toDateString() : "",
-    WorkshopTime: enr.program?.event_time || "",
+    WorkshopTime: enr.program?.event_time ? formatSessionTime(enr.program.event_time) : "",
     Venue: enr.program?.venue || "",
     InstructorName: "Tejas D Dhoke",
     SupportContact: supportNumber,
     CustomInstructions: "",
     QRCodeUrl: qrImageUrl,
     TicketUrl: verifyUrl,
+    SessionDetails: sessionDetails,
+    SessionName: sessionNames,
+    SessionTiming: sessionTimings,
   });
+
+  // Older admin-saved templates predate the session placeholders — append the
+  // session block so the participant still gets their selected class + timing.
+  if (sessionDetails && !activeTemplate.includes("{{Session")) {
+    message = `${message}\n\n${sessionDetails}`;
+  }
+
   return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
 }
 
