@@ -148,30 +148,106 @@ function AdminPage() {
     );
   }
 
+  const pendingApprovals = enrs.filter(
+    (e: any) => e.status === "payment_submitted" || e.payment_status === "submitted"
+  ).length;
+
+  const quickActions: Array<{ id: Tab; label: string }> = [
+    { id: "overview", label: "Dashboard" },
+    { id: "approvals", label: "Registrations" },
+    { id: "attendance", label: "Attendance" },
+    { id: "workshops", label: "Workshops" },
+  ];
+
   return (
-    <div className="min-h-screen pt-24 pb-16 px-6 lg:px-10 max-w-6xl mx-auto">
+    <div className="min-h-screen bg-muted/25 pt-24 pb-16">
       <Toaster position="top-right" richColors closeButton />
-      <p className="text-xs uppercase tracking-widest text-primary">Admin</p>
-      <div className="mt-1 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="font-display text-4xl font-bold">Control room</h1>
-        <button
-          type="button"
-          onClick={() => setTab("team")}
-          className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium"
-        >
-          Manage team roles
-        </button>
-      </div>
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-10">
+        {/* Header */}
+        <header className="rounded-2xl border border-border/70 bg-card px-5 py-5 shadow-sm sm:px-7 sm:py-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Admin</p>
+              <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl">Control room</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {adminNavLabel(tab)}
+                {pendingApprovals > 0 && (
+                  <>
+                    {" · "}
+                    <button
+                      type="button"
+                      onClick={() => setTab("approvals")}
+                      className="font-medium text-destructive underline-offset-2 hover:underline"
+                    >
+                      {pendingApprovals} pending approval{pendingApprovals === 1 ? "" : "s"}
+                    </button>
+                  </>
+                )}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {quickActions.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => setTab(a.id)}
+                  className={`rounded-full px-3.5 py-2 text-xs font-semibold transition-colors sm:text-sm ${
+                    tab === a.id
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-background hover:bg-muted"
+                  }`}
+                >
+                  {a.label}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setTab("team")}
+                className="rounded-full border border-border bg-background px-3.5 py-2 text-xs font-semibold hover:bg-muted sm:text-sm"
+              >
+                Team roles
+              </button>
+            </div>
+          </div>
+        </header>
 
-      <div className="mt-6 flex gap-2 flex-wrap">
-        {adminTabs.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`px-4 py-2 rounded-full text-sm ${tab===t.id?"bg-primary text-primary-foreground":t.emphasis?"bg-primary/10 text-primary border border-primary/30":"bg-muted"}`}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+        {/* Mobile / tablet section picker */}
+        <div className="mt-4 lg:hidden">
+          <label htmlFor="admin-section" className="sr-only">
+            Admin section
+          </label>
+          <select
+            id="admin-section"
+            value={tab}
+            onChange={(e) => setTab(e.target.value as Tab)}
+            className="w-full rounded-xl border border-border bg-card px-3 py-2.5 text-sm shadow-sm"
+          >
+            {adminNavGroups.map((g) => (
+              <optgroup key={g.title} label={g.title}>
+                {g.items.map((i) => (
+                  <option key={i.id} value={i.id}>
+                    {i.label}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
 
+        <div className="mt-4 flex gap-6 lg:mt-6">
+          {/* Desktop sidebar */}
+          <aside className="hidden w-64 shrink-0 lg:block">
+            <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto rounded-2xl border border-border/70 bg-card p-3 shadow-sm">
+              <AdminNav
+                active={tab}
+                onSelect={(id) => setTab(id as Tab)}
+                counts={{ pendingApprovals }}
+              />
+            </div>
+          </aside>
+
+          {/* Content */}
+          <main className="min-w-0 flex-1 rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-6">
       {tab === "overview" && <OverviewTab />}
 
 
