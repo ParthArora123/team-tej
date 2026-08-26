@@ -71,7 +71,38 @@ export function buildConfirmationPayload(enr: any, origin: string): WorkshopConf
   };
 }
 
+// --- Structured diagnostics -------------------------------------------------
+
+export interface SalesforceErrorDetails {
+  step: string; // which stage failed (config / oauth_token / apex_request / apex_response)
+  authPath: "connector_gateway" | "direct_oauth" | "none";
+  endpoint?: string;
+  status?: number;
+  statusText?: string;
+  responseBody?: string;
+  hint?: string;
+}
+
+export class SalesforceEmailError extends Error {
+  details: SalesforceErrorDetails;
+  constructor(message: string, details: SalesforceErrorDetails) {
+    super(message);
+    this.name = "SalesforceEmailError";
+    this.details = details;
+  }
+}
+
+function redact(url: string): string {
+  return url.replace(/([?&](?:token|key|secret)=)[^&]+/gi, "$1***");
+}
+
+function fail(message: string, details: SalesforceErrorDetails): never {
+  console.error(`[salesforce-email] ${message}`, JSON.stringify(details));
+  throw new SalesforceEmailError(message, { ...details, endpoint: details.endpoint ? redact(details.endpoint) : undefined });
+}
+
 // --- Auth path 1: Lovable connector gateway (managed OAuth) -----------------
+
 
 async function sendViaGateway(payload: WorkshopConfirmationPayload): Promise<void> {
   const lovableKey = process.env["LOVABLE_API_KEY"];
