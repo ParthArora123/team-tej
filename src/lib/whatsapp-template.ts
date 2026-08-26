@@ -28,8 +28,8 @@ export const DEFAULT_WHATSAPP_TEMPLATE = `🎉 Hi {{StudentName}},
 ✅ Your seat has been confirmed.
 
 Workshop: {{WorkshopName}}
+{{SessionDetails}}
 Date: {{WorkshopDate}}
-Time: {{WorkshopTime}}
 Venue: {{Venue}}
 
 🎫 Ticket ID: {{RegistrationId}}
