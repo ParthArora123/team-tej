@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Volume2, VolumeX } from "lucide-react";
 import { isSlowConnection } from "@/lib/video-source";
 import { OptimizedVideo } from "@/components/site/OptimizedVideo";
+import { setHomepageAudioUnlocked } from "@/lib/home-video-playback";
 
 export type CoverflowItem = {
   id: string;
@@ -383,7 +384,13 @@ export function CoverflowCarousel({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setMuted((m) => !m);
+                        setMuted((m) => {
+                          // The click itself is the browser's autoplay
+                          // authorization: keep it for every later clip so
+                          // sound starts instantly on each transition.
+                          setHomepageAudioUnlocked(m);
+                          return !m;
+                        });
                       }}
                       aria-label={muted ? "Unmute video" : "Mute video"}
                       className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/25 bg-white/20 text-white transition hover:bg-white/30"

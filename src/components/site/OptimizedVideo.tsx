@@ -72,8 +72,18 @@ export const OptimizedVideo = memo(function OptimizedVideo({
       return;
     }
 
+    // Re-assert the user's audio preference *after* every play attempt: the
+    // playback registry primes elements muted for autoplay, so without this the
+    // newly active clip would stay silent until some later render.
+    const applyMute = () => {
+      const want = play ? muted : true;
+      if (v.muted !== want) v.muted = want;
+      if (!want) v.removeAttribute("muted");
+    };
     const tryPlay = () => {
-      if (v.paused) void playHomepageVideo(v);
+      applyMute();
+      if (v.paused) void playHomepageVideo(v).then(applyMute);
+      applyMute();
     };
     // The video is revealed only once a real frame has been painted: we prefer
     // requestVideoFrameCallback, and fall back to `playing` + a non-zero
@@ -87,6 +97,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     };
     const vf = v as WithRVFC;
     const onPlaying = () => {
+      applyMute();
       if (typeof vf.requestVideoFrameCallback === "function") {
         rvfcHandle = vf.requestVideoFrameCallback(reveal);
       } else if (v.readyState >= 2 && v.currentTime > 0) {
@@ -121,6 +132,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     };
 
 
+    v.addEventListener("volumechange", applyMute);
     v.addEventListener("loadedmetadata", tryPlay);
     v.addEventListener("loadeddata", tryPlay);
     v.addEventListener("canplay", tryPlay);
@@ -136,6 +148,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
     tryPlay();
 
     return () => {
+      v.removeEventListener("volumechange", applyMute);
       v.removeEventListener("loadedmetadata", tryPlay);
       v.removeEventListener("loadeddata", tryPlay);
       v.removeEventListener("canplay", tryPlay);
@@ -251,7 +264,7 @@ export const OptimizedVideo = memo(function OptimizedVideo({
             if (element) prepareHomepageVideo(element, src);
           }}
           poster={poster ?? undefined}
-          muted
+          muted={play ? muted : true}
           loop
           playsInline
           preload="auto"
