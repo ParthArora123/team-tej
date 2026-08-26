@@ -372,7 +372,7 @@ export function CoverflowCarousel({
                   />
 
                   {item.badge && (
-                    <span className="absolute left-4 top-4 rounded-full border border-white/25 bg-foreground/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
+                    <span className="absolute left-4 top-4 max-w-[calc(100%-4.5rem)] truncate rounded-full border border-white/25 bg-foreground/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white">
                       {item.badge}
                     </span>
                   )}
