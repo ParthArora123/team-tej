@@ -169,11 +169,11 @@ function normalizeWaNumber(raw: unknown): string {
 // TO   → the contact/WhatsApp number the student entered in the registration
 //        form (`enr.phone`). Never falls back to the business number, so a
 //        confirmation is never mis-delivered to the studio itself.
-// FROM → the WhatsApp sender number configured by the admin in the WhatsApp
-//        message settings (passed in as `senderWhatsapp`). It is never
-//        hardcoded and never the student's own number. wa.me sends from the
-//        WhatsApp account signed in on the admin's device, so this number is
-//        also what the student sees as the support/reply contact.
+// FROM → the WhatsApp sender number is the logged-in admin's profile phone
+//        number (passed in as `senderWhatsapp`). It is never hardcoded and
+//        never the student's own number. wa.me sends from the WhatsApp account
+//        signed in on the admin's device, so this number is also what the
+//        student sees as the support/reply contact.
 export function buildWaUrl(
   enr: any,
   ticket: string | null,

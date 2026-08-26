@@ -241,7 +241,7 @@ function AdminPage() {
         <WorkshopsTab rows={workshops.filter((w: any) => (w.kind ?? "workshop") === "workshop")} onSave={saveWorkshop} onDel={delWorkshop} onPub={setPublished} reload={reload} />
       )}
 
-      {tab === "approvals" && <ApprovalsTab rows={enrs} onApprove={approve} reload={reload} />}
+      {tab === "approvals" && <ApprovalsTab rows={enrs} onApprove={approve} reload={reload} adminProfile={myProfile} />}
 
 
       
@@ -1539,7 +1539,7 @@ function ProfilesTab() {
 }
 
 
-function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any; reload: () => void }) {
+function ApprovalsTab({ rows, onApprove, reload, adminProfile }: { rows: any[]; onApprove: any; reload: () => void; adminProfile: AdminProfile | null }) {
   const pending = rows.filter((r) => r.status === "payment_submitted");
   const [busy, setBusy] = useState<string | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
@@ -1553,8 +1553,8 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   const markWaSent = useServerFn(markWhatsappConfirmationSent);
 
   const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
-  // FROM/sender: the WhatsApp/contact number shown on the Contact page.
-  const [waContactNumber, setWaContactNumber] = useState<string>("");
+  // FROM/sender: the logged-in admin's profile phone number (set in My profile).
+  const waContactNumber = adminProfile?.phone ?? "";
 
   const [blockedWa, setBlockedWa] = useState<Record<string, string>>({});
 
@@ -1563,9 +1563,6 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
       .then((v: any) => {
         if (v && typeof v.template === "string") setWaTemplate(v.template);
       })
-      .catch(() => {});
-    loadContent({ data: { key: "contact" } })
-      .then((v: any) => { if (v && typeof v.whatsapp === "string") setWaContactNumber(v.whatsapp); })
       .catch(() => {});
   }, []);
 
@@ -1586,6 +1583,10 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   }, [pending.length]);
 
   const act = async (id: string, approve: boolean) => {
+    if (approve && !waContactNumber) {
+      toast.error("Your admin phone number is missing. Add it in My profile before sending WhatsApp confirmations.");
+      return;
+    }
     setBusy(id);
     try {
       const res = await onApprove({ data: { enrollmentId: id, approve } });
@@ -1639,6 +1640,10 @@ function ApprovalsTab({ rows, onApprove, reload }: { rows: any[]; onApprove: any
   // skipped, so clicking Approve All again never re-sends.
   const approveAllPending = async () => {
     if (!pending.length) return;
+    if (!waContactNumber) {
+      toast.error("Your admin phone number is missing. Add it in My profile before sending WhatsApp confirmations.");
+      return;
+    }
     if (!confirm(`Approve all ${pending.length} pending registration(s), generate their tickets and send each student their WhatsApp confirmation?`)) return;
     setBulkBusy(true);
     try {
