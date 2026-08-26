@@ -245,7 +245,9 @@ function HeroFill({ image, clips, alt, onReady }: { image: string; clips: string
           fetchPriority="high"
           decoding="async"
           className="absolute inset-0 h-full w-full object-contain transition-opacity duration-500"
-          style={{ opacity: loaded && !failed ? 1 : 0 }}
+          // Visible by default: the browser paints it as soon as it decodes,
+          // even before hydration. Only an actual load error hides it.
+          style={{ opacity: failed ? 0 : 1 }}
           ref={imgRef}
           onLoad={() => {
             setLoaded(true);
