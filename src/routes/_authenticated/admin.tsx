@@ -1583,6 +1583,10 @@ function ApprovalsTab({ rows, onApprove, reload, adminProfile }: { rows: any[]; 
   }, [pending.length]);
 
   const act = async (id: string, approve: boolean) => {
+    if (approve && !waContactNumber) {
+      toast.error("Your admin phone number is missing. Add it in My profile before sending WhatsApp confirmations.");
+      return;
+    }
     setBusy(id);
     try {
       const res = await onApprove({ data: { enrollmentId: id, approve } });
