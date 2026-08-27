@@ -260,6 +260,7 @@ export const approveEnrollment = createServerFn({ method: "POST" })
         enrollment: res.enrollment,
         ticketCode: res.ticketCode,
         whatsappAlreadySent: res.whatsappAlreadySent,
+        confirmationEmailAlreadySent: res.confirmationEmailAlreadySent,
       };
 
 
@@ -299,6 +300,7 @@ export const approveAllPendingEnrollments = createServerFn({ method: "POST" })
       enrollment: any;
       ticketCode: string;
       whatsappAlreadySent: boolean;
+      confirmationEmailAlreadySent: boolean;
     }> = [];
     const failed: Array<{ id: string; message: string }> = [];
 
@@ -309,6 +311,7 @@ export const approveAllPendingEnrollments = createServerFn({ method: "POST" })
           enrollment: res.enrollment,
           ticketCode: res.ticketCode,
           whatsappAlreadySent: res.whatsappAlreadySent,
+          confirmationEmailAlreadySent: res.confirmationEmailAlreadySent,
         });
       } catch (e: any) {
         failed.push({ id: row.id, message: e?.message ?? "Approval failed" });
@@ -349,6 +352,36 @@ export const markWhatsappConfirmationSent = createServerFn({ method: "POST" })
 
 
 
+
+// Records that the EmailJS approval-confirmation email for an approved
+// registration has gone out. Only confirmed registrations can be marked, and
+// only once, so re-approving or refreshing never sends a second email.
+export const markConfirmationEmailSent = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({
+    enrollmentId: z.string().uuid(),
+    error: z.string().max(500).optional().nullable(),
+  }).parse(input))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row } = await supabaseAdmin
+      .from("enrollments").select("status, confirmation_email_sent").eq("id", data.enrollmentId).maybeSingle();
+    if (row?.status !== "confirmed") return { ok: true, alreadySent: false };
+    if (data.error) {
+      // Failure: keep the approval intact, just record the error for retry.
+      await supabaseAdmin.from("enrollments")
+        .update({ confirmation_email_error: data.error }).eq("id", data.enrollmentId);
+      return { ok: false, alreadySent: false };
+    }
+    if (row?.confirmation_email_sent === true) return { ok: true, alreadySent: true };
+    const { error } = await supabaseAdmin.from("enrollments").update({
+      confirmation_email_sent: true,
+      confirmation_email_error: null,
+    }).eq("id", data.enrollmentId);
+    if (error) throw error;
+    return { ok: true, alreadySent: false };
+  });
 
 export const adminGetProofUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
