@@ -289,7 +289,10 @@ export function buildWaUrl(
   const sessionNames = sessions.map((s) => s.name).filter(Boolean).join(" & ");
   const sessionTimings = sessions.map((s) => s.time).filter(Boolean).join(" & ");
 
-  const activeTemplate = template || DEFAULT_WHATSAPP_TEMPLATE;
+  // Workshop-specific templates (Govind Bolo / Shiv Tandav) take precedence
+  // over the admin-configured template so each student gets the message that
+  // matches the workshop they actually registered for.
+  const activeTemplate = selectWhatsappTemplate(enr, template);
   let message = renderWhatsappTemplate(activeTemplate, {
     StudentName: enr.full_name || "there",
     WorkshopName: enr.program?.name || "the workshop",
