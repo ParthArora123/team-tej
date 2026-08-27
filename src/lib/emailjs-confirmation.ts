@@ -8,6 +8,7 @@
 
 import emailjs from "@emailjs/browser";
 import { getSelectedSessions, renderSessionDetails } from "@/lib/whatsapp-template";
+import { buildConfirmationContent } from "@/lib/email-content";
 
 const SERVICE_ID = import.meta.env['VITE_EMAILJS_SERVICE_ID'] as string | undefined;
 const TEMPLATE_ID = import.meta.env['VITE_EMAILJS_TEMPLATE_ID'] as string | undefined;
@@ -34,6 +35,7 @@ function isValidEmail(v: unknown): v is string {
 export function buildEmailParams(enr: any, ticket: string | null) {
   const sessions = getSelectedSessions(enr);
   const sessionDetails = renderSessionDetails(sessions);
+  const content = buildConfirmationContent(enr);
   const registrationId = ticket || enr?.ticket_code || enr?.id || "";
   const verifyUrl =
     registrationId && typeof window !== "undefined"
@@ -49,7 +51,11 @@ export function buildEmailParams(enr: any, ticket: string | null) {
     participant_name: enr?.full_name || "Participant",
     participant_email: String(enr?.email ?? "").trim(),
     workshop_name: enr?.program?.name || "Workshop",
-    workshop_date: enr?.program?.event_date ? new Date(enr.program.event_date).toDateString() : "",
+    workshop_date: content.workshopDate || (enr?.program?.event_date ? new Date(enr.program.event_date).toDateString() : ""),
+    day: content.day,
+    session_name: sessions.map((s) => s.name).filter(Boolean).join(" & "),
+    session_time: content.sessionTime,
+    session_summary: content.sessionSummary,
     session_details: sessionDetails,
     venue: enr?.program?.venue || "",
     registration_id: registrationId,
@@ -57,8 +63,15 @@ export function buildEmailParams(enr: any, ticket: string | null) {
     payment_status: "Verified",
     qr_code_url: qrCodeUrl,
     ticket_url: verifyUrl,
+    // Dynamic, workshop/session-specific content
+    subject: content.subject,
+    email_subject: content.subject,
+    email_headline: content.headline,
+    message_html: content.bodyHtml,
+    message: content.bodyText,
   };
 }
+
 
 /**
  * Sends the approval confirmation email to the participant's own registered
