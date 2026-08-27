@@ -10,6 +10,7 @@ export type ApproveResult = {
   enrollment: any;
   ticketCode: string;
   whatsappAlreadySent: boolean;
+  confirmationEmailAlreadySent: boolean;
   alreadyConfirmed: boolean;
 };
 
@@ -22,7 +23,7 @@ export async function approveEnrollmentById(
 ): Promise<ApproveResult> {
   const { data: prior, error: priorError } = await supabaseAdmin
     .from("enrollments")
-    .select("status, whatsapp_status, ticket_code")
+    .select("status, whatsapp_status, ticket_code, confirmation_email_sent")
     .eq("id", enrollmentId)
     .maybeSingle();
   if (priorError) throw priorError;
@@ -30,6 +31,7 @@ export async function approveEnrollmentById(
 
   const wasConfirmed = prior.status === "confirmed";
   const whatsappAlreadySent = prior.whatsapp_status === "sent";
+  const confirmationEmailAlreadySent = prior.confirmation_email_sent === true;
 
   // Reuse an existing ticket code — never issue a second ticket.
   let ticket: string = prior.ticket_code || genCode();
@@ -64,6 +66,7 @@ export async function approveEnrollmentById(
     enrollment: enr,
     ticketCode: ticket,
     whatsappAlreadySent,
+    confirmationEmailAlreadySent,
     alreadyConfirmed: wasConfirmed,
   };
 }
