@@ -51,7 +51,15 @@ export function resolveSessions(enr: any): ResolvedSession[] {
   });
 }
 
-const OUTFIT: Record<Exclude<SessionKind, "generic">, { title: string; lines: string[] }> = {
+const OUTFIT: Record<SessionKind, { title: string; lines: string[] }> = {
+  generic: {
+    title: "👗 What to Wear / Bring",
+    lines: [
+      "Wear a comfortable outfit you can move and dance freely in.",
+      "Carry a water bottle and a small towel.",
+      "👣 No need to wear shoes.",
+    ],
+  },
   govind: {
     title: "👗 Outfit for GOVIND BOLO",
     lines: [
