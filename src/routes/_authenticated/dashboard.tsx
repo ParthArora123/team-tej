@@ -162,8 +162,22 @@ function Dashboard() {
 
       await submitPayment({ data: { enrollmentId, proofPath, paymentReference: ref } });
 
+      const participantEmail = rows.find((r) => r.id === enrollmentId)?.email || "";
       toast.success("Payment completed successfully. Your registration is awaiting admin approval.", {
-        description: "Your ticket will be generated and appear here once an admin approves it.",
+        description: (
+          <div className="space-y-2">
+            <p>Your ticket will be generated and appear here once an admin approves it.</p>
+            <div>
+              <p className="font-semibold">📧 Confirmation Email</p>
+              <p>Your payment will be verified by our admin team.</p>
+              <p>
+                Once your payment is verified and approved by the admin, your workshop confirmation email will be sent to your registered email address:{" "}
+                <span className="font-medium break-all">{participantEmail}</span>
+              </p>
+              <p>Please check your inbox and Spam/Junk folder after approval.</p>
+            </div>
+          </div>
+        ),
       });
 
       setProofFile((s) => ({ ...s, [enrollmentId]: null }));
