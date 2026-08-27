@@ -8,6 +8,7 @@
 
 import emailjs from "@emailjs/browser";
 import { getSelectedSessions, renderSessionDetails } from "@/lib/whatsapp-template";
+import { buildConfirmationContent } from "@/lib/email-content";
 
 const SERVICE_ID = import.meta.env['VITE_EMAILJS_SERVICE_ID'] as string | undefined;
 const TEMPLATE_ID = import.meta.env['VITE_EMAILJS_TEMPLATE_ID'] as string | undefined;
