@@ -147,11 +147,6 @@ function AdminPage() {
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Admin</p>
               <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl">Control room</h1>
-              {myProfile && (
-                <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                  Signed in as {myProfile.full_name || myProfile.email}
-                </p>
-              )}
               <p className="mt-1 text-sm text-muted-foreground">
                 {adminNavLabel(tab)}
                 {pendingApprovals > 0 && (
