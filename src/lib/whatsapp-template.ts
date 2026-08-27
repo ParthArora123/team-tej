@@ -46,6 +46,95 @@ For any help, reach out on {{SupportContact}}.
 
 – {{InstructorName}}`;
 
+// Workshop-specific confirmation templates. When the registered workshop is
+// Govind Bolo or Shiv Tandav, the matching template below is used instead of
+// the admin-configured/default template so outfit instructions never leak
+// across workshops.
+export const GOVIND_BOLO_TEMPLATE = `🎉 Hi {{StudentName}},
+
+🎉 Your Spot is Confirmed! 🎉
+Pune Bhakti Dance Experience by Tejas D Dhoke ⭐
+
+You’re registered for:
+🕕 {{SessionDetails}}
+📅 {{WorkshopDate}}
+📍 {{Venue}}
+
+🕗 Please arrive 10 minutes prior to your class.
+
+🎫 Ticket ID: {{RegistrationId}}
+
+Your Workshop Entry QR Code (tap to view / save the image):
+{{QRCodeUrl}}
+
+🔍 Present this QR code to the Workshop Manager at the venue — they will scan it during check-in.
+
+{{CustomInstructions}}
+
+👗 Outfit for Govind Bolo:
+Shri Krishna or Radha Rani outfit, OR White with Blue/Yellow elements — look as beautiful as you can! ✨
+(If you don’t have anything specific, wear a comfortable outfit in this colour theme.)
+
+👣 No need to wear shoes.
+⚠️ Note: Your seat is confirmed, so no refunds/cancellations are available.
+
+See you on the dance floor! 💃`;
+
+export const TANDAV_TEMPLATE = `Hey {{StudentName}} 👋
+
+Your seat has been successfully confirmed for our TANDAV Workshop ❤️
+
+🗓 Date: {{WorkshopDate}}
+⏰ Time: {{SessionDetails}}
+📍 Location: {{Venue}}
+
+🔱 Outfit Theme: Tandav (Shiva Theme)
+
+Wear an all-black outfit — Dhoti with a black top, or you can customize your outfit according to the Shiva/Tandav theme.
+
+Note:
+
+Please make sure to reach the venue at least 10 minutes prior.
+
+No refund policy is available once your seat is confirmed.
+
+See you with full energyyy ❤️✌🏻
+One Energy ❤️`;
+
+/**
+ * Picks the confirmation template from the actual registration data:
+ * - workshop name containing "Govind Bolo" → Govind Bolo template
+ * - workshop name containing "Shiv Tandav" / "Tandav" → Tandav template
+ * - anything else → the admin-configured template (or the default).
+ * The selected workshop (for split workshops) is checked first, then the
+ * program name, resolved session names, and the other split workshop name.
+ */
+export function selectWhatsappTemplate(enr: any, adminTemplate: string): string {
+  const prog = enr?.program;
+  const candidates: string[] = [];
+
+  const w1 = String(prog?.workshop1_name ?? "").trim();
+  const w2 = String(prog?.workshop2_name ?? "").trim();
+  if (enr?.registration_type === "both") {
+    if (w1) candidates.push(w1);
+    if (w2) candidates.push(w2);
+  } else if (w1 || w2) {
+    const selected = enr?.selected_workshop === "w2" ? w2 : w1;
+    if (selected) candidates.push(selected);
+  }
+  if (prog?.name) candidates.push(String(prog.name));
+  for (const s of getSelectedSessions(enr)) if (s.name) candidates.push(s.name);
+  if (w1 && !candidates.includes(w1)) candidates.push(w1);
+  if (w2 && !candidates.includes(w2)) candidates.push(w2);
+
+  for (const raw of candidates) {
+    const name = raw.toLowerCase();
+    if (name.includes("govind bolo")) return GOVIND_BOLO_TEMPLATE;
+    if (name.includes("tandav")) return TANDAV_TEMPLATE;
+  }
+  return adminTemplate || DEFAULT_WHATSAPP_TEMPLATE;
+}
+
 export function renderWhatsappTemplate(
   template: string,
   values: Partial<Record<WhatsappPlaceholder, string>>,
