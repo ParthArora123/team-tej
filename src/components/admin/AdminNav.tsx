@@ -87,7 +87,6 @@ export const adminNavGroups: AdminNavGroup[] = [
   {
     title: "Settings",
     items: [
-      { id: "my_profile", label: "My profile", icon: UserRound },
       { id: "team", label: "Team roles", icon: Settings2 },
     ],
   },
