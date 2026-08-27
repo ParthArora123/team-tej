@@ -163,19 +163,14 @@ function Dashboard() {
       await submitPayment({ data: { enrollmentId, proofPath, paymentReference: ref } });
 
       const participantEmail = rows.find((r) => r.id === enrollmentId)?.email || "";
-      toast.success("Payment completed successfully. Your registration is awaiting admin approval.", {
+      toast.success("Payment submitted successfully", {
         description: (
           <div className="space-y-2">
-            <p>Your ticket will be generated and appear here once an admin approves it.</p>
-            <div>
-              <p className="font-semibold">📧 Confirmation Email</p>
-              <p>Your payment will be verified by our admin team.</p>
-              <p>
-                Once your payment is verified and approved by the admin, your workshop confirmation email will be sent to your registered email address:{" "}
-                <span className="font-medium break-all">{participantEmail}</span>
-              </p>
-              <p>Please check your inbox and Spam/Junk folder after approval.</p>
-            </div>
+            <p>
+              Your payment has been submitted successfully and is currently under admin verification.
+              Once your payment is approved by the admin, your registration confirmation will be sent to your registered email address:{" "}
+              <span className="font-medium break-all">{participantEmail}</span>
+            </p>
           </div>
         ),
       });
@@ -377,9 +372,14 @@ function Dashboard() {
 
 
               {r.status === "payment_submitted" && (
-                <p className="mt-4 text-sm text-muted-foreground">
-                  Thanks! Admin will verify your payment and your ticket will appear here once approved.
-                </p>
+                <div className="mt-4 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4 text-sm text-foreground">
+                  <p className="font-medium">Payment under admin verification</p>
+                  <p className="mt-1 text-muted-foreground">
+                    Your payment has been submitted successfully and is currently under admin verification.
+                    Once your payment is approved by the admin, your registration confirmation will be sent to your registered email address:{" "}
+                    <span className="font-medium break-all">{r.email || ""}</span>
+                  </p>
+                </div>
               )}
 
               {r.status === "confirmed" && (
