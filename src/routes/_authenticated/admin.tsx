@@ -15,6 +15,7 @@ import {
   listAllEnrollments, adminSaveWorkshop, adminSetPublished,
   adminDeleteWorkshop, adminListWorkshops, adminStats, adminScanTicket, checkIsAdmin,
   adminListTeam, adminSetUserAdmin, adminAddTeamByEmail, approveEnrollment, approveAllPendingEnrollments, adminGetProofUrl,
+  markConfirmationEmailSent,
   adminUploadWorkshopImage, markWhatsappConfirmationSent, adminDeleteEnrollment, adminDeleteEnrollments,
 } from "@/lib/enrollment.functions";
 import {
@@ -31,6 +32,7 @@ import { MessagesTab } from "@/components/admin/MessagesTab";
 import { ContactInfoTab, AboutContentTab, DanceStylesTab, ChoreographiesTab, FounderTab, WhatsappTemplateTab, HeroPortraitTab } from "@/components/admin/SiteContentTabs";
 import { getSiteContent } from "@/lib/site-content.functions";
 import { buildWaUrl, DEFAULT_WHATSAPP_TEMPLATE } from "@/lib/whatsapp-template";
+import { sendApprovalConfirmationEmail } from "@/lib/emailjs-confirmation";
 
 import { WorkshopHeroTab } from "@/components/admin/WorkshopHeroTab";
 import { WorkshopMediaPanel } from "@/components/admin/WorkshopMediaPanel";
@@ -1551,6 +1553,19 @@ function ApprovalsTab({ rows, onApprove, reload, adminProfile }: { rows: any[]; 
   const getProof = useServerFn(adminGetProofUrl);
   const loadContent = useServerFn(getSiteContent);
   const markWaSent = useServerFn(markWhatsappConfirmationSent);
+  const markEmailSent = useServerFn(markConfirmationEmailSent);
+
+  // Sends the participant their approval confirmation email via EmailJS, only
+  // after the approval was saved. Failures never affect the approval.
+  const sendConfirmationEmail = async (enr: any, ticket: string | null, alreadySent: boolean) => {
+    const res = await sendApprovalConfirmationEmail(enr, ticket, { alreadySent });
+    if (res.status === "sent") {
+      try { await markEmailSent({ data: { enrollmentId: enr.id } }); } catch {}
+    } else if (res.status === "failed") {
+      try { await markEmailSent({ data: { enrollmentId: enr.id, error: res.message } }); } catch {}
+    }
+    return res;
+  };
 
   const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
   // FROM/sender: the logged-in admin's profile phone number (set in My profile).
@@ -1590,6 +1605,13 @@ function ApprovalsTab({ rows, onApprove, reload, adminProfile }: { rows: any[]; 
     setBusy(id);
     try {
       const res = await onApprove({ data: { enrollmentId: id, approve } });
+      if (approve && res?.ok && res.enrollment) {
+        // Approval is already saved at this point — email failures never undo it.
+        const mail = await sendConfirmationEmail(res.enrollment, res.ticketCode ?? null, res.confirmationEmailAlreadySent);
+        if (mail.status === "failed") {
+          toast.error("Registration approved, but confirmation email could not be sent.");
+        }
+      }
       await reload();
       if (approve && res?.ok && res.enrollment) {
         // Duplicate guard: a registration whose confirmation already went out
@@ -1653,12 +1675,19 @@ function ApprovalsTab({ rows, onApprove, reload, adminProfile }: { rows: any[]; 
 
       let waSent = 0;
       let waFailed = 0;
+      let emailFailed = 0;
       const blocked: Record<string, string> = {};
 
       for (const item of approvedList) {
         const enr = item?.enrollment;
         if (!enr) continue;
         // Duplicate protection — already-sent confirmations are never resent.
+        // Approval confirmation email — one per approved participant, to their
+        // own registered address, skipped when it already went out.
+        try {
+          const mail = await sendConfirmationEmail(enr, item.ticketCode ?? null, item.confirmationEmailAlreadySent);
+          if (mail.status === "failed") emailFailed++;
+        } catch { emailFailed++; }
         if (item.whatsappAlreadySent) continue;
         const waUrl = buildWaUrl(enr, item.ticketCode ?? null, waTemplate, waContactNumber);
         if (!waUrl) { waFailed++; continue; }
@@ -1680,6 +1709,9 @@ function ApprovalsTab({ rows, onApprove, reload, adminProfile }: { rows: any[]; 
 
       const approvedCount = approvedList.length;
       const base = `${approvedCount} registration(s) approved, ${approvedCount} ticket(s) generated, ${waSent} WhatsApp confirmation(s) sent`;
+      if (emailFailed) {
+        toast.error(`${emailFailed} registration(s) approved, but their confirmation email could not be sent.`);
+      }
       if (waFailed || failedApprovals.length) {
         toast.error(
           `${base}.` +
