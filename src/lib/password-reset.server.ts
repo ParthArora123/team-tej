@@ -8,7 +8,7 @@ import { TEMPLATES } from '@/lib/email-templates/registry'
 
 const TOKEN_TTL_MINUTES = 30
 const SITE_NAME = 'Tejas D Dhoke'
-const SENDER_DOMAIN = 'notify.tejasdhoke.com'
+
 
 export function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex')
