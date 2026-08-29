@@ -60,8 +60,9 @@ function ResetPasswordPage() {
         if (res.error === INVALID_MSG) setState("invalid");
         return;
       }
-      setMsg("Password updated successfully. Redirecting to sign in…");
-      setTimeout(() => navigate({ to: "/auth" }), 1200);
+      setState("done");
+      setMsg("Password reset successfully. You can now log in with your new password.");
+      setTimeout(() => navigate({ to: "/auth" }), 4000);
     } catch (e: any) {
       setErr(e?.message ?? "Could not update your password. Please request a new reset link.");
     } finally { setLoading(false); }
