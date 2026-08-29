@@ -87,10 +87,26 @@ export async function issuePasswordReset(rawEmail: string, requestUrl?: string):
   })
 }
 
+// EmailJS delivery — same service/public key already used for the admin
+// approval confirmation emails. The reset token never leaves the server:
+// the email is sent from here, not from the browser.
+function emailjsConfig() {
+  const env = process.env as Record<string, string | undefined>
+  return {
+    serviceId: env['EMAILJS_SERVICE_ID'] ?? env['VITE_EMAILJS_SERVICE_ID'],
+    templateId:
+      env['EMAILJS_RESET_TEMPLATE_ID'] ??
+      env['VITE_EMAILJS_RESET_TEMPLATE_ID'] ??
+      env['EMAILJS_TEMPLATE_ID'] ??
+      env['VITE_EMAILJS_TEMPLATE_ID'],
+    publicKey: env['EMAILJS_PUBLIC_KEY'] ?? env['VITE_EMAILJS_PUBLIC_KEY'],
+    privateKey: env['EMAILJS_PRIVATE_KEY'],
+  }
+}
+
 async function sendResetEmail(p: { to: string; name: string; resetUrl: string }) {
   const db = await admin()
   const template = TEMPLATES['password-reset']
-  if (!template) return
 
   // Respect the existing suppression list.
   const { data: suppressed } = await db
@@ -100,14 +116,25 @@ async function sendResetEmail(p: { to: string; name: string; resetUrl: string })
     .maybeSingle()
   if (suppressed) return
 
-  const element = React.createElement(template.component, {
-    name: p.name,
-    resetUrl: p.resetUrl,
-    expiresInMinutes: TOKEN_TTL_MINUTES,
-  })
-  const html = await render(element)
-  const text = await render(element, { plainText: true })
-  const subject = typeof template.subject === 'function' ? template.subject({}) : template.subject
+  const cfg = emailjsConfig()
+  if (!cfg.serviceId || !cfg.templateId || !cfg.publicKey) {
+    console.error('[password-reset] EmailJS is not configured')
+    return
+  }
+
+  let html = ''
+  let text = ''
+  if (template) {
+    const element = React.createElement(template.component, {
+      name: p.name,
+      resetUrl: p.resetUrl,
+      expiresInMinutes: TOKEN_TTL_MINUTES,
+    })
+    html = await render(element)
+    text = await render(element, { plainText: true })
+  }
+
+  const subject = 'Reset your password'
   const messageId = crypto.randomUUID()
 
   await db.from('email_send_log').insert({
@@ -117,32 +144,45 @@ async function sendResetEmail(p: { to: string; name: string; resetUrl: string })
     status: 'pending',
   })
 
-  const { error } = await db.rpc('enqueue_email', {
-    queue_name: 'transactional_emails',
-    payload: {
-      message_id: messageId,
-      to: p.to,
-      from: `${SITE_NAME} <noreply@${SENDER_DOMAIN}>`,
-      sender_domain: SENDER_DOMAIN,
-      subject,
-      html,
-      text,
-      purpose: 'transactional',
-      label: 'password-reset',
-      idempotency_key: messageId,
-      queued_at: new Date().toISOString(),
-    },
-  } as any)
+  const templateParams = {
+    to_email: p.to,
+    to_name: p.name || 'there',
+    participant_name: p.name || 'there',
+    participant_email: p.to,
+    email: p.to,
+    reset_url: p.resetUrl,
+    reset_link: p.resetUrl,
+    expires_in_minutes: TOKEN_TTL_MINUTES,
+    site_name: SITE_NAME,
+    subject,
+    email_subject: subject,
+    message: text,
+    message_html: html,
+  }
 
-  if (error) {
-    console.error('[password-reset] enqueue failed', error.message)
-    await db.from('email_send_log').insert({
-      message_id: messageId,
-      template_name: 'password-reset',
-      recipient_email: p.to,
-      status: 'failed',
-      error_message: 'Failed to enqueue password reset email',
+  try {
+    const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', origin: 'https://tejasdhoke.com' },
+      body: JSON.stringify({
+        service_id: cfg.serviceId,
+        template_id: cfg.templateId,
+        user_id: cfg.publicKey,
+        ...(cfg.privateKey ? { accessToken: cfg.privateKey } : {}),
+        template_params: templateParams,
+      }),
     })
+    if (!res.ok) throw new Error(`${res.status} ${(await res.text()).slice(0, 200)}`)
+    await db
+      .from('email_send_log')
+      .update({ status: 'sent' })
+      .eq('message_id', messageId)
+  } catch (e: any) {
+    console.error('[password-reset] EmailJS send failed', e?.message ?? e)
+    await db
+      .from('email_send_log')
+      .update({ status: 'failed', error_message: 'EmailJS send failed' })
+      .eq('message_id', messageId)
   }
 }
 
