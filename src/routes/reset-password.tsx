@@ -30,7 +30,7 @@ function ResetPasswordPage() {
   const check = useServerFn(validateResetToken);
   const submitReset = useServerFn(submitPasswordReset);
 
-  const [state, setState] = useState<"checking" | "valid" | "invalid">("checking");
+  const [state, setState] = useState<"checking" | "valid" | "invalid" | "done">("checking");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -60,8 +60,9 @@ function ResetPasswordPage() {
         if (res.error === INVALID_MSG) setState("invalid");
         return;
       }
-      setMsg("Password updated successfully. Redirecting to sign in…");
-      setTimeout(() => navigate({ to: "/auth" }), 1200);
+      setState("done");
+      setMsg("Password reset successfully. You can now log in with your new password.");
+      setTimeout(() => navigate({ to: "/auth" }), 4000);
     } catch (e: any) {
       setErr(e?.message ?? "Could not update your password. Please request a new reset link.");
     } finally { setLoading(false); }
@@ -88,6 +89,21 @@ function ResetPasswordPage() {
               Request a new link
             </Link>
             <Link to="/auth" className="block text-center text-xs text-muted-foreground mt-4">← Back to sign in</Link>
+          </>
+        )}
+
+        {state === "done" && (
+          <>
+            <p className="text-sm text-primary mt-2">
+              Password reset successfully. You can now log in with your new password.
+            </p>
+            <Link to="/auth"
+              className="mt-6 block w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-center">
+              Go to Login
+            </Link>
+            <p className="text-center text-xs text-muted-foreground mt-3">
+              Redirecting you to the login page…
+            </p>
           </>
         )}
 

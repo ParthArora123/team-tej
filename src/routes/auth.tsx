@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
 import { isValidName, normalizeName, NAME_ERROR_MESSAGE, NAME_MAX_LENGTH } from "@/lib/name-validation";
+import { useServerFn } from "@tanstack/react-start";
+import { requestPasswordReset } from "@/lib/password-reset.functions";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
@@ -28,6 +30,8 @@ function AuthPage() {
   const navigate = useNavigate();
   const { next } = Route.useSearch();
   const nextPath = safeNext(next ?? "");
+
+  const sendResetLink = useServerFn(requestPasswordReset);
 
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
@@ -60,11 +64,8 @@ function AuthPage() {
         : window.location.origin;
 
       if (mode === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-        if (error) throw error;
-        setMsg("If an account exists for that email, a password reset link is on its way. Check your inbox and spam folder.");
+        await sendResetLink({ data: { email } });
+        setMsg("If an account exists for that email, a password reset link is on its way. Check your inbox and spam folder. The link expires in 30 minutes.");
         return;
       }
 
