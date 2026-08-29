@@ -30,7 +30,7 @@ function ResetPasswordPage() {
   const check = useServerFn(validateResetToken);
   const submitReset = useServerFn(submitPasswordReset);
 
-  const [state, setState] = useState<"checking" | "valid" | "invalid">("checking");
+  const [state, setState] = useState<"checking" | "valid" | "invalid" | "done">("checking");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
