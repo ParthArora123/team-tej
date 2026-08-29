@@ -92,6 +92,21 @@ function ResetPasswordPage() {
           </>
         )}
 
+        {state === "done" && (
+          <>
+            <p className="text-sm text-primary mt-2">
+              Password reset successfully. You can now log in with your new password.
+            </p>
+            <Link to="/auth"
+              className="mt-6 block w-full px-4 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-center">
+              Go to Login
+            </Link>
+            <p className="text-center text-xs text-muted-foreground mt-3">
+              Redirecting you to the login page…
+            </p>
+          </>
+        )}
+
         {state === "valid" && (
           <>
             <p className="text-sm text-muted-foreground mt-1">Choose a new password for your account.</p>
