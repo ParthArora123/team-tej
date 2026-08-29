@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { supabase } from "@/integrations/supabase/client";
 import { isValidName, normalizeName, NAME_ERROR_MESSAGE, NAME_MAX_LENGTH } from "@/lib/name-validation";
+import { useServerFn } from "@tanstack/react-start";
+import { requestPasswordReset } from "@/lib/password-reset.functions";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { next?: string } =>
