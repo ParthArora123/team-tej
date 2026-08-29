@@ -31,6 +31,8 @@ function AuthPage() {
   const { next } = Route.useSearch();
   const nextPath = safeNext(next ?? "");
 
+  const sendResetLink = useServerFn(requestPasswordReset);
+
   const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
