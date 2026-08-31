@@ -676,7 +676,7 @@ function WorkshopDetailPage() {
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
 
   const enrollKlass: EnrollClass | null = program ? {
-    id: program.id, name: displayName, price: singlePrice, duration: program.duration ?? "",
+    id: program.id, name: program.name, price: singlePrice, duration: program.duration ?? "",
     silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice,
     allowSingle: (program as any).allow_single !== false, allowBoth: !!(program as any).allow_both,
     bothPrice: allowBoth ? bothPrice : null,
