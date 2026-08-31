@@ -1073,7 +1073,17 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
                 {cols.map(([h, get]) => (
                   <td key={h} className="px-3 py-2 whitespace-nowrap">{String(get(r) ?? "")}</td>
                 ))}
-                <td className="px-3 py-2 whitespace-nowrap">
+                <td className="px-3 py-2 whitespace-nowrap space-x-2">
+                  {r.status === "confirmed" && (
+                    <button
+                      type="button"
+                      disabled={resending === r.id}
+                      onClick={() => doResend(r)}
+                      className="inline-flex items-center rounded-md bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                    >
+                      {resending === r.id ? "Sending…" : "Resend WhatsApp"}
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => setToDelete(r)}
