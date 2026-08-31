@@ -9,8 +9,6 @@
 export type ApproveResult = {
   enrollment: any;
   ticketCode: string;
-  /** One row per person when the registration covers more than one participant. */
-  participants: Array<{ id: string; position: number; full_name: string; email: string | null; phone: string | null; ticket_code: string | null }>;
   whatsappAlreadySent: boolean;
   confirmationEmailAlreadySent: boolean;
   alreadyConfirmed: boolean;
@@ -56,37 +54,17 @@ export async function approveEnrollmentById(
   }).eq("id", enrollmentId).select("*, program:programs(*)").single();
   if (error) throw error;
 
-  // Per-participant tickets: every person on a multi-person registration gets
-  // their own unique Ticket ID derived from the registration ticket
-  // (TTJ-XXXXXX-01, TTJ-XXXXXX-02, …). Existing codes are never regenerated.
-  const { data: participantRows } = await supabaseAdmin
-    .from("enrollment_participants")
-    .select("id, position, full_name, email, phone, ticket_code")
-    .eq("enrollment_id", enrollmentId)
-    .order("position", { ascending: true });
-
-  const participants = participantRows ?? [];
-  for (const p of participants) {
-    if (p.ticket_code) continue;
-    const code = `${ticket}-${String(p.position).padStart(2, "0")}`;
-    const { error: pErr } = await supabaseAdmin
-      .from("enrollment_participants").update({ ticket_code: code }).eq("id", p.id);
-    if (!pErr) p.ticket_code = code;
-  }
-
   // Seats are only incremented on the actual transition into "confirmed".
   if (!wasConfirmed && enr?.program_id) {
-    const seats = Math.max(Number(enr.participant_count ?? 1) || 1, 1);
     const { data: p } = await supabaseAdmin
       .from("programs").select("seats_taken").eq("id", enr.program_id).single();
     await supabaseAdmin.from("programs")
-      .update({ seats_taken: (p?.seats_taken ?? 0) + seats }).eq("id", enr.program_id);
+      .update({ seats_taken: (p?.seats_taken ?? 0) + 1 }).eq("id", enr.program_id);
   }
 
   return {
-    enrollment: { ...enr, participants },
+    enrollment: enr,
     ticketCode: ticket,
-    participants: participants as any,
     whatsappAlreadySent,
     confirmationEmailAlreadySent,
     alreadyConfirmed: wasConfirmed,

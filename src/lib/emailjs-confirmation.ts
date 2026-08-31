@@ -45,20 +45,6 @@ export function buildEmailParams(enr: any, ticket: string | null) {
     ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(verifyUrl)}`
     : "";
 
-  // Multi-person registrations: list every participant with their own ticket.
-  const parts = Array.isArray(enr?.participants) ? [...enr.participants].sort((a: any, b: any) => a.position - b.position) : [];
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const participantsText = parts.length > 1
-    ? parts.map((p: any) => `Participant ${p.position}: ${p.full_name} — Ticket ID: ${p.ticket_code ?? "-"}`).join("\n")
-    : "";
-  const participantsHtml = parts.length > 1
-    ? parts.map((p: any) => {
-        const url = p.ticket_code ? `${origin}/verify?code=${encodeURIComponent(p.ticket_code)}` : "";
-        const qr = url ? `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=16&data=${encodeURIComponent(url)}` : "";
-        return `<div style="margin:12px 0;padding:12px;border:1px solid #eee;border-radius:8px"><strong>Participant ${p.position}: ${p.full_name}</strong><br/>Ticket ID: <code>${p.ticket_code ?? "-"}</code>${qr ? `<br/><img src="${qr}" alt="QR code" width="160" height="160" />` : ""}</div>`;
-      }).join("")
-    : "";
-
   return {
     to_email: String(enr?.email ?? "").trim(),
     to_name: enr?.full_name || "Participant",
@@ -83,9 +69,6 @@ export function buildEmailParams(enr: any, ticket: string | null) {
     email_headline: content.headline,
     message_html: content.bodyHtml,
     message: content.bodyText,
-    participant_count: parts.length > 1 ? parts.length : 1,
-    participants_list: participantsText,
-    participants_html: participantsHtml,
   };
 }
 

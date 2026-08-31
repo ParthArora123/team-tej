@@ -9,7 +9,6 @@ export function extractTicketCode(raw: string): string {
   } catch {
     /* not a url */
   }
-  // Per-participant tickets add a two-digit suffix: TTJ-XXXXXX-01
-  const m = s.match(/[A-Za-z]{2,5}-[A-Za-z0-9]{4,}(?:-\d{2})?/);
+  const m = s.match(/[A-Za-z]{2,5}-[A-Za-z0-9]{4,}/);
   return (m ? m[0] : s).trim().toUpperCase();
 }

@@ -7,8 +7,7 @@ import {
 
 type Workshop = { id: string; name: string; event_date: string | null; city: string | null; venue: string | null };
 type Row = {
-  id: string; enrollment_id: string; participant_id: string | null; participant_label: string | null;
-  full_name: string | null; email: string | null; phone: string | null;
+  id: string; full_name: string | null; email: string | null; phone: string | null;
   ticket_code: string | null; status: string; amount_inr: number | null;
   checked_in_at: string | null; attendance_method: string | null;
 };
@@ -57,7 +56,7 @@ export function AttendanceTab() {
 
   useEffect(() => { if (programId) refresh(programId); }, [programId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const submit = useCallback(async (payload: { code?: string; enrollmentId?: string; participantId?: string; method: "qr" | "manual" }) => {
+  const submit = useCallback(async (payload: { code?: string; enrollmentId?: string; method: "qr" | "manual" }) => {
     if (!programId || busyRef.current) return;
     busyRef.current = true;
     try {
@@ -237,14 +236,7 @@ export function AttendanceTab() {
                 {filtered.map((r) => (
                   <tr key={r.id} className="border-t border-border/60">
                     <td className="p-2 min-w-0">
-                      <p className="truncate font-medium">
-                        {r.full_name ?? "—"}
-                        {r.participant_label && (
-                          <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-                            {r.participant_label}
-                          </span>
-                        )}
-                      </p>
+                      <p className="truncate font-medium">{r.full_name ?? "—"}</p>
                       <p className="truncate text-muted-foreground">{r.phone ?? r.email ?? ""}</p>
                     </td>
                     <td className="p-2 font-mono">{r.ticket_code ?? "—"}</td>
@@ -258,17 +250,12 @@ export function AttendanceTab() {
                     <td className="p-2 text-right">
                       {r.checked_in_at ? (
                         <button
-                          onClick={async () => {
-                            await doUndo({ data: r.participant_id ? { participantId: r.participant_id } : { enrollmentId: r.enrollment_id } });
-                            refresh();
-                          }}
+                          onClick={async () => { await doUndo({ data: { enrollmentId: r.id } }); refresh(); }}
                           className="px-2 py-1 rounded border border-border hover:bg-muted"
                         >Undo</button>
                       ) : r.status === "confirmed" ? (
                         <button
-                          onClick={() => submit(r.participant_id
-                            ? { participantId: r.participant_id, method: "manual" }
-                            : { enrollmentId: r.enrollment_id, method: "manual" })}
+                          onClick={() => submit({ enrollmentId: r.id, method: "manual" })}
                           className="px-2 py-1 rounded bg-primary text-primary-foreground"
                         >Mark present</button>
                       ) : null}
