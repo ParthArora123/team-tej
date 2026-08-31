@@ -317,6 +317,20 @@ export function buildWaUrl(
     message = `${message}\n\n${sessionDetails}`;
   }
 
+  // Multi-person registration: append every participant's own ticket + QR link
+  // so each person can be checked in independently.
+  const parts = Array.isArray((enr as any).participants)
+    ? [...(enr as any).participants].sort((a: any, b: any) => a.position - b.position)
+    : [];
+  if (parts.length > 1) {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const lines = parts.map((p: any) => {
+      const url = p.ticket_code ? `${origin}/verify?code=${encodeURIComponent(p.ticket_code)}` : "";
+      return `👤 Participant ${p.position}: ${p.full_name}\n🎫 Ticket ID: ${p.ticket_code ?? "-"}${url ? `\n🔗 ${url}` : ""}`;
+    });
+    message = `${message}\n\n🎟️ Tickets for all ${parts.length} participants:\n\n${lines.join("\n\n")}`;
+  }
+
   return `https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`;
 }
 

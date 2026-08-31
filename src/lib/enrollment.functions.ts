@@ -4,6 +4,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { nameSchema } from "@/lib/name-validation";
 import { phoneSchema } from "@/lib/phone-validation";
 
+// Extra people covered by the same registration (Participant 2..5). The
+// primary registrant is always Participant 1 and keeps the existing fields.
+const extraParticipantSchema = z.object({
+  fullName: nameSchema,
+  email: z.string().email(),
+  phone: phoneSchema,
+});
+
 const detailsSchema = z.object({
   programId: z.string().uuid(),
   fullName: nameSchema,
@@ -16,6 +24,8 @@ const detailsSchema = z.object({
   selectedWorkshop: z.enum(["w1", "w2"]).optional(),
   silverSeatW1: z.boolean().optional(),
   silverSeatW2: z.boolean().optional(),
+  participantCount: z.number().int().min(1).max(5).optional(),
+  participants: z.array(extraParticipantSchema).max(4).optional(),
 });
 
 export const createEnrollment = createServerFn({ method: "POST" })
@@ -88,6 +98,20 @@ export const createEnrollment = createServerFn({ method: "POST" })
     const silverAdd = silverCount * silverPrice;
     const wantSilverLegacy = silverW1 || silverW2;
 
+    // Multi-person registration: Participant 1 is the primary registrant, the
+    // rest come from `participants`. Count defaults to 1 (existing behaviour).
+    const extras = data.participants ?? [];
+    const participantCount = Math.min(
+      Math.max(data.participantCount ?? extras.length + 1, 1),
+      5,
+    );
+    if (extras.length !== participantCount - 1) {
+      throw new Error("Please fill in details for every participant.");
+    }
+    if (program.capacity != null && (program.seats_taken ?? 0) + participantCount > program.capacity) {
+      throw new Error("Sorry, there aren't enough seats left for that many participants.");
+    }
+
     const { data: enr, error } = await supabase.from("enrollments").insert({
       user_id: userId, program_id: program.id, amount_inr: baseAmount + silverAdd,
       status: "awaiting_payment",
@@ -100,9 +124,34 @@ export const createEnrollment = createServerFn({ method: "POST" })
       silver_seat_w2: silverW2,
       registration_type: regType,
       selected_workshop: selected,
+      participant_count: participantCount,
     } as any).select("*").single();
     if (error) throw error;
-    return enr;
+
+    let record: any = enr;
+
+    if (participantCount > 1) {
+      // Existing pricing logic (incl. early-bird tiers applied by the DB
+      // trigger) decides the per-person price; we only multiply by headcount.
+      const perPerson = Number((enr as any).tier_price_inr ?? baseAmount);
+      const total = perPerson * participantCount + silverAdd;
+      const { data: updated } = await supabase
+        .from("enrollments").update({ amount_inr: total }).eq("id", (enr as any).id)
+        .select("*").single();
+      if (updated) record = updated;
+
+      const rows = [
+        { position: 1, full_name: data.fullName, email: data.email, phone: data.phone },
+        ...extras.map((x, i) => ({
+          position: i + 2, full_name: x.fullName, email: x.email, phone: x.phone,
+        })),
+      ].map((r) => ({ ...r, enrollment_id: (enr as any).id, program_id: program.id }));
+
+      const { error: pErr2 } = await supabase.from("enrollment_participants").insert(rows as any);
+      if (pErr2) throw pErr2;
+    }
+
+    return record;
   });
 
 
@@ -197,7 +246,7 @@ export const listMyEnrollments = createServerFn({ method: "GET" })
     // and sign banner URLs; results are strictly scoped to the current user.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(*)")
+      .from("enrollments").select("*, program:programs(*), participants:enrollment_participants(id, position, full_name, email, phone, ticket_code)")
       .eq("user_id", context.userId).order("created_at", { ascending: false });
     if (error) throw error;
     const { decryptSecret } = await import("./crypto.server");
@@ -235,7 +284,7 @@ export const listAllEnrollments = createServerFn({ method: "GET" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(*)")
+      .from("enrollments").select("*, program:programs(*), participants:enrollment_participants(id, position, full_name, email, phone, ticket_code)")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return data ?? [];
