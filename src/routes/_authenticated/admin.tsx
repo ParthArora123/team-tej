@@ -422,10 +422,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enable at least one registration option (Single or Both).");
       return;
     }
-    if (f.allow_both && !(Number(f.both_price) > 0)) {
-      toast.error("Enter a Both Workshops price.");
-      return;
-    }
     const enteredSchedule = (f.session_schedule ?? []).map((s: any) => ({
       time: String(s.time ?? "").trim(),
       name: String(s.name ?? "").trim(),
