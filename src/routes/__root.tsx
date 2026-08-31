@@ -58,6 +58,15 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    // Stale-deploy / chunk-load failures (common on mobile when a new
+    // version ships while a tab is open) are fixed by one full reload.
+    const msg = `${error?.name ?? ""} ${error?.message ?? ""}`;
+    const isChunkError =
+      /chunk|dynamically imported module|module script|import\(\)|failed to fetch/i.test(msg);
+    if (isChunkError && !sessionStorage.getItem("chunk-reload")) {
+      sessionStorage.setItem("chunk-reload", "1");
+      window.location.reload();
+    }
   }, [error]);
 
   return (
