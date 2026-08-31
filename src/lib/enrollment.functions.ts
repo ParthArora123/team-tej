@@ -4,6 +4,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { nameSchema } from "@/lib/name-validation";
 import { phoneSchema } from "@/lib/phone-validation";
 
+// Extra people covered by the same registration (Participant 2..5). The
+// primary registrant is always Participant 1 and keeps the existing fields.
+const extraParticipantSchema = z.object({
+  fullName: nameSchema,
+  email: z.string().email(),
+  phone: phoneSchema,
+});
+
 const detailsSchema = z.object({
   programId: z.string().uuid(),
   fullName: nameSchema,
@@ -16,6 +24,8 @@ const detailsSchema = z.object({
   selectedWorkshop: z.enum(["w1", "w2"]).optional(),
   silverSeatW1: z.boolean().optional(),
   silverSeatW2: z.boolean().optional(),
+  participantCount: z.number().int().min(1).max(5).optional(),
+  participants: z.array(extraParticipantSchema).max(4).optional(),
 });
 
 export const createEnrollment = createServerFn({ method: "POST" })
