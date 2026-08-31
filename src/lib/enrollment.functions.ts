@@ -116,9 +116,40 @@ export const createEnrollment = createServerFn({ method: "POST" })
       silver_seat_w2: silverW2,
       registration_type: regType,
       selected_workshop: selected,
+      participant_count: participantCount,
     } as any).select("*").single();
     if (error) throw error;
-    return enr;
+
+    // A workshop with early-bird price tiers has a BEFORE INSERT trigger that
+    // rewrites amount_inr from the applicable tier for a single seat. Re-apply
+    // the per-participant multiplier on top of the tier price it picked.
+    let finalEnr: any = enr;
+    if (participantCount > 1) {
+      const tierPrice = (enr as any)?.tier_price_inr;
+      if (tierPrice != null) {
+        const { data: fixed } = await supabase
+          .from("enrollments")
+          .update({ amount_inr: Number(tierPrice) * participantCount + silverAdd } as any)
+          .eq("id", (enr as any).id)
+          .select("*")
+          .single();
+        if (fixed) finalEnr = fixed;
+      }
+
+      const rows = [
+        { full_name: data.fullName, email: data.email, phone: data.phone },
+        ...extras.map((x) => ({ full_name: x.fullName, email: x.email, phone: x.phone })),
+      ].map((r, i) => ({
+        enrollment_id: (enr as any).id,
+        program_id: program.id,
+        position: i + 1,
+        ...r,
+      }));
+      const { error: partErr } = await supabase.from("enrollment_participants").insert(rows as any);
+      if (partErr) throw partErr;
+    }
+
+    return finalEnr;
   });
 
 
