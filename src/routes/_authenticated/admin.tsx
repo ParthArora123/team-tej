@@ -426,29 +426,17 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enter a Both Workshops price.");
       return;
     }
-    if (f.allow_both && (!f.workshop1_name?.trim() || !f.workshop2_name?.trim())) {
-      toast.error("Enter both Workshop 1 and Workshop 2 names.");
-      return;
-    }
     const enteredSchedule = (f.session_schedule ?? []).map((s: any) => ({
       time: String(s.time ?? "").trim(),
       name: String(s.name ?? "").trim(),
     }));
     const schedule = f.allow_both
       ? [
-          { name: f.workshop1_name.trim(), time: enteredSchedule[0]?.time ?? "" },
-          { name: f.workshop2_name.trim(), time: enteredSchedule[1]?.time ?? "" },
-          ...enteredSchedule.slice(2),
-        ]
+           { name: f.workshop1_name.trim(), time: enteredSchedule[0]?.time ?? "" },
+           { name: f.workshop2_name.trim(), time: enteredSchedule[1]?.time ?? "" },
+           ...enteredSchedule.slice(2),
+         ]
       : enteredSchedule;
-    if (schedule.some((s: any) => !s.name || !s.time)) {
-      toast.error("Each session must have both a class name and its own time.");
-      return;
-    }
-    if (f.allow_both && schedule.length < 2) {
-      toast.error("Add a separate class name and time for both workshops in the Session Schedule.");
-      return;
-    }
     setBusy(true);
     try {
       await onSave({ data: {
