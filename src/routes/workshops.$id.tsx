@@ -647,9 +647,16 @@ function WorkshopDetailPage() {
   // Pair the two configured workshop names with their own saved schedule rows.
   // Names remain visible even before a time is entered, but the general event
   // time is never duplicated across sessions.
-  const sessions: { time: string; name: string }[] = allowBoth
-    ? [w1Name, w2Name].map((name, index) => {
-        const normalizedName = name.trim().toLocaleLowerCase();
+  // Only sessions actually configured in the admin are shown — no
+  // placeholder "Workshop 1/2" rows appear when names were left blank.
+  const configuredNames = allowBoth
+    ? [(program as any).workshop1_name, (program as any).workshop2_name]
+        .map((n) => String(n ?? "").trim())
+        .filter(Boolean)
+    : [];
+  const sessions: { time: string; name: string }[] = configuredNames.length > 0
+    ? configuredNames.map((name, index) => {
+        const normalizedName = name.toLocaleLowerCase();
         const namedRow = rawSessions.find(
           (session) => session.name.trim().toLocaleLowerCase() === normalizedName,
         );
@@ -1045,8 +1052,13 @@ function WorkshopDetailPage() {
                   <div className="space-y-2 text-sm text-primary/90">
                     <p className="text-xs uppercase tracking-widest text-primary/80">Includes</p>
                     <ul className="space-y-1">
-                      <li className="flex gap-2"><span className="text-primary">✔</span>{w1Name}</li>
-                      <li className="flex gap-2"><span className="text-primary">✔</span>{w2Name}</li>
+                      {configuredNames.length > 0 ? (
+                        configuredNames.map((n) => (
+                          <li key={n} className="flex gap-2"><span className="text-primary">✔</span>{n}</li>
+                        ))
+                      ) : (
+                        <li className="flex gap-2"><span className="text-primary">✔</span>{program.name}</li>
+                      )}
                     </ul>
                   </div>
                 </div>
