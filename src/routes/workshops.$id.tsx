@@ -631,7 +631,8 @@ function WorkshopDetailPage() {
   const silverPrice = program?.silver_seat_price ?? 1000;
 
   const allowSingle = (program as any).allow_single !== false;
-  const allowBoth = !!(program as any).allow_both;
+  const bothWorkshopsConfigured = Boolean((program as any).workshop1_name) && Boolean((program as any).workshop2_name);
+  const allowBoth = !!(program as any).allow_both && bothWorkshopsConfigured;
   const tier = pricing?.current ?? null;
   const baseSinglePrice = program?.price_inr ?? 0;
   const baseBothPrice = allowBoth ? ((program as any).both_price ?? baseSinglePrice) : 0;
