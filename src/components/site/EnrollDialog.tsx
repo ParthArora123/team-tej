@@ -45,6 +45,8 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
   const [silverW1, setSilverW1] = useState(false);
   const [silverW2, setSilverW2] = useState(false);
   const [regType, setRegType] = useState<"single" | "both">("single");
+  const [participantCount, setParticipantCount] = useState(1);
+  const [extras, setExtras] = useState<Array<{ fullName: string; email: string; phone: string }>>([]);
   const [selectedWorkshop, setSelectedWorkshop] = useState<"w1" | "w2">("w1");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -65,6 +67,8 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
     const initialType: "single" | "both" = allowSingle ? "single" : allowBoth ? "both" : "single";
     setRegType(initialType);
     setSelectedWorkshop("w1");
+    setParticipantCount(1);
+    setExtras([]);
     supabase.auth.getUser().then(async ({ data }) => {
       if (data.user) {
         setSignedIn(true);
@@ -106,7 +110,18 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
   const silverCount = regType === "both"
     ? (silverW1 ? 1 : 0) + (silverW2 ? 1 : 0)
     : ((silverW1 || silverW2) ? 1 : 0);
-  const total = basePrice + (klass.silverSeatEnabled ? silverCount * silverAddon : 0);
+  const total = basePrice * participantCount + (klass.silverSeatEnabled ? silverCount * silverAddon : 0);
+
+  const setCount = (n: number) => {
+    setParticipantCount(n);
+    setExtras((prev) => {
+      const next = prev.slice(0, Math.max(n - 1, 0));
+      while (next.length < n - 1) next.push({ fullName: "", email: "", phone: "" });
+      return next;
+    });
+  };
+  const updateExtra = (i: number, patch: Partial<{ fullName: string; email: string; phone: string }>) =>
+    setExtras((prev) => prev.map((p, idx) => (idx === i ? { ...p, ...patch } : p)));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +134,17 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
       setErr(PHONE_ERROR_MESSAGE);
       return;
     }
+    const cleanExtras = extras.map((x) => ({
+      fullName: normalizeName(x.fullName),
+      email: x.email.trim(),
+      phone: x.phone,
+    }));
+    for (let i = 0; i < cleanExtras.length; i++) {
+      const x = cleanExtras[i];
+      if (!isValidName(x.fullName)) { setErr(`Participant ${i + 2}: ${NAME_ERROR_MESSAGE}`); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(x.email)) { setErr(`Participant ${i + 2}: please enter a valid email address.`); return; }
+      if (!isValidPhone(x.phone)) { setErr(`Participant ${i + 2}: ${PHONE_ERROR_MESSAGE}`); return; }
+    }
     setErr(""); setBusy(true);
     try {
       // For "single" with named workshops, silverW1/W2 map to selectedWorkshop.
@@ -126,6 +152,8 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
         programId: klass.id, fullName: cleanName, email: d.email, phone: d.phone,
         gender: d.gender, emergencyContact: d.emergencyContact,
         registrationType: regType,
+        participantCount,
+        participants: cleanExtras,
       };
       if (regType === "both") {
         payload.silverSeatW1 = !!(klass.silverSeatEnabled && silverW1);
@@ -177,6 +205,12 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
               <p className="text-xs uppercase tracking-widest text-primary">Registration</p>
               <h3 className="mt-2 text-2xl font-display font-bold">{klass.name}</h3>
               <p className="text-sm text-muted-foreground mt-1">{klass.duration} · ₹{total.toLocaleString("en-IN")}</p>
+              {participantCount > 1 && (
+                <div className="mt-3 rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground flex items-center justify-between">
+                  <span>₹{basePrice.toLocaleString("en-IN")} × {participantCount} participants</span>
+                  <span className="font-semibold text-foreground">₹{(basePrice * participantCount).toLocaleString("en-IN")}</span>
+                </div>
+              )}
               {klass.silverSeatEnabled && silverCount > 0 && (
                 <div className="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground flex items-center justify-between">
                   <span>Base ₹{basePrice.toLocaleString("en-IN")} + Silver Seat ₹{(silverCount * silverAddon).toLocaleString("en-IN")}</span>
@@ -185,6 +219,26 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
               )}
 
               <div className="mt-5 grid grid-cols-2 gap-3">
+                <label className="col-span-2 block">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground">Number of participants</span>
+                  <select
+                    value={participantCount}
+                    onChange={(e) => setCount(Number(e.target.value))}
+                    className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm"
+                  >
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
+                  {participantCount > 1 && (
+                    <span className="mt-1 block text-[11px] text-muted-foreground">
+                      Each participant gets their own Ticket ID and QR code.
+                    </span>
+                  )}
+                </label>
+                {participantCount > 1 && (
+                  <p className="col-span-2 -mb-1 text-xs uppercase tracking-widest text-primary">Participant 1 (you)</p>
+                )}
                 <Field label="Full name" v={d.fullName} on={(v) => setD({...d, fullName: v})} span2 maxLength={NAME_MAX_LENGTH} title={NAME_ERROR_MESSAGE} />
                 <Field label="Email" type="email" v={d.email} on={(v) => setD({...d, email: v})} />
                 <Field
@@ -219,6 +273,33 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
                 {((d.phone && !isValidPhone(d.phone)) || (d.emergencyContact && !isValidPhone(d.emergencyContact))) && (
                   <p className="col-span-2 -mt-1 text-xs text-destructive">{PHONE_ERROR_MESSAGE}</p>
                 )}
+
+                {extras.map((x, i) => (
+                  <div key={i} className="col-span-2 rounded-xl border border-border bg-muted/30 p-3">
+                    <p className="text-xs uppercase tracking-widest text-primary">Participant {i + 2}</p>
+                    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <Field
+                        label="Full name"
+                        v={x.fullName}
+                        on={(v) => updateExtra(i, { fullName: v })}
+                        maxLength={NAME_MAX_LENGTH}
+                        title={NAME_ERROR_MESSAGE}
+                        span2
+                      />
+                      <Field label="Email" type="email" v={x.email} on={(v) => updateExtra(i, { email: v })} />
+                      <Field
+                        label="Mobile"
+                        type="tel"
+                        v={x.phone}
+                        on={(v) => updateExtra(i, { phone: sanitizePhone(v) })}
+                        inputMode="numeric"
+                        pattern="[0-9]{10}"
+                        maxLength={10}
+                        title={PHONE_ERROR_MESSAGE}
+                      />
+                    </div>
+                  </div>
+                ))}
 
                 {(allowSingle || allowBoth) && (allowSingle && allowBoth ? (
                   <div className="col-span-2 rounded-xl border border-primary/40 bg-primary/5 p-3 space-y-2">
