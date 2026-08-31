@@ -244,7 +244,7 @@ export const listMyEnrollments = createServerFn({ method: "GET" })
     // and sign banner URLs; results are strictly scoped to the current user.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(*)")
+      .from("enrollments").select("*, program:programs(*), participants:enrollment_participants(*)")
       .eq("user_id", context.userId).order("created_at", { ascending: false });
     if (error) throw error;
     const { decryptSecret } = await import("./crypto.server");
