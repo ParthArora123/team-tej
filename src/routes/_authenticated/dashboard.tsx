@@ -239,9 +239,6 @@ function Dashboard() {
           const upiUrl = upiId
             ? `upi://pay?pa=${upiId}&pn=${enc(payeeName)}&am=${amount}&cu=INR&tn=${enc(note)}`
             : "";
-          const verifyUrl = typeof window !== "undefined" && r.ticket_code
-            ? `${window.location.origin}/verify?code=${encodeURIComponent(r.ticket_code)}`
-            : "";
           return (
             <motion.div key={r.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
               className="bg-card border border-border rounded-2xl overflow-hidden">
