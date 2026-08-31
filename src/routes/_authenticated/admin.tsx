@@ -625,9 +625,9 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                   <In placeholder="Bol Na Halke" v={s.name} on={(v) => {
                     const next = [...(f.session_schedule ?? [])]; next[i] = { ...next[i], name: v }; setF({ ...f, session_schedule: next });
                   }} disabled={f.allow_both && i < 2} />
-                  {(!f.allow_both || i >= 2) ? <button type="button"
+                  <button type="button"
                     onClick={() => setF({ ...f, session_schedule: (f.session_schedule ?? []).filter((_: any, j: number) => j !== i) })}
-                    className="px-2 py-1.5 rounded-lg border border-border text-destructive text-xs">Remove</button> : <span className="w-14 text-center text-[10px] text-muted-foreground">Required</span>}
+                    className="px-2 py-1.5 rounded-lg border border-border text-destructive text-xs">Remove</button>
                 </div>
               ))}
               <button type="button"
