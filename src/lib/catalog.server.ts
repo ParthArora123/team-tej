@@ -101,17 +101,22 @@ function isPastProgram(row: any): boolean {
 export async function listPublicPrograms(kind?: string) {
   const { data, error } = await selectPrograms(kind);
   if (error) throw error;
-  return decorateBanners((data ?? []).filter((row: any) => !isPastProgram(row)));
+  const rows = data ?? [];
+  const upcoming = rows.filter((row: any) => !isPastProgram(row));
+  // Never blank the site: if every workshop's date has passed, keep showing
+  // the existing catalogue instead of an empty page.
+  return decorateBanners(upcoming.length ? upcoming : rows);
 }
 
 export async function getPublicProgram(id: string) {
   const { data, error } = await selectPrograms(undefined, id);
   if (error) throw error;
   const row = data?.[0] ?? null;
-  if (!row || isPastProgram(row)) return null;
+  if (!row) return null;
   const [decorated] = await decorateBanners([row]);
   return decorated ?? null;
 }
+
 
 
 export async function listPublicEvents() {
