@@ -382,43 +382,58 @@ function Dashboard() {
                 </div>
               )}
 
-              {r.status === "confirmed" && (
-                <div className="mt-5 relative rounded-xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 text-primary">
-                        <Ticket size={16} /><span className="text-xs uppercase tracking-widest font-semibold">Ticket · Confirmed</span>
+              {r.status === "confirmed" && (() => {
+                const parts = (r as any).participants ?? [];
+                // Multi-person registrations show one ticket + QR per person.
+                const tickets = parts.length > 1
+                  ? [...parts].sort((a: any, b: any) => a.position - b.position).map((p: any) => ({
+                      key: p.id, label: `Participant ${p.position} · ${p.full_name}`, code: p.ticket_code,
+                    }))
+                  : [{ key: r.id, label: null as string | null, code: r.ticket_code }];
+                const origin = typeof window !== "undefined" ? window.location.origin : "";
+                return (
+                  <div className="mt-5 space-y-4">
+                    {tickets.map((t: any) => (
+                      <div key={t.key} className="relative rounded-xl border border-dashed border-primary/40 bg-gradient-to-br from-primary/10 to-transparent p-5">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 text-primary">
+                              <Ticket size={16} /><span className="text-xs uppercase tracking-widest font-semibold">Ticket · Confirmed</span>
+                            </div>
+                            {t.label && <p className="mt-2 text-sm font-medium">{t.label}</p>}
+                            <p className="mt-1 font-mono text-lg break-all">{t.code}</p>
+                            {(() => {
+                              const ws = getSelectedWorkshopNames(r);
+                              if (!ws) return null;
+                              return <p className="mt-1 text-sm text-foreground font-medium">{ws}</p>;
+                            })()}
+                            <p className="text-xs text-muted-foreground">Show this at the studio on your first day.</p>
+                          </div>
+                          <div className="flex flex-col items-center gap-2 w-full sm:w-auto shrink-0">
+                            <div id={`ticket-qr-${t.key}`} className="bg-white p-2 rounded inline-block">
+                              <QRCodeCanvas
+                                value={t.code ? `${origin}/verify?code=${encodeURIComponent(t.code)}` : ""}
+                                size={132}
+                                level="Q"
+                                marginSize={4}
+                                bgColor="#ffffff"
+                                fgColor="#000000"
+                                style={{ display: "block", maxWidth: "100%", height: "auto" }}
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => downloadQrPng(`ticket-qr-${t.key}`, `ticket-${t.code}.png`)}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary text-[11px] font-medium">
+                              <Download size={11} /> Download
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <p className="mt-2 font-mono text-lg break-all">{r.ticket_code}</p>
-                      {(() => {
-                        const ws = getSelectedWorkshopNames(r);
-                        if (!ws) return null;
-                        return <p className="mt-1 text-sm text-foreground font-medium">{ws}</p>;
-                      })()}
-                      <p className="text-xs text-muted-foreground">Show this at the studio on your first day.</p>
-                    </div>
-                    <div className="flex flex-col items-center gap-2 w-full sm:w-auto shrink-0">
-                      <div id={`ticket-qr-${r.id}`} className="bg-white p-2 rounded inline-block">
-                        <QRCodeCanvas
-                          value={verifyUrl || r.ticket_code || ""}
-                          size={132}
-                          level="Q"
-                          marginSize={4}
-                          bgColor="#ffffff"
-                          fgColor="#000000"
-                          style={{ display: "block", maxWidth: "100%", height: "auto" }}
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => downloadQrPng(`ticket-qr-${r.id}`, `ticket-${r.ticket_code}.png`)}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary text-[11px] font-medium">
-                        <Download size={11} /> Download
-                      </button>
-                    </div>
+                    ))}
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {r.status === "rejected" && (
                 <p className="mt-4 text-sm text-destructive">Payment couldn't be verified. Please contact us.</p>
