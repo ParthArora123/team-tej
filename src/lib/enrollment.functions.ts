@@ -98,6 +98,20 @@ export const createEnrollment = createServerFn({ method: "POST" })
     const silverAdd = silverCount * silverPrice;
     const wantSilverLegacy = silverW1 || silverW2;
 
+    // Multi-person registration: Participant 1 is the primary registrant, the
+    // rest come from `participants`. Count defaults to 1 (existing behaviour).
+    const extras = data.participants ?? [];
+    const participantCount = Math.min(
+      Math.max(data.participantCount ?? extras.length + 1, 1),
+      5,
+    );
+    if (extras.length !== participantCount - 1) {
+      throw new Error("Please fill in details for every participant.");
+    }
+    if (program.capacity != null && (program.seats_taken ?? 0) + participantCount > program.capacity) {
+      throw new Error("Sorry, there aren't enough seats left for that many participants.");
+    }
+
     const { data: enr, error } = await supabase.from("enrollments").insert({
       user_id: userId, program_id: program.id, amount_inr: baseAmount + silverAdd,
       status: "awaiting_payment",
@@ -110,9 +124,34 @@ export const createEnrollment = createServerFn({ method: "POST" })
       silver_seat_w2: silverW2,
       registration_type: regType,
       selected_workshop: selected,
+      participant_count: participantCount,
     } as any).select("*").single();
     if (error) throw error;
-    return enr;
+
+    let record: any = enr;
+
+    if (participantCount > 1) {
+      // Existing pricing logic (incl. early-bird tiers applied by the DB
+      // trigger) decides the per-person price; we only multiply by headcount.
+      const perPerson = Number((enr as any).tier_price_inr ?? baseAmount);
+      const total = perPerson * participantCount + silverAdd;
+      const { data: updated } = await supabase
+        .from("enrollments").update({ amount_inr: total }).eq("id", (enr as any).id)
+        .select("*").single();
+      if (updated) record = updated;
+
+      const rows = [
+        { position: 1, full_name: data.fullName, email: data.email, phone: data.phone },
+        ...extras.map((x, i) => ({
+          position: i + 2, full_name: x.fullName, email: x.email, phone: x.phone,
+        })),
+      ].map((r) => ({ ...r, enrollment_id: (enr as any).id, program_id: program.id }));
+
+      const { error: pErr2 } = await supabase.from("enrollment_participants").insert(rows as any);
+      if (pErr2) throw pErr2;
+    }
+
+    return record;
   });
 
 
