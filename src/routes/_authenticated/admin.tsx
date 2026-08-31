@@ -422,10 +422,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enable at least one registration option (Single or Both).");
       return;
     }
-    if (f.allow_both && !(Number(f.both_price) > 0)) {
-      toast.error("Enter a Both Workshops price.");
-      return;
-    }
     const enteredSchedule = (f.session_schedule ?? []).map((s: any) => ({
       time: String(s.time ?? "").trim(),
       name: String(s.name ?? "").trim(),
@@ -646,12 +642,12 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 <input type="checkbox" checked={!!f.allow_both} onChange={(e) => setF({ ...f, allow_both: e.target.checked })} />
                 Enable Both Workshops registration
               </label>
-              <FieldRow label="Single Workshop Price (₹) *">
-                <In type="number" placeholder="Enter Single Workshop price" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} required />
+              <FieldRow label="Single Workshop Price (₹)">
+                <In type="number" placeholder="Enter Single Workshop price" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} />
               </FieldRow>
               {f.allow_both && (
                 <>
-                  <FieldRow label="Both Workshops Price (₹) *">
+                  <FieldRow label="Both Workshops Price (₹)">
                     <In type="number" placeholder="Enter Both Workshops price" v={f.both_price} on={(v) => setF({ ...f, both_price: v })} />
                   </FieldRow>
                   <FieldRow label="Workshop 1 Name">
