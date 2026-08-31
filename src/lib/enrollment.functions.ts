@@ -4,6 +4,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { nameSchema } from "@/lib/name-validation";
 import { phoneSchema } from "@/lib/phone-validation";
 
+// Additional participants (2..5) registered under the same registration.
+// Participant 1 is always the registrant themselves (fullName/email/phone).
+const extraParticipantSchema = z.object({
+  fullName: nameSchema,
+  email: z.string().email(),
+  phone: phoneSchema,
+});
+
 const detailsSchema = z.object({
   programId: z.string().uuid(),
   fullName: nameSchema,
