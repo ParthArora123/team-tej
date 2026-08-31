@@ -773,7 +773,7 @@ function WorkshopDetailPage() {
               className="mt-4 md:mt-5 font-display text-[clamp(2rem,5.6vw,4rem)] font-semibold leading-[1.0] text-foreground break-words"
               style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}
             >
-              {displayName}
+              {program.name}
             </motion.h1>
 
             {program.style && (
