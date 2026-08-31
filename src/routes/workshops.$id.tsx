@@ -650,11 +650,13 @@ function WorkshopDetailPage() {
   // time is never duplicated across sessions.
   // Only sessions actually configured in the admin are shown — no
   // placeholder "Workshop 1/2" rows appear when names were left blank.
+  const w1Configured = String((program as any).workshop1_name ?? "").trim();
   const configuredNames = allowBoth
-    ? [(program as any).workshop1_name, (program as any).workshop2_name]
-        .map((n) => String(n ?? "").trim())
-        .filter(Boolean)
-    : [];
+    ? [w1Configured, String((program as any).workshop2_name ?? "").trim()].filter(Boolean)
+    : [w1Configured].filter(Boolean);
+  // UI display name: prefer the admin-configured Workshop 1 name for
+  // single-workshop events; fall back to the program title otherwise.
+  const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0
     ? configuredNames.map((name, index) => {
         const normalizedName = name.toLocaleLowerCase();
