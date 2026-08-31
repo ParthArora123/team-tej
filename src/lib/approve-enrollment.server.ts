@@ -9,6 +9,8 @@
 export type ApproveResult = {
   enrollment: any;
   ticketCode: string;
+  /** One row per person when the registration covers more than one participant. */
+  participants: Array<{ id: string; position: number; full_name: string; email: string | null; phone: string | null; ticket_code: string | null }>;
   whatsappAlreadySent: boolean;
   confirmationEmailAlreadySent: boolean;
   alreadyConfirmed: boolean;
