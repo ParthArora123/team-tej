@@ -37,6 +37,7 @@ export type Database = {
           enrollment_id: string
           id: string
           method: string
+          participant_id: string | null
           program_id: string
           status: string
           ticket_code: string | null
@@ -50,6 +51,7 @@ export type Database = {
           enrollment_id: string
           id?: string
           method?: string
+          participant_id?: string | null
           program_id: string
           status?: string
           ticket_code?: string | null
@@ -63,6 +65,7 @@ export type Database = {
           enrollment_id?: string
           id?: string
           method?: string
+          participant_id?: string | null
           program_id?: string
           status?: string
           ticket_code?: string | null
@@ -73,8 +76,15 @@ export type Database = {
           {
             foreignKeyName: "attendance_enrollment_id_fkey"
             columns: ["enrollment_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "enrollment_participants"
             referencedColumns: ["id"]
           },
           {
@@ -360,6 +370,67 @@ export type Database = {
         }
         Relationships: []
       }
+      enrollment_participants: {
+        Row: {
+          created_at: string
+          email: string | null
+          enrollment_id: string
+          full_name: string
+          id: string
+          phone: string | null
+          position: number
+          program_id: string
+          ticket_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          enrollment_id: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          position: number
+          program_id: string
+          ticket_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          enrollment_id?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          position?: number
+          program_id?: string
+          ticket_code?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollment_participants_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_participants_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollment_participants_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollments: {
         Row: {
           address: string | null
@@ -378,6 +449,7 @@ export type Database = {
           id: string
           medical_info: string | null
           notification_provider: string | null
+          participant_count: number
           payment_confirmed_at: string | null
           payment_note: string | null
           payment_proof_path: string | null
@@ -425,6 +497,7 @@ export type Database = {
           id?: string
           medical_info?: string | null
           notification_provider?: string | null
+          participant_count?: number
           payment_confirmed_at?: string | null
           payment_note?: string | null
           payment_proof_path?: string | null
@@ -472,6 +545,7 @@ export type Database = {
           id?: string
           medical_info?: string | null
           notification_provider?: string | null
+          participant_count?: number
           payment_confirmed_at?: string | null
           payment_note?: string | null
           payment_proof_path?: string | null
