@@ -97,8 +97,15 @@ export const createEnrollment = createServerFn({ method: "POST" })
     const silverAdd = silverCount * silverPrice;
     const wantSilverLegacy = silverW1 || silverW2;
 
+    // Multi-person registration: participant 1 is the registrant, plus up to
+    // four extra participants. Existing single-person registrations keep
+    // participant_count = 1 and behave exactly as before.
+    const extras = data.participants ?? [];
+    const participantCount = 1 + extras.length;
+
     const { data: enr, error } = await supabase.from("enrollments").insert({
-      user_id: userId, program_id: program.id, amount_inr: baseAmount + silverAdd,
+      user_id: userId, program_id: program.id,
+      amount_inr: baseAmount * participantCount + silverAdd,
       status: "awaiting_payment",
       full_name: data.fullName, email: data.email, phone: data.phone,
       gender: data.gender,
