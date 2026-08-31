@@ -24,6 +24,7 @@ const detailsSchema = z.object({
   selectedWorkshop: z.enum(["w1", "w2"]).optional(),
   silverSeatW1: z.boolean().optional(),
   silverSeatW2: z.boolean().optional(),
+  participants: z.array(extraParticipantSchema).max(4).optional(),
 });
 
 export const createEnrollment = createServerFn({ method: "POST" })
