@@ -603,40 +603,24 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Class / Session Schedule</p>
               <p className="text-[11px] text-muted-foreground">Enter the specific time for each workshop. The workshop name and this exact time are shown together on the detail page.</p>
-              {(f.allow_both
-                ? [
-                    { name: f.workshop1_name || "Workshop 1", time: f.session_schedule?.[0]?.time ?? "" },
-                    { name: f.workshop2_name || "Workshop 2", time: f.session_schedule?.[1]?.time ?? "" },
-                    ...(f.session_schedule ?? []).slice(2),
-                  ]
-                : (f.session_schedule ?? [])
-              ).map((s: any, i: number) => (
+              {(f.session_schedule ?? []).map((s: any, i: number) => (
                 <div key={i} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)_auto] gap-2 items-center">
                   <In type="time" placeholder="Select session time" v={s.time} on={(v) => {
                     const next = [...(f.session_schedule ?? [])];
-                    while (next.length <= i) next.push({ time: "", name: "" });
-                    next[i] = {
-                      ...next[i],
-                      time: v,
-                      name: f.allow_both && i < 2 ? (i === 0 ? f.workshop1_name : f.workshop2_name) : (next[i]?.name ?? ""),
-                    };
+                    next[i] = { ...next[i], time: v };
                     setF({ ...f, session_schedule: next });
                   }} />
                   <In placeholder="Bol Na Halke" v={s.name} on={(v) => {
                     const next = [...(f.session_schedule ?? [])]; next[i] = { ...next[i], name: v }; setF({ ...f, session_schedule: next });
-                  }} disabled={f.allow_both && i < 2} />
-                  {f.allow_both && i < 2 ? (
-                    <span className="text-[11px] text-muted-foreground text-center">Workshop</span>
-                  ) : (
-                    <button type="button"
-                      onClick={() => setF({ ...f, session_schedule: (f.session_schedule ?? []).filter((_: any, j: number) => j !== i) })}
-                      className="px-2 py-1.5 rounded-lg border border-border text-destructive text-xs hover:bg-destructive/10 active:scale-95 transition">Remove</button>
-                  )}
+                  }} />
+                  <button type="button"
+                    onClick={() => setF({ ...f, session_schedule: (f.session_schedule ?? []).filter((_: any, j: number) => j !== i) })}
+                    className="px-2 py-1.5 rounded-lg border border-border text-destructive text-xs hover:bg-destructive/10 active:scale-95 transition">Remove</button>
                 </div>
               ))}
               <button type="button"
                 onClick={() => setF({ ...f, session_schedule: [...(f.session_schedule ?? []), { time: "", name: "" }] })}
-                className="px-3 py-1.5 rounded-lg border border-border text-xs">+ Add extra session</button>
+                className="px-3 py-1.5 rounded-lg border border-border text-xs">+ Add session</button>
             </div>
 
 
