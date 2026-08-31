@@ -262,6 +262,7 @@ export const listMyEnrollments = createServerFn({ method: "GET" })
         }
         r.program = { ...rest, banner_url, upi_id: upi };
       }
+      r.participants = [...(r.participants ?? [])].sort((a: any, b: any) => a.position - b.position);
       return r;
     }));
   });
