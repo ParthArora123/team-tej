@@ -42,6 +42,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [authError, setAuthError] = useState("");
   const [d, setD] = useState(initial);
+  const [extras, setExtras] = useState<{ fullName: string; email: string; phone: string }[]>([]);
   const [silverW1, setSilverW1] = useState(false);
   const [silverW2, setSilverW2] = useState(false);
   const [regType, setRegType] = useState<"single" | "both">("single");
@@ -49,6 +50,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+
 
   const allowSingle = klass?.allowSingle !== false;
   const allowBoth = !!klass?.allowBoth && !!klass?.bothPrice;
@@ -60,6 +62,8 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
     if (!klass) return;
     setSilverW1(false);
     setSilverW2(false);
+    setExtras([]);
+
     setErr("");
     setDone(false);
     const initialType: "single" | "both" = allowSingle ? "single" : allowBoth ? "both" : "single";
@@ -106,7 +110,16 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
   const silverCount = regType === "both"
     ? (silverW1 ? 1 : 0) + (silverW2 ? 1 : 0)
     : ((silverW1 || silverW2) ? 1 : 0);
-  const total = basePrice + (klass.silverSeatEnabled ? silverCount * silverAddon : 0);
+  const participantCount = 1 + extras.length;
+  const total = basePrice * participantCount + (klass.silverSeatEnabled ? silverCount * silverAddon : 0);
+
+  const setCount = (n: number) => {
+    setExtras((prev) => {
+      const next = prev.slice(0, Math.max(n - 1, 0));
+      while (next.length < n - 1) next.push({ fullName: "", email: "", phone: "" });
+      return next;
+    });
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,6 +132,19 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
       setErr(PHONE_ERROR_MESSAGE);
       return;
     }
+    const cleanExtras = extras.map((x) => ({
+      fullName: normalizeName(x.fullName),
+      email: x.email.trim(),
+      phone: x.phone,
+    }));
+    if (cleanExtras.some((x) => !isValidName(x.fullName))) {
+      setErr(NAME_ERROR_MESSAGE);
+      return;
+    }
+    if (cleanExtras.some((x) => !isValidPhone(x.phone))) {
+      setErr(PHONE_ERROR_MESSAGE);
+      return;
+    }
     setErr(""); setBusy(true);
     try {
       // For "single" with named workshops, silverW1/W2 map to selectedWorkshop.
@@ -127,6 +153,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
         gender: d.gender, emergencyContact: d.emergencyContact,
         registrationType: regType,
       };
+      if (cleanExtras.length) payload.participants = cleanExtras;
       if (regType === "both") {
         payload.silverSeatW1 = !!(klass.silverSeatEnabled && silverW1);
         payload.silverSeatW2 = !!(klass.silverSeatEnabled && silverW2);
@@ -135,6 +162,7 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
         payload.silverSeat = !!(klass.silverSeatEnabled && (silverW1 || silverW2));
       }
       await create({ data: payload });
+
       setDone(true);
       onClose();
       navigate({ to: "/dashboard" });
@@ -219,6 +247,60 @@ export function EnrollDialog({ klass, onClose, inline = false }: Props) {
                 {((d.phone && !isValidPhone(d.phone)) || (d.emergencyContact && !isValidPhone(d.emergencyContact))) && (
                   <p className="col-span-2 -mt-1 text-xs text-destructive">{PHONE_ERROR_MESSAGE}</p>
                 )}
+
+                <label className="col-span-2 block">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground">Number of participants</span>
+                  <select
+                    value={participantCount}
+                    onChange={(e) => setCount(Number(e.target.value))}
+                    className="mt-1 w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm"
+                  >
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
+                  </select>
+                </label>
+
+                {extras.map((p, i) => (
+                  <div key={i} className="col-span-2 rounded-xl border border-border bg-muted/30 p-3 grid grid-cols-2 gap-3">
+                    <p className="col-span-2 text-xs uppercase tracking-widest text-muted-foreground">
+                      Participant {i + 2}
+                    </p>
+                    <Field
+                      label="Full name"
+                      v={p.fullName}
+                      on={(v) => setExtras(extras.map((x, j) => j === i ? { ...x, fullName: v } : x))}
+                      span2
+                      maxLength={NAME_MAX_LENGTH}
+                      title={NAME_ERROR_MESSAGE}
+                    />
+                    <Field
+                      label="Email"
+                      type="email"
+                      v={p.email}
+                      on={(v) => setExtras(extras.map((x, j) => j === i ? { ...x, email: v } : x))}
+                    />
+                    <Field
+                      label="Mobile"
+                      type="tel"
+                      v={p.phone}
+                      on={(v) => setExtras(extras.map((x, j) => j === i ? { ...x, phone: sanitizePhone(v) } : x))}
+                      inputMode="numeric"
+                      pattern="[0-9]{10}"
+                      maxLength={10}
+                      title={PHONE_ERROR_MESSAGE}
+                    />
+                  </div>
+                ))}
+
+                {participantCount > 1 && (
+                  <div className="col-span-2 rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground flex items-center justify-between">
+                    <span>₹{basePrice.toLocaleString("en-IN")} × {participantCount} participants</span>
+                    <span className="font-semibold text-foreground">₹{(basePrice * participantCount).toLocaleString("en-IN")}</span>
+                  </div>
+                )}
+
+
 
                 {(allowSingle || allowBoth) && (allowSingle && allowBoth ? (
                   <div className="col-span-2 rounded-xl border border-primary/40 bg-primary/5 p-3 space-y-2">

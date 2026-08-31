@@ -10,18 +10,28 @@ export const verifyTicket = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const code = data.code.toUpperCase();
-    const { data: row } = await supabaseAdmin
-      .from("enrollments")
-      .select("ticket_code, status, full_name, amount_inr, approved_at, registration_type, selected_workshop, program:programs(name, duration, event_date, venue, workshop1_name, workshop2_name)")
+    const cols =
+      "ticket_code, status, full_name, amount_inr, approved_at, registration_type, selected_workshop, program:programs(name, duration, event_date, venue, workshop1_name, workshop2_name)";
+
+    // Individual participant tickets of a multi-person registration resolve to
+    // that participant only; the parent registration supplies the shared data.
+    const { data: part } = await supabaseAdmin
+      .from("enrollment_participants")
+      .select("full_name, ticket_code, position, enrollment:enrollments(" + cols + ")")
       .eq("ticket_code", code)
       .maybeSingle();
+
+    const row: any = part ? (part as any).enrollment : (
+      await supabaseAdmin.from("enrollments").select(cols).eq("ticket_code", code).maybeSingle()
+    ).data;
+
     if (!row || row.status !== "confirmed") {
       return { valid: false as const };
     }
     return {
       valid: true as const,
-      ticket_code: row.ticket_code,
-      student: row.full_name,
+      ticket_code: part ? (part as any).ticket_code : row.ticket_code,
+      student: part ? (part as any).full_name : row.full_name,
       amount: row.amount_inr,
       approved_at: row.approved_at,
       registration_type: row.registration_type,
@@ -29,3 +39,4 @@ export const verifyTicket = createServerFn({ method: "POST" })
       program: row.program,
     };
   });
+
