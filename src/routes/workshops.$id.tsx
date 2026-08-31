@@ -667,16 +667,16 @@ function WorkshopDetailPage() {
         const legacyTime = LEGACY_SESSION_TIMES[program.id]?.[index] ?? "";
         return { name, time: namedRow?.time ?? indexedRow?.time ?? legacyTime };
       })
-    : rawSessions.length > 0
+      : rawSessions.length > 0
       ? rawSessions
-      : [{ name: program.name, time: formattedEventTime ?? "" }];
+      : [{ name: displayName, time: formattedEventTime ?? "" }];
 
 
 
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
 
   const enrollKlass: EnrollClass | null = program ? {
-    id: program.id, name: program.name, price: singlePrice, duration: program.duration ?? "",
+    id: program.id, name: displayName, price: singlePrice, duration: program.duration ?? "",
     silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice,
     allowSingle: (program as any).allow_single !== false, allowBoth: !!(program as any).allow_both,
     bothPrice: allowBoth ? bothPrice : null,
@@ -773,7 +773,7 @@ function WorkshopDetailPage() {
               className="mt-4 md:mt-5 font-display text-[clamp(2rem,5.6vw,4rem)] font-semibold leading-[1.0] text-foreground break-words"
               style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}
             >
-              {program.name}
+              {displayName}
             </motion.h1>
 
             {program.style && (
