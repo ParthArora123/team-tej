@@ -162,6 +162,8 @@ function RootComponent() {
   // Before that the server-rendered HTML stays fully visible, which removes
   // the blank/flashing first paint on slow networks and mobile browsers.
   useEffect(() => {
+    // App mounted successfully — allow a future chunk error to reload again.
+    sessionStorage.removeItem("chunk-reload");
     // Wait one frame + a tick so in-view chapters have already latched their
     // `chapter-in` state; otherwise enabling the rule could blink them out.
     const id = window.setTimeout(
