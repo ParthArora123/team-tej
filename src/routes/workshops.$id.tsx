@@ -650,11 +650,13 @@ function WorkshopDetailPage() {
   // time is never duplicated across sessions.
   // Only sessions actually configured in the admin are shown — no
   // placeholder "Workshop 1/2" rows appear when names were left blank.
+  const w1Configured = String((program as any).workshop1_name ?? "").trim();
   const configuredNames = allowBoth
-    ? [(program as any).workshop1_name, (program as any).workshop2_name]
-        .map((n) => String(n ?? "").trim())
-        .filter(Boolean)
-    : [];
+    ? [w1Configured, String((program as any).workshop2_name ?? "").trim()].filter(Boolean)
+    : [w1Configured].filter(Boolean);
+  // UI display name: prefer the admin-configured Workshop 1 name for
+  // single-workshop events; fall back to the program title otherwise.
+  const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0
     ? configuredNames.map((name, index) => {
         const normalizedName = name.toLocaleLowerCase();
@@ -665,16 +667,16 @@ function WorkshopDetailPage() {
         const legacyTime = LEGACY_SESSION_TIMES[program.id]?.[index] ?? "";
         return { name, time: namedRow?.time ?? indexedRow?.time ?? legacyTime };
       })
-    : rawSessions.length > 0
+      : rawSessions.length > 0
       ? rawSessions
-      : [{ name: program.name, time: formattedEventTime ?? "" }];
+      : [{ name: displayName, time: formattedEventTime ?? "" }];
 
 
 
   const mapsEmbed = program?.venue ? `https://www.google.com/maps?q=${encodeURIComponent(program.venue)}&output=embed` : null;
 
   const enrollKlass: EnrollClass | null = program ? {
-    id: program.id, name: program.name, price: singlePrice, duration: program.duration ?? "",
+    id: program.id, name: displayName, price: singlePrice, duration: program.duration ?? "",
     silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice,
     allowSingle: (program as any).allow_single !== false, allowBoth: !!(program as any).allow_both,
     bothPrice: allowBoth ? bothPrice : null,
@@ -771,7 +773,7 @@ function WorkshopDetailPage() {
               className="mt-4 md:mt-5 font-display text-[clamp(2rem,5.6vw,4rem)] font-semibold leading-[1.0] text-foreground break-words"
               style={{ fontFamily: '"Archivo Black","Archivo",system-ui,sans-serif' }}
             >
-              {program.name}
+              {displayName}
             </motion.h1>
 
             {program.style && (
