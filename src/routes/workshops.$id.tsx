@@ -1052,8 +1052,13 @@ function WorkshopDetailPage() {
                   <div className="space-y-2 text-sm text-primary/90">
                     <p className="text-xs uppercase tracking-widest text-primary/80">Includes</p>
                     <ul className="space-y-1">
-                      <li className="flex gap-2"><span className="text-primary">✔</span>{w1Name}</li>
-                      <li className="flex gap-2"><span className="text-primary">✔</span>{w2Name}</li>
+                      {configuredNames.length > 0 ? (
+                        configuredNames.map((n) => (
+                          <li key={n} className="flex gap-2"><span className="text-primary">✔</span>{n}</li>
+                        ))
+                      ) : (
+                        <li className="flex gap-2"><span className="text-primary">✔</span>{program.name}</li>
+                      )}
                     </ul>
                   </div>
                 </div>
