@@ -869,17 +869,30 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const programs = Array.from(new Set(rows.map((r) => r.program?.name).filter(Boolean))) as string[];
 
   // The exact workshop name a registration is for — the admin-configured
-  // sub-workshop name when the program offers two workshops (selected via
-  // selected_workshop), otherwise the program/workshop title. Never falls
-  // back to a generic "Workshop 1"/"Workshop 2" label.
+  // sub-workshop name when the program offers two workshops (resolved from
+  // selected_workshop, falling back to the silver-seat flags, then to the
+  // default w1), otherwise the program/workshop title. Never falls back to
+  // a generic "Workshop 1"/"Workshop 2" label.
   const workshopName = (r: any) => {
     const p = r.program ?? {};
+    const w1 = p.workshop1_name;
+    const w2 = p.workshop2_name;
     if (r.registration_type === "both") {
-      const names = [p.workshop1_name, p.workshop2_name].filter(Boolean).join(" + ");
+      const names = [w1, w2].filter(Boolean).join(" + ");
       return names || p.name || "";
     }
-    if (r.selected_workshop === "w1" && p.workshop1_name) return p.workshop1_name;
-    if (r.selected_workshop === "w2" && p.workshop2_name) return p.workshop2_name;
+    // Resolve which single workshop this registration is for.
+    let which: "w1" | "w2" | null = r.selected_workshop ?? null;
+    if (!which) {
+      // Infer from the silver-seat flags when the explicit choice wasn't stored.
+      if (r.silver_seat_w2) which = "w2";
+      else if (r.silver_seat_w1) which = "w1";
+    }
+    if (which === "w2" && w2) return w2;
+    if (which === "w1" && w1) return w1;
+    // Named workshops configured but no explicit/silver signal: default to w1.
+    if (w1 && (p.allow_both || w2)) return w1;
+    if (w2 && (p.allow_both || w1)) return w2;
     return p.name || "";
   };
 
