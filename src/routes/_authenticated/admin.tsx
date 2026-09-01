@@ -898,13 +898,8 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
 
   const formatRegistration = (r: any) => {
     const type = r.registration_type === "both" ? "Both" : "Single";
-    if (r.registration_type === "both") return `Both workshops`;
-    const p = r.program ?? {};
-    const w1 = p.workshop1_name || p.name || "";
-    const w2 = p.workshop2_name || p.name || "";
-    if (r.selected_workshop === "w2") return `${type} · ${w2}`;
-    if (r.selected_workshop === "w1") return `${type} · ${w1}`;
-    return type;
+    const configuredName = workshopName(r);
+    return configuredName ? `${type} · ${configuredName}` : type;
   };
 
   const filtered = rows.filter((r) => {

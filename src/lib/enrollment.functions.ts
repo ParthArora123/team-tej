@@ -288,7 +288,7 @@ export const listAllEnrollments = createServerFn({ method: "GET" })
       context.supabase.from("enrollments").select("*").order("created_at", { ascending: false }),
       context.supabase.from("enrollment_participants").select("*"),
       context.supabase.from("attendance").select("enrollment_id, participant_id, checked_in_at"),
-      context.supabase.from("programs").select("id, name, event_date"),
+      context.supabase.from("programs").select("id, name, event_date, allow_both, workshop1_name, workshop2_name"),
     ]);
     const firstError = enrollmentResult.error ?? participantResult.error ?? attendanceResult.error ?? programResult.error;
     if (firstError) throw firstError;
