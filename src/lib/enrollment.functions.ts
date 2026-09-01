@@ -282,13 +282,37 @@ export const listAllEnrollments = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(id, name, event_date), participants:enrollment_participants(*), attendance(participant_id, checked_in_at)")
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return (data ?? []).map((r: any) => ({
-      ...r,
-      participants: [...(r.participants ?? [])].sort((a: any, b: any) => a.position - b.position),
+    // Fetch related records separately. Embedded PostgREST joins inherit the
+    // column privileges of every relation and previously made the entire admin
+    // participant list fail after sensitive program columns were restricted.
+    const [enrollmentResult, participantResult, attendanceResult, programResult] = await Promise.all([
+      supabaseAdmin.from("enrollments").select("*").order("created_at", { ascending: false }),
+      supabaseAdmin.from("enrollment_participants").select("*"),
+      supabaseAdmin.from("attendance").select("enrollment_id, participant_id, checked_in_at"),
+      supabaseAdmin.from("programs").select("id, name, event_date"),
+    ]);
+    const firstError = enrollmentResult.error ?? participantResult.error ?? attendanceResult.error ?? programResult.error;
+    if (firstError) throw firstError;
+
+    const programs = new Map((programResult.data ?? []).map((program: any) => [program.id, program]));
+    const participantsByEnrollment = new Map<string, any[]>();
+    for (const participant of participantResult.data ?? []) {
+      const current = participantsByEnrollment.get((participant as any).enrollment_id) ?? [];
+      current.push(participant);
+      participantsByEnrollment.set((participant as any).enrollment_id, current);
+    }
+    const attendanceByEnrollment = new Map<string, any[]>();
+    for (const attendance of attendanceResult.data ?? []) {
+      const current = attendanceByEnrollment.get((attendance as any).enrollment_id) ?? [];
+      current.push(attendance);
+      attendanceByEnrollment.set((attendance as any).enrollment_id, current);
+    }
+
+    return (enrollmentResult.data ?? []).map((enrollment: any) => ({
+      ...enrollment,
+      program: programs.get(enrollment.program_id) ?? null,
+      participants: (participantsByEnrollment.get(enrollment.id) ?? []).sort((a: any, b: any) => a.position - b.position),
+      attendance: attendanceByEnrollment.get(enrollment.id) ?? [],
     }));
   });
 
