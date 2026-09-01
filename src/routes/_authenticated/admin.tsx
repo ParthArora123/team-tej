@@ -909,12 +909,27 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
 
   const programs = Array.from(new Set(rows.map((r) => r.program?.name).filter(Boolean))) as string[];
 
+  // The exact workshop name a registration is for — the admin-configured
+  // sub-workshop name when the program offers two workshops (selected via
+  // selected_workshop), otherwise the program/workshop title. Never falls
+  // back to a generic "Workshop 1"/"Workshop 2" label.
+  const workshopName = (r: any) => {
+    const p = r.program ?? {};
+    if (r.registration_type === "both") {
+      const names = [p.workshop1_name, p.workshop2_name].filter(Boolean).join(" + ");
+      return names || p.name || "";
+    }
+    if (r.selected_workshop === "w1" && p.workshop1_name) return p.workshop1_name;
+    if (r.selected_workshop === "w2" && p.workshop2_name) return p.workshop2_name;
+    return p.name || "";
+  };
+
   const formatRegistration = (r: any) => {
     const type = r.registration_type === "both" ? "Both" : "Single";
     if (r.registration_type === "both") return `Both workshops`;
     const p = r.program ?? {};
-    const w1 = p.workshop1_name || "Workshop 1";
-    const w2 = p.workshop2_name || "Workshop 2";
+    const w1 = p.workshop1_name || p.name || "";
+    const w2 = p.workshop2_name || p.name || "";
     if (r.selected_workshop === "w2") return `${type} · ${w2}`;
     if (r.selected_workshop === "w1") return `${type} · ${w1}`;
     return type;
