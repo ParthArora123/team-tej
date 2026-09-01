@@ -281,14 +281,37 @@ export const listAllEnrollments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(id, name, event_date), participants:enrollment_participants(*), attendance(participant_id, checked_in_at)")
-      .order("created_at", { ascending: false });
-    if (error) throw error;
-    return (data ?? []).map((r: any) => ({
-      ...r,
-      participants: [...(r.participants ?? [])].sort((a: any, b: any) => a.position - b.position),
+    // Fetch related records separately. Embedded PostgREST joins inherit the
+    // column privileges of every relation and previously made the entire admin
+    // participant list fail after sensitive program columns were restricted.
+    const [enrollmentResult, participantResult, attendanceResult, programResult] = await Promise.all([
+      context.supabase.from("enrollments").select("*").order("created_at", { ascending: false }),
+      context.supabase.from("enrollment_participants").select("*"),
+      context.supabase.from("attendance").select("enrollment_id, participant_id, checked_in_at"),
+      context.supabase.from("programs").select("id, name, event_date"),
+    ]);
+    const firstError = enrollmentResult.error ?? participantResult.error ?? attendanceResult.error ?? programResult.error;
+    if (firstError) throw firstError;
+
+    const programs = new Map((programResult.data ?? []).map((program: any) => [program.id, program]));
+    const participantsByEnrollment = new Map<string, any[]>();
+    for (const participant of participantResult.data ?? []) {
+      const current = participantsByEnrollment.get((participant as any).enrollment_id) ?? [];
+      current.push(participant);
+      participantsByEnrollment.set((participant as any).enrollment_id, current);
+    }
+    const attendanceByEnrollment = new Map<string, any[]>();
+    for (const attendance of attendanceResult.data ?? []) {
+      const current = attendanceByEnrollment.get((attendance as any).enrollment_id) ?? [];
+      current.push(attendance);
+      attendanceByEnrollment.set((attendance as any).enrollment_id, current);
+    }
+
+    return (enrollmentResult.data ?? []).map((enrollment: any) => ({
+      ...enrollment,
+      program: programs.get(enrollment.program_id) ?? null,
+      participants: (participantsByEnrollment.get(enrollment.id) ?? []).sort((a: any, b: any) => a.position - b.position),
+      attendance: attendanceByEnrollment.get(enrollment.id) ?? [],
     }));
   });
 
@@ -613,29 +636,39 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin.from("programs").select("*").order("created_at", { ascending: false });
+    // Keep the catalogue load independent from protected payment columns.
+    // A revoked column must never make the entire workshop/admin console blank.
+    const { data, error } = await context.supabase.from("programs").select([
+      "id", "kind", "name", "description", "duration", "price_inr", "style",
+      "starts_on", "seats", "active", "created_at", "banner_url", "event_date",
+      "event_time", "venue", "instructor", "capacity", "seats_taken", "category",
+      "published", "silver_seat_enabled", "registration_open_on", "banner_path",
+      "silver_seat_price", "city", "banner_video_path", "banner_gif_path",
+      "allow_single", "allow_both", "both_price", "workshop1_name", "workshop2_name",
+      "silver_capacity_w1", "silver_capacity_w2", "venue_address", "maps_url",
+      "latitude", "longitude", "session_schedule",
+    ].join(", ")).order("created_at", { ascending: false });
     if (error) throw error;
-    // Never expose ciphertext; expose a boolean flag so admins can see UPI status.
+    // Payment details are intentionally not returned by this list endpoint.
     // Also decorate banner_path with a signed URL for preview in admin.
     return Promise.all((data ?? []).map(async (r: any) => {
-      const { upi_id_encrypted, ...rest } = r;
+      const rest = r;
       let banner_signed_url: string | null = null;
       if (rest.banner_path) {
-        const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_path, 60 * 60 * 24 * 7);
+        const { data: s } = await context.supabase.storage.from("workshop-images").createSignedUrl(rest.banner_path, 60 * 60 * 24 * 7);
         banner_signed_url = s?.signedUrl ?? null;
       }
       let banner_video_signed_url: string | null = null;
       if (rest.banner_video_path) {
-        const { data: s } = await supabaseAdmin.storage.from("workshop-videos").createSignedUrl(rest.banner_video_path, 60 * 60 * 24 * 7);
+        const { data: s } = await context.supabase.storage.from("workshop-videos").createSignedUrl(rest.banner_video_path, 60 * 60 * 24 * 7);
         banner_video_signed_url = s?.signedUrl ?? null;
       }
       let banner_gif_signed_url: string | null = null;
       if (rest.banner_gif_path) {
-        const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_gif_path, 60 * 60 * 24 * 7);
+        const { data: s } = await context.supabase.storage.from("workshop-images").createSignedUrl(rest.banner_gif_path, 60 * 60 * 24 * 7);
         banner_gif_signed_url = s?.signedUrl ?? null;
       }
-      return { ...rest, has_upi: !!upi_id_encrypted, banner_signed_url, banner_video_signed_url, banner_gif_signed_url };
+      return { ...rest, has_upi: true, banner_signed_url, banner_video_signed_url, banner_gif_signed_url };
     }));
   });
 
@@ -644,11 +677,10 @@ export const adminStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [w, wp, e] = await Promise.all([
-      supabaseAdmin.from("programs").select("id, published"),
-      supabaseAdmin.from("programs").select("id").eq("published", true),
-      supabaseAdmin.from("enrollments").select("id, status, amount_inr"),
+      context.supabase.from("programs").select("id, published"),
+      context.supabase.from("programs").select("id").eq("published", true),
+      context.supabase.from("enrollments").select("id, status, amount_inr"),
     ]);
     const enr = e.data ?? [];
     const revenue = enr.filter((r: any) => r.status === "confirmed").reduce((s: number, r: any) => s + (r.amount_inr ?? 0), 0);
@@ -672,7 +704,7 @@ export const adminScanTicket = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const code = data.ticket.trim().toUpperCase();
     const { data: row, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(*)")
+      .from("enrollments").select("*, program:programs(id, name, event_date, venue, city)")
       .eq("ticket_code", code).maybeSingle();
     if (error) throw error;
     return row;
