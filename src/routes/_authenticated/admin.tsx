@@ -999,9 +999,9 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           <option value="rejected">Rejected</option>
         </select>
         <select value={prog} onChange={(e) => setProg(e.target.value)}
-          className="px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+          className="max-w-[200px] truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
           <option value="all">All workshops</option>
-          {programs.map((p) => <option key={p} value={p}>{p}</option>)}
+          {programs.map((p) => <option key={p} value={p} className="truncate">{p}</option>)}
         </select>
         <button onClick={exportCsv} disabled={filtered.length === 0}
           className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
