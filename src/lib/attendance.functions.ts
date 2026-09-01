@@ -27,10 +27,9 @@ export const attendanceCheckIn = createServerFn({ method: "POST" })
         programId: z.string().uuid(),
         code: z.string().trim().min(3).max(300).optional(),
         enrollmentId: z.string().uuid().optional(),
-        participantId: z.string().uuid().optional(),
         method: z.enum(["qr", "manual"]).default("qr"),
       })
-      .refine((v) => !!v.code || !!v.enrollmentId || !!v.participantId, { message: "Nothing to check in" })
+      .refine((v) => !!v.code || !!v.enrollmentId, { message: "Nothing to check in" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
@@ -41,15 +40,9 @@ export const attendanceCheckIn = createServerFn({ method: "POST" })
 
 export const attendanceUndo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({
-      enrollmentId: z.string().uuid(),
-      participantId: z.string().uuid().optional(),
-    }).parse(input),
-  )
+  .inputValidator((input) => z.object({ enrollmentId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const m = await import("@/lib/attendance.server");
     await m.assertAdmin(context);
-    return m.undoCheckIn(data.enrollmentId, data.participantId);
+    return m.undoCheckIn(data.enrollmentId);
   });
-

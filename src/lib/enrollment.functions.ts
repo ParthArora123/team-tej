@@ -4,14 +4,6 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { nameSchema } from "@/lib/name-validation";
 import { phoneSchema } from "@/lib/phone-validation";
 
-// Additional participants (2..5) registered under the same registration.
-// Participant 1 is always the registrant themselves (fullName/email/phone).
-const extraParticipantSchema = z.object({
-  fullName: nameSchema,
-  email: z.string().email(),
-  phone: phoneSchema,
-});
-
 const detailsSchema = z.object({
   programId: z.string().uuid(),
   fullName: nameSchema,
@@ -24,7 +16,6 @@ const detailsSchema = z.object({
   selectedWorkshop: z.enum(["w1", "w2"]).optional(),
   silverSeatW1: z.boolean().optional(),
   silverSeatW2: z.boolean().optional(),
-  participants: z.array(extraParticipantSchema).max(4).optional(),
 });
 
 export const createEnrollment = createServerFn({ method: "POST" })
@@ -97,15 +88,8 @@ export const createEnrollment = createServerFn({ method: "POST" })
     const silverAdd = silverCount * silverPrice;
     const wantSilverLegacy = silverW1 || silverW2;
 
-    // Multi-person registration: participant 1 is the registrant, plus up to
-    // four extra participants. Existing single-person registrations keep
-    // participant_count = 1 and behave exactly as before.
-    const extras = data.participants ?? [];
-    const participantCount = 1 + extras.length;
-
     const { data: enr, error } = await supabase.from("enrollments").insert({
-      user_id: userId, program_id: program.id,
-      amount_inr: baseAmount * participantCount + silverAdd,
+      user_id: userId, program_id: program.id, amount_inr: baseAmount + silverAdd,
       status: "awaiting_payment",
       full_name: data.fullName, email: data.email, phone: data.phone,
       gender: data.gender,
@@ -116,40 +100,9 @@ export const createEnrollment = createServerFn({ method: "POST" })
       silver_seat_w2: silverW2,
       registration_type: regType,
       selected_workshop: selected,
-      participant_count: participantCount,
     } as any).select("*").single();
     if (error) throw error;
-
-    // A workshop with early-bird price tiers has a BEFORE INSERT trigger that
-    // rewrites amount_inr from the applicable tier for a single seat. Re-apply
-    // the per-participant multiplier on top of the tier price it picked.
-    let finalEnr: any = enr;
-    if (participantCount > 1) {
-      const tierPrice = (enr as any)?.tier_price_inr;
-      if (tierPrice != null) {
-        const { data: fixed } = await supabase
-          .from("enrollments")
-          .update({ amount_inr: Number(tierPrice) * participantCount + silverAdd } as any)
-          .eq("id", (enr as any).id)
-          .select("*")
-          .single();
-        if (fixed) finalEnr = fixed;
-      }
-
-      const rows = [
-        { full_name: data.fullName, email: data.email, phone: data.phone },
-        ...extras.map((x) => ({ full_name: x.fullName, email: x.email, phone: x.phone })),
-      ].map((r, i) => ({
-        enrollment_id: (enr as any).id,
-        program_id: program.id,
-        position: i + 1,
-        ...r,
-      }));
-      const { error: partErr } = await supabase.from("enrollment_participants").insert(rows as any);
-      if (partErr) throw partErr;
-    }
-
-    return finalEnr;
+    return enr;
   });
 
 
@@ -244,7 +197,7 @@ export const listMyEnrollments = createServerFn({ method: "GET" })
     // and sign banner URLs; results are strictly scoped to the current user.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(*), participants:enrollment_participants(*)")
+      .from("enrollments").select("*, program:programs(*)")
       .eq("user_id", context.userId).order("created_at", { ascending: false });
     if (error) throw error;
     const { decryptSecret } = await import("./crypto.server");
@@ -262,7 +215,6 @@ export const listMyEnrollments = createServerFn({ method: "GET" })
         }
         r.program = { ...rest, banner_url, upi_id: upi };
       }
-      r.participants = [...(r.participants ?? [])].sort((a: any, b: any) => a.position - b.position);
       return r;
     }));
   });
@@ -283,13 +235,10 @@ export const listAllEnrollments = createServerFn({ method: "GET" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(*), participants:enrollment_participants(*), attendance(participant_id, checked_in_at)")
+      .from("enrollments").select("*, program:programs(*)")
       .order("created_at", { ascending: false });
     if (error) throw error;
-    return (data ?? []).map((r: any) => ({
-      ...r,
-      participants: [...(r.participants ?? [])].sort((a: any, b: any) => a.position - b.position),
-    }));
+    return data ?? [];
   });
 
 export const approveEnrollment = createServerFn({ method: "POST" })
