@@ -31,12 +31,37 @@ function isValidEmail(v: unknown): v is string {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
 }
 
-/** Builds the EmailJS template params from the approved registration record. */
-export function buildEmailParams(enr: any, ticket: string | null) {
+export type EmailRecipient = { name: string; email: string; ticket?: string | null };
+
+/** Builds the unique recipient list for a registration: the primary
+ *  participant plus any additional participants (2..5), de-duplicated by
+ *  email address (case-insensitive) so a repeated address only gets one
+ *  confirmation email. Nothing is hardcoded — every address comes from the
+ *  registration's own data. */
+export function getEmailRecipients(enr: any): EmailRecipient[] {
+  const seen = new Set<string>();
+  const out: EmailRecipient[] = [];
+  const add = (name: unknown, email: unknown, ticket?: unknown) => {
+    const e = String(email ?? "").trim();
+    if (!isValidEmail(e)) return;
+    const key = e.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ name: String(name ?? "").trim() || "Participant", email: e, ticket: ticket ? String(ticket) : null });
+  };
+  add(enr?.full_name, enr?.email, enr?.ticket_code);
+  const extras = Array.isArray(enr?.participants) ? enr.participants : [];
+  for (const p of extras) add(p?.full_name, p?.email, p?.ticket_code);
+  return out;
+}
+
+/** Builds the EmailJS template params from the approved registration record,
+ *  addressed to one specific participant (name, email and their own ticket). */
+export function buildEmailParams(enr: any, ticket: string | null, recipient?: EmailRecipient) {
   const sessions = getSelectedSessions(enr);
   const sessionDetails = renderSessionDetails(sessions);
   const content = buildConfirmationContent(enr);
-  const registrationId = ticket || enr?.ticket_code || enr?.id || "";
+  const registrationId = recipient?.ticket || ticket || enr?.ticket_code || enr?.id || "";
   const verifyUrl =
     registrationId && typeof window !== "undefined"
       ? `${window.location.origin}/verify?code=${encodeURIComponent(registrationId)}`
