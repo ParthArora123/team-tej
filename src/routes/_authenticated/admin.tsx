@@ -77,9 +77,18 @@ function AdminPage() {
   const [access, setAccess] = useState<"checking" | "granted" | "denied">("checking");
 
   const reload = async () => {
-    setStats(await fetchStats());
-    setEnrs(await fetchAll());
-    setWorkshops(await fetchWorkshops());
+    // Each fetch is isolated: one failing endpoint must not leave the whole
+    // console silently empty (it used to look like "no data" to admins).
+    const results = await Promise.allSettled([fetchStats(), fetchAll(), fetchWorkshops()]);
+    const [s, e, w] = results;
+    if (s.status === "fulfilled") setStats(s.value);
+    if (e.status === "fulfilled") setEnrs(e.value as any[]);
+    if (w.status === "fulfilled") setWorkshops(w.value as any[]);
+    const failed = results.filter((r) => r.status === "rejected");
+    if (failed.length) {
+      console.error("Admin data load failed", failed);
+      toast.error("Some admin data could not be loaded. Please refresh.");
+    }
   };
 
   useEffect(() => {
