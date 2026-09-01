@@ -283,7 +283,7 @@ export const listAllEnrollments = createServerFn({ method: "GET" })
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(*), participants:enrollment_participants(*), attendance(participant_id, checked_in_at)")
+      .from("enrollments").select("*, program:programs(id, name, event_date), participants:enrollment_participants(*), attendance(participant_id, checked_in_at)")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return (data ?? []).map((r: any) => ({
