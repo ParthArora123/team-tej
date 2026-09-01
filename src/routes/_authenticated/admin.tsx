@@ -989,9 +989,9 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     <div className="mt-8">
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone, ticket…"
-          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
+          className="w-full sm:flex-1 min-w-0 px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
         <select value={status} onChange={(e) => setStatus(e.target.value)}
-          className="w-full truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
           <option value="all">All statuses</option>
           <option value="awaiting_payment">Awaiting payment</option>
           <option value="payment_submitted">Payment submitted</option>
@@ -999,17 +999,17 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           <option value="rejected">Rejected</option>
         </select>
         <select value={prog} onChange={(e) => setProg(e.target.value)}
-          className="w-full truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
           <option value="all">All workshops</option>
           {programs.map((p) => <option key={p} value={p} className="truncate">{p}</option>)}
         </select>
         <button onClick={exportCsv} disabled={filtered.length === 0}
-          className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
+          className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
           Export to Excel ({filtered.length})
         </button>
         {selected.size > 0 && (
           <button onClick={() => setBulkConfirm(true)}
-            className="px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm">
+            className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm">
             Delete selected ({selected.size})
           </button>
         )}
