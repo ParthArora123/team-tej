@@ -989,9 +989,9 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     <div className="mt-8">
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone, ticket…"
-          className="flex-1 min-w-[220px] px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
+          className="w-[220px] px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
         <select value={status} onChange={(e) => setStatus(e.target.value)}
-          className="px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+          className="w-[220px] truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
           <option value="all">All statuses</option>
           <option value="awaiting_payment">Awaiting payment</option>
           <option value="payment_submitted">Payment submitted</option>
@@ -999,7 +999,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           <option value="rejected">Rejected</option>
         </select>
         <select value={prog} onChange={(e) => setProg(e.target.value)}
-          className="max-w-[200px] truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+          className="w-[220px] truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
           <option value="all">All workshops</option>
           {programs.map((p) => <option key={p} value={p} className="truncate">{p}</option>)}
         </select>
