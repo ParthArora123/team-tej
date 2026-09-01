@@ -904,7 +904,17 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Registration", (r: any) => formatRegistration(r)],
     ["Workshop date", (r: any) => r.program?.event_date ?? ""],
     ["Amount (INR)", (r: any) => r.amount_inr ?? 0],
-    ["Participants", (r: any) => r.participant_count ?? 1],
+    ["Participants", (r: any) => {
+      const count = r.participant_count ?? 1;
+      if (count <= 1) return count;
+      // Position 1 is the registrant, already shown in "Full name" —
+      // list the extra participants' names alongside the count.
+      const extraNames = (r.participants ?? [])
+        .filter((p: any) => (p.position ?? 1) > 1)
+        .map((p: any) => p.full_name)
+        .filter(Boolean);
+      return extraNames.length ? `${count} (${extraNames.join(", ")})` : count;
+    }],
     ["Status", (r: any) => r.status ?? ""],
     ["Ticket code", (r: any) => r.ticket_code ?? ""],
   ] as const;
