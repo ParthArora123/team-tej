@@ -1040,7 +1040,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
                   />
                 </td>
                 {cols.map(([h, get]) => (
-                  <td key={h} className="px-3 py-2 whitespace-nowrap">{String(get(r) ?? "")}</td>
+                  <td key={h} className={h === "Workshop" ? "px-3 py-2 align-top break-words whitespace-normal max-w-[220px]" : "px-3 py-2 whitespace-nowrap"}>{String(get(r) ?? "")}</td>
                 ))}
                 <td className="px-3 py-2 whitespace-nowrap">
                   <button
