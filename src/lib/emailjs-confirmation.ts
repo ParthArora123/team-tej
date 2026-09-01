@@ -200,37 +200,3 @@ export async function sendSingleApprovalConfirmationEmail(
     return { status: "failed", message };
   }
 }
-export async function sendApprovalConfirmationEmail(
-  enr: any,
-  ticket: string | null,
-  opts: { alreadySent?: boolean } = {},
-): Promise<EmailSendResult> {
-  const id = String(enr?.id ?? "");
-  if (!id) return { status: "skipped", reason: "Missing registration id" };
-  if (opts.alreadySent || enr?.confirmation_email_sent) {
-    return { status: "skipped", reason: "Confirmation email was already sent" };
-  }
-  if (enr?.status !== "confirmed") {
-    return { status: "skipped", reason: "Registration is not approved" };
-  }
-  if (!isEmailJsConfigured()) {
-    return { status: "failed", message: "Email service is not configured (missing EmailJS keys)." };
-  }
-  if (!isValidEmail(enr?.email)) {
-    return { status: "failed", message: "Registration has no valid email address." };
-  }
-  if (inFlight.has(id)) return { status: "skipped", reason: "Email already being sent" };
-
-  inFlight.add(id);
-  try {
-    await emailjs.send(SERVICE_ID!, TEMPLATE_ID!, buildEmailParams(enr, ticket), {
-      publicKey: PUBLIC_KEY!,
-    });
-    return { status: "sent" };
-  } catch (e: any) {
-    inFlight.delete(id);
-    const message = e?.text || e?.message || "Unknown EmailJS error";
-    console.error("[emailjs] confirmation email failed", { enrollmentId: id, message });
-    return { status: "failed", message };
-  }
-}
