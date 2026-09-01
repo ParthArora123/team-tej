@@ -62,6 +62,24 @@ export async function approveEnrollmentById(
       .update({ seats_taken: (p?.seats_taken ?? 0) + 1 }).eq("id", enr.program_id);
   }
 
+  // Multi-person registrations: every participant gets their own ticket code,
+  // issued once and never re-issued. Participant 1 shares the registration's
+  // ticket code so existing single-person tickets/QRs keep working unchanged.
+  const { data: participants } = await supabaseAdmin
+    .from("enrollment_participants")
+    .select("id, position, ticket_code")
+    .eq("enrollment_id", enrollmentId)
+    .order("position", { ascending: true });
+
+  for (const part of participants ?? []) {
+    if (part.ticket_code) continue;
+    const code = part.position === 1 ? ticket : `${ticket}-${String(part.position).padStart(2, "0")}`;
+    await supabaseAdmin
+      .from("enrollment_participants")
+      .update({ ticket_code: code })
+      .eq("id", part.id);
+  }
+
   return {
     enrollment: enr,
     ticketCode: ticket,

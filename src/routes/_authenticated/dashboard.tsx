@@ -415,10 +415,45 @@ function Dashboard() {
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary text-[11px] font-medium">
                         <Download size={11} /> Download
                       </button>
+                     </div>
+                   </div>
+
+                  {Array.isArray((r as any).participants) && (r as any).participants.length > 1 && (
+                    <div className="mt-5 border-t border-dashed border-primary/30 pt-4">
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground">
+                        All participant tickets ({(r as any).participants.length})
+                      </p>
+                      <div className="mt-3 flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [-webkit-overflow-scrolling:touch]">
+                        {(r as any).participants.filter((p: any) => p.ticket_code).map((p: any, idx: number) => {
+                          const url = typeof window !== "undefined"
+                            ? `${window.location.origin}/verify?code=${encodeURIComponent(p.ticket_code)}`
+                            : p.ticket_code;
+                          return (
+                            <div key={p.id} className="flex items-center gap-3 rounded-lg border border-border bg-card/60 p-3 shrink-0 snap-start min-w-[260px]">
+                              <div className="flex flex-col items-center gap-1 shrink-0">
+                                <span className="text-[10px] font-semibold uppercase tracking-widest text-primary">QR {idx + 1}</span>
+                                <div id={`ticket-qr-${p.id}`} className="bg-white p-1.5 rounded shrink-0">
+                                  <QRCodeCanvas value={url} size={82} level="Q" marginSize={3} bgColor="#ffffff" fgColor="#000000" style={{ display: "block" }} />
+                                </div>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium truncate">{p.full_name}</p>
+                                <p className="font-mono text-xs break-all text-muted-foreground">{p.ticket_code}</p>
+                                <button
+                                  type="button"
+                                  onClick={() => downloadQrPng(`ticket-qr-${p.id}`, `ticket-${p.ticket_code}.png`)}
+                                  className="mt-1.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-secondary text-[11px] font-medium">
+                                  <Download size={11} /> Download
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              )}
+                  )}
+                 </div>
+               )}
 
               {r.status === "rejected" && (
                 <p className="mt-4 text-sm text-destructive">Payment couldn't be verified. Please contact us.</p>
