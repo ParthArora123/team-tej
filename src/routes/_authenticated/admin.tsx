@@ -907,13 +907,13 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Participants", (r: any) => {
       const count = r.participant_count ?? 1;
       if (count <= 1) return count;
-      // Position 1 is the registrant, already shown in "Full name" —
-      // list the extra participants' names alongside the count.
-      const extraNames = (r.participants ?? [])
+      // Position 1 is the registrant, already shown in "Full name"/"Email" —
+      // list the extra participants' names + emails alongside the count.
+      const extras = (r.participants ?? [])
         .filter((p: any) => (p.position ?? 1) > 1)
-        .map((p: any) => p.full_name)
+        .map((p: any) => [p.full_name, p.email].filter(Boolean).join(" – "))
         .filter(Boolean);
-      return extraNames.length ? `${count} (${extraNames.join(", ")})` : count;
+      return extras.length ? `${count} (${extras.join(", ")})` : count;
     }],
     ["Status", (r: any) => r.status ?? ""],
     ["Ticket code", (r: any) => r.ticket_code ?? ""],
