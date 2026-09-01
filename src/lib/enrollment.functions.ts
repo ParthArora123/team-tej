@@ -281,15 +281,14 @@ export const listAllEnrollments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // Fetch related records separately. Embedded PostgREST joins inherit the
     // column privileges of every relation and previously made the entire admin
     // participant list fail after sensitive program columns were restricted.
     const [enrollmentResult, participantResult, attendanceResult, programResult] = await Promise.all([
-      supabaseAdmin.from("enrollments").select("*").order("created_at", { ascending: false }),
-      supabaseAdmin.from("enrollment_participants").select("*"),
-      supabaseAdmin.from("attendance").select("enrollment_id, participant_id, checked_in_at"),
-      supabaseAdmin.from("programs").select("id, name, event_date"),
+      context.supabase.from("enrollments").select("*").order("created_at", { ascending: false }),
+      context.supabase.from("enrollment_participants").select("*"),
+      context.supabase.from("attendance").select("enrollment_id, participant_id, checked_in_at"),
+      context.supabase.from("programs").select("id, name, event_date"),
     ]);
     const firstError = enrollmentResult.error ?? participantResult.error ?? attendanceResult.error ?? programResult.error;
     if (firstError) throw firstError;
@@ -637,10 +636,9 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // Keep the catalogue load independent from protected payment columns.
     // A revoked column must never make the entire workshop/admin console blank.
-    const { data, error } = await supabaseAdmin.from("programs").select([
+    const { data, error } = await context.supabase.from("programs").select([
       "id", "kind", "name", "description", "duration", "price_inr", "style",
       "starts_on", "seats", "active", "created_at", "banner_url", "event_date",
       "event_time", "venue", "instructor", "capacity", "seats_taken", "category",
@@ -657,17 +655,17 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
       const rest = r;
       let banner_signed_url: string | null = null;
       if (rest.banner_path) {
-        const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_path, 60 * 60 * 24 * 7);
+        const { data: s } = await context.supabase.storage.from("workshop-images").createSignedUrl(rest.banner_path, 60 * 60 * 24 * 7);
         banner_signed_url = s?.signedUrl ?? null;
       }
       let banner_video_signed_url: string | null = null;
       if (rest.banner_video_path) {
-        const { data: s } = await supabaseAdmin.storage.from("workshop-videos").createSignedUrl(rest.banner_video_path, 60 * 60 * 24 * 7);
+        const { data: s } = await context.supabase.storage.from("workshop-videos").createSignedUrl(rest.banner_video_path, 60 * 60 * 24 * 7);
         banner_video_signed_url = s?.signedUrl ?? null;
       }
       let banner_gif_signed_url: string | null = null;
       if (rest.banner_gif_path) {
-        const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_gif_path, 60 * 60 * 24 * 7);
+        const { data: s } = await context.supabase.storage.from("workshop-images").createSignedUrl(rest.banner_gif_path, 60 * 60 * 24 * 7);
         banner_gif_signed_url = s?.signedUrl ?? null;
       }
       return { ...rest, has_upi: true, banner_signed_url, banner_video_signed_url, banner_gif_signed_url };
@@ -679,11 +677,10 @@ export const adminStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const [w, wp, e] = await Promise.all([
-      supabaseAdmin.from("programs").select("id, published"),
-      supabaseAdmin.from("programs").select("id").eq("published", true),
-      supabaseAdmin.from("enrollments").select("id, status, amount_inr"),
+      context.supabase.from("programs").select("id, published"),
+      context.supabase.from("programs").select("id").eq("published", true),
+      context.supabase.from("enrollments").select("id, status, amount_inr"),
     ]);
     const enr = e.data ?? [];
     const revenue = enr.filter((r: any) => r.status === "confirmed").reduce((s: number, r: any) => s + (r.amount_inr ?? 0), 0);
