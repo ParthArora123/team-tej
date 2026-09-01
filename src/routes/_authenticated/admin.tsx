@@ -861,6 +861,51 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const [bulkConfirm, setBulkConfirm] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const bulkDeleteEnrollments = useServerFn(adminDeleteEnrollments);
+  const markWaSent = useServerFn(markWhatsappConfirmationSent);
+  const loadContent = useServerFn(getSiteContent);
+  const [waTemplate, setWaTemplate] = useState<string>(DEFAULT_WHATSAPP_TEMPLATE);
+  const [waContactNumber, setWaContactNumber] = useState("");
+  const [resending, setResending] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadContent({ data: { key: "whatsapp_template" } })
+      .then((v: any) => { if (v && typeof v.template === "string") setWaTemplate(v.template); })
+      .catch(() => {});
+    loadContent({ data: { key: "contact" } })
+      .then((v: any) => { const n = v?.whatsapp || v?.phone; if (typeof n === "string") setWaContactNumber(n); })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Approved • WhatsApp Sent / Pending
+  const waLabel = (r: any) => {
+    if (r.status !== "confirmed") return "—";
+    if (r.whatsapp_status === "sent") return "Approved • WhatsApp Sent";
+    return "Approved • WhatsApp Pending";
+  };
+
+  // Resend = reopen the pre-filled wa.me confirmation to the student's number,
+  // then mark it as sent.
+  const doResend = async (r: any) => {
+    setResending(r.id);
+    try {
+      const waUrl = buildWaUrl(r, r.ticket_code ?? null, waTemplate, waContactNumber);
+      if (!waUrl) {
+        toast.error("This registration has no valid WhatsApp number.");
+        return;
+      }
+      window.open(waUrl, "_blank", "noopener");
+      try { await markWaSent({ data: { enrollmentId: r.id } }); } catch {}
+      toast.success("WhatsApp confirmation opened — send it from WhatsApp.");
+      await reload();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not open WhatsApp.");
+    } finally {
+      setResending(null);
+    }
+  };
+
+
 
   const programs = Array.from(new Set(rows.map((r) => r.program?.name).filter(Boolean))) as string[];
 
@@ -879,7 +924,8 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     if (status !== "all" && r.status !== status) return false;
     if (prog !== "all" && r.program?.name !== prog) return false;
     if (!q.trim()) return true;
-    const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${formatRegistration(r)}`.toLowerCase();
+    const parts = (r.participants ?? []).map((p: any) => `${p.full_name ?? ""} ${p.email ?? ""} ${p.phone ?? ""} ${p.ticket_code ?? ""}`).join(" ");
+    const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${formatRegistration(r)} ${parts}`.toLowerCase();
     return hay.includes(q.trim().toLowerCase());
   });
 
@@ -894,8 +940,15 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Registration", (r: any) => formatRegistration(r)],
     ["Workshop date", (r: any) => r.program?.event_date ?? ""],
     ["Amount (INR)", (r: any) => r.amount_inr ?? 0],
+    ["Participants", (r: any) => r.participant_count ?? 1],
     ["Status", (r: any) => r.status ?? ""],
     ["Ticket code", (r: any) => r.ticket_code ?? ""],
+    ["Participant tickets", (r: any) =>
+      (r.participants ?? [])
+        .filter((p: any) => p.ticket_code)
+        .map((p: any) => `${p.full_name}: ${p.ticket_code}${(r.attendance ?? []).some((a: any) => a.participant_id === p.id) ? " (present)" : ""}`)
+        .join(" | ")],
+    ["WhatsApp", (r: any) => waLabel(r)],
   ] as const;
 
   const exportCsv = () => {
