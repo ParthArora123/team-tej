@@ -904,13 +904,9 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Registration", (r: any) => formatRegistration(r)],
     ["Workshop date", (r: any) => r.program?.event_date ?? ""],
     ["Amount (INR)", (r: any) => r.amount_inr ?? 0],
+    ["Participants", (r: any) => r.participant_count ?? 1],
     ["Status", (r: any) => r.status ?? ""],
     ["Ticket code", (r: any) => r.ticket_code ?? ""],
-    ["Participant tickets", (r: any) =>
-      (r.participants ?? [])
-        .filter((p: any) => p.ticket_code)
-        .map((p: any) => `${p.full_name}: ${p.ticket_code}${(r.attendance ?? []).some((a: any) => a.participant_id === p.id) ? " (present)" : ""}`)
-        .join(" | ")],
   ] as const;
 
   const exportCsv = () => {
