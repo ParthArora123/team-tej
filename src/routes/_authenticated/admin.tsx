@@ -951,7 +951,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Phone", (r: any) => r.phone ?? ""],
     ["Gender", (r: any) => r.gender ?? ""],
     ["Emergency contact", (r: any) => r.emergency_contact ?? ""],
-    ["Workshop", (r: any) => r.program?.name ?? ""],
+    ["Workshop", (r: any) => workshopName(r)],
     ["Registration", (r: any) => formatRegistration(r)],
     ["Workshop date", (r: any) => r.program?.event_date ?? ""],
     ["Amount (INR)", (r: any) => r.amount_inr ?? 0],
@@ -963,7 +963,6 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
         .filter((p: any) => p.ticket_code)
         .map((p: any) => `${p.full_name}: ${p.ticket_code}${(r.attendance ?? []).some((a: any) => a.participant_id === p.id) ? " (present)" : ""}`)
         .join(" | ")],
-    ["WhatsApp", (r: any) => waLabel(r)],
   ] as const;
 
   const exportCsv = () => {
