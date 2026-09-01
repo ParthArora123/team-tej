@@ -1,0 +1,4 @@
+REVOKE SELECT ON public.programs FROM anon, authenticated;
+GRANT SELECT (id, kind, name, description, duration, price_inr, style, starts_on, seats, active, created_at, banner_url, event_date, event_time, venue, instructor, capacity, seats_taken, category, published, silver_seat_enabled, registration_open_on, banner_path, silver_seat_price, city, banner_video_path, banner_gif_path, allow_single, allow_both, both_price, workshop1_name, workshop2_name, silver_capacity_w1, silver_capacity_w2, venue_address, maps_url, latitude, longitude, session_schedule) ON public.programs TO anon, authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.programs TO authenticated;
+GRANT ALL ON public.programs TO service_role;
