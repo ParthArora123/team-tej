@@ -71,10 +71,10 @@ export function buildEmailParams(enr: any, ticket: string | null, recipient?: Em
     : "";
 
   return {
-    to_email: String(enr?.email ?? "").trim(),
-    to_name: enr?.full_name || "Participant",
-    participant_name: enr?.full_name || "Participant",
-    participant_email: String(enr?.email ?? "").trim(),
+    to_email: recipient?.email ?? String(enr?.email ?? "").trim(),
+    to_name: recipient?.name ?? enr?.full_name ?? "Participant",
+    participant_name: recipient?.name ?? enr?.full_name ?? "Participant",
+    participant_email: recipient?.email ?? String(enr?.email ?? "").trim(),
     workshop_name: enr?.program?.name || "Workshop",
     workshop_date: content.workshopDate || (enr?.program?.event_date ? new Date(enr.program.event_date).toDateString() : ""),
     day: content.day,
@@ -99,10 +99,107 @@ export function buildEmailParams(enr: any, ticket: string | null, recipient?: Em
 
 
 /**
- * Sends the approval confirmation email to the participant's own registered
- * address. Returns a result instead of throwing so the approval is never
- * rolled back when the email provider fails.
+ * Sends the approval confirmation email to EVERY participant on the
+ * registration (primary + participants 2..5), reusing the same EmailJS
+ * service/template for each send. Duplicate email addresses receive only one
+ * email. Returns a result instead of throwing so the approval is never rolled
+ * back when the email provider fails.
  */
+export type MultiEmailSendResult = EmailSendResult & { sentCount?: number; total?: number };
+
+export async function sendApprovalConfirmationEmail(
+  enr: any,
+  ticket: string | null,
+  opts: { alreadySent?: boolean } = {},
+): Promise<MultiEmailSendResult> {
+  const id = String(enr?.id ?? "");
+  if (!id) return { status: "skipped", reason: "Missing registration id" };
+  if (opts.alreadySent || enr?.confirmation_email_sent) {
+    return { status: "skipped", reason: "Confirmation email was already sent" };
+  }
+  if (enr?.status !== "confirmed") {
+    return { status: "skipped", reason: "Registration is not approved" };
+  }
+  if (!isEmailJsConfigured()) {
+    return { status: "failed", message: "Email service is not configured (missing EmailJS keys)." };
+  }
+  const recipients = getEmailRecipients(enr);
+  if (!recipients.length) {
+    return { status: "failed", message: "Registration has no valid participant email address." };
+  }
+  if (inFlight.has(id)) return { status: "skipped", reason: "Email already being sent" };
+
+  inFlight.add(id);
+  let sentCount = 0;
+  const failures: string[] = [];
+  try {
+    // Same existing template for every participant; only the recipient
+    // (email, name, ticket) changes per send.
+    for (const recipient of recipients) {
+      try {
+        await emailjs.send(SERVICE_ID!, TEMPLATE_ID!, buildEmailParams(enr, ticket, recipient), {
+          publicKey: PUBLIC_KEY!,
+        });
+        sentCount++;
+      } catch (e: any) {
+        const message = e?.text || e?.message || "Unknown EmailJS error";
+        failures.push(`${recipient.email}: ${message}`);
+        console.error("[emailjs] confirmation email failed", { enrollmentId: id, to: recipient.email, message });
+      }
+    }
+  } finally {
+    // Allow a retry when not every participant got their email; keep the
+    // guard when all sends succeeded so duplicates can't slip through.
+    if (sentCount < recipients.length) inFlight.delete(id);
+  }
+  if (sentCount === recipients.length) {
+    return { status: "sent", sentCount, total: recipients.length };
+  }
+  return {
+    status: "failed",
+    sentCount,
+    total: recipients.length,
+    message: `Sent ${sentCount}/${recipients.length} confirmation emails. ${failures.join("; ")}`,
+  };
+}
+
+/**
+ * Legacy single-recipient sender (kept for any direct single-participant use).
+ */
+export async function sendSingleApprovalConfirmationEmail(
+  enr: any,
+  ticket: string | null,
+  opts: { alreadySent?: boolean } = {},
+): Promise<EmailSendResult> {
+  const id = String(enr?.id ?? "");
+  if (!id) return { status: "skipped", reason: "Missing registration id" };
+  if (opts.alreadySent || enr?.confirmation_email_sent) {
+    return { status: "skipped", reason: "Confirmation email was already sent" };
+  }
+  if (enr?.status !== "confirmed") {
+    return { status: "skipped", reason: "Registration is not approved" };
+  }
+  if (!isEmailJsConfigured()) {
+    return { status: "failed", message: "Email service is not configured (missing EmailJS keys)." };
+  }
+  if (!isValidEmail(enr?.email)) {
+    return { status: "failed", message: "Registration has no valid email address." };
+  }
+  if (inFlight.has(id)) return { status: "skipped", reason: "Email already being sent" };
+
+  inFlight.add(id);
+  try {
+    await emailjs.send(SERVICE_ID!, TEMPLATE_ID!, buildEmailParams(enr, ticket), {
+      publicKey: PUBLIC_KEY!,
+    });
+    return { status: "sent" };
+  } catch (e: any) {
+    inFlight.delete(id);
+    const message = e?.text || e?.message || "Unknown EmailJS error";
+    console.error("[emailjs] confirmation email failed", { enrollmentId: id, message });
+    return { status: "failed", message };
+  }
+}
 export async function sendApprovalConfirmationEmail(
   enr: any,
   ticket: string | null,
