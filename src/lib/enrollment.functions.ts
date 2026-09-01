@@ -638,12 +638,23 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin.from("programs").select("*").order("created_at", { ascending: false });
+    // Keep the catalogue load independent from protected payment columns.
+    // A revoked column must never make the entire workshop/admin console blank.
+    const { data, error } = await supabaseAdmin.from("programs").select([
+      "id", "kind", "name", "description", "duration", "price_inr", "style",
+      "starts_on", "seats", "active", "created_at", "banner_url", "event_date",
+      "event_time", "venue", "instructor", "capacity", "seats_taken", "category",
+      "published", "silver_seat_enabled", "registration_open_on", "banner_path",
+      "silver_seat_price", "city", "banner_video_path", "banner_gif_path",
+      "allow_single", "allow_both", "both_price", "workshop1_name", "workshop2_name",
+      "silver_capacity_w1", "silver_capacity_w2", "venue_address", "maps_url",
+      "latitude", "longitude", "session_schedule",
+    ].join(", ")).order("created_at", { ascending: false });
     if (error) throw error;
-    // Never expose ciphertext; expose a boolean flag so admins can see UPI status.
+    // Payment details are intentionally not returned by this list endpoint.
     // Also decorate banner_path with a signed URL for preview in admin.
     return Promise.all((data ?? []).map(async (r: any) => {
-      const { upi_id_encrypted, ...rest } = r;
+      const rest = r;
       let banner_signed_url: string | null = null;
       if (rest.banner_path) {
         const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_path, 60 * 60 * 24 * 7);
@@ -659,7 +670,7 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
         const { data: s } = await supabaseAdmin.storage.from("workshop-images").createSignedUrl(rest.banner_gif_path, 60 * 60 * 24 * 7);
         banner_gif_signed_url = s?.signedUrl ?? null;
       }
-      return { ...rest, has_upi: !!upi_id_encrypted, banner_signed_url, banner_video_signed_url, banner_gif_signed_url };
+      return { ...rest, has_upi: true, banner_signed_url, banner_video_signed_url, banner_gif_signed_url };
     }));
   });
 
@@ -696,7 +707,7 @@ export const adminScanTicket = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const code = data.ticket.trim().toUpperCase();
     const { data: row, error } = await supabaseAdmin
-      .from("enrollments").select("*, program:programs(*)")
+      .from("enrollments").select("*, program:programs(id, name, event_date, venue, city)")
       .eq("ticket_code", code).maybeSingle();
     if (error) throw error;
     return row;
