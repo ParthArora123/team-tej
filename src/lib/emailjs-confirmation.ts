@@ -31,12 +31,37 @@ function isValidEmail(v: unknown): v is string {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
 }
 
-/** Builds the EmailJS template params from the approved registration record. */
-export function buildEmailParams(enr: any, ticket: string | null) {
+export type EmailRecipient = { name: string; email: string; ticket?: string | null };
+
+/** Builds the unique recipient list for a registration: the primary
+ *  participant plus any additional participants (2..5), de-duplicated by
+ *  email address (case-insensitive) so a repeated address only gets one
+ *  confirmation email. Nothing is hardcoded — every address comes from the
+ *  registration's own data. */
+export function getEmailRecipients(enr: any): EmailRecipient[] {
+  const seen = new Set<string>();
+  const out: EmailRecipient[] = [];
+  const add = (name: unknown, email: unknown, ticket?: unknown) => {
+    const e = String(email ?? "").trim();
+    if (!isValidEmail(e)) return;
+    const key = e.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push({ name: String(name ?? "").trim() || "Participant", email: e, ticket: ticket ? String(ticket) : null });
+  };
+  add(enr?.full_name, enr?.email, enr?.ticket_code);
+  const extras = Array.isArray(enr?.participants) ? enr.participants : [];
+  for (const p of extras) add(p?.full_name, p?.email, p?.ticket_code);
+  return out;
+}
+
+/** Builds the EmailJS template params from the approved registration record,
+ *  addressed to one specific participant (name, email and their own ticket). */
+export function buildEmailParams(enr: any, ticket: string | null, recipient?: EmailRecipient) {
   const sessions = getSelectedSessions(enr);
   const sessionDetails = renderSessionDetails(sessions);
   const content = buildConfirmationContent(enr);
-  const registrationId = ticket || enr?.ticket_code || enr?.id || "";
+  const registrationId = recipient?.ticket || ticket || enr?.ticket_code || enr?.id || "";
   const verifyUrl =
     registrationId && typeof window !== "undefined"
       ? `${window.location.origin}/verify?code=${encodeURIComponent(registrationId)}`
@@ -46,10 +71,10 @@ export function buildEmailParams(enr: any, ticket: string | null) {
     : "";
 
   return {
-    to_email: String(enr?.email ?? "").trim(),
-    to_name: enr?.full_name || "Participant",
-    participant_name: enr?.full_name || "Participant",
-    participant_email: String(enr?.email ?? "").trim(),
+    to_email: recipient?.email ?? String(enr?.email ?? "").trim(),
+    to_name: recipient?.name ?? enr?.full_name ?? "Participant",
+    participant_name: recipient?.name ?? enr?.full_name ?? "Participant",
+    participant_email: recipient?.email ?? String(enr?.email ?? "").trim(),
     workshop_name: enr?.program?.name || "Workshop",
     workshop_date: content.workshopDate || (enr?.program?.event_date ? new Date(enr.program.event_date).toDateString() : ""),
     day: content.day,
@@ -74,11 +99,74 @@ export function buildEmailParams(enr: any, ticket: string | null) {
 
 
 /**
- * Sends the approval confirmation email to the participant's own registered
- * address. Returns a result instead of throwing so the approval is never
- * rolled back when the email provider fails.
+ * Sends the approval confirmation email to EVERY participant on the
+ * registration (primary + participants 2..5), reusing the same EmailJS
+ * service/template for each send. Duplicate email addresses receive only one
+ * email. Returns a result instead of throwing so the approval is never rolled
+ * back when the email provider fails.
  */
+export type MultiEmailSendResult = EmailSendResult & { sentCount?: number; total?: number };
+
 export async function sendApprovalConfirmationEmail(
+  enr: any,
+  ticket: string | null,
+  opts: { alreadySent?: boolean } = {},
+): Promise<MultiEmailSendResult> {
+  const id = String(enr?.id ?? "");
+  if (!id) return { status: "skipped", reason: "Missing registration id" };
+  if (opts.alreadySent || enr?.confirmation_email_sent) {
+    return { status: "skipped", reason: "Confirmation email was already sent" };
+  }
+  if (enr?.status !== "confirmed") {
+    return { status: "skipped", reason: "Registration is not approved" };
+  }
+  if (!isEmailJsConfigured()) {
+    return { status: "failed", message: "Email service is not configured (missing EmailJS keys)." };
+  }
+  const recipients = getEmailRecipients(enr);
+  if (!recipients.length) {
+    return { status: "failed", message: "Registration has no valid participant email address." };
+  }
+  if (inFlight.has(id)) return { status: "skipped", reason: "Email already being sent" };
+
+  inFlight.add(id);
+  let sentCount = 0;
+  const failures: string[] = [];
+  try {
+    // Same existing template for every participant; only the recipient
+    // (email, name, ticket) changes per send.
+    for (const recipient of recipients) {
+      try {
+        await emailjs.send(SERVICE_ID!, TEMPLATE_ID!, buildEmailParams(enr, ticket, recipient), {
+          publicKey: PUBLIC_KEY!,
+        });
+        sentCount++;
+      } catch (e: any) {
+        const message = e?.text || e?.message || "Unknown EmailJS error";
+        failures.push(`${recipient.email}: ${message}`);
+        console.error("[emailjs] confirmation email failed", { enrollmentId: id, to: recipient.email, message });
+      }
+    }
+  } finally {
+    // Allow a retry when not every participant got their email; keep the
+    // guard when all sends succeeded so duplicates can't slip through.
+    if (sentCount < recipients.length) inFlight.delete(id);
+  }
+  if (sentCount === recipients.length) {
+    return { status: "sent", sentCount, total: recipients.length };
+  }
+  return {
+    status: "failed",
+    sentCount,
+    total: recipients.length,
+    message: `Sent ${sentCount}/${recipients.length} confirmation emails. ${failures.join("; ")}`,
+  };
+}
+
+/**
+ * Legacy single-recipient sender (kept for any direct single-participant use).
+ */
+export async function sendSingleApprovalConfirmationEmail(
   enr: any,
   ticket: string | null,
   opts: { alreadySent?: boolean } = {},

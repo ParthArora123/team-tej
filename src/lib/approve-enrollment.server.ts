@@ -67,7 +67,7 @@ export async function approveEnrollmentById(
   // ticket code so existing single-person tickets/QRs keep working unchanged.
   const { data: participants } = await supabaseAdmin
     .from("enrollment_participants")
-    .select("id, position, ticket_code")
+    .select("id, position, ticket_code, full_name, email")
     .eq("enrollment_id", enrollmentId)
     .order("position", { ascending: true });
 
@@ -78,7 +78,12 @@ export async function approveEnrollmentById(
       .from("enrollment_participants")
       .update({ ticket_code: code })
       .eq("id", part.id);
+    part.ticket_code = code;
   }
+
+  // Attach participants so the confirmation email can be sent to each of
+  // them individually (same template, per-participant recipient/ticket).
+  (enr as any).participants = participants ?? [];
 
   return {
     enrollment: enr,
