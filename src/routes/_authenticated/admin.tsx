@@ -893,30 +893,74 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     return hay.includes(q.trim().toLowerCase());
   });
 
+  // A "both workshops" or group booking with N participants becomes N table
+  // rows — one per person — instead of one row with everyone's name crammed
+  // into a single cell. All rows from the same booking share the enrollment
+  // ("Registered", "Workshop", "Amount", "Status" etc.), keyed by enrollmentId
+  // for selection/delete, while "Full name"/"Email"/"Phone"/"Ticket code" are
+  // specific to that one participant.
+  type ParticipantRow = {
+    key: string;
+    enrollmentId: string;
+    enrollment: any;
+    position: number;
+    total: number;
+    full_name: string;
+    email: string;
+    phone: string;
+    ticket_code: string;
+  };
+
+  const expanded: ParticipantRow[] = [];
+  for (const r of filtered) {
+    const count = r.participant_count ?? 1;
+    const parts = Array.isArray(r.participants) ? r.participants : [];
+    if (count > 1 && parts.length > 0) {
+      const sorted = [...parts].sort((a: any, b: any) => (a.position ?? 1) - (b.position ?? 1));
+      for (const p of sorted) {
+        expanded.push({
+          key: `${r.id}-${p.id ?? p.position}`,
+          enrollmentId: r.id,
+          enrollment: r,
+          position: p.position ?? 1,
+          total: count,
+          full_name: p.full_name ?? "",
+          email: p.email ?? "",
+          phone: p.phone ?? "",
+          ticket_code: p.ticket_code ?? (p.position === 1 ? (r.ticket_code ?? "") : ""),
+        });
+      }
+    } else {
+      expanded.push({
+        key: r.id,
+        enrollmentId: r.id,
+        enrollment: r,
+        position: 1,
+        total: 1,
+        full_name: r.full_name ?? "",
+        email: r.email ?? "",
+        phone: r.phone ?? "",
+        ticket_code: r.ticket_code ?? "",
+      });
+    }
+  }
+
   const cols = [
-    ["Registered", (r: any) => new Date(r.created_at).toLocaleString("en-IN")],
-    ["Full name", (r: any) => r.full_name ?? ""],
-    ["Email", (r: any) => r.email ?? ""],
-    ["Phone", (r: any) => r.phone ?? ""],
-    ["Gender", (r: any) => r.gender ?? ""],
-    ["Emergency contact", (r: any) => r.emergency_contact ?? ""],
-    ["Workshop", (r: any) => workshopName(r)],
-    ["Registration", (r: any) => formatRegistration(r)],
-    ["Workshop date", (r: any) => r.program?.event_date ?? ""],
-    ["Amount (INR)", (r: any) => r.amount_inr ?? 0],
-    ["Participants", (r: any) => {
-      const count = r.participant_count ?? 1;
-      if (count <= 1) return count;
-      // Position 1 is the registrant, already shown in "Full name"/"Email" —
-      // list the extra participants' names + emails alongside the count.
-      const extras = (r.participants ?? [])
-        .filter((p: any) => (p.position ?? 1) > 1)
-        .map((p: any) => [p.full_name, p.email].filter(Boolean).join(" – "))
-        .filter(Boolean);
-      return extras.length ? `${count} (${extras.join(", ")})` : count;
-    }],
-    ["Status", (r: any) => r.status ?? ""],
-    ["Ticket code", (r: any) => r.ticket_code ?? ""],
+    ["Registered", (pr: ParticipantRow) => new Date(pr.enrollment.created_at).toLocaleString("en-IN")],
+    ["Full name", (pr: ParticipantRow) => pr.full_name],
+    ["Email", (pr: ParticipantRow) => pr.email],
+    ["Phone", (pr: ParticipantRow) => pr.phone],
+    // Gender/emergency contact are only collected for the registrant.
+    ["Gender", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.gender ?? "" : "")],
+    ["Emergency contact", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.emergency_contact ?? "" : "")],
+    ["Workshop", (pr: ParticipantRow) => workshopName(pr.enrollment)],
+    ["Registration", (pr: ParticipantRow) => formatRegistration(pr.enrollment)],
+    ["Workshop date", (pr: ParticipantRow) => pr.enrollment.program?.event_date ?? ""],
+    // Amount is for the whole booking, so only show it once (on the first row).
+    ["Amount (INR)", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.amount_inr ?? 0 : "")],
+    ["Participants", (pr: ParticipantRow) => (pr.total > 1 ? `${pr.position} of ${pr.total}` : 1)],
+    ["Status", (pr: ParticipantRow) => pr.enrollment.status ?? ""],
+    ["Ticket code", (pr: ParticipantRow) => pr.ticket_code],
   ] as const;
 
   const exportCsv = () => {
@@ -925,7 +969,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
     const header = cols.map(([h]) => esc(h)).join(",");
-    const body = filtered.map((r) => cols.map(([, get]) => esc(get(r))).join(",")).join("\n");
+    const body = expanded.map((pr) => cols.map(([, get]) => esc(get(pr))).join(",")).join("\n");
     // BOM so Excel picks up UTF-8 (₹, é, etc.)
     const csv = "\ufeff" + header + "\n" + body;
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -1008,9 +1052,9 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           <option value="all">All workshops</option>
           {programs.map((p) => <option key={p} value={p} className="truncate">{p}</option>)}
         </select>
-        <button onClick={exportCsv} disabled={filtered.length === 0}
+        <button onClick={exportCsv} disabled={expanded.length === 0}
           className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
-          Export to Excel ({filtered.length})
+          Export to Excel ({expanded.length})
         </button>
         {selected.size > 0 && (
           <button onClick={() => setBulkConfirm(true)}
@@ -1027,7 +1071,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
               <th className="px-3 py-2 w-10">
                 <input
                   type="checkbox"
-                  aria-label="Select all participants"
+                  aria-label="Select all registrations"
                   checked={allFilteredSelected}
                   onChange={toggleAll}
                   className="h-4 w-4 accent-primary cursor-pointer align-middle"
@@ -1038,24 +1082,24 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
             </tr>
           </thead>
           <tbody>
-            {filtered.map((r) => (
-              <tr key={r.id} className={`border-t border-border/60 hover:bg-muted/30 ${selected.has(r.id) ? "bg-muted/40" : ""}`}>
+            {expanded.map((pr) => (
+              <tr key={pr.key} className={`border-t border-border/60 hover:bg-muted/30 ${selected.has(pr.enrollmentId) ? "bg-muted/40" : ""}`}>
                 <td className="px-3 py-2 w-10">
                   <input
                     type="checkbox"
-                    aria-label={`Select ${r.full_name ?? "participant"}`}
-                    checked={selected.has(r.id)}
-                    onChange={() => toggleOne(r.id)}
+                    aria-label={`Select ${pr.full_name || "registration"}`}
+                    checked={selected.has(pr.enrollmentId)}
+                    onChange={() => toggleOne(pr.enrollmentId)}
                     className="h-4 w-4 accent-primary cursor-pointer align-middle"
                   />
                 </td>
                 {cols.map(([h, get]) => (
-                  <td key={h} className="px-3 py-2 whitespace-nowrap">{String(get(r) ?? "")}</td>
+                  <td key={h} className="px-3 py-2 whitespace-nowrap">{String(get(pr) ?? "")}</td>
                 ))}
                 <td className="px-3 py-2 whitespace-nowrap">
                   <button
                     type="button"
-                    onClick={() => setToDelete(r)}
+                    onClick={() => setToDelete(pr.enrollment)}
                     className="inline-flex items-center rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive hover:bg-destructive/20 transition-colors"
                   >
                     Delete
@@ -1063,20 +1107,22 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && (
+            {expanded.length === 0 && (
               <tr><td colSpan={cols.length + 2} className="px-3 py-6 text-center text-muted-foreground">No students match.</td></tr>
             )}
           </tbody>
         </table>
       </div>
-      <p className="text-[11px] text-muted-foreground mt-2">Export downloads a UTF-8 CSV that opens directly in Excel or Google Sheets.</p>
+      <p className="text-[11px] text-muted-foreground mt-2">Export downloads a UTF-8 CSV that opens directly in Excel or Google Sheets. Group bookings appear as one row per participant.</p>
 
       <AlertDialog open={!!toDelete} onOpenChange={(open) => { if (!open) setToDelete(null); }}>
         <AlertDialogContent className="sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete participant?</AlertDialogTitle>
+            <AlertDialogTitle>Delete registration?</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this participant? This action is permanent and cannot be undone.
+              {toDelete && (toDelete.participant_count ?? 1) > 1
+                ? `This registration has ${toDelete.participant_count} participants. Deleting it removes all of them. This action is permanent and cannot be undone.`
+                : "Are you sure you want to delete this registration? This action is permanent and cannot be undone."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           {toDelete && (
@@ -1084,6 +1130,9 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
               <p><span className="text-muted-foreground">Name:</span> {toDelete.full_name}</p>
               <p><span className="text-muted-foreground">Email:</span> {toDelete.email}</p>
               <p><span className="text-muted-foreground">Workshop:</span> {toDelete.program?.name}</p>
+              {(toDelete.participant_count ?? 1) > 1 && (
+                <p><span className="text-muted-foreground">Participants:</span> {toDelete.participant_count}</p>
+              )}
             </div>
           )}
           <AlertDialogFooter>
