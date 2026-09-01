@@ -113,8 +113,13 @@ function Dashboard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const [proofFile, setProofFile] = useState<Record<string, File | null>>({});
-  const [reference, setReference] = useState<Record<string, string>>({});
   const [proofError, setProofError] = useState<Record<string, string>>({});
+
+  // Auto-generates a reference string that satisfies the backend's
+  // 6–64 char alphanumeric/hyphen format, so the duplicate-payment-reference
+  // check still runs even though we no longer ask the user to type one in.
+  const generatePaymentReference = (enrollmentId: string) =>
+    `${enrollmentId.replace(/-/g, "").slice(0, 12)}-${Date.now().toString(36)}`;
   const [submitting, setSubmitting] = useState<Record<string, boolean>>({});
 
   const reload = async () => {
@@ -135,15 +140,11 @@ function Dashboard() {
 
   const submitProof = async (enrollmentId: string) => {
     const file = proofFile[enrollmentId];
-    const ref = (reference[enrollmentId] || "").trim();
+    const ref = generatePaymentReference(enrollmentId);
     setProofError((s) => ({ ...s, [enrollmentId]: "" }));
 
     if (!file) {
       setProofError((s) => ({ ...s, [enrollmentId]: "Please choose a payment screenshot." }));
-      return;
-    }
-    if (!/^[A-Za-z0-9-]{6,64}$/.test(ref)) {
-      setProofError((s) => ({ ...s, [enrollmentId]: "Enter the 6–64 character UPI Reference / UTR ID from your payment app." }));
       return;
     }
 
@@ -176,7 +177,6 @@ function Dashboard() {
       });
 
       setProofFile((s) => ({ ...s, [enrollmentId]: null }));
-      setReference((s) => ({ ...s, [enrollmentId]: "" }));
       await reload();
     } catch (e: any) {
       setProofError((s) => ({ ...s, [enrollmentId]: e.message ?? "Something went wrong. Please try again." }));
@@ -336,17 +336,6 @@ function Dashboard() {
                             }}
                           />
                         </label>
-
-                        <input
-                          type="text"
-                          value={reference[r.id] || ""}
-                          onChange={(e) => {
-                            setReference((s) => ({ ...s, [r.id]: e.target.value }));
-                            setProofError((s) => ({ ...s, [r.id]: "" }));
-                          }}
-                          placeholder="UPI Reference / UTR ID (from your payment app)"
-                          className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm"
-                        />
 
                         {proofError[r.id] && (
                           <p className="text-xs text-destructive">{proofError[r.id]}</p>
