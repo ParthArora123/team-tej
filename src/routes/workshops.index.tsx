@@ -15,7 +15,7 @@ import { sortWorkshopsByDateDesc } from "@/lib/workshop-order";
 
 import { WorkshopHero } from "@/components/site/WorkshopHero";
 import { WorkshopGallery } from "@/components/site/WorkshopGallery";
-import { TiltCard } from "@/components/site/TiltCard";
+
 import { Reveal } from "@/components/site/Reveal";
 import { WorkshopLivingBackdrop } from "@/components/site/WorkshopLivingBackdrop";
 import { ViewportVideo } from "@/components/site/ViewportVideo";
@@ -73,8 +73,7 @@ function WorkshopBanner({ r }: { r: any }) {
   }
 
   return (
-    <div className="w-full aspect-[4/5] bg-gradient-to-br from-primary/30 via-background to-accent/20 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-40 [background:radial-gradient(circle_at_30%_30%,color-mix(in_oklab,var(--primary)_60%,transparent),transparent_60%)]" />
+    <div className="w-full aspect-[4/5] bg-muted relative overflow-hidden">
       <Sparkles className="absolute right-6 top-6 text-primary/60" />
     </div>
   );
@@ -160,12 +159,12 @@ function WorkshopsPage() {
             return (
               <motion.div
                 key={r.id}
-                initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
-                whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.7, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.5, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
               >
-                <TiltCard className="group relative rounded-3xl border border-border bg-card overflow-hidden shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)] hover:shadow-[0_40px_120px_-30px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-shadow duration-500 h-full flex flex-col">
+                <div className="group relative rounded-3xl border border-border bg-card overflow-hidden shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)] hover:shadow-[0_40px_120px_-30px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-shadow duration-500 h-full flex flex-col">
                   <Link to="/workshops/$id" params={{ id: r.id }} className="relative block">
                     <WorkshopBanner r={r} />
                     {scarcity && (
@@ -227,7 +226,7 @@ function WorkshopsPage() {
                       </Link>
                     </div>
                   </div>
-                </TiltCard>
+                </div>
               </motion.div>
             );
           })}
