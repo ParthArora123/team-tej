@@ -24,13 +24,16 @@ const LEGACY_SESSION_TIMES: Record<string, string[]> = {
 };
 
 // Builds the wa.me deep link used by WhatsApp-mode workshops. Opens a chat
-// with the studio's WhatsApp number, pre-filled with a message naming the
-// workshop so the team knows exactly what the visitor wants to book.
+// with the workshop's own WhatsApp number (entered in the admin form),
+// pre-filled with a message naming the workshop. The Contact Page number is
+// intentionally NOT used here.
 function buildRegisterWaUrl(programName: string, whatsappNumber: unknown): string | null {
   const digits = String(whatsappNumber ?? "").replace(/[^\d]/g, "");
   if (!digits) return null;
+  // wa.me requires a country code; default 10-digit Indian numbers to +91.
+  const withCc = digits.length === 10 ? `91${digits}` : digits;
   const message = `Hi! I'd like to register for the "${programName}" workshop. Could you share the next steps?`;
-  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+  return `https://wa.me/${withCc}?text=${encodeURIComponent(message)}`;
 }
 
 export const Route = createFileRoute("/workshops/$id")({
@@ -669,7 +672,7 @@ function WorkshopDetailPage() {
   // single-workshop events; fall back to the program title otherwise.
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const isWhatsappMode = (program as any).registration_mode === "whatsapp";
-  const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, contactInfo.whatsapp) : null;
+  const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, (program as any).whatsapp_number) : null;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0
     ? configuredNames.map((name, index) => {
         const normalizedName = name.toLocaleLowerCase();
