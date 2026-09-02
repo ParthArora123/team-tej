@@ -492,6 +492,7 @@ const workshopSchema = z.object({
   style: z.string().optional(),
   published: z.boolean().default(false),
   registration_mode: z.enum(["online", "whatsapp"]).default("online"),
+  whatsapp_number: z.string().max(20).optional().or(z.literal("")).nullable(),
   silver_seat_enabled: z.boolean().optional(),
   silver_seat_price: z.number().int().min(0).optional(),
   allow_single: z.boolean().optional(),
