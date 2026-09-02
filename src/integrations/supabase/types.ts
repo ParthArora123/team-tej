@@ -980,6 +980,7 @@ export type Database = {
           upi_id_encrypted: string | null
           venue: string | null
           venue_address: string | null
+          whatsapp_number: string | null
           workshop1_name: string | null
           workshop2_name: string | null
         }
@@ -1023,6 +1024,7 @@ export type Database = {
           upi_id_encrypted?: string | null
           venue?: string | null
           venue_address?: string | null
+          whatsapp_number?: string | null
           workshop1_name?: string | null
           workshop2_name?: string | null
         }
@@ -1066,6 +1068,7 @@ export type Database = {
           upi_id_encrypted?: string | null
           venue?: string | null
           venue_address?: string | null
+          whatsapp_number?: string | null
           workshop1_name?: string | null
           workshop2_name?: string | null
         }

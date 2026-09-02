@@ -522,6 +522,16 @@ const workshopSchema = z.object({
       message: "Bank account holder name is required for online payment.",
     });
   }
+  if (val.registration_mode === "whatsapp") {
+    const digits = String(val.whatsapp_number ?? "").replace(/\D/g, "");
+    if (!/^[0-9]{10}$/.test(digits)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["whatsapp_number"],
+        message: "Enter a valid 10-digit WhatsApp number for WhatsApp registration.",
+      });
+    }
+  }
 });
 
 export const adminSaveWorkshop = createServerFn({ method: "POST" })
@@ -552,6 +562,9 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
         .map((s) => ({ time: (s.time ?? "").trim(), name: (s.name ?? "").trim() }))
         .filter((s) => s.time || s.name),
       registration_mode: rest.registration_mode === "whatsapp" ? "whatsapp" : "online",
+      whatsapp_number: rest.registration_mode === "whatsapp"
+        ? String(rest.whatsapp_number ?? "").replace(/\D/g, "").slice(0, 10) || null
+        : null,
       bank_account_holder: rest.bank_account_holder?.trim() || null,
     };
     if (clear_upi) {
@@ -663,7 +676,7 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
       "silver_seat_price", "city", "banner_video_path", "banner_gif_path",
       "allow_single", "allow_both", "both_price", "workshop1_name", "workshop2_name",
       "silver_capacity_w1", "silver_capacity_w2", "venue_address", "maps_url",
-      "latitude", "longitude", "session_schedule", "registration_mode",
+      "latitude", "longitude", "session_schedule", "registration_mode", "whatsapp_number",
     ].join(", ")).order("created_at", { ascending: false });
     if (error) throw error;
     // Payment details are intentionally not returned by this list endpoint.
