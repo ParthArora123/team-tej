@@ -716,7 +716,7 @@ function WorkshopDetailPage() {
   const enrollKlass: EnrollClass | null = program ? {
     id: program.id, name: program.name, price: singlePrice, duration: program.duration ?? "",
     silverSeatEnabled: !!program.silver_seat_enabled, silverSeatPrice: silverPrice,
-    allowSingle: (program as any).allow_single !== false, allowBoth: !!(program as any).allow_both,
+    allowSingle: (program as any).allow_single !== false, allowBoth,
     bothPrice: allowBoth ? bothPrice : null,
     workshop1Name: (program as any).workshop1_name ?? null,
     workshop2Name: (program as any).workshop2_name ?? null,
