@@ -45,10 +45,14 @@ function buildRegisterWaUrl(programName: string, eventDate: unknown, city: unkno
   // wa.me requires a country code; default 10-digit Indian numbers to +91.
   const withCc = digits.length === 10 ? `91${digits}` : digits;
   const date = shortWorkshopDate(eventDate);
-  const place = String(city ?? "").trim();
+  // Title-case the city so "bangalore" / "BANGALORE" both read "Bangalore".
+  const rawPlace = String(city ?? "").trim();
+  const place = rawPlace
+    ? rawPlace.split(/\s+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ")
+    : "";
   const whenWhere = [date, place].filter(Boolean).join(" ");
-  const label = whenWhere ? `${whenWhere} workshop` : `"${programName}" workshop`;
-  const message = `Hey i want to register for ${label}\nPls share me details`;
+  const label = whenWhere ? `${whenWhere} workshop` : `${programName} workshop`;
+  const message = `Hey i want to register for ${label} Pls share me details`;
   return `https://wa.me/${withCc}?text=${encodeURIComponent(message)}`;
 }
 
