@@ -708,9 +708,9 @@ function WorkshopDetailPage() {
         const legacyTime = LEGACY_SESSION_TIMES[program.id]?.[index] ?? "";
         return { name, time: namedRow?.time ?? indexedRow?.time ?? legacyTime };
       })
-      : rawSessions.length > 0
-      ? rawSessions
-      : [{ name: displayName, time: formattedEventTime ?? "" }];
+      : rawSessions;
+
+
 
 
 
