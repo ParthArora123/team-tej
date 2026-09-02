@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { csvSafe } from "@/lib/name-validation";
+import { sanitizePhone } from "@/lib/phone-validation";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { QRCodeCanvas } from "qrcode.react";
