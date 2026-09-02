@@ -328,6 +328,7 @@ const emptyWs = () => ({
   duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
   category: "", style: "", published: true,
+  registration_mode: "online" as "online" | "whatsapp",
   silver_seat_enabled: true,
   silver_seat_price: "1000",
   allow_single: true,
@@ -379,6 +380,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       registration_open_on: r.registration_open_on ?? todayISO(),
       category: r.category ?? "",
       style: r.style ?? "", published: !!r.published,
+      registration_mode: r.registration_mode === "whatsapp" ? "whatsapp" : "online",
       silver_seat_enabled: !!r.silver_seat_enabled,
       silver_seat_price: (r.silver_seat_price ?? 1000).toString(),
       allow_single: r.allow_single !== false,
@@ -446,6 +448,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
     try {
       await onSave({ data: {
         ...f,
+        registration_mode: f.registration_mode === "whatsapp" ? "whatsapp" : "online",
+        bank_account_holder: f.registration_mode === "whatsapp" ? (f.bank_account_holder || "") : f.bank_account_holder,
         price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
         silver_seat_price: f.silver_seat_enabled ? Number(f.silver_seat_price || 1000) : 1000,
@@ -587,6 +591,21 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
             </div>
 
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration Method</p>
+              <label className="flex items-start gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" className="mt-0.5" checked={f.registration_mode === "whatsapp"}
+                  onChange={(e) => setF({ ...f, registration_mode: e.target.checked ? "whatsapp" : "online" })} />
+                <span>
+                  Register via WhatsApp instead of online payment
+                  <span className="block text-[11px] font-normal text-muted-foreground">
+                    Unchecked: students register and pay online (UPI QR + proof upload) — the current flow.
+                    Checked: the "Register Now" button sends students straight to WhatsApp with a pre-filled message; no online payment form is shown.
+                  </span>
+                </span>
+              </label>
+            </div>
+
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium">
                 <input type="checkbox" checked={!!f.silver_seat_enabled} onChange={(e) => setF({ ...f, silver_seat_enabled: e.target.checked })} />
                 Enable Silver Seat option
@@ -687,6 +706,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 
 
 
+            {f.registration_mode !== "whatsapp" && (
             <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
 
@@ -731,6 +751,17 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 </>
               )}
             </div>
+            )}
+
+            {f.registration_mode === "whatsapp" && (
+              <div className="rounded-lg border border-[#25D366]/30 bg-[#25D366]/5 p-3">
+                <p className="text-[11px] text-muted-foreground">
+                  WhatsApp mode is on — no UPI/payment details are needed. Students who tap "Register Now" on the
+                  workshop page will be sent straight to WhatsApp using the number set in Contact Info, with the
+                  workshop name pre-filled in the message.
+                </p>
+              </div>
+            )}
 
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} />
