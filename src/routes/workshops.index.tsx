@@ -152,7 +152,7 @@ function WorkshopsPage() {
         <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
           {!loaded && rows.length === 0 &&
             Array.from({ length: 6 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
-          {rows.map((r, i) => {
+          {rows.map((r) => {
             const seatsLeft = r.capacity != null ? Math.max(0, r.capacity - (r.seats_taken ?? 0)) : null;
             const full = seatsLeft === 0;
             const silverPrice = r.silver_seat_price ?? 1000;
