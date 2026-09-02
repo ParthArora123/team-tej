@@ -666,14 +666,16 @@ function WorkshopDetailPage() {
 
   const allowSingle = (program as any).allow_single !== false;
   const bothWorkshopsConfigured = Boolean((program as any).workshop1_name) && Boolean((program as any).workshop2_name);
-  const allowBoth = !!(program as any).allow_both && bothWorkshopsConfigured;
+  const allowBothFlag = !!(program as any).allow_both && bothWorkshopsConfigured;
   const tier = pricing?.current ?? null;
   const baseSinglePrice = program?.price_inr ?? 0;
-  const baseBothPrice = allowBoth ? ((program as any).both_price ?? baseSinglePrice) : 0;
+  // An explicit, positive Both Workshops price is required — empty, null, or 0 hides the Combined Pass.
+  const baseBothPrice = allowBothFlag ? Math.max(0, Number((program as any).both_price) || 0) : 0;
   const singlePrice = tier ? Number(tier.price_inr) : baseSinglePrice;
-  const bothPrice = allowBoth
-    ? (tier?.both_price != null ? Number(tier.both_price) : baseBothPrice)
+  const bothPrice = allowBothFlag
+    ? (tier?.both_price != null ? Math.max(0, Number(tier.both_price) || 0) : baseBothPrice)
     : 0;
+  const allowBoth = allowBothFlag && bothPrice > 0;
   const w1Name = (program as any).workshop1_name || "Workshop 1";
   const w2Name = (program as any).workshop2_name || "Workshop 2";
 
