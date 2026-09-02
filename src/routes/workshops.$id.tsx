@@ -23,16 +23,32 @@ const LEGACY_SESSION_TIMES: Record<string, string[]> = {
   "1abd383c-917e-4320-aa38-3e8b9891990f": ["4:00 PM", "7:00 PM"],
 };
 
+// Formats an ISO date (YYYY-MM-DD) as "12th Sept" — day with ordinal + short
+// month. Returns "" when the date is missing or invalid.
+function shortWorkshopDate(iso: unknown): string {
+  if (!iso) return "";
+  const d = new Date(String(iso));
+  if (Number.isNaN(d.getTime())) return "";
+  const day = d.getDate();
+  const ord = day % 10 === 1 && day !== 11 ? "st" : day % 10 === 2 && day !== 12 ? "nd" : day % 10 === 3 && day !== 13 ? "rd" : "th";
+  const month = d.toLocaleString("en-IN", { month: "short" });
+  return `${day}${ord} ${month}`;
+}
+
 // Builds the wa.me deep link used by WhatsApp-mode workshops. Opens a chat
 // with the workshop's own WhatsApp number (entered in the admin form),
-// pre-filled with a message naming the workshop. The Contact Page number is
-// intentionally NOT used here.
-function buildRegisterWaUrl(programName: string, whatsappNumber: unknown): string | null {
+// pre-filled with a message naming the workshop's date and city. The Contact
+// Page number is intentionally NOT used here.
+function buildRegisterWaUrl(programName: string, eventDate: unknown, city: unknown, whatsappNumber: unknown): string | null {
   const digits = String(whatsappNumber ?? "").replace(/[^\d]/g, "");
   if (!digits) return null;
   // wa.me requires a country code; default 10-digit Indian numbers to +91.
   const withCc = digits.length === 10 ? `91${digits}` : digits;
-  const message = `Hi! I'd like to register for the "${programName}" workshop. Could you share the next steps?`;
+  const date = shortWorkshopDate(eventDate);
+  const place = String(city ?? "").trim();
+  const whenWhere = [date, place].filter(Boolean).join(" ");
+  const label = whenWhere ? `${whenWhere} workshop` : `"${programName}" workshop`;
+  const message = `Hey i want to register for ${label}\nPls share me details`;
   return `https://wa.me/${withCc}?text=${encodeURIComponent(message)}`;
 }
 
@@ -672,7 +688,7 @@ function WorkshopDetailPage() {
   // single-workshop events; fall back to the program title otherwise.
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const isWhatsappMode = (program as any).registration_mode === "whatsapp";
-  const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, (program as any).whatsapp_number) : null;
+  const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, (program as any).event_date, (program as any).city, (program as any).whatsapp_number) : null;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0
     ? configuredNames.map((name, index) => {
         const normalizedName = name.toLocaleLowerCase();
