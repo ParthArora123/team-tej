@@ -687,7 +687,10 @@ function WorkshopDetailPage() {
   // Only sessions actually configured in the admin are shown — no
   // placeholder "Workshop 1/2" rows appear when names were left blank.
   const w1Configured = String((program as any).workshop1_name ?? "").trim();
-  const configuredNames = allowBoth
+  // Session schedule shows both configured workshop names regardless of
+  // whether a Combined Pass price is set — the price only gates the
+  // pricing cards, not the schedule.
+  const configuredNames = bothWorkshopsConfigured
     ? [w1Configured, String((program as any).workshop2_name ?? "").trim()].filter(Boolean)
     : [w1Configured].filter(Boolean);
   // UI display name: prefer the admin-configured Workshop 1 name for
