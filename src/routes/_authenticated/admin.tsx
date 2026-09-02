@@ -886,6 +886,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [prog, setProg] = useState<string>("all");
+  const [song, setSong] = useState<string>("all");
   const [toDelete, setToDelete] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -904,6 +905,32 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   // sub-workshop names or generic "Workshop 1"/"Workshop 2" labels.
   const workshopName = (r: any) => r.program?.name ?? "";
 
+  // Resolves the specific song(s)/sub-workshop(s) a registration is actually
+  // for — e.g. "Bol Na Halke" or "Govind Bolo" — from the admin-configured
+  // Workshop 1 / Workshop 2 names on the program. A "Both" registration
+  // covers both songs; a single registration covers whichever one was
+  // selected (falling back to whichever split names are configured, for
+  // older registrations saved before selected_workshop was tracked).
+  const songNamesFor = (r: any): string[] => {
+    const p = r.program ?? {};
+    const w1 = String(p.workshop1_name ?? "").trim();
+    const w2 = String(p.workshop2_name ?? "").trim();
+    if (!w1 && !w2) return [];
+    if (r.registration_type === "both") return [w1, w2].filter(Boolean);
+    if (r.selected_workshop === "w2") return w2 ? [w2] : [];
+    if (r.selected_workshop === "w1") return w1 ? [w1] : [];
+    return [w1, w2].filter(Boolean);
+  };
+
+  // Song filter options are scoped to the currently selected workshop (or all
+  // workshops, if none is chosen) so the list never shows songs that don't
+  // belong to the program being filtered.
+  const songs = Array.from(new Set(
+    rows
+      .filter((r) => prog === "all" || r.program?.name === prog)
+      .flatMap(songNamesFor),
+  )) as string[];
+
   const formatRegistration = (r: any) => {
     const type = r.registration_type === "both" ? "Both" : "Single";
     if (r.registration_type === "both") return "Both workshops";
@@ -918,6 +945,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const filtered = rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
     if (prog !== "all" && r.program?.name !== prog) return false;
+    if (song !== "all" && !songNamesFor(r).includes(song)) return false;
     if (!q.trim()) return true;
     const parts = (r.participants ?? []).map((p: any) => `${p.full_name ?? ""} ${p.email ?? ""} ${p.phone ?? ""} ${p.ticket_code ?? ""}`).join(" ");
     const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${formatRegistration(r)} ${parts}`.toLowerCase();
@@ -985,6 +1013,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Gender", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.gender ?? "" : "")],
     ["Emergency contact", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.emergency_contact ?? "" : "")],
     ["Workshop", (pr: ParticipantRow) => workshopName(pr.enrollment)],
+    ["Song", (pr: ParticipantRow) => songNamesFor(pr.enrollment).join(" & ")],
     ["Registration", (pr: ParticipantRow) => formatRegistration(pr.enrollment)],
     ["Workshop date", (pr: ParticipantRow) => pr.enrollment.program?.event_date ?? ""],
     // Amount is for the whole booking, so only show it once (on the first row).
@@ -1078,10 +1107,15 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           <option value="confirmed">Confirmed</option>
           <option value="rejected">Rejected</option>
         </select>
-        <select value={prog} onChange={(e) => setProg(e.target.value)}
+        <select value={prog} onChange={(e) => { setProg(e.target.value); setSong("all"); }}
           className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
           <option value="all">All workshops</option>
           {programs.map((p) => <option key={p} value={p} className="truncate">{p}</option>)}
+        </select>
+        <select value={song} onChange={(e) => setSong(e.target.value)} disabled={songs.length === 0}
+          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm disabled:opacity-50">
+          <option value="all">All songs</option>
+          {songs.map((s) => <option key={s} value={s} className="truncate">{s}</option>)}
         </select>
         <button onClick={exportCsv} disabled={expanded.length === 0}
           className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
