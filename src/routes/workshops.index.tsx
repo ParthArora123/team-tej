@@ -15,7 +15,7 @@ import { sortWorkshopsByDateDesc } from "@/lib/workshop-order";
 
 import { WorkshopHero } from "@/components/site/WorkshopHero";
 import { WorkshopGallery } from "@/components/site/WorkshopGallery";
-import { TiltCard } from "@/components/site/TiltCard";
+
 import { Reveal } from "@/components/site/Reveal";
 import { WorkshopLivingBackdrop } from "@/components/site/WorkshopLivingBackdrop";
 import { ViewportVideo } from "@/components/site/ViewportVideo";
@@ -152,20 +152,16 @@ function WorkshopsPage() {
         <div className="mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
           {!loaded && rows.length === 0 &&
             Array.from({ length: 6 }, (_, i) => <CardSkeleton key={`sk-${i}`} />)}
-          {rows.map((r, i) => {
+          {rows.map((r) => {
             const seatsLeft = r.capacity != null ? Math.max(0, r.capacity - (r.seats_taken ?? 0)) : null;
             const full = seatsLeft === 0;
             const silverPrice = r.silver_seat_price ?? 1000;
             const scarcity = seatsLeft != null && seatsLeft <= 5 && !full;
             return (
-              <motion.div
-                key={r.id}
-                initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
-                whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.7, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <TiltCard className="group relative rounded-3xl border border-border bg-card overflow-hidden shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)] hover:shadow-[0_40px_120px_-30px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-shadow duration-500 h-full flex flex-col">
+                <div
+                  key={r.id}
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-18px_color-mix(in_oklab,var(--foreground)_16%,transparent)]"
+                >
                   <Link to="/workshops/$id" params={{ id: r.id }} className="relative block">
                     <WorkshopBanner r={r} />
                     {scarcity && (
@@ -227,8 +223,7 @@ function WorkshopsPage() {
                       </Link>
                     </div>
                   </div>
-                </TiltCard>
-              </motion.div>
+                </div>
             );
           })}
           {rows.length === 0 && (
