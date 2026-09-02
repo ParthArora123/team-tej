@@ -1140,9 +1140,21 @@ html[data-scrolling="1"] .ambient-backdrop::after { animation-play-state: paused
   }
 }
 
+/* While the user is actively scrolling, freeze every decorative looping
+   animation (desktop included). Each one repaints its region on every frame,
+   which competes with scroll compositing. Motion resumes ~140ms after the
+   last scroll event, so the design is identical at rest. */
+html[data-scrolling="1"] [class*="_infinite"]:not(.animate-pulse),
+html[data-scrolling="1"] [style*="infinite"]:not(.animate-pulse),
+html[data-scrolling="1"] .animate-spin,
+html[data-scrolling="1"] .animate-bounce {
+  animation-play-state: paused !important;
+}
+
 /* Skip rendering work for sections far outside the viewport. The remembered
    intrinsic size keeps the scrollbar stable, so this costs no layout shift. */
-main section {
+main section,
+footer {
   content-visibility: auto;
   contain-intrinsic-size: auto 640px;
 }
@@ -1150,6 +1162,7 @@ main section#hero,
 main section:first-of-type {
   content-visibility: visible;
 }
+
 
 
 /* Hidden horizontal-pager slides must not animate: display:none already
