@@ -967,6 +967,7 @@ export type Database = {
           name: string
           price_inr: number
           published: boolean
+          registration_mode: string
           registration_open_on: string | null
           seats: number | null
           seats_taken: number
@@ -1011,6 +1012,7 @@ export type Database = {
           name: string
           price_inr: number
           published?: boolean
+          registration_mode?: string
           registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
@@ -1055,6 +1057,7 @@ export type Database = {
           name?: string
           price_inr?: number
           published?: boolean
+          registration_mode?: string
           registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
@@ -1445,6 +1448,7 @@ export type Database = {
           name: string | null
           price_inr: number | null
           published: boolean | null
+          registration_mode: string | null
           registration_open_on: string | null
           seats_taken: number | null
           session_schedule: Json | null
@@ -1455,6 +1459,7 @@ export type Database = {
           style: string | null
           venue: string | null
           venue_address: string | null
+          whatsapp_number: string | null
           workshop1_name: string | null
           workshop2_name: string | null
         }
@@ -1484,6 +1489,7 @@ export type Database = {
           name?: string | null
           price_inr?: number | null
           published?: boolean | null
+          registration_mode?: string | null
           registration_open_on?: string | null
           seats_taken?: number | null
           session_schedule?: Json | null
@@ -1494,6 +1500,7 @@ export type Database = {
           style?: string | null
           venue?: string | null
           venue_address?: string | null
+          whatsapp_number?: string | null
           workshop1_name?: string | null
           workshop2_name?: string | null
         }
@@ -1523,6 +1530,7 @@ export type Database = {
           name?: string | null
           price_inr?: number | null
           published?: boolean | null
+          registration_mode?: string | null
           registration_open_on?: string | null
           seats_taken?: number | null
           session_schedule?: Json | null
@@ -1533,6 +1541,7 @@ export type Database = {
           style?: string | null
           venue?: string | null
           venue_address?: string | null
+          whatsapp_number?: string | null
           workshop1_name?: string | null
           workshop2_name?: string | null
         }
