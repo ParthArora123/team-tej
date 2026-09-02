@@ -52,15 +52,12 @@ function WorkshopBanner({ r }: { r: any }) {
   if (r.banner_video_url) {
     return (
       <div className="relative w-full aspect-[4/5] overflow-hidden bg-jet">
-        {r.banner_url && (
-          <img src={r.banner_url} alt="" aria-hidden className="blur-backdrop-wide opacity-70" />
-        )}
         <ViewportVideo
           src={r.banner_video_url}
           poster={r.banner_url ?? undefined}
           autoPlay muted loop playsInline
           preload="metadata"
-          className="absolute inset-0 w-full h-full object-contain"
+          className="absolute inset-0 w-full h-full object-cover"
         />
       </div>
     );
@@ -69,10 +66,8 @@ function WorkshopBanner({ r }: { r: any }) {
   if (still) {
     return (
       <div className="relative w-full aspect-[4/5] overflow-hidden bg-jet">
-        <img src={still} alt="" aria-hidden loading="lazy" decoding="async"
-          className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-70" />
         <img src={still} alt={r.name} loading="lazy" decoding="async"
-          className="absolute inset-0 h-full w-full object-contain transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
       </div>
     );
   }
