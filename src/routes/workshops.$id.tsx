@@ -688,7 +688,7 @@ function WorkshopDetailPage() {
   // single-workshop events; fall back to the program title otherwise.
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const isWhatsappMode = (program as any).registration_mode === "whatsapp";
-  const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, (program as any).whatsapp_number) : null;
+  const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, (program as any).event_date, (program as any).city, (program as any).whatsapp_number) : null;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0
     ? configuredNames.map((name, index) => {
         const normalizedName = name.toLocaleLowerCase();
