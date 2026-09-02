@@ -160,7 +160,7 @@ function WorkshopsPage() {
             return (
                 <div
                   key={r.id}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_-18px_color-mix(in_oklab,var(--foreground)_16%,transparent)]"
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1"
                 >
                   <Link to="/workshops/$id" params={{ id: r.id }} className="relative block">
                     <WorkshopBanner r={r} />
