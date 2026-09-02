@@ -967,6 +967,7 @@ export type Database = {
           name: string
           price_inr: number
           published: boolean
+          registration_mode: string
           registration_open_on: string | null
           seats: number | null
           seats_taken: number
@@ -1010,6 +1011,7 @@ export type Database = {
           name: string
           price_inr: number
           published?: boolean
+          registration_mode?: string
           registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
@@ -1053,6 +1055,7 @@ export type Database = {
           name?: string
           price_inr?: number
           published?: boolean
+          registration_mode?: string
           registration_open_on?: string | null
           seats?: number | null
           seats_taken?: number
