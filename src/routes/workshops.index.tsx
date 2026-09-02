@@ -62,8 +62,6 @@ function WorkshopBanner({ r }: { r: any }) {
           preload="metadata"
           className="absolute inset-0 w-full h-full object-contain"
         />
-
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-jet/60 via-transparent to-transparent" />
       </div>
     );
   }
@@ -75,7 +73,6 @@ function WorkshopBanner({ r }: { r: any }) {
           className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-70" />
         <img src={still} alt={r.name} loading="lazy" decoding="async"
           className="absolute inset-0 h-full w-full object-contain transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-jet/60 via-transparent to-transparent" />
       </div>
     );
   }
