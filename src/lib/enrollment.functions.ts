@@ -491,6 +491,7 @@ const workshopSchema = z.object({
   category: z.string().optional(),
   style: z.string().optional(),
   published: z.boolean().default(false),
+  registration_mode: z.enum(["online", "whatsapp"]).default("online"),
   silver_seat_enabled: z.boolean().optional(),
   silver_seat_price: z.number().int().min(0).optional(),
   allow_single: z.boolean().optional(),
@@ -506,7 +507,20 @@ const workshopSchema = z.object({
   })).max(20).optional().nullable(),
   upi_id: z.string().max(120).optional().or(z.literal("")),
   clear_upi: z.boolean().optional(),
-  bank_account_holder: z.string().min(2).max(120),
+  // Only required for the online-payment flow; WhatsApp-mode workshops never
+  // show a UPI/payment step, so no payee name needs to be collected.
+  bank_account_holder: z.string().max(120).optional().or(z.literal("")),
+}).superRefine((val, ctx) => {
+  if (val.registration_mode !== "whatsapp" && !String(val.bank_account_holder ?? "").trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.too_small,
+      minimum: 2,
+      type: "string",
+      inclusive: true,
+      path: ["bank_account_holder"],
+      message: "Bank account holder name is required for online payment.",
+    });
+  }
 });
 
 export const adminSaveWorkshop = createServerFn({ method: "POST" })
@@ -536,6 +550,8 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       session_schedule: (rest.session_schedule ?? [])
         .map((s) => ({ time: (s.time ?? "").trim(), name: (s.name ?? "").trim() }))
         .filter((s) => s.time || s.name),
+      registration_mode: rest.registration_mode === "whatsapp" ? "whatsapp" : "online",
+      bank_account_holder: rest.bank_account_holder?.trim() || null,
     };
     if (clear_upi) {
       clean.upi_id_encrypted = null;
@@ -646,7 +662,7 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
       "silver_seat_price", "city", "banner_video_path", "banner_gif_path",
       "allow_single", "allow_both", "both_price", "workshop1_name", "workshop2_name",
       "silver_capacity_w1", "silver_capacity_w2", "venue_address", "maps_url",
-      "latitude", "longitude", "session_schedule",
+      "latitude", "longitude", "session_schedule", "registration_mode",
     ].join(", ")).order("created_at", { ascending: false });
     if (error) throw error;
     // Payment details are intentionally not returned by this list endpoint.
@@ -798,4 +814,3 @@ export const adminAddTeamByEmail = createServerFn({ method: "POST" })
     if (error && !String(error.message).toLowerCase().includes("duplicate")) throw error;
     return { ok: true, userId: prof.id };
   });
-

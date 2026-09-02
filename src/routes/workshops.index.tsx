@@ -52,18 +52,13 @@ function WorkshopBanner({ r }: { r: any }) {
   if (r.banner_video_url) {
     return (
       <div className="relative w-full aspect-[4/5] overflow-hidden bg-jet">
-        {r.banner_url && (
-          <img src={r.banner_url} alt="" aria-hidden className="blur-backdrop-wide opacity-70" />
-        )}
         <ViewportVideo
           src={r.banner_video_url}
           poster={r.banner_url ?? undefined}
           autoPlay muted loop playsInline
           preload="metadata"
-          className="absolute inset-0 w-full h-full object-contain"
+          className="absolute inset-0 w-full h-full object-cover"
         />
-
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-jet/60 via-transparent to-transparent" />
       </div>
     );
   }
@@ -71,11 +66,8 @@ function WorkshopBanner({ r }: { r: any }) {
   if (still) {
     return (
       <div className="relative w-full aspect-[4/5] overflow-hidden bg-jet">
-        <img src={still} alt="" aria-hidden loading="lazy" decoding="async"
-          className="absolute inset-0 h-full w-full scale-125 object-cover blur-2xl opacity-70" />
         <img src={still} alt={r.name} loading="lazy" decoding="async"
-          className="absolute inset-0 h-full w-full object-contain transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-jet/60 via-transparent to-transparent" />
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] group-hover:scale-[1.03]" />
       </div>
     );
   }
@@ -173,7 +165,7 @@ function WorkshopsPage() {
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.7, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
               >
-                <TiltCard className="group relative rounded-3xl border border-alabaster/10 bg-card/40 backdrop-blur-2xl overflow-hidden shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)] hover:shadow-[0_40px_120px_-30px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-shadow duration-500 h-full flex flex-col">
+                <TiltCard className="group relative rounded-3xl border border-border bg-card overflow-hidden shadow-[0_30px_80px_-40px_color-mix(in_oklab,var(--accent-gold)_35%,transparent)] hover:shadow-[0_40px_120px_-30px_color-mix(in_oklab,var(--accent-gold)_30%,transparent)] transition-shadow duration-500 h-full flex flex-col">
                   <Link to="/workshops/$id" params={{ id: r.id }} className="relative block">
                     <WorkshopBanner r={r} />
                     {scarcity && (

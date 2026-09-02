@@ -15,12 +15,23 @@ import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 import { getProgramPricing, type ProgramPricing } from "@/lib/pricing-tiers.functions";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { ViewportVideo } from "@/components/site/ViewportVideo";
+import { WhatsAppIcon } from "@/components/site/WhatsAppIcon";
 
 const SITE_URL = "https://tejasdhoke.com";
 
 const LEGACY_SESSION_TIMES: Record<string, string[]> = {
   "1abd383c-917e-4320-aa38-3e8b9891990f": ["4:00 PM", "7:00 PM"],
 };
+
+// Builds the wa.me deep link used by WhatsApp-mode workshops. Opens a chat
+// with the studio's WhatsApp number, pre-filled with a message naming the
+// workshop so the team knows exactly what the visitor wants to book.
+function buildRegisterWaUrl(programName: string, whatsappNumber: unknown): string | null {
+  const digits = String(whatsappNumber ?? "").replace(/[^\d]/g, "");
+  if (!digits) return null;
+  const message = `Hi! I'd like to register for the "${programName}" workshop. Could you share the next steps?`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
 
 export const Route = createFileRoute("/workshops/$id")({
   component: WorkshopDetailPage,
@@ -657,6 +668,8 @@ function WorkshopDetailPage() {
   // UI display name: prefer the admin-configured Workshop 1 name for
   // single-workshop events; fall back to the program title otherwise.
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
+  const isWhatsappMode = (program as any).registration_mode === "whatsapp";
+  const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, contactInfo.whatsapp) : null;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0
     ? configuredNames.map((name, index) => {
         const normalizedName = name.toLocaleLowerCase();
@@ -692,6 +705,16 @@ function WorkshopDetailPage() {
     el.classList.remove("register-flash");
     void el.offsetWidth;
     el.classList.add("register-flash");
+  };
+  // In WhatsApp mode, "Register Now" skips the online form entirely and opens
+  // a WhatsApp chat pre-filled with the workshop name. Online mode keeps the
+  // existing scroll-to-form behaviour untouched.
+  const handleRegisterClick = () => {
+    if (isWhatsappMode) {
+      if (registerWaUrl) window.open(registerWaUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    scrollToRegister();
   };
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
@@ -794,11 +817,11 @@ function WorkshopDetailPage() {
 
             <div className="mt-8 flex flex-wrap gap-4">
               <button
-                onClick={scrollToRegister}
+                onClick={handleRegisterClick}
                 disabled={full}
                 className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-primary via-primary to-accent text-primary-foreground text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(231,223,206,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
               >
-                <Sparkles size={16} />
+                {isWhatsappMode ? <WhatsAppIcon size={16} /> : <Sparkles size={16} />}
                 {full ? "Sold Out" : "Register Now"}
               </button>
               <button
@@ -1069,7 +1092,7 @@ function WorkshopDetailPage() {
             )}
           </div>
 
-          {program.silver_seat_enabled && (
+          {program.silver_seat_enabled && !isWhatsappMode && (
             <motion.button
               type="button"
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
@@ -1193,18 +1216,49 @@ function WorkshopDetailPage() {
       <section id="register" className="relative py-24 scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Secure Your Seat" title="Register Now" />
-          <p className="mt-4 text-center text-primary/60 text-sm max-w-xl mx-auto">
-            Fill in your details below. After submission you'll be taken to the secure UPI payment step.
-          </p>
-          <div className="mt-12">
-            {full ? (
-              <div className="max-w-2xl mx-auto text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70">
-                This workshop is sold out.
+          {isWhatsappMode ? (
+            <>
+              <p className="mt-4 text-center text-primary/60 text-sm max-w-xl mx-auto">
+                Tap below to chat with us on WhatsApp — we'll confirm your seat and share the payment details there.
+              </p>
+              <div className="mt-12 max-w-xl mx-auto">
+                {full ? (
+                  <div className="text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70">
+                    This workshop is sold out.
+                  </div>
+                ) : registerWaUrl ? (
+                  <a
+                    href={registerWaUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group relative flex items-center justify-center gap-3 rounded-2xl bg-[#25D366] px-8 py-5 text-base font-black tracking-wide uppercase text-white shadow-[0_20px_60px_-10px_rgba(37,211,102,0.55)] hover:scale-[1.02] transition-transform"
+                  >
+                    <WhatsAppIcon size={22} />
+                    Register via WhatsApp
+                  </a>
+                ) : (
+                  <div className="text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70 text-sm">
+                    WhatsApp registration isn't set up yet — please reach out via the contact details above.
+                  </div>
+                )}
               </div>
-            ) : (
-              <EnrollDialog klass={enrollKlass} onClose={() => {}} inline />
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <p className="mt-4 text-center text-primary/60 text-sm max-w-xl mx-auto">
+                Fill in your details below. After submission you'll be taken to the secure UPI payment step.
+              </p>
+              <div className="mt-12">
+                {full ? (
+                  <div className="max-w-2xl mx-auto text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70">
+                    This workshop is sold out.
+                  </div>
+                ) : (
+                  <EnrollDialog klass={enrollKlass} onClose={() => {}} inline />
+                )}
+              </div>
+            </>
+          )}
         </div>
       </section>
 

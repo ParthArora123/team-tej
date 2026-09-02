@@ -328,6 +328,7 @@ const emptyWs = () => ({
   duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
   category: "", style: "", published: true,
+  registration_mode: "online" as "online" | "whatsapp",
   silver_seat_enabled: true,
   silver_seat_price: "1000",
   allow_single: true,
@@ -379,6 +380,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       registration_open_on: r.registration_open_on ?? todayISO(),
       category: r.category ?? "",
       style: r.style ?? "", published: !!r.published,
+      registration_mode: r.registration_mode === "whatsapp" ? "whatsapp" : "online",
       silver_seat_enabled: !!r.silver_seat_enabled,
       silver_seat_price: (r.silver_seat_price ?? 1000).toString(),
       allow_single: r.allow_single !== false,
@@ -446,6 +448,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
     try {
       await onSave({ data: {
         ...f,
+        registration_mode: f.registration_mode === "whatsapp" ? "whatsapp" : "online",
+        bank_account_holder: f.registration_mode === "whatsapp" ? (f.bank_account_holder || "") : f.bank_account_holder,
         price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
         silver_seat_price: f.silver_seat_enabled ? Number(f.silver_seat_price || 1000) : 1000,
@@ -587,6 +591,21 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
             </div>
 
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration Method</p>
+              <label className="flex items-start gap-2 text-sm font-medium cursor-pointer">
+                <input type="checkbox" className="mt-0.5" checked={f.registration_mode === "whatsapp"}
+                  onChange={(e) => setF({ ...f, registration_mode: e.target.checked ? "whatsapp" : "online" })} />
+                <span>
+                  Register via WhatsApp instead of online payment
+                  <span className="block text-[11px] font-normal text-muted-foreground">
+                    Unchecked: students register and pay online (UPI QR + proof upload) — the current flow.
+                    Checked: the "Register Now" button sends students straight to WhatsApp with a pre-filled message; no online payment form is shown.
+                  </span>
+                </span>
+              </label>
+            </div>
+
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
               <label className="flex items-center gap-2 text-sm font-medium">
                 <input type="checkbox" checked={!!f.silver_seat_enabled} onChange={(e) => setF({ ...f, silver_seat_enabled: e.target.checked })} />
                 Enable Silver Seat option
@@ -687,6 +706,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 
 
 
+            {f.registration_mode !== "whatsapp" && (
             <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
               <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
 
@@ -731,6 +751,17 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 </>
               )}
             </div>
+            )}
+
+            {f.registration_mode === "whatsapp" && (
+              <div className="rounded-lg border border-[#25D366]/30 bg-[#25D366]/5 p-3">
+                <p className="text-[11px] text-muted-foreground">
+                  WhatsApp mode is on — no UPI/payment details are needed. Students who tap "Register Now" on the
+                  workshop page will be sent straight to WhatsApp using the number set in Contact Info, with the
+                  workshop name pre-filled in the message.
+                </p>
+              </div>
+            )}
 
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} />
@@ -855,6 +886,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [prog, setProg] = useState<string>("all");
+  const [song, setSong] = useState<string>("all");
   const [toDelete, setToDelete] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -873,6 +905,32 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   // sub-workshop names or generic "Workshop 1"/"Workshop 2" labels.
   const workshopName = (r: any) => r.program?.name ?? "";
 
+  // Resolves the specific song(s)/sub-workshop(s) a registration is actually
+  // for — e.g. "Bol Na Halke" or "Govind Bolo" — from the admin-configured
+  // Workshop 1 / Workshop 2 names on the program. A "Both" registration
+  // covers both songs; a single registration covers whichever one was
+  // selected (falling back to whichever split names are configured, for
+  // older registrations saved before selected_workshop was tracked).
+  const songNamesFor = (r: any): string[] => {
+    const p = r.program ?? {};
+    const w1 = String(p.workshop1_name ?? "").trim();
+    const w2 = String(p.workshop2_name ?? "").trim();
+    if (!w1 && !w2) return [];
+    if (r.registration_type === "both") return [w1, w2].filter(Boolean);
+    if (r.selected_workshop === "w2") return w2 ? [w2] : [];
+    if (r.selected_workshop === "w1") return w1 ? [w1] : [];
+    return [w1, w2].filter(Boolean);
+  };
+
+  // Song filter options are scoped to the currently selected workshop (or all
+  // workshops, if none is chosen) so the list never shows songs that don't
+  // belong to the program being filtered.
+  const songs = Array.from(new Set(
+    rows
+      .filter((r) => prog === "all" || r.program?.name === prog)
+      .flatMap(songNamesFor),
+  )) as string[];
+
   const formatRegistration = (r: any) => {
     const type = r.registration_type === "both" ? "Both" : "Single";
     if (r.registration_type === "both") return "Both workshops";
@@ -887,6 +945,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const filtered = rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
     if (prog !== "all" && r.program?.name !== prog) return false;
+    if (song !== "all" && !songNamesFor(r).includes(song)) return false;
     if (!q.trim()) return true;
     const parts = (r.participants ?? []).map((p: any) => `${p.full_name ?? ""} ${p.email ?? ""} ${p.phone ?? ""} ${p.ticket_code ?? ""}`).join(" ");
     const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${formatRegistration(r)} ${parts}`.toLowerCase();
@@ -954,6 +1013,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Gender", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.gender ?? "" : "")],
     ["Emergency contact", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.emergency_contact ?? "" : "")],
     ["Workshop", (pr: ParticipantRow) => workshopName(pr.enrollment)],
+    ["Song", (pr: ParticipantRow) => songNamesFor(pr.enrollment).join(" & ")],
     ["Registration", (pr: ParticipantRow) => formatRegistration(pr.enrollment)],
     ["Workshop date", (pr: ParticipantRow) => pr.enrollment.program?.event_date ?? ""],
     // Amount is for the whole booking, so only show it once (on the first row).
@@ -1047,10 +1107,15 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           <option value="confirmed">Confirmed</option>
           <option value="rejected">Rejected</option>
         </select>
-        <select value={prog} onChange={(e) => setProg(e.target.value)}
+        <select value={prog} onChange={(e) => { setProg(e.target.value); setSong("all"); }}
           className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
           <option value="all">All workshops</option>
           {programs.map((p) => <option key={p} value={p} className="truncate">{p}</option>)}
+        </select>
+        <select value={song} onChange={(e) => setSong(e.target.value)} disabled={songs.length === 0}
+          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm disabled:opacity-50">
+          <option value="all">All songs</option>
+          {songs.map((s) => <option key={s} value={s} className="truncate">{s}</option>)}
         </select>
         <button onClick={exportCsv} disabled={expanded.length === 0}
           className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
