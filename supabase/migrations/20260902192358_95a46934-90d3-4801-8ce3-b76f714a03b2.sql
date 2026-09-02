@@ -1,0 +1,1 @@
+ALTER VIEW public.programs_public SET (security_invoker = on);
