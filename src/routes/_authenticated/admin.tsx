@@ -435,6 +435,10 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enable at least one registration option (Single or Both).");
       return;
     }
+    if (f.registration_mode === "whatsapp" && !/^[0-9]{10}$/.test(String(f.whatsapp_number ?? "").replace(/\D/g, ""))) {
+      toast.error("Enter a valid 10-digit WhatsApp number for WhatsApp registration.");
+      return;
+    }
     const enteredSchedule = (f.session_schedule ?? []).map((s: any) => ({
       time: String(s.time ?? "").trim(),
       name: String(s.name ?? "").trim(),
@@ -451,6 +455,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       await onSave({ data: {
         ...f,
         registration_mode: f.registration_mode === "whatsapp" ? "whatsapp" : "online",
+        whatsapp_number: f.registration_mode === "whatsapp" ? String(f.whatsapp_number ?? "").replace(/\D/g, "").slice(0, 10) : "",
         bank_account_holder: f.registration_mode === "whatsapp" ? (f.bank_account_holder || "") : f.bank_account_holder,
         price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
@@ -756,11 +761,22 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
             )}
 
             {f.registration_mode === "whatsapp" && (
-              <div className="rounded-lg border border-[#25D366]/30 bg-[#25D366]/5 p-3">
+              <div className="rounded-lg border border-[#25D366]/30 bg-[#25D366]/5 p-3 space-y-2">
+                <FieldRow label="WhatsApp Number *">
+                  <In
+                    type="tel"
+                    inputMode="numeric"
+                    placeholder="Enter 10-digit WhatsApp number (e.g. 9876543210)"
+                    v={f.whatsapp_number}
+                    on={(v) => setF({ ...f, whatsapp_number: sanitizePhone(v) })}
+                    maxLength={10}
+                    required
+                  />
+                </FieldRow>
                 <p className="text-[11px] text-muted-foreground">
                   WhatsApp mode is on — no UPI/payment details are needed. Students who tap "Register Now" on the
-                  workshop page will be sent straight to WhatsApp using the number set in Contact Info, with the
-                  workshop name pre-filled in the message.
+                  workshop page will be sent straight to this WhatsApp number, with the workshop name pre-filled in
+                  the message.
                 </p>
               </div>
             )}
