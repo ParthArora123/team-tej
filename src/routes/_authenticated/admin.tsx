@@ -333,6 +333,8 @@ const emptyWs = () => ({
   whatsapp_number: "",
   silver_seat_enabled: true,
   silver_seat_price: "1000",
+  spot_registration_enabled: false,
+  spot_price_inr: "",
   allow_single: true,
   allow_both: true,
   both_price: "",
@@ -386,6 +388,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       whatsapp_number: r.whatsapp_number ?? "",
       silver_seat_enabled: !!r.silver_seat_enabled,
       silver_seat_price: (r.silver_seat_price ?? 1000).toString(),
+      spot_registration_enabled: !!r.spot_registration_enabled,
+      spot_price_inr: r.spot_price_inr != null ? String(r.spot_price_inr) : "",
       allow_single: r.allow_single !== false,
       allow_both: !!r.allow_both,
       both_price: r.both_price != null ? String(r.both_price) : "",
@@ -472,6 +476,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         upi_id: f.upi_id?.trim() || undefined,
         clear_upi: !!f.clear_upi,
         silver_seat_enabled: !!f.silver_seat_enabled,
+        spot_registration_enabled: !!f.spot_registration_enabled,
+        spot_price_inr: f.spot_registration_enabled && f.spot_price_inr !== "" ? Number(f.spot_price_inr) : null,
         banner_url: f.banner_url || undefined,
         banner_path: f.banner_path || undefined,
         banner_video_path: f.banner_video_path || null,
@@ -669,6 +675,18 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               <FieldRow label="Single Workshop Price (₹)">
                 <In type="number" placeholder="Enter Single Workshop price" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} />
               </FieldRow>
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input type="checkbox" checked={!!f.spot_registration_enabled} onChange={(e) => setF({ ...f, spot_registration_enabled: e.target.checked })} />
+                Enable On-the-Spot Registration
+              </label>
+              {f.spot_registration_enabled && (
+                <>
+                  <FieldRow label="On-the-Spot Amount (₹)">
+                    <In type="number" placeholder="Enter On-the-Spot amount" v={f.spot_price_inr} on={(v) => setF({ ...f, spot_price_inr: v })} />
+                  </FieldRow>
+                  <p className="text-[11px] text-muted-foreground">Used only on the workshop date. The original Single Workshop Price stays unchanged.</p>
+                </>
+              )}
               {f.allow_both && (
                 <>
                   <FieldRow label="Both Workshops Price (₹)">
