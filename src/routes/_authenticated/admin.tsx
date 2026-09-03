@@ -156,7 +156,7 @@ function AdminPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Admin</p>
-              <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl">Control room</h1>
+              <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl">Tej Operations</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 {adminNavLabel(tab)}
                 {pendingApprovals > 0 && (
