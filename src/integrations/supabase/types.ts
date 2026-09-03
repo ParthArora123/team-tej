@@ -976,6 +976,8 @@ export type Database = {
           silver_capacity_w2: number | null
           silver_seat_enabled: boolean
           silver_seat_price: number
+          spot_price_inr: number | null
+          spot_registration_enabled: boolean
           starts_on: string | null
           style: string | null
           upi_id_encrypted: string | null
@@ -1021,6 +1023,8 @@ export type Database = {
           silver_capacity_w2?: number | null
           silver_seat_enabled?: boolean
           silver_seat_price?: number
+          spot_price_inr?: number | null
+          spot_registration_enabled?: boolean
           starts_on?: string | null
           style?: string | null
           upi_id_encrypted?: string | null
@@ -1066,6 +1070,8 @@ export type Database = {
           silver_capacity_w2?: number | null
           silver_seat_enabled?: boolean
           silver_seat_price?: number
+          spot_price_inr?: number | null
+          spot_registration_enabled?: boolean
           starts_on?: string | null
           style?: string | null
           upi_id_encrypted?: string | null
@@ -1456,6 +1462,8 @@ export type Database = {
           silver_capacity_w2: number | null
           silver_seat_enabled: boolean | null
           silver_seat_price: number | null
+          spot_price_inr: number | null
+          spot_registration_enabled: boolean | null
           style: string | null
           venue: string | null
           venue_address: string | null
@@ -1497,6 +1505,8 @@ export type Database = {
           silver_capacity_w2?: number | null
           silver_seat_enabled?: boolean | null
           silver_seat_price?: number | null
+          spot_price_inr?: number | null
+          spot_registration_enabled?: boolean | null
           style?: string | null
           venue?: string | null
           venue_address?: string | null
@@ -1538,6 +1548,8 @@ export type Database = {
           silver_capacity_w2?: number | null
           silver_seat_enabled?: boolean | null
           silver_seat_price?: number | null
+          spot_price_inr?: number | null
+          spot_registration_enabled?: boolean | null
           style?: string | null
           venue?: string | null
           venue_address?: string | null
