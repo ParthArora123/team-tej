@@ -13,6 +13,7 @@ import { listWorkshopMedia } from "@/lib/workshop-media.functions";
 import { getSiteContent } from "@/lib/site-content.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 import { getProgramPricing, type ProgramPricing } from "@/lib/pricing-tiers.functions";
+import { isSpotPricingActive } from "@/lib/spot-pricing";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { ViewportVideo } from "@/components/site/ViewportVideo";
 import { WhatsAppIcon } from "@/components/site/WhatsAppIcon";
@@ -671,7 +672,13 @@ function WorkshopDetailPage() {
   const baseSinglePrice = program?.price_inr ?? 0;
   // An explicit, positive Both Workshops price is required — empty, null, or 0 hides the Combined Pass.
   const baseBothPrice = allowBothFlag ? Math.max(0, Number((program as any).both_price) || 0) : 0;
-  const singlePrice = tier ? Number(tier.price_inr) : baseSinglePrice;
+  // On the exact workshop date an enabled On-the-Spot amount temporarily
+  // overrides the original price (and any early-bird tier) for display and
+  // for the registration form. The stored price is never changed.
+  const spotActive = isSpotPricingActive(program as any);
+  const singlePrice = spotActive
+    ? Number((program as any).spot_price_inr)
+    : (tier ? Number(tier.price_inr) : baseSinglePrice);
   const bothPrice = allowBothFlag
     ? (tier?.both_price != null ? Math.max(0, Number(tier.both_price) || 0) : baseBothPrice)
     : 0;
@@ -1012,7 +1019,7 @@ function WorkshopDetailPage() {
         <div className="max-w-6xl mx-auto px-6">
           {!isWhatsappMode && <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />}
 
-          {tier && (
+          {tier && !spotActive && (
             <motion.div
               initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="mt-10 mx-auto max-w-2xl rounded-2xl border border-primary/45 bg-gradient-to-r from-primary/12 to-primary/5 px-5 py-4 text-center backdrop-blur-md"
