@@ -444,6 +444,10 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enter a valid 10-digit WhatsApp number for WhatsApp registration.");
       return;
     }
+    if (f.spot_registration_enabled && (!f.spot_price_inr || Number(f.spot_price_inr) <= 0)) {
+      toast.error("Enter a valid On-the-Spot amount greater than ₹0.");
+      return;
+    }
     const enteredSchedule = (f.session_schedule ?? []).map((s: any) => ({
       time: String(s.time ?? "").trim(),
       name: String(s.name ?? "").trim(),
@@ -682,7 +686,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
               {f.spot_registration_enabled && (
                 <>
                   <FieldRow label="On-the-Spot Amount (₹)">
-                    <In type="number" placeholder="Enter On-the-Spot amount" v={f.spot_price_inr} on={(v) => setF({ ...f, spot_price_inr: v })} />
+                    <In type="number" min="1" required placeholder="Enter On-the-Spot amount" v={f.spot_price_inr} on={(v) => setF({ ...f, spot_price_inr: v })} />
                   </FieldRow>
                   <p className="text-[11px] text-muted-foreground">Used only on the workshop date. The original Single Workshop Price stays unchanged.</p>
                 </>
