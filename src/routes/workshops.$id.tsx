@@ -1077,7 +1077,7 @@ function WorkshopDetailPage() {
               </motion.div>
             )}
 
-            {allowBoth && (
+            {allowBoth && !isWhatsappMode && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
                 className="relative rounded-3xl border border-primary/60 bg-gradient-to-b from-background/48 to-jet/88 p-8 shadow-[0_30px_80px_-20px_rgba(231,223,206,0.5)]"
