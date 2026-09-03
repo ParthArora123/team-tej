@@ -141,8 +141,8 @@ export const createEnrollment = createServerFn({ method: "POST" })
         if (fixed) finalEnr = fixed;
       }
     }
-    if (participantCount > 1 && !spotActive) {
-      const tierPrice = (enr as any)?.tier_price_inr;
+    if (participantCount > 1) {
+      const tierPrice = spotActive ? null : (enr as any)?.tier_price_inr;
       if (tierPrice != null) {
         const { data: fixed } = await supabase
           .from("enrollments")
