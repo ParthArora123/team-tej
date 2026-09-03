@@ -37,10 +37,11 @@ export const createEnrollment = createServerFn({ method: "POST" })
       full_name: data.fullName, phone: data.phone,
     }).eq("id", userId);
 
-    const { data: program, error: pErr } = await supabase
+    const { data: programRow, error: pErr } = await (supabase as any)
       .from("programs")
       .select("id, name, price_inr, event_date, spot_registration_enabled, spot_price_inr, capacity, seats_taken, silver_seat_enabled, silver_seat_price, published, allow_single, allow_both, both_price, workshop1_name, workshop2_name, silver_capacity_w1, silver_capacity_w2")
       .eq("id", data.programId).maybeSingle();
+    const program: any = programRow;
     if (pErr || !program) throw new Error("Program not found");
     if (program.capacity != null && (program.seats_taken ?? 0) >= program.capacity) {
       throw new Error("Sorry, this workshop is full.");
