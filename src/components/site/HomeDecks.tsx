@@ -188,7 +188,7 @@ export function WorkshopDeck({ workshops }: { workshops: any[] }) {
   const toEnroll = (w: any): EnrollClass => ({
     id: w.id,
     name: w.name,
-    price: Number(w.price_inr),
+    price: effectiveSinglePrice(w),
     duration: w.duration ?? "",
     silverSeatEnabled: !!w.silver_seat_enabled,
     silverSeatPrice: w.silver_seat_price ?? 1000,
