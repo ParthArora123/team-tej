@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo } from "@/lib/home-video-playback";
 import { pickVideoSource } from "@/lib/video-source";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import { effectiveSinglePrice } from "@/lib/spot-pricing";
 
 function ReelVideo({
   src,
@@ -156,7 +157,7 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
         </div>
 
         <div className="mt-auto pt-4 flex items-end justify-between gap-3">
-          <p className="font-display text-xl font-bold">₹{Number(w.price_inr).toLocaleString("en-IN")}</p>
+          <p className="font-display text-xl font-bold">₹{effectiveSinglePrice(w).toLocaleString("en-IN")}</p>
           <div className="flex items-center gap-2">
             <Link
               to="/workshops/$id"

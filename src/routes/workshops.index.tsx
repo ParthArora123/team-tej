@@ -12,6 +12,7 @@ import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 import { sortWorkshopsByDateDesc } from "@/lib/workshop-order";
+import { effectiveSinglePrice } from "@/lib/spot-pricing";
 
 import { WorkshopHero } from "@/components/site/WorkshopHero";
 import { WorkshopGallery } from "@/components/site/WorkshopGallery";
@@ -214,7 +215,7 @@ function WorkshopsPage() {
                       <div>
                         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">From</p>
                         <p className="font-display text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                          ₹{r.price_inr.toLocaleString("en-IN")}
+                          ₹{effectiveSinglePrice(r).toLocaleString("en-IN")}
                         </p>
                       </div>
                       <Link to="/workshops/$id" params={{ id: r.id }}
