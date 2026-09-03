@@ -1010,7 +1010,7 @@ function WorkshopDetailPage() {
 
       <section className="relative py-14 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
-          <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />
+          {!isWhatsappMode && <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />}
 
           {tier && (
             <motion.div
