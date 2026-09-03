@@ -971,7 +971,7 @@ function WorkshopDetailPage() {
         </div>
       </section>
 
-      {sessions.length > 0 && (
+      {sessions.length > 0 && !isWhatsappMode && (
         <section className="relative py-14 md:py-24">
           <div className="max-w-4xl mx-auto px-5 sm:px-6">
             <SectionHeader eyebrow="Class Timings" title="Session Schedule" />
