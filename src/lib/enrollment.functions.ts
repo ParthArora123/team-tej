@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { isSpotPricingActive } from "@/lib/spot-pricing";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { nameSchema } from "@/lib/name-validation";
@@ -36,10 +37,11 @@ export const createEnrollment = createServerFn({ method: "POST" })
       full_name: data.fullName, phone: data.phone,
     }).eq("id", userId);
 
-    const { data: program, error: pErr } = await supabase
+    const { data: programRow, error: pErr } = await (supabase as any)
       .from("programs")
-      .select("id, name, price_inr, capacity, seats_taken, silver_seat_enabled, silver_seat_price, published, allow_single, allow_both, both_price, workshop1_name, workshop2_name, silver_capacity_w1, silver_capacity_w2")
+      .select("id, name, price_inr, event_date, spot_registration_enabled, spot_price_inr, capacity, seats_taken, silver_seat_enabled, silver_seat_price, published, allow_single, allow_both, both_price, workshop1_name, workshop2_name, silver_capacity_w1, silver_capacity_w2")
       .eq("id", data.programId).maybeSingle();
+    const program: any = programRow;
     if (pErr || !program) throw new Error("Program not found");
     if (program.capacity != null && (program.seats_taken ?? 0) >= program.capacity) {
       throw new Error("Sorry, this workshop is full.");
@@ -54,7 +56,11 @@ export const createEnrollment = createServerFn({ method: "POST" })
     if (regType === "both" && (p.both_price == null || p.both_price <= 0)) {
       throw new Error("Both Workshops price is not configured for this workshop.");
     }
-    const baseAmount = regType === "both" ? Number(p.both_price) : Number(p.price_inr);
+    // On the exact workshop date, an enabled on-the-spot amount temporarily
+    // overrides the original single-workshop price (DB value untouched).
+    const spotActive = isSpotPricingActive(p);
+    const singlePrice = spotActive ? Number(p.spot_price_inr) : Number(p.price_inr);
+    const baseAmount = regType === "both" ? Number(p.both_price) : singlePrice;
 
     const silverPrice = Number(p.silver_seat_price ?? 1000);
     let silverW1 = false, silverW2 = false;
@@ -124,8 +130,20 @@ export const createEnrollment = createServerFn({ method: "POST" })
     // rewrites amount_inr from the applicable tier for a single seat. Re-apply
     // the per-participant multiplier on top of the tier price it picked.
     let finalEnr: any = enr;
+    if (spotActive && regType !== "both") {
+      const expected = baseAmount * participantCount + silverAdd;
+      if (Number((enr as any)?.amount_inr) !== expected) {
+        const { data: fixed } = await supabase
+          .from("enrollments")
+          .update({ amount_inr: expected, tier_price_inr: null, price_tier_id: null } as any)
+          .eq("id", (enr as any).id)
+          .select("*")
+          .single();
+        if (fixed) finalEnr = fixed;
+      }
+    }
     if (participantCount > 1) {
-      const tierPrice = (enr as any)?.tier_price_inr;
+      const tierPrice = spotActive ? null : (enr as any)?.tier_price_inr;
       if (tierPrice != null) {
         const { data: fixed } = await supabase
           .from("enrollments")
@@ -493,6 +511,8 @@ const workshopSchema = z.object({
   published: z.boolean().default(false),
   registration_mode: z.enum(["online", "whatsapp"]).default("online"),
   whatsapp_number: z.string().max(20).optional().or(z.literal("")).nullable(),
+  spot_registration_enabled: z.boolean().optional(),
+  spot_price_inr: z.number().int().min(0).optional().nullable(),
   silver_seat_enabled: z.boolean().optional(),
   silver_seat_price: z.number().int().min(0).optional(),
   allow_single: z.boolean().optional(),
@@ -551,6 +571,8 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       registration_open_on: rest.registration_open_on || null,
       silver_seat_enabled: !!rest.silver_seat_enabled,
       silver_seat_price: rest.silver_seat_price ?? 1000,
+      spot_registration_enabled: !!rest.spot_registration_enabled,
+      spot_price_inr: rest.spot_registration_enabled ? (rest.spot_price_inr ?? null) : null,
       allow_single: rest.allow_single !== false,
       allow_both: !!rest.allow_both,
       both_price: rest.allow_both ? (rest.both_price ?? null) : null,
@@ -677,6 +699,7 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
       "allow_single", "allow_both", "both_price", "workshop1_name", "workshop2_name",
       "silver_capacity_w1", "silver_capacity_w2", "venue_address", "maps_url",
       "latitude", "longitude", "session_schedule", "registration_mode", "whatsapp_number",
+      "spot_registration_enabled", "spot_price_inr",
     ].join(", ")).order("created_at", { ascending: false });
     if (error) throw error;
     // Payment details are intentionally not returned by this list endpoint.
