@@ -1038,7 +1038,7 @@ function WorkshopDetailPage() {
 
 
           <div className={`mt-14 grid gap-6 items-stretch ${allowSingle && allowBoth ? "md:grid-cols-2" : "max-w-md mx-auto"}`}>
-            {allowSingle && (
+            {allowSingle && !isWhatsappMode && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
                 className="relative rounded-3xl border border-primary/40 bg-gradient-to-b from-background/40 to-jet/90 p-8 shadow-[0_30px_80px_-30px_rgba(231,223,206,0.35)]"
