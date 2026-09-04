@@ -880,7 +880,8 @@ export const adminAddTeamByEmail = createServerFn({ method: "POST" })
     if (!userId) throw new Error("No signed-up user with that email. Ask them to sign in once, then try again.");
 
     const { error } = await supabaseAdmin.from("user_roles")
-      .insert({ user_id: prof.id, role: "admin" as any });
+      .insert({ user_id: userId, role: "admin" as any });
     if (error && !String(error.message).toLowerCase().includes("duplicate")) throw error;
-    return { ok: true, userId: prof.id };
+    return { ok: true, userId };
   });
+
