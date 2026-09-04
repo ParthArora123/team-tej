@@ -852,7 +852,33 @@ export const adminAddTeamByEmail = createServerFn({ method: "POST" })
     const { data: prof, error: pErr } = await supabaseAdmin
       .from("profiles").select("id, email").ilike("email", email).maybeSingle();
     if (pErr) throw pErr;
-    if (!prof) throw new Error("No signed-up user with that email. Ask them to sign in once, then try again.");
+
+    let userId = prof?.id as string | undefined;
+
+    // Fallback: the account exists in auth but has no profile row (or the
+    // profile row has a missing/different email). Look the user up directly
+    // in the auth user list and backfill their profile.
+    if (!userId) {
+      for (let page = 1; page <= 20 && !userId; page++) {
+        const { data: list, error: lErr } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+        if (lErr) break;
+        const users = list?.users ?? [];
+        const match = users.find((u: any) => (u.email ?? "").trim().toLowerCase() === email);
+        if (match) {
+          userId = match.id;
+          await supabaseAdmin.from("profiles").upsert({
+            id: match.id,
+            email: match.email,
+            full_name: match.user_metadata?.full_name ?? "",
+            phone: match.user_metadata?.phone ?? "",
+          }, { onConflict: "id" });
+        }
+        if (users.length < 200) break;
+      }
+    }
+
+    if (!userId) throw new Error("No signed-up user with that email. Ask them to sign in once, then try again.");
+
     const { error } = await supabaseAdmin.from("user_roles")
       .insert({ user_id: prof.id, role: "admin" as any });
     if (error && !String(error.message).toLowerCase().includes("duplicate")) throw error;
