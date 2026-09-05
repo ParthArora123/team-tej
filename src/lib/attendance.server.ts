@@ -179,6 +179,49 @@ export async function checkIn(
     return { ok: false as const, reason: "unpaid", message: "Payment is not confirmed yet for this registration.", participant: who };
   }
 
+  // Group booking scanned by the shared registration code (or "Mark present"
+  // on the registration): ask which person is being checked in instead of
+  // marking the whole registration.
+  const { data: groupParts } = await supabaseAdmin
+    .from("enrollment_participants")
+    .select("id, position, full_name, ticket_code")
+    .eq("enrollment_id", enr.id)
+    .order("position", { ascending: true });
+
+  if (!participant && (groupParts?.length ?? 0) > 1) {
+    const { data: att } = await supabaseAdmin
+      .from("attendance").select("participant_id, checked_in_at").eq("enrollment_id", enr.id);
+    const byPart = new Map((att ?? []).map((a: any) => [a.participant_id, a.checked_in_at]));
+    const list = (groupParts ?? []).map((p: any) => ({
+      id: p.id,
+      position: p.position,
+      full_name: p.full_name,
+      ticket_code: p.ticket_code,
+      checked_in_at: byPart.get(p.id) ?? null,
+    }));
+    const done = list.filter((p) => p.checked_in_at).length;
+    return {
+      ok: false as const,
+      reason: "select_participant",
+      message: `This ticket covers ${list.length} participants (${done} of ${list.length} checked in). Select who is checking in.`,
+      participant: who,
+      ticket_code: code,
+      workshop: (enr as any).program?.name ?? null,
+      enrollment_id: enr.id,
+      participants: list,
+      checked_in_count: done,
+      participant_total: list.length,
+    };
+  }
+
+  const groupProgress = async () => {
+    const total = groupParts?.length ?? 0;
+    if (total <= 1) return {};
+    const { data: att } = await supabaseAdmin
+      .from("attendance").select("id").eq("enrollment_id", enr.id);
+    return { checked_in_count: att?.length ?? 0, participant_total: total };
+  };
+
   const findExisting = async () => {
     const q = supabaseAdmin.from("attendance").select("checked_in_at");
     const { data } = participant
@@ -192,13 +235,17 @@ export async function checkIn(
     return {
       ok: false as const,
       reason: "already",
-      message: "Already checked in.",
+      message: participant
+        ? `${who ?? "This participant"} is already checked in.`
+        : "Already checked in.",
       participant: who,
       ticket_code: code,
       workshop: (enr as any).program?.name ?? null,
       checked_in_at: existing.checked_in_at,
+      ...(await groupProgress()),
     };
   }
+
 
   const { data: inserted, error } = await supabaseAdmin
     .from("attendance")
@@ -218,10 +265,12 @@ export async function checkIn(
     if ((error as any).code === "23505") {
       const dup = await findExisting();
       return {
-        ok: false as const, reason: "already", message: "Already checked in.",
+        ok: false as const, reason: "already",
+        message: participant ? `${who ?? "This participant"} is already checked in.` : "Already checked in.",
         participant: who, ticket_code: code,
         workshop: (enr as any).program?.name ?? null,
         checked_in_at: dup?.checked_in_at ?? null,
+        ...(await groupProgress()),
       };
     }
     throw error;
@@ -230,11 +279,14 @@ export async function checkIn(
   return {
     ok: true as const,
     participant: who,
+    participant_position: participant?.position ?? null,
     ticket_code: code,
     workshop: (enr as any).program?.name ?? null,
     checked_in_at: inserted?.checked_in_at ?? new Date().toISOString(),
+    ...(await groupProgress()),
   };
 }
+
 
 export async function undoCheckIn(enrollmentId: string, participantId?: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
