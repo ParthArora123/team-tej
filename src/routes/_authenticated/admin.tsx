@@ -986,7 +986,11 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const filtered = rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
     if (prog !== "all" && r.program?.name !== prog) return false;
-    if (song !== "all" && !songNamesFor(r).includes(song)) return false;
+    // "both" = registrations covering both configured songs; otherwise a
+    // specific song name matches any registration that includes that song.
+    if (song === "both") {
+      if (songNamesFor(r).length !== 2) return false;
+    } else if (song !== "all" && !songNamesFor(r).includes(song)) return false;
     if (!q.trim()) return true;
     const parts = (r.participants ?? []).map((p: any) => `${p.full_name ?? ""} ${p.email ?? ""} ${p.phone ?? ""} ${p.ticket_code ?? ""}`).join(" ");
     const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${formatRegistration(r)} ${parts}`.toLowerCase();
@@ -1157,6 +1161,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm disabled:opacity-50">
           <option value="all">All songs</option>
           {songs.map((s) => <option key={s} value={s} className="truncate">{s}</option>)}
+          {songs.length === 2 && <option value="both">Both songs</option>}
         </select>
         <button onClick={exportCsv} disabled={expanded.length === 0}
           className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
