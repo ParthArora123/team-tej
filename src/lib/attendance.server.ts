@@ -265,10 +265,12 @@ export async function checkIn(
     if ((error as any).code === "23505") {
       const dup = await findExisting();
       return {
-        ok: false as const, reason: "already", message: "Already checked in.",
+        ok: false as const, reason: "already",
+        message: participant ? `${who ?? "This participant"} is already checked in.` : "Already checked in.",
         participant: who, ticket_code: code,
         workshop: (enr as any).program?.name ?? null,
         checked_in_at: dup?.checked_in_at ?? null,
+        ...(await groupProgress()),
       };
     }
     throw error;
@@ -277,11 +279,14 @@ export async function checkIn(
   return {
     ok: true as const,
     participant: who,
+    participant_position: participant?.position ?? null,
     ticket_code: code,
     workshop: (enr as any).program?.name ?? null,
     checked_in_at: inserted?.checked_in_at ?? new Date().toISOString(),
+    ...(await groupProgress()),
   };
 }
+
 
 export async function undoCheckIn(enrollmentId: string, participantId?: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
