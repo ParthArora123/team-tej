@@ -7,7 +7,8 @@ import {
 
 type Workshop = { id: string; name: string; event_date: string | null; city: string | null; venue: string | null };
 type Row = {
-  id: string; full_name: string | null; email: string | null; phone: string | null;
+  id: string; participant_id?: string | null; participant_position?: number;
+  full_name: string | null; email: string | null; phone: string | null;
   ticket_code: string | null; status: string; amount_inr: number | null;
   checked_in_at: string | null; attendance_method: string | null;
 };
@@ -56,7 +57,7 @@ export function AttendanceTab() {
 
   useEffect(() => { if (programId) refresh(programId); }, [programId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const submit = useCallback(async (payload: { code?: string; enrollmentId?: string; method: "qr" | "manual" }) => {
+  const submit = useCallback(async (payload: { code?: string; enrollmentId?: string; participantId?: string; method: "qr" | "manual" }) => {
     if (!programId || busyRef.current) return;
     busyRef.current = true;
     try {
@@ -90,6 +91,17 @@ export function AttendanceTab() {
         .toLowerCase().includes(term);
     });
   }, [rows, q, filter]);
+
+  const groupInfo = useMemo(() => {
+    const map: Record<string, { total: number; present: number }> = {};
+    for (const r of rows) {
+      const g = map[r.id] ?? { total: 0, present: 0 };
+      g.total += 1;
+      if (r.checked_in_at) g.present += 1;
+      map[r.id] = g;
+    }
+    return map;
+  }, [rows]);
 
   const selected = workshops.find((w) => w.id === programId);
 
@@ -184,15 +196,48 @@ export function AttendanceTab() {
             <div className={`mt-5 min-w-0 rounded-xl border p-4 ${result.ok ? "border-emerald-500/40 bg-emerald-500/10" : result.reason === "already" ? "border-amber-500/40 bg-amber-500/10" : "border-destructive/40 bg-destructive/10"}`}>
               <p className="flex items-center gap-2 text-sm font-semibold">
                 {result.ok ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" /> : <XCircle className="h-4 w-4 shrink-0" />}
-                {result.ok ? "Attendance marked" : result.reason === "already" ? "Already checked in" : "Not marked"}
+                {result.ok
+                  ? "Attendance marked"
+                  : result.reason === "already"
+                    ? "Already checked in"
+                    : result.reason === "select_participant"
+                      ? "Select participant"
+                      : "Not marked"}
               </p>
               <div className="mt-2 min-w-0 space-y-0.5 text-xs">
                 {result.participant && <p className="break-words"><span className="text-muted-foreground">Participant:</span> {result.participant}</p>}
                 {result.workshop && <p className="break-words"><span className="text-muted-foreground">Workshop:</span> {result.workshop}</p>}
                 {result.ticket_code && <p className="break-words"><span className="text-muted-foreground">Ticket ID:</span> <span className="font-mono">{result.ticket_code}</span></p>}
                 {result.checked_in_at && <p className="break-words"><span className="text-muted-foreground">Check-in:</span> {timeFmt(result.checked_in_at)}</p>}
+                {typeof result.participant_total === "number" && result.participant_total > 1 && (
+                  <p className="break-words font-medium">
+                    {result.checked_in_count ?? 0} of {result.participant_total} participants checked in
+                  </p>
+                )}
                 {!result.ok && result.message && <p className="break-words text-muted-foreground">{result.message}</p>}
               </div>
+              {result.reason === "select_participant" && Array.isArray(result.participants) && (
+                <div className="mt-3 space-y-2">
+                  {result.participants.map((p: any) => (
+                    <div key={p.id} className="flex items-center justify-between gap-2 rounded-lg border border-border bg-background/60 px-3 py-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-xs font-medium">
+                          Participant {p.position} — {p.full_name ?? "—"}
+                        </p>
+                        <p className="truncate font-mono text-[11px] text-muted-foreground">{p.ticket_code ?? "—"}</p>
+                      </div>
+                      {p.checked_in_at ? (
+                        <span className="shrink-0 text-[11px] text-emerald-400">Checked in {timeFmt(p.checked_in_at)}</span>
+                      ) : (
+                        <button
+                          onClick={() => submit({ participantId: p.id, method: "manual" })}
+                          className="shrink-0 rounded bg-primary px-2 py-1 text-[11px] text-primary-foreground"
+                        >Check in</button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -234,9 +279,16 @@ export function AttendanceTab() {
               </thead>
               <tbody>
                 {filtered.map((r) => (
-                  <tr key={r.id} className="border-t border-border/60">
+                  <tr key={r.participant_id ?? r.id} className="border-t border-border/60">
                     <td className="p-2 min-w-0">
-                      <p className="truncate font-medium">{r.full_name ?? "—"}</p>
+                      <p className="truncate font-medium">
+                        {r.full_name ?? "—"}
+                        {groupInfo[r.id] && groupInfo[r.id].total > 1 && (
+                          <span className="ml-1 text-[11px] text-muted-foreground">
+                            (P{r.participant_position ?? 1} · {groupInfo[r.id].present} of {groupInfo[r.id].total} checked in)
+                          </span>
+                        )}
+                      </p>
                       <p className="truncate text-muted-foreground">{r.phone ?? r.email ?? ""}</p>
                     </td>
                     <td className="p-2 font-mono">{r.ticket_code ?? "—"}</td>
@@ -250,12 +302,12 @@ export function AttendanceTab() {
                     <td className="p-2 text-right">
                       {r.checked_in_at ? (
                         <button
-                          onClick={async () => { await doUndo({ data: { enrollmentId: r.id } }); refresh(); }}
+                          onClick={async () => { await doUndo({ data: { enrollmentId: r.id, ...(r.participant_id ? { participantId: r.participant_id } : {}) } }); refresh(); }}
                           className="px-2 py-1 rounded border border-border hover:bg-muted"
                         >Undo</button>
                       ) : r.status === "confirmed" ? (
                         <button
-                          onClick={() => submit({ enrollmentId: r.id, method: "manual" })}
+                          onClick={() => submit(r.participant_id ? { participantId: r.participant_id, method: "manual" } : { enrollmentId: r.id, method: "manual" })}
                           className="px-2 py-1 rounded bg-primary text-primary-foreground"
                         >Mark present</button>
                       ) : null}
