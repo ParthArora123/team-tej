@@ -1064,6 +1064,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Emergency contact", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.emergency_contact ?? "" : "")],
     ["Workshop", (pr: ParticipantRow) => workshopName(pr.enrollment)],
     ["Song", (pr: ParticipantRow) => songNamesFor(pr.enrollment).join(" & ")],
+    ["Silver Seat", (pr: ParticipantRow) => (hasSilver(pr.enrollment) ? "Yes" : "No")],
     ["Registration", (pr: ParticipantRow) => formatRegistration(pr.enrollment)],
     ["Workshop date", (pr: ParticipantRow) => pr.enrollment.program?.event_date ?? ""],
     // Amount is for the whole booking, so only show it once (on the first row).
