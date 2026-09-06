@@ -987,6 +987,36 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const hasSilver = (r: any) =>
     !!(r.silver_seat || r.silver_seat_w1 || r.silver_seat_w2 || (r.silver_amount_inr ?? 0) > 0);
 
+  // Resolves exactly which song(s)/sub-workshop(s) the Silver Seat add-on was
+  // bought for, using the admin-configured Workshop 1 / Workshop 2 names.
+  // "Both" registrations track W1/W2 separately; a single registration maps
+  // to whichever workshop was selected. Legacy "both" rows that only carry
+  // the generic silver_seat flag are shown against all registered songs.
+  const silverSongNamesFor = (r: any): string[] => {
+    if (!hasSilver(r)) return [];
+    const p = r.program ?? {};
+    const w1 = String(p.workshop1_name ?? "").trim();
+    const w2 = String(p.workshop2_name ?? "").trim();
+    if (r.registration_type === "both") {
+      const out: string[] = [];
+      if ((r.silver_seat_w1 || r.silver_seat) && w1) out.push(w1);
+      if (r.silver_seat_w2 && w2) out.push(w2);
+      if (out.length === 0) return [w1, w2].filter(Boolean);
+      return out;
+    }
+    if (r.selected_workshop === "w2") return w2 ? [w2] : [];
+    if (r.selected_workshop === "w1") return w1 ? [w1] : [];
+    return w1 ? [w1] : [w1, w2].filter(Boolean);
+  };
+
+  // Silver-seat song filter options are scoped to the selected workshop, the
+  // same way the song filter is, so it only ever lists relevant songs.
+  const silverSongs = Array.from(new Set(
+    rows
+      .filter((r) => prog === "all" || r.program?.name === prog)
+      .flatMap(silverSongNamesFor),
+  )) as string[];
+
   const filtered = rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
     if (prog !== "all" && r.program?.name !== prog) return false;
