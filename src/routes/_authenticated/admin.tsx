@@ -928,6 +928,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const [status, setStatus] = useState<string>("all");
   const [prog, setProg] = useState<string>("all");
   const [song, setSong] = useState<string>("all");
+  const [silver, setSilver] = useState<string>("all");
   const [toDelete, setToDelete] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
