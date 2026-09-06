@@ -1190,7 +1190,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           <option value="confirmed">Confirmed</option>
           <option value="rejected">Rejected</option>
         </select>
-        <select value={prog} onChange={(e) => { setProg(e.target.value); setSong("all"); }}
+        <select value={prog} onChange={(e) => { setProg(e.target.value); setSong("all"); setSilver("all"); }}
           className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
           <option value="all">All workshops</option>
           {programs.map((p) => <option key={p} value={p} className="truncate">{p}</option>)}
@@ -1201,10 +1201,11 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           {songs.map((s) => <option key={s} value={s} className="truncate">{s}</option>)}
           {songs.length === 2 && <option value="both">Both songs</option>}
         </select>
-        <select value={silver} onChange={(e) => setSilver(e.target.value)}
-          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
-          <option value="all">All seats</option>
-          <option value="silver">Silver Seat</option>
+        <select value={silver} onChange={(e) => setSilver(e.target.value)} disabled={silverSongs.length === 0}
+          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm disabled:opacity-50">
+          <option value="all">All Silver Seats</option>
+          {silverSongs.map((s) => <option key={s} value={s} className="truncate">{s}</option>)}
+          {silverSongs.length === 2 && <option value="both">Both</option>}
         </select>
         <button onClick={exportCsv} disabled={expanded.length === 0}
           className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
