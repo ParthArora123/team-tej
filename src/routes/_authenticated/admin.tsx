@@ -987,44 +987,6 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const hasSilver = (r: any) =>
     !!(r.silver_seat || r.silver_seat_w1 || r.silver_seat_w2 || (r.silver_amount_inr ?? 0) > 0);
 
-  // Resolves exactly which song(s)/sub-workshop(s) the Silver Seat add-on was
-  // bought for, using the admin-configured Workshop 1 / Workshop 2 names.
-  // For "both" registrations we rely on the explicit silver_seat_w1 /
-  // silver_seat_w2 flags — the generic silver_seat flag is true whenever ANY
-  // silver seat was selected, so it must NOT be treated as "silver for W1".
-  // Only true legacy rows (no W1/W2 flags at all) fall back to both songs.
-  const silverSongNamesFor = (r: any): string[] => {
-    if (!hasSilver(r)) return [];
-    const p = r.program ?? {};
-    const w1 = String(p.workshop1_name ?? "").trim();
-    const w2 = String(p.workshop2_name ?? "").trim();
-    if (r.registration_type === "both") {
-      const hasW1Flag = r.silver_seat_w1 === true || r.silver_seat_w1 === "true";
-      const hasW2Flag = r.silver_seat_w2 === true || r.silver_seat_w2 === "true";
-      // New data carries explicit per-workshop flags.
-      if (hasW1Flag || hasW2Flag) {
-        const out: string[] = [];
-        if (hasW1Flag && w1) out.push(w1);
-        if (hasW2Flag && w2) out.push(w2);
-        return out;
-      }
-      // Legacy "both" rows only carry the generic flag; show all registered songs.
-      return [w1, w2].filter(Boolean);
-    }
-    // Single-workshop registration: silver, if any, is for the selected workshop.
-    if (r.selected_workshop === "w2") return w2 ? [w2] : [];
-    if (r.selected_workshop === "w1") return w1 ? [w1] : [];
-    return w1 ? [w1] : [w1, w2].filter(Boolean);
-  };
-
-  // Silver-seat song filter options are scoped to the selected workshop, the
-  // same way the song filter is, so it only ever lists relevant songs.
-  const silverSongs = Array.from(new Set(
-    rows
-      .filter((r) => prog === "all" || r.program?.name === prog)
-      .flatMap(silverSongNamesFor),
-  )) as string[];
-
   const filtered = rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
     if (prog !== "all" && r.program?.name !== prog) return false;
@@ -1033,9 +995,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     if (song === "both") {
       if (songNamesFor(r).length !== 2) return false;
     } else if (song !== "all" && !songNamesFor(r).includes(song)) return false;
-    if (silver === "both") {
-      if (silverSongNamesFor(r).length !== 2) return false;
-    } else if (silver !== "all" && !silverSongNamesFor(r).includes(silver)) return false;
+    if (silver === "silver" && !hasSilver(r)) return false;
     if (!q.trim()) return true;
     const parts = (r.participants ?? []).map((p: any) => `${p.full_name ?? ""} ${p.email ?? ""} ${p.phone ?? ""} ${p.ticket_code ?? ""}`).join(" ");
     const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${formatRegistration(r)} ${parts}`.toLowerCase();
@@ -1104,7 +1064,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Emergency contact", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.emergency_contact ?? "" : "")],
     ["Workshop", (pr: ParticipantRow) => workshopName(pr.enrollment)],
     ["Song", (pr: ParticipantRow) => songNamesFor(pr.enrollment).join(" & ")],
-    ["Silver Seat — Song", (pr: ParticipantRow) => { const ss = silverSongNamesFor(pr.enrollment); return ss.length ? ss.join(", ") : "—"; }],
+    ["Silver Seat", (pr: ParticipantRow) => (hasSilver(pr.enrollment) ? "Yes" : "No")],
     ["Registration", (pr: ParticipantRow) => formatRegistration(pr.enrollment)],
     ["Workshop date", (pr: ParticipantRow) => pr.enrollment.program?.event_date ?? ""],
     // Amount is for the whole booking, so only show it once (on the first row).
@@ -1198,7 +1158,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           <option value="confirmed">Confirmed</option>
           <option value="rejected">Rejected</option>
         </select>
-        <select value={prog} onChange={(e) => { setProg(e.target.value); setSong("all"); setSilver("all"); }}
+        <select value={prog} onChange={(e) => { setProg(e.target.value); setSong("all"); }}
           className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
           <option value="all">All workshops</option>
           {programs.map((p) => <option key={p} value={p} className="truncate">{p}</option>)}
@@ -1209,11 +1169,10 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           {songs.map((s) => <option key={s} value={s} className="truncate">{s}</option>)}
           {songs.length === 2 && <option value="both">Both songs</option>}
         </select>
-        <select value={silver} onChange={(e) => setSilver(e.target.value)} disabled={silverSongs.length === 0}
-          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm disabled:opacity-50">
-          <option value="all">All Silver Seats</option>
-          {silverSongs.map((s) => <option key={s} value={s} className="truncate">{s}</option>)}
-          {silverSongs.length === 2 && <option value="both">Both</option>}
+        <select value={silver} onChange={(e) => setSilver(e.target.value)}
+          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+          <option value="all">All seats</option>
+          <option value="silver">Silver Seat</option>
         </select>
         <button onClick={exportCsv} disabled={expanded.length === 0}
           className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
