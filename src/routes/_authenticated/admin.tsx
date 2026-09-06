@@ -989,21 +989,29 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
 
   // Resolves exactly which song(s)/sub-workshop(s) the Silver Seat add-on was
   // bought for, using the admin-configured Workshop 1 / Workshop 2 names.
-  // "Both" registrations track W1/W2 separately; a single registration maps
-  // to whichever workshop was selected. Legacy "both" rows that only carry
-  // the generic silver_seat flag are shown against all registered songs.
+  // For "both" registrations we rely on the explicit silver_seat_w1 /
+  // silver_seat_w2 flags — the generic silver_seat flag is true whenever ANY
+  // silver seat was selected, so it must NOT be treated as "silver for W1".
+  // Only true legacy rows (no W1/W2 flags at all) fall back to both songs.
   const silverSongNamesFor = (r: any): string[] => {
     if (!hasSilver(r)) return [];
     const p = r.program ?? {};
     const w1 = String(p.workshop1_name ?? "").trim();
     const w2 = String(p.workshop2_name ?? "").trim();
     if (r.registration_type === "both") {
-      const out: string[] = [];
-      if ((r.silver_seat_w1 || r.silver_seat) && w1) out.push(w1);
-      if (r.silver_seat_w2 && w2) out.push(w2);
-      if (out.length === 0) return [w1, w2].filter(Boolean);
-      return out;
+      const hasW1Flag = r.silver_seat_w1 === true || r.silver_seat_w1 === "true";
+      const hasW2Flag = r.silver_seat_w2 === true || r.silver_seat_w2 === "true";
+      // New data carries explicit per-workshop flags.
+      if (hasW1Flag || hasW2Flag) {
+        const out: string[] = [];
+        if (hasW1Flag && w1) out.push(w1);
+        if (hasW2Flag && w2) out.push(w2);
+        return out;
+      }
+      // Legacy "both" rows only carry the generic flag; show all registered songs.
+      return [w1, w2].filter(Boolean);
     }
+    // Single-workshop registration: silver, if any, is for the selected workshop.
     if (r.selected_workshop === "w2") return w2 ? [w2] : [];
     if (r.selected_workshop === "w1") return w1 ? [w1] : [];
     return w1 ? [w1] : [w1, w2].filter(Boolean);
