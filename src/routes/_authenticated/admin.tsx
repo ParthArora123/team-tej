@@ -1025,7 +1025,9 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     if (song === "both") {
       if (songNamesFor(r).length !== 2) return false;
     } else if (song !== "all" && !songNamesFor(r).includes(song)) return false;
-    if (silver === "silver" && !hasSilver(r)) return false;
+    if (silver === "both") {
+      if (silverSongNamesFor(r).length !== 2) return false;
+    } else if (silver !== "all" && !silverSongNamesFor(r).includes(silver)) return false;
     if (!q.trim()) return true;
     const parts = (r.participants ?? []).map((p: any) => `${p.full_name ?? ""} ${p.email ?? ""} ${p.phone ?? ""} ${p.ticket_code ?? ""}`).join(" ");
     const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${formatRegistration(r)} ${parts}`.toLowerCase();
@@ -1094,7 +1096,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Emergency contact", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.emergency_contact ?? "" : "")],
     ["Workshop", (pr: ParticipantRow) => workshopName(pr.enrollment)],
     ["Song", (pr: ParticipantRow) => songNamesFor(pr.enrollment).join(" & ")],
-    ["Silver Seat", (pr: ParticipantRow) => (hasSilver(pr.enrollment) ? "Yes" : "No")],
+    ["Silver Seat — Song", (pr: ParticipantRow) => { const ss = silverSongNamesFor(pr.enrollment); return ss.length ? ss.join(", ") : "—"; }],
     ["Registration", (pr: ParticipantRow) => formatRegistration(pr.enrollment)],
     ["Workshop date", (pr: ParticipantRow) => pr.enrollment.program?.event_date ?? ""],
     // Amount is for the whole booking, so only show it once (on the first row).
