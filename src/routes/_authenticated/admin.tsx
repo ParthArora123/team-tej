@@ -928,6 +928,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   const [status, setStatus] = useState<string>("all");
   const [prog, setProg] = useState<string>("all");
   const [song, setSong] = useState<string>("all");
+  const [silver, setSilver] = useState<string>("all");
   const [toDelete, setToDelete] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -983,6 +984,9 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     return type;
   };
 
+  const hasSilver = (r: any) =>
+    !!(r.silver_seat || r.silver_seat_w1 || r.silver_seat_w2 || (r.silver_amount_inr ?? 0) > 0);
+
   const filtered = rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
     if (prog !== "all" && r.program?.name !== prog) return false;
@@ -991,6 +995,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     if (song === "both") {
       if (songNamesFor(r).length !== 2) return false;
     } else if (song !== "all" && !songNamesFor(r).includes(song)) return false;
+    if (silver === "silver" && !hasSilver(r)) return false;
     if (!q.trim()) return true;
     const parts = (r.participants ?? []).map((p: any) => `${p.full_name ?? ""} ${p.email ?? ""} ${p.phone ?? ""} ${p.ticket_code ?? ""}`).join(" ");
     const hay = `${r.full_name ?? ""} ${r.email ?? ""} ${r.phone ?? ""} ${r.ticket_code ?? ""} ${formatRegistration(r)} ${parts}`.toLowerCase();
@@ -1059,6 +1064,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
     ["Emergency contact", (pr: ParticipantRow) => (pr.position === 1 ? pr.enrollment.emergency_contact ?? "" : "")],
     ["Workshop", (pr: ParticipantRow) => workshopName(pr.enrollment)],
     ["Song", (pr: ParticipantRow) => songNamesFor(pr.enrollment).join(" & ")],
+    ["Silver Seat", (pr: ParticipantRow) => (hasSilver(pr.enrollment) ? "Yes" : "No")],
     ["Registration", (pr: ParticipantRow) => formatRegistration(pr.enrollment)],
     ["Workshop date", (pr: ParticipantRow) => pr.enrollment.program?.event_date ?? ""],
     // Amount is for the whole booking, so only show it once (on the first row).
@@ -1162,6 +1168,11 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
           <option value="all">All songs</option>
           {songs.map((s) => <option key={s} value={s} className="truncate">{s}</option>)}
           {songs.length === 2 && <option value="both">Both songs</option>}
+        </select>
+        <select value={silver} onChange={(e) => setSilver(e.target.value)}
+          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
+          <option value="all">All seats</option>
+          <option value="silver">Silver Seat</option>
         </select>
         <button onClick={exportCsv} disabled={expanded.length === 0}
           className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
