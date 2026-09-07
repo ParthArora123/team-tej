@@ -45,6 +45,7 @@ import { compressImageFile } from "@/lib/compress-image";
 import { OverviewTab } from "@/components/admin/OverviewTab";
 import { AttendanceTab } from "@/components/admin/AttendanceTab";
 import { AdminNav, adminNavGroups, adminNavLabel } from "@/components/admin/AdminNav";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 
 
@@ -348,6 +349,17 @@ const emptyWs = () => ({
   save_payer_default: false,
 });
 
+type FormSection = { id: string; label: string; desc: string; done: boolean; node: React.ReactNode };
+
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <p className="flex flex-col">
+      <span className="text-[11px] uppercase tracking-widest text-muted-foreground">{label}</span>
+      <span className="text-sm break-words">{value}</span>
+    </p>
+  );
+}
+
 function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   const uploadImage = useServerFn(adminUploadWorkshopImage);
   const [f, setF] = useState<any>(emptyWs());
@@ -358,6 +370,9 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
   const [toDelete, setToDelete] = useState<any>(null);
   const [tierProgram, setTierProgram] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
+  const [activeSec, setActiveSec] = useState<string>("basic");
+  const [openSecs, setOpenSecs] = useState<Record<string, boolean>>({ basic: true });
+  const isMobile = useIsMobile();
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const openAdd = () => {
