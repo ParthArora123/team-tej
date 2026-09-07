@@ -869,299 +869,60 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
             <DialogTitle>{f.id ? "Edit Workshop" : "Add Workshop"}</DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={save} className="space-y-4 min-w-0">
-            <FieldRow label="Workshop Title *">
-              <In placeholder="Enter workshop title" v={f.name} on={(v) => setF({ ...f, name: v })} required />
-            </FieldRow>
+          <form onSubmit={save} onInvalid={() => setOpenSecs(Object.fromEntries(sections.map((s) => [s.id, true])))} className="min-w-0">
+            <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-6 px-5 pb-28 lg:pb-24">
+              <nav className="hidden lg:block sticky top-4 self-start space-y-1">
+                {sections.map((s, i) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveSec(s.id);
+                      document.getElementById(`ws-sec-${s.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition flex items-center gap-2 ${activeSec === s.id ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted"}`}
+                  >
+                    <span className={`text-xs ${s.done ? "text-emerald-500" : "opacity-60"}`}>{s.done ? "\u2713" : "\u25cb"}</span>
+                    <span className="truncate">{i + 1}. {s.label}</span>
+                  </button>
+                ))}
+              </nav>
 
-            <FieldRow label="Workshop Description">
-              <textarea placeholder="Enter workshop description" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm" rows={3} />
-            </FieldRow>
-
-            <FieldRow label="Workshop Banner">
-              <div
-                onClick={() => fileRef.current?.click()}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => { e.preventDefault(); const f0 = e.dataTransfer.files?.[0]; if (f0) handleFile(f0); }}
-                className="flex items-center gap-3 rounded-lg border border-dashed border-border bg-muted/40 p-2 cursor-pointer"
-              >
-                <div className="h-14 w-20 rounded bg-muted overflow-hidden flex items-center justify-center shrink-0">
-                  {f.banner_preview ? <img src={f.banner_preview} alt="" className="h-full w-full object-cover" /> : <ImageUp size={18} className="text-muted-foreground" />}
-                </div>
-                <div className="flex-1 text-xs">
-                  <p className="font-medium">{uploading ? "Uploading…" : f.banner_preview ? "Replace image" : "Upload workshop banner image"}</p>
-                  <p className="text-muted-foreground">JPG, PNG, WebP · up to 8 MB</p>
-                </div>
-                {f.banner_preview && (
-                  <button type="button" onClick={(e) => { e.stopPropagation(); setF({ ...f, banner_path: "", banner_url: "", banner_preview: "" }); }}
-                    className="p-1 rounded bg-background border border-border"><X size={12} /></button>
-                )}
-                <input ref={fileRef} type="file" accept="image/jpeg,image/jpg,image/png,image/webp" className="hidden"
-                  onChange={(e) => { const f0 = e.target.files?.[0]; if (f0) handleFile(f0); e.currentTarget.value = ""; }} />
+              <div className="space-y-3 min-w-0">
+                {sections.map((s, i) => {
+                  const expanded = !isMobile || !!openSecs[s.id];
+                  return (
+                    <section key={s.id} id={`ws-sec-${s.id}`} className="rounded-2xl border border-border bg-card/60 shadow-sm overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => { setActiveSec(s.id); if (isMobile) setOpenSecs((o) => ({ ...o, [s.id]: !o[s.id] })); }}
+                        className="w-full flex items-center gap-3 px-4 py-3 text-left"
+                      >
+                        <span className={`h-6 w-6 shrink-0 grid place-items-center rounded-full text-[11px] border ${s.done ? "border-emerald-500/50 text-emerald-500 bg-emerald-500/10" : "border-border text-muted-foreground"}`}>
+                          {s.done ? "\u2713" : i + 1}
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-sm font-semibold truncate">{s.label}</span>
+                          <span className="block text-[11px] text-muted-foreground truncate">{s.desc}</span>
+                        </span>
+                        <span className={`lg:hidden text-muted-foreground text-xs transition-transform ${expanded ? "rotate-180" : ""}`}>\u25be</span>
+                      </button>
+                      {expanded && <div className="px-4 pb-4 pt-1 border-t border-border/60">{s.node}</div>}
+                    </section>
+                  );
+                })}
               </div>
-            </FieldRow>
-
-            <FieldRow label="Banner Video (optional, up to 500 MB)">
-              <MediaUploader kind="video" path={f.banner_video_path || null} previewUrl={f.banner_video_preview}
-                onChange={(p, pv) => setF({ ...f, banner_video_path: p ?? "", banner_video_preview: pv })} />
-            </FieldRow>
-
-            <FieldRow label="Banner GIF (optional)">
-              <MediaUploader kind="gif" path={f.banner_gif_path || null} previewUrl={f.banner_gif_preview}
-                onChange={(p, pv) => setF({ ...f, banner_gif_path: p ?? "", banner_gif_preview: pv })} />
-            </FieldRow>
-
-            {f.id && (
-              <FieldRow label="Workshop Media Gallery">
-                <WorkshopMediaPanel programId={f.id} />
-              </FieldRow>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <FieldRow label="Registration Open Date">
-                <In type="date" placeholder="Select registration open date" v={f.registration_open_on} on={(v) => setF({ ...f, registration_open_on: v })} />
-              </FieldRow>
-              <FieldRow label="Workshop Date">
-                <In type="date" placeholder="Select workshop date" v={f.event_date} on={(v) => setF({ ...f, event_date: v })} />
-              </FieldRow>
-              <FieldRow label="Workshop Time">
-                <In type="time" placeholder="Select workshop time" v={f.event_time} on={(v) => setF({ ...f, event_time: v })} />
-              </FieldRow>
-              <FieldRow label="Workshop Duration">
-                <In placeholder="Enter duration (e.g. 2 hrs)" v={f.duration} on={(v) => setF({ ...f, duration: v })} />
-              </FieldRow>
-              <FieldRow label="Workshop Location">
-                <In placeholder="Enter workshop location" v={f.venue} on={(v) => setF({ ...f, venue: v })} />
-              </FieldRow>
-              <FieldRow label="City">
-                <In placeholder="e.g. Mumbai" v={f.city} on={(v) => setF({ ...f, city: v })} />
-              </FieldRow>
-
-              <FieldRow label="Instructor">
-                <In placeholder="Enter instructor name" v={f.instructor} on={(v) => setF({ ...f, instructor: v })} />
-              </FieldRow>
-              <FieldRow label="Category">
-                <In placeholder="Enter category (e.g. Hip-Hop)" v={f.category} on={(v) => setF({ ...f, category: v })} />
-              </FieldRow>
-              <FieldRow label="Maximum Capacity">
-                <In type="number" placeholder="Enter maximum participants" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
-              </FieldRow>
-              <FieldRow label="Workshop Type">
-                <select value={f.kind} onChange={(e) => setF({ ...f, kind: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-sm">
-                  <option value="workshop">Workshop</option>
-                  <option value="nritya_sadhana">Nritya Sadhana</option>
-                  <option value="zero_to_hero">Zero to Hero</option>
-                  <option value="online_training">Online Training</option>
-                </select>
-              </FieldRow>
             </div>
 
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration Method</p>
-              <label className="flex items-start gap-2 text-sm font-medium cursor-pointer">
-                <input type="checkbox" className="mt-0.5" checked={f.registration_mode === "whatsapp"}
-                  onChange={(e) => setF({ ...f, registration_mode: e.target.checked ? "whatsapp" : "online" })} />
-                <span>
-                  Register via WhatsApp instead of online payment
-                  <span className="block text-[11px] font-normal text-muted-foreground">
-                    Unchecked: students register and pay online (UPI QR + proof upload) — the current flow.
-                    Checked: the "Register Now" button sends students straight to WhatsApp with a pre-filled message; no online payment form is shown.
-                  </span>
-                </span>
-              </label>
-            </div>
-
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <input type="checkbox" checked={!!f.silver_seat_enabled} onChange={(e) => setF({ ...f, silver_seat_enabled: e.target.checked })} />
-                Enable Silver Seat option
-              </label>
-              {f.silver_seat_enabled && (
-                <>
-                  <FieldRow label="Silver Seat Price (₹)">
-                    <In type="number" placeholder="Enter additional Silver Seat price" v={f.silver_seat_price} on={(v) => setF({ ...f, silver_seat_price: v })} />
-                  </FieldRow>
-                  <FieldRow label={f.allow_both ? "Silver Seat Capacity · Workshop 1" : "Silver Seat Capacity"}>
-                    <In type="number" placeholder="Leave empty for unlimited" v={f.silver_capacity_w1} on={(v) => setF({ ...f, silver_capacity_w1: v })} />
-                  </FieldRow>
-                  {f.allow_both && (
-                    <FieldRow label="Silver Seat Capacity · Workshop 2">
-                      <In type="number" placeholder="Leave empty for unlimited" v={f.silver_capacity_w2} on={(v) => setF({ ...f, silver_capacity_w2: v })} />
-                    </FieldRow>
-                  )}
-                </>
-              )}
-              <p className="text-[11px] text-muted-foreground">Default price is ₹1,000. Leave capacity empty for unlimited silver seats.</p>
-            </div>
-
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Class / Session Schedule</p>
-              <p className="text-[11px] text-muted-foreground">Enter the specific time for each workshop. The workshop name and this exact time are shown together on the detail page.</p>
-              {(f.session_schedule ?? []).map((s: any, i: number) => (
-                <div key={i} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)_auto] gap-2 items-center">
-                  <In type="time" placeholder="Select session time" v={s.time} on={(v) => {
-                    const next = [...(f.session_schedule ?? [])];
-                    next[i] = { ...next[i], time: v };
-                    setF({ ...f, session_schedule: next });
-                  }} />
-                  <In placeholder="Bol Na Halke" v={s.name} on={(v) => {
-                    const next = [...(f.session_schedule ?? [])]; next[i] = { ...next[i], name: v }; setF({ ...f, session_schedule: next });
-                  }} />
-                  <button type="button"
-                    onClick={() => setF({ ...f, session_schedule: (f.session_schedule ?? []).filter((_: any, j: number) => j !== i) })}
-                    className="px-2 py-1.5 rounded-lg border border-border text-destructive text-xs hover:bg-destructive/10 active:scale-95 transition">Remove</button>
-                </div>
-              ))}
-              <button type="button"
-                onClick={() => setF({ ...f, session_schedule: [...(f.session_schedule ?? []), { time: "", name: "" }] })}
-                className="px-3 py-1.5 rounded-lg border border-border text-xs">+ Add session</button>
-            </div>
-
-
-            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Registration Configuration</p>
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <input type="checkbox" checked={!!f.allow_both} onChange={(e) => setF({ ...f, allow_both: e.target.checked })} />
-                Enable Both Workshops registration
-              </label>
-              <FieldRow label="Single Workshop Price (₹)">
-                <In type="number" placeholder="Enter Single Workshop price" v={f.price_inr} on={(v) => setF({ ...f, price_inr: v })} />
-              </FieldRow>
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <input type="checkbox" checked={!!f.spot_registration_enabled} onChange={(e) => setF({ ...f, spot_registration_enabled: e.target.checked })} />
-                Enable On-the-Spot Registration
-              </label>
-              {f.spot_registration_enabled && (
-                <>
-                  <FieldRow label="On-the-Spot Amount (₹)">
-                    <In type="number" min="1" required placeholder="Enter On-the-Spot amount" v={f.spot_price_inr} on={(v) => setF({ ...f, spot_price_inr: v })} />
-                  </FieldRow>
-                  <p className="text-[11px] text-muted-foreground">Used only on the workshop date. The original Single Workshop Price stays unchanged.</p>
-                </>
-              )}
-              {f.allow_both && (
-                <>
-                  <FieldRow label="Both Workshops Price (₹)">
-                    <In type="number" placeholder="Enter Both Workshops price" v={f.both_price} on={(v) => setF({ ...f, both_price: v })} />
-                  </FieldRow>
-                  <FieldRow label="Workshop 1 Name">
-                    <In placeholder="e.g. Bollywood Fusion" v={f.workshop1_name} on={(v) => {
-                      const next = [...(f.session_schedule ?? [])];
-                      while (next.length < 2) next.push({ time: "", name: "" });
-                      next[0] = { ...next[0], name: v };
-                      setF({ ...f, workshop1_name: v, session_schedule: next });
-                    }} />
-                  </FieldRow>
-                  <FieldRow label="Workshop 1 Time">
-                    <In type="time" placeholder="Select Workshop 1 time" v={f.session_schedule?.[0]?.time ?? ""} on={(v) => {
-                      const next = [...(f.session_schedule ?? [])];
-                      while (next.length < 2) next.push({ time: "", name: "" });
-                      next[0] = { name: f.workshop1_name, time: v };
-                      setF({ ...f, session_schedule: next });
-                    }} />
-                  </FieldRow>
-                  <FieldRow label="Workshop 2 Name">
-                    <In placeholder="e.g. Contemporary" v={f.workshop2_name} on={(v) => {
-                      const next = [...(f.session_schedule ?? [])];
-                      while (next.length < 2) next.push({ time: "", name: "" });
-                      next[1] = { ...next[1], name: v };
-                      setF({ ...f, workshop2_name: v, session_schedule: next });
-                    }} />
-                  </FieldRow>
-                  <FieldRow label="Workshop 2 Time">
-                    <In type="time" placeholder="Select Workshop 2 time" v={f.session_schedule?.[1]?.time ?? ""} on={(v) => {
-                      const next = [...(f.session_schedule ?? [])];
-                      while (next.length < 2) next.push({ time: "", name: "" });
-                      next[1] = { name: f.workshop2_name, time: v };
-                      setF({ ...f, session_schedule: next });
-                    }} />
-                  </FieldRow>
-                </>
-              )}
-              <p className="text-[11px] text-muted-foreground">Enable one or both options. Workshop names are shown on the registration form when Both is enabled.</p>
-            </div>
-
-
-
-
-            {f.registration_mode !== "whatsapp" && (
-            <div className="rounded-lg border border-border/60 bg-muted/40 p-3 space-y-2">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment · UPI</p>
-
-              {!f.id && payerDefaults ? (
-                <div className="rounded-md border border-border/60 bg-background/50 p-2 text-xs space-y-1">
-                  <p className="flex items-center justify-between gap-2">
-                    <span className="text-muted-foreground">Using saved default payer</span>
-                    <button type="button"
-                      onClick={() => { try { window.localStorage.removeItem(WS_PAYER_KEY); } catch {} setPayerDefaults(null); setF({ ...f, upi_id: "", bank_account_holder: "", save_payer_default: false }); }}
-                      className="text-primary underline underline-offset-2">Change</button>
-                  </p>
-                  <p><span className="text-muted-foreground">UPI:</span> {payerDefaults.upi_id}</p>
-                  <p><span className="text-muted-foreground">Holder:</span> {payerDefaults.bank_account_holder}</p>
-                </div>
-              ) : (
-                <>
-                  <FieldRow label="Official UPI ID">
-                    <In placeholder={f.has_upi ? "UPI already saved · enter to replace (e.g. tejas@upi)" : "Enter UPI ID (e.g. tejas@upi)"}
-                      v={f.upi_id} on={(v) => setF({ ...f, upi_id: v })} />
-                  </FieldRow>
-                  <FieldRow label="Bank Account Holder Name *">
-                    <In placeholder="Enter bank account holder name (e.g. Tejas D Dhoke)"
-                      v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
-                  </FieldRow>
-                  <p className="text-[11px] text-muted-foreground">UPI ID stored encrypted. Holder name is shown below the UPI ID on the payment page so students can verify the recipient before paying.</p>
-                  {!f.id && !payerDefaults && (
-                    <label className="flex items-start gap-2 text-xs rounded-md border border-border/60 bg-background/50 p-2 cursor-pointer">
-                      <input type="checkbox" className="mt-0.5" checked={!!f.save_payer_default}
-                        onChange={(e) => setF({ ...f, save_payer_default: e.target.checked })} />
-                      <span className="flex-1">
-                        <span className="block font-medium text-foreground">Set as default</span>
-                        <span className="text-muted-foreground">Save this UPI ID and holder name. Next time you add a workshop these fields will be hidden and used automatically.</span>
-                      </span>
-                    </label>
-                  )}
-                  {f.has_upi && (
-                    <label className="flex items-center gap-2 text-xs">
-                      <input type="checkbox" checked={!!f.clear_upi} onChange={(e) => setF({ ...f, clear_upi: e.target.checked })} />
-                      Remove saved UPI and fall back to default
-                    </label>
-                  )}
-                </>
-              )}
-            </div>
-            )}
-
-            {f.registration_mode === "whatsapp" && (
-              <div className="rounded-lg border border-[#25D366]/30 bg-[#25D366]/5 p-3 space-y-2">
-                <FieldRow label="WhatsApp Number *">
-                  <In
-                    type="tel"
-                    inputMode="numeric"
-                    placeholder="Enter 10-digit WhatsApp number (e.g. 9876543210)"
-                    v={f.whatsapp_number}
-                    on={(v) => setF({ ...f, whatsapp_number: sanitizePhone(v) })}
-                    maxLength={10}
-                    required
-                  />
-                </FieldRow>
-                <p className="text-[11px] text-muted-foreground">
-                  WhatsApp mode is on — no UPI/payment details are needed. Students who tap "Register Now" on the
-                  workshop page will be sent straight to this WhatsApp number, with the workshop name pre-filled in
-                  the message.
-                </p>
-              </div>
-            )}
-
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={f.published} onChange={(e) => setF({ ...f, published: e.target.checked })} />
-              Publish (visible to customers)
-            </label>
-            <div className="flex gap-2 justify-end pt-3 border-t border-border">
+            <div className="sticky bottom-0 z-10 flex flex-col sm:flex-row gap-2 sm:justify-end px-5 py-3 border-t border-border bg-background/95 backdrop-blur">
               <button type="button" onClick={closeDialog} className="px-4 py-2 rounded-lg bg-muted text-sm">Cancel</button>
-              <button type="submit" disabled={busy || uploading} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-60">
-                {busy ? "Saving…" : f.id ? "Update Workshop" : "Create Workshop"}
+              <button
+                type="button"
+                onClick={() => { setActiveSec("preview"); setOpenSecs((o) => ({ ...o, preview: true })); document.getElementById("ws-sec-preview")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+                className="px-4 py-2 rounded-lg border border-border text-sm"
+              >Preview</button>
+              <button type="submit" disabled={busy || uploading} className="px-5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium disabled:opacity-60">
+                {busy ? "Saving\u2026" : f.id ? "Update Workshop" : "Create Workshop"}
               </button>
             </div>
           </form>
