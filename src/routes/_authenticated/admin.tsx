@@ -332,6 +332,7 @@ const emptyWs = () => ({
   category: "", style: "", published: true,
   registration_mode: "online" as "online" | "whatsapp",
   whatsapp_number: "",
+  registration_redirect_url: "",
   silver_seat_enabled: true,
   silver_seat_price: "1000",
   spot_registration_enabled: false,
@@ -401,6 +402,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       style: r.style ?? "", published: !!r.published,
       registration_mode: r.registration_mode === "whatsapp" ? "whatsapp" : "online",
       whatsapp_number: r.whatsapp_number ?? "",
+      registration_redirect_url: r.registration_redirect_url ?? "",
       silver_seat_enabled: !!r.silver_seat_enabled,
       silver_seat_price: (r.silver_seat_price ?? 1000).toString(),
       spot_registration_enabled: !!r.spot_registration_enabled,
@@ -459,6 +461,16 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enter a valid 10-digit WhatsApp number for WhatsApp registration.");
       return;
     }
+    const redirectUrl = String(f.registration_redirect_url ?? "").trim();
+    if (redirectUrl) {
+      try {
+        const parsed = new URL(redirectUrl);
+        if (parsed.protocol !== "http:" && parsed.protocol !== "https:") throw new Error("Invalid protocol");
+      } catch {
+        toast.error("Registration Redirect URL must be a valid http:// or https:// URL.");
+        return;
+      }
+    }
     if (f.spot_registration_enabled && (!f.spot_price_inr || Number(f.spot_price_inr) <= 0)) {
       toast.error("Enter a valid On-the-Spot amount greater than ₹0.");
       return;
@@ -480,6 +492,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         ...f,
         registration_mode: f.registration_mode === "whatsapp" ? "whatsapp" : "online",
         whatsapp_number: f.registration_mode === "whatsapp" ? String(f.whatsapp_number ?? "").replace(/\D/g, "").slice(0, 10) : "",
+        registration_redirect_url: redirectUrl || null,
         bank_account_holder: f.registration_mode === "whatsapp" ? (f.bank_account_holder || "") : f.bank_account_holder,
         price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
@@ -581,6 +594,17 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           <In type="number" placeholder="Enter maximum participants" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
         </FieldRow>
       </div>
+      <FieldRow label="Registration Redirect URL (optional)">
+        <In
+          type="url"
+          placeholder="https://example.com/register"
+          v={f.registration_redirect_url}
+          on={(v) => setF({ ...f, registration_redirect_url: v })}
+        />
+      </FieldRow>
+      <p className="text-[11px] text-muted-foreground">
+        If provided, users will be redirected to this URL when they click Register Now for this workshop.
+      </p>
     </div>
   );
 
@@ -843,6 +867,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         <SummaryRow label="Silver Seat" value={f.silver_seat_enabled ? `₹${f.silver_seat_price || 1000}` : "Off"} />
         <SummaryRow label="Both workshops" value={f.allow_both && f.both_price ? `₹${f.both_price}` : "Not configured"} />
         <SummaryRow label="Registration" value={f.registration_mode === "whatsapp" ? `WhatsApp · ${f.whatsapp_number || "—"}` : "Online payment"} />
+        <SummaryRow label="Registration redirect" value={f.registration_redirect_url?.trim() || "Internal registration flow"} />
       </div>
       {f.banner_preview && (
         <img src={f.banner_preview} alt="" className="w-full max-h-48 object-contain rounded-xl border border-border bg-muted" />

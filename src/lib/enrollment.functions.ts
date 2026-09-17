@@ -511,6 +511,10 @@ const workshopSchema = z.object({
   published: z.boolean().default(false),
   registration_mode: z.enum(["online", "whatsapp"]).default("online"),
   whatsapp_number: z.string().max(20).optional().or(z.literal("")).nullable(),
+  registration_redirect_url: z.string().trim().url("Enter a valid registration redirect URL.")
+    .refine((value) => value.startsWith("https://") || value.startsWith("http://"), {
+      message: "Registration redirect URL must start with http:// or https://.",
+    }).optional().or(z.literal("")).nullable(),
   spot_registration_enabled: z.boolean().optional(),
   spot_price_inr: z.number().int().min(0).optional().nullable(),
   silver_seat_enabled: z.boolean().optional(),
@@ -594,6 +598,7 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       whatsapp_number: rest.registration_mode === "whatsapp"
         ? String(rest.whatsapp_number ?? "").replace(/\D/g, "").slice(0, 10) || null
         : null,
+      registration_redirect_url: rest.registration_redirect_url?.trim() || null,
       bank_account_holder: rest.bank_account_holder?.trim() || null,
     };
     if (clear_upi) {
@@ -706,7 +711,7 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
       "allow_single", "allow_both", "both_price", "workshop1_name", "workshop2_name",
       "silver_capacity_w1", "silver_capacity_w2", "venue_address", "maps_url",
       "latitude", "longitude", "session_schedule", "registration_mode", "whatsapp_number",
-      "spot_registration_enabled", "spot_price_inr",
+      "spot_registration_enabled", "spot_price_inr", "registration_redirect_url",
     ].join(", ")).order("created_at", { ascending: false });
     if (error) throw error;
     // Payment details are intentionally not returned by this list endpoint.
