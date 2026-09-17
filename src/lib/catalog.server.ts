@@ -94,6 +94,33 @@ async function selectPrograms(kind?: string, id?: string) {
       return { ...row, ...defaults };
     });
   }
+
+  // The public catalogue view can lag behind a recently saved registration
+  // destination. Recover only these public-facing fields from the source row
+  // so an External workshop never becomes an unusable detail page.
+  if (result.data?.length) {
+    const ids = result.data.map((row: any) => row.id).filter(Boolean);
+    const { data: destinations } = await publicClient()
+      .from("programs")
+      .select("id,registration_mode,registration_redirect_url")
+      .in("id", ids)
+      .eq("published", true)
+      .eq("active", true);
+
+    if (destinations?.length) {
+      const byId = new Map(destinations.map((row: any) => [row.id, row]));
+      result.data = result.data.map((row: any) => {
+        const destination = byId.get(row.id) as any;
+        if (!destination) return row;
+        return {
+          ...row,
+          registration_mode: destination.registration_mode ?? row.registration_mode,
+          registration_redirect_url:
+            destination.registration_redirect_url ?? row.registration_redirect_url,
+        };
+      });
+    }
+  }
   return result;
 }
 
