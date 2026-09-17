@@ -5,12 +5,25 @@ import { isSpotPricingActive } from "@/lib/spot-pricing";
 const PUBLIC_COLS =
   "id,kind,name,description,banner_url,banner_path,banner_video_path,banner_gif_path,event_date,event_time,venue,city,instructor,duration,capacity,seats_taken,price_inr,registration_open_on,category,style,published,silver_seat_enabled,silver_seat_price,allow_single,allow_both,both_price,workshop1_name,workshop2_name,silver_capacity_w1,silver_capacity_w2,session_schedule,registration_mode,whatsapp_number,spot_registration_enabled,spot_price_inr,registration_redirect_url,created_at";
 
-const LEGACY_PUBLIC_COLS = PUBLIC_COLS.replace(",session_schedule", "").replace(",registration_mode", "").replace(",whatsapp_number", "");
-const NO_MODE_PUBLIC_COLS = PUBLIC_COLS.replace(",registration_mode", "").replace(",whatsapp_number", "");
-const NO_WA_PUBLIC_COLS = PUBLIC_COLS.replace(",whatsapp_number", "");
-const NO_SPOT_PUBLIC_COLS = PUBLIC_COLS.replace(",spot_registration_enabled,spot_price_inr", "");
-const NO_REDIRECT_PUBLIC_COLS = PUBLIC_COLS.replace(",registration_redirect_url", "");
 const BANNER_TTL = 60 * 60 * 24 * 7;
+
+const OPTIONAL_PUBLIC_FIELDS = [
+  "registration_redirect_url",
+  "spot_registration_enabled",
+  "spot_price_inr",
+  "whatsapp_number",
+  "registration_mode",
+  "session_schedule",
+] as const;
+
+const OPTIONAL_DEFAULTS: Record<(typeof OPTIONAL_PUBLIC_FIELDS)[number], unknown> = {
+  registration_redirect_url: null,
+  spot_registration_enabled: false,
+  spot_price_inr: null,
+  whatsapp_number: null,
+  registration_mode: "online",
+  session_schedule: [],
+};
 
 function publicClient() {
   return createPublicClient() as any;
@@ -66,40 +79,33 @@ async function selectPrograms(kind?: string, id?: string) {
     return query;
   };
 
-  let result = await run(PUBLIC_COLS);
-  if (result.error?.code === "42703" && result.error.message?.includes("registration_redirect_url")) {
-    result = await run(NO_REDIRECT_PUBLIC_COLS);
-    if (result.data) {
-      result.data = result.data.map((row: any) => ({ ...row, registration_redirect_url: null }));
-    }
+  let columns = PUBLIC_COLS;
+  const omitted = new Set<(typeof OPTIONAL_PUBLIC_FIELDS)[number]>();
+  let result = await run(columns);
+
+  // Older published builds can briefly run against a newer or older catalogue
+  // view. Remove every unavailable optional field cumulatively so one new
+  // feature can never make the entire workshop catalogue disappear.
+  for (let attempt = 0; result.error?.code === "42703" && attempt < OPTIONAL_PUBLIC_FIELDS.length; attempt += 1) {
+    const missing = OPTIONAL_PUBLIC_FIELDS.find(
+      (field) => !omitted.has(field) && result.error?.message?.includes(field),
+    );
+    if (!missing) break;
+    omitted.add(missing);
+    columns = columns
+      .split(",")
+      .filter((field) => field !== missing)
+      .join(",");
+    result = await run(columns);
   }
-  if (result.error?.code === "42703" && result.error.message?.includes("spot_")) {
-    result = await run(NO_SPOT_PUBLIC_COLS);
-    if (result.data) {
-      result.data = result.data.map((row: any) => ({
-        ...row,
-        spot_registration_enabled: false,
-        spot_price_inr: null,
-      }));
-    }
-  }
-  if (result.error?.code === "42703" && result.error.message?.includes("whatsapp_number")) {
-    result = await run(NO_WA_PUBLIC_COLS);
-    if (result.data) {
-      result.data = result.data.map((row: any) => ({ ...row, whatsapp_number: null }));
-    }
-  }
-  if (result.error?.code === "42703" && result.error.message?.includes("registration_mode")) {
-    result = await run(NO_MODE_PUBLIC_COLS);
-    if (result.data) {
-      result.data = result.data.map((row: any) => ({ ...row, registration_mode: "online" }));
-    }
-  }
-  if (result.error?.code === "42703" && result.error.message?.includes("session_schedule")) {
-    result = await run(LEGACY_PUBLIC_COLS);
-    if (result.data) {
-      result.data = result.data.map((row: any) => ({ ...row, session_schedule: [], registration_mode: "online" }));
-    }
+
+  if (result.data && omitted.size) {
+    result.data = result.data.map((row: any) => {
+      const defaults = Object.fromEntries(
+        [...omitted].map((field) => [field, OPTIONAL_DEFAULTS[field]]),
+      );
+      return { ...defaults, ...row };
+    });
   }
   return result;
 }

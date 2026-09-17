@@ -339,7 +339,9 @@ const emptyWs = () => ({
   spot_registration_enabled: false,
   spot_price_inr: "",
   allow_single: true,
-  allow_both: true,
+  // Combined passes are optional. New workshops start as a normal single
+  // workshop and only enable bundle validation when the admin opts in.
+  allow_both: false,
   both_price: "",
   workshop1_name: "",
   workshop2_name: "",
