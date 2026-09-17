@@ -79,6 +79,7 @@ function ReelVideo({
 
 function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void }) {
   const hasImage = !!w.banner_url;
+  const isWhatsappMode = w.registration_mode === "whatsapp";
   const isExternalMode = w.registration_mode === "external";
   const redirectUrl = isExternalMode
     ? getRegistrationRedirectUrl(w.registration_redirect_url)
@@ -179,6 +180,10 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
               onClick={() => {
                 if (redirectUrl) {
                   window.location.assign(redirectUrl);
+                  return;
+                }
+                if (isWhatsappMode) {
+                  window.location.assign(`/workshops/${w.id}`);
                   return;
                 }
                 onRegister(w);

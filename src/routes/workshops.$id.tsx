@@ -706,6 +706,7 @@ function WorkshopDetailPage() {
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const isWhatsappMode = (program as any).registration_mode === "whatsapp";
   const isExternalMode = (program as any).registration_mode === "external";
+  const usesDirectRegistration = isWhatsappMode || isExternalMode;
   const registrationRedirectUrl = isExternalMode
     ? getRegistrationRedirectUrl((program as any).registration_redirect_url)
     : null;
@@ -747,9 +748,8 @@ function WorkshopDetailPage() {
     void el.offsetWidth;
     el.classList.add("register-flash");
   };
-  // In WhatsApp mode, "Register Now" skips the online form entirely and opens
-  // a WhatsApp chat pre-filled with the workshop name. Online mode keeps the
-  // existing scroll-to-form behaviour untouched.
+  // Direct registration modes skip the online form. Their only difference is
+  // the final destination: WhatsApp opens chat; External uses its saved URL.
   const handleRegisterClick = () => {
     if (isExternalMode) {
       if (registrationRedirectUrl) window.location.assign(registrationRedirectUrl);
@@ -989,7 +989,7 @@ function WorkshopDetailPage() {
         </div>
       </section>
 
-      {sessions.length > 0 && !isWhatsappMode && (
+      {sessions.length > 0 && !usesDirectRegistration && (
         <section className="relative py-14 md:py-24">
           <div className="max-w-4xl mx-auto px-5 sm:px-6">
             <SectionHeader eyebrow="Class Timings" title="Session Schedule" />
@@ -1026,9 +1026,9 @@ function WorkshopDetailPage() {
 
 
 
-      <section className="relative py-14 md:py-24">
+      {!usesDirectRegistration && <section className="relative py-14 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
-          {!isWhatsappMode && <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />}
+          <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />
 
           {tier && !spotActive && (
             <motion.div
@@ -1056,7 +1056,7 @@ function WorkshopDetailPage() {
 
 
           <div className={`mt-14 grid gap-6 items-stretch ${allowSingle && allowBoth ? "md:grid-cols-2" : "max-w-md mx-auto"}`}>
-            {allowSingle && !isWhatsappMode && (
+            {allowSingle && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }}
                 className="relative rounded-3xl border border-primary/40 bg-gradient-to-b from-background/40 to-jet/90 p-8 shadow-[0_30px_80px_-30px_rgba(231,223,206,0.35)]"
@@ -1095,7 +1095,7 @@ function WorkshopDetailPage() {
               </motion.div>
             )}
 
-            {allowBoth && !isWhatsappMode && (
+            {allowBoth && (
               <motion.div
                 initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.1 }}
                 className="relative rounded-3xl border border-primary/60 bg-gradient-to-b from-background/48 to-jet/88 p-8 shadow-[0_30px_80px_-20px_rgba(231,223,206,0.5)]"
@@ -1138,15 +1138,11 @@ function WorkshopDetailPage() {
             )}
           </div>
 
-          {program.silver_seat_enabled && !isWhatsappMode && (
+          {program.silver_seat_enabled && (
             <motion.button
               type="button"
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
               onClick={() => {
-                if (isExternalMode) {
-                  if (registrationRedirectUrl) window.location.assign(registrationRedirectUrl);
-                  return;
-                }
                 scrollToRegister();
                 setTimeout(() => {
                   window.dispatchEvent(new CustomEvent("enroll:add-silver", { detail: { programId: program.id, which: "w1" } }));
@@ -1169,7 +1165,7 @@ function WorkshopDetailPage() {
             </p>
           )}
         </div>
-      </section>
+      </section>}
 
 
       <section className="relative py-14 md:py-24">
@@ -1266,42 +1262,33 @@ function WorkshopDetailPage() {
       <section id="register" className="relative py-24 scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Secure Your Seat" title="Register Now" />
-          {isExternalMode && registrationRedirectUrl ? (
-            <div className="mt-12 max-w-xl mx-auto">
-              <a
-                href={registrationRedirectUrl}
-                className="group relative flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-5 text-base font-black tracking-wide uppercase text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                Continue to registration
-              </a>
-            </div>
-          ) : isExternalMode ? (
-            <div className="mt-12 max-w-xl mx-auto rounded-2xl border border-primary/30 bg-jet/60 p-10 text-center text-sm text-primary/70">
-              External registration is not available yet. Please contact us for assistance.
-            </div>
-          ) : isWhatsappMode ? (
+          {usesDirectRegistration ? (
             <>
               <p className="mt-4 text-center text-primary/60 text-sm max-w-xl mx-auto">
-                Tap below to chat with us on WhatsApp — we'll confirm your seat and share the payment details there.
+                {isWhatsappMode
+                  ? "Tap below to chat with us on WhatsApp — we'll confirm your seat and share the payment details there."
+                  : "Tap below to continue to this workshop's registration page."}
               </p>
               <div className="mt-12 max-w-xl mx-auto">
                 {full ? (
                   <div className="text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70">
                     This workshop is sold out.
                   </div>
-                ) : registerWaUrl ? (
+                ) : (isWhatsappMode ? registerWaUrl : registrationRedirectUrl) ? (
                   <a
-                    href={registerWaUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group relative flex items-center justify-center gap-3 rounded-2xl bg-[#25D366] px-8 py-5 text-base font-black tracking-wide uppercase text-white shadow-[0_20px_60px_-10px_rgba(37,211,102,0.55)] hover:scale-[1.02] transition-transform"
+                    href={(isWhatsappMode ? registerWaUrl : registrationRedirectUrl) ?? undefined}
+                    target={isWhatsappMode ? "_blank" : undefined}
+                    rel={isWhatsappMode ? "noreferrer" : undefined}
+                    className="group relative flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-5 text-base font-black tracking-wide uppercase text-primary-foreground transition-transform hover:scale-[1.02]"
                   >
-                    <WhatsAppIcon size={22} />
-                    Register via WhatsApp
+                    {isWhatsappMode && <WhatsAppIcon size={22} />}
+                    {isWhatsappMode ? "Register via WhatsApp" : "Register Now"}
                   </a>
                 ) : (
                   <div className="text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70 text-sm">
-                    WhatsApp registration isn't set up yet — please reach out via the contact details above.
+                    {isWhatsappMode
+                      ? "WhatsApp registration isn't set up yet — please reach out via the contact details above."
+                      : "External registration isn't set up yet — please reach out via the contact details above."}
                   </div>
                 )}
               </div>
