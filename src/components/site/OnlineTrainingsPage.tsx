@@ -5,7 +5,6 @@ import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
-import { openRegistrationRedirect } from "@/lib/registration-redirect";
 import {
   ArrowUpRight,
   Check,
@@ -359,8 +358,7 @@ export function OnlineTrainingsPage() {
                       )}
                     </div>
                     <button
-                      onClick={() => {
-                        if (openRegistrationRedirect(r.registration_redirect_url)) return;
+                      onClick={() =>
                         setSel({
                           id: r.id,
                           name: r.name,
@@ -374,8 +372,8 @@ export function OnlineTrainingsPage() {
                           workshop1Name: r.workshop1_name ?? null,
                           workshop2Name: r.workshop2_name ?? null,
                           eventTime: (r as any).event_time ?? null,
-                        });
-                      }}
+                        })
+                      }
                       className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm"
                     >
                       Enroll

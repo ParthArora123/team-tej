@@ -17,7 +17,6 @@ import { isSpotPricingActive } from "@/lib/spot-pricing";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
 import { ViewportVideo } from "@/components/site/ViewportVideo";
 import { WhatsAppIcon } from "@/components/site/WhatsAppIcon";
-import { normalizeRegistrationRedirectUrl, openRegistrationRedirect } from "@/lib/registration-redirect";
 
 const SITE_URL = "https://tejasdhoke.com";
 
@@ -705,7 +704,6 @@ function WorkshopDetailPage() {
   // single-workshop events; fall back to the program title otherwise.
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const isWhatsappMode = (program as any).registration_mode === "whatsapp";
-  const registrationRedirectUrl = normalizeRegistrationRedirectUrl((program as any).registration_redirect_url);
   const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, (program as any).event_date, (program as any).city, (program as any).whatsapp_number) : null;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0
     ? configuredNames.map((name, index) => {
@@ -747,7 +745,6 @@ function WorkshopDetailPage() {
   // a WhatsApp chat pre-filled with the workshop name. Online mode keeps the
   // existing scroll-to-form behaviour untouched.
   const handleRegisterClick = () => {
-    if (openRegistrationRedirect(registrationRedirectUrl)) return;
     if (isWhatsappMode) {
       if (registerWaUrl) window.open(registerWaUrl, "_blank", "noopener,noreferrer");
       return;
@@ -859,7 +856,7 @@ function WorkshopDetailPage() {
                 disabled={full}
                 className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-primary via-primary to-accent text-primary-foreground text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(231,223,206,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
               >
-              {isWhatsappMode && !registrationRedirectUrl ? <WhatsAppIcon size={16} /> : <Sparkles size={16} />}
+                {isWhatsappMode ? <WhatsAppIcon size={16} /> : <Sparkles size={16} />}
                 {full ? "Sold Out" : "Register Now"}
               </button>
               <button
@@ -942,7 +939,7 @@ function WorkshopDetailPage() {
         </section>
       )}
 
-      {!registrationRedirectUrl && <section className="relative py-14 md:py-24">
+      <section className="relative py-14 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Event Logistics" title="Gathering Details" />
           <div className="mt-8 md:mt-14 grid md:grid-cols-3 gap-4 md:gap-6">
@@ -979,7 +976,7 @@ function WorkshopDetailPage() {
             ))}
           </div>
         </div>
-      </section>}
+      </section>
 
       {sessions.length > 0 && !isWhatsappMode && (
         <section className="relative py-14 md:py-24">
@@ -1130,7 +1127,7 @@ function WorkshopDetailPage() {
             )}
           </div>
 
-          {program.silver_seat_enabled && !isWhatsappMode && !registrationRedirectUrl && (
+          {program.silver_seat_enabled && !isWhatsappMode && (
             <motion.button
               type="button"
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
@@ -1254,28 +1251,7 @@ function WorkshopDetailPage() {
       <section id="register" className="relative py-24 scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Secure Your Seat" title="Register Now" />
-          {registrationRedirectUrl ? (
-            <>
-              <p className="mt-4 text-center text-primary/60 text-sm max-w-xl mx-auto">
-                Continue to this workshop's external registration page.
-              </p>
-              <div className="mt-12 max-w-xl mx-auto">
-                {full ? (
-                  <div className="text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70">
-                    This workshop is sold out.
-                  </div>
-                ) : (
-                  <a
-                    href={registrationRedirectUrl}
-                    className="group relative flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-5 text-base font-black tracking-wide uppercase text-primary-foreground transition-opacity hover:opacity-90"
-                  >
-                    <Sparkles size={22} />
-                    Register Now
-                  </a>
-                )}
-              </div>
-            </>
-          ) : isWhatsappMode ? (
+          {isWhatsappMode ? (
             <>
               <p className="mt-4 text-center text-primary/60 text-sm max-w-xl mx-auto">
                 Tap below to chat with us on WhatsApp — we'll confirm your seat and share the payment details there.

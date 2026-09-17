@@ -46,7 +46,6 @@ import { OverviewTab } from "@/components/admin/OverviewTab";
 import { AttendanceTab } from "@/components/admin/AttendanceTab";
 import { AdminNav, adminNavGroups, adminNavLabel } from "@/components/admin/AdminNav";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { normalizeRegistrationRedirectUrl } from "@/lib/registration-redirect";
 
 
 
@@ -332,16 +331,13 @@ const emptyWs = () => ({
   registration_open_on: todayISO(),
   category: "", style: "", published: true,
   registration_mode: "online" as "online" | "whatsapp",
-  registration_redirect_url: "",
   whatsapp_number: "",
   silver_seat_enabled: true,
   silver_seat_price: "1000",
   spot_registration_enabled: false,
   spot_price_inr: "",
   allow_single: true,
-  // Combined passes are optional. New workshops start as a normal single
-  // workshop and only enable bundle validation when the admin opts in.
-  allow_both: false,
+  allow_both: true,
   both_price: "",
   workshop1_name: "",
   workshop2_name: "",
@@ -404,7 +400,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       category: r.category ?? "",
       style: r.style ?? "", published: !!r.published,
       registration_mode: r.registration_mode === "whatsapp" ? "whatsapp" : "online",
-      registration_redirect_url: r.registration_redirect_url ?? "",
       whatsapp_number: r.whatsapp_number ?? "",
       silver_seat_enabled: !!r.silver_seat_enabled,
       silver_seat_price: (r.silver_seat_price ?? 1000).toString(),
@@ -460,11 +455,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enable at least one registration option (Single or Both).");
       return;
     }
-    if (String(f.registration_redirect_url ?? "").trim() && !normalizeRegistrationRedirectUrl(f.registration_redirect_url)) {
-      toast.error("Enter a valid HTTP or HTTPS registration redirect URL.");
-      return;
-    }
-    if (!normalizeRegistrationRedirectUrl(f.registration_redirect_url) && f.registration_mode === "whatsapp" && !/^[0-9]{10}$/.test(String(f.whatsapp_number ?? "").replace(/\D/g, ""))) {
+    if (f.registration_mode === "whatsapp" && !/^[0-9]{10}$/.test(String(f.whatsapp_number ?? "").replace(/\D/g, ""))) {
       toast.error("Enter a valid 10-digit WhatsApp number for WhatsApp registration.");
       return;
     }
@@ -488,7 +479,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       await onSave({ data: {
         ...f,
         registration_mode: f.registration_mode === "whatsapp" ? "whatsapp" : "online",
-        registration_redirect_url: normalizeRegistrationRedirectUrl(f.registration_redirect_url),
         whatsapp_number: f.registration_mode === "whatsapp" ? String(f.whatsapp_number ?? "").replace(/\D/g, "").slice(0, 10) : "",
         bank_account_holder: f.registration_mode === "whatsapp" ? (f.bank_account_holder || "") : f.bank_account_holder,
         price_inr: Number(f.price_inr),
@@ -591,19 +581,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           <In type="number" placeholder="Enter maximum participants" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
         </FieldRow>
       </div>
-      <FieldRow label="Registration Redirect URL (optional)">
-        <In
-          type="url"
-          inputMode="url"
-          pattern="https?://.*"
-          placeholder="https://www.shorofficial.in/hub/classes/66"
-          v={f.registration_redirect_url}
-          on={(v) => setF({ ...f, registration_redirect_url: v })}
-        />
-      </FieldRow>
-      <p className="text-[11px] text-muted-foreground">
-        If provided, users will be redirected to this URL when they click Register Now for this workshop.
-      </p>
     </div>
   );
 
@@ -809,8 +786,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           </FieldRow>
           <FieldRow label="Bank Account Holder Name *">
             <In placeholder="Enter bank account holder name (e.g. Tejas D Dhoke)"
-              v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })}
-              required={!normalizeRegistrationRedirectUrl(f.registration_redirect_url)} />
+              v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
           </FieldRow>
           <p className="text-[11px] text-muted-foreground">UPI ID stored encrypted. Holder name is shown below the UPI ID on the payment page so students can verify the recipient before paying.</p>
           {!f.id && !payerDefaults && (
@@ -844,7 +820,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           v={f.whatsapp_number}
           on={(v) => setF({ ...f, whatsapp_number: sanitizePhone(v) })}
           maxLength={10}
-          required={!normalizeRegistrationRedirectUrl(f.registration_redirect_url)}
+          required
         />
       </FieldRow>
       <p className="text-[11px] text-muted-foreground">
@@ -866,7 +842,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         <SummaryRow label="On-the-spot" value={f.spot_registration_enabled && f.spot_price_inr ? `₹${f.spot_price_inr}` : "Off"} />
         <SummaryRow label="Silver Seat" value={f.silver_seat_enabled ? `₹${f.silver_seat_price || 1000}` : "Off"} />
         <SummaryRow label="Both workshops" value={f.allow_both && f.both_price ? `₹${f.both_price}` : "Not configured"} />
-        <SummaryRow label="Registration" value={f.registration_redirect_url ? `External · ${f.registration_redirect_url}` : f.registration_mode === "whatsapp" ? `WhatsApp · ${f.whatsapp_number || "—"}` : "Online payment"} />
+        <SummaryRow label="Registration" value={f.registration_mode === "whatsapp" ? `WhatsApp · ${f.whatsapp_number || "—"}` : "Online payment"} />
       </div>
       {f.banner_preview && (
         <img src={f.banner_preview} alt="" className="w-full max-h-48 object-contain rounded-xl border border-border bg-muted" />

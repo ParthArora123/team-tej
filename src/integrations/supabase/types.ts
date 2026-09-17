@@ -969,7 +969,6 @@ export type Database = {
           published: boolean
           registration_mode: string
           registration_open_on: string | null
-          registration_redirect_url: string | null
           seats: number | null
           seats_taken: number
           session_schedule: Json
@@ -1017,7 +1016,6 @@ export type Database = {
           published?: boolean
           registration_mode?: string
           registration_open_on?: string | null
-          registration_redirect_url?: string | null
           seats?: number | null
           seats_taken?: number
           session_schedule?: Json
@@ -1065,7 +1063,6 @@ export type Database = {
           published?: boolean
           registration_mode?: string
           registration_open_on?: string | null
-          registration_redirect_url?: string | null
           seats?: number | null
           seats_taken?: number
           session_schedule?: Json
@@ -1459,7 +1456,6 @@ export type Database = {
           published: boolean | null
           registration_mode: string | null
           registration_open_on: string | null
-          registration_redirect_url: string | null
           seats_taken: number | null
           session_schedule: Json | null
           silver_capacity_w1: number | null
@@ -1503,7 +1499,6 @@ export type Database = {
           published?: boolean | null
           registration_mode?: string | null
           registration_open_on?: string | null
-          registration_redirect_url?: string | null
           seats_taken?: number | null
           session_schedule?: Json | null
           silver_capacity_w1?: number | null
@@ -1547,7 +1542,6 @@ export type Database = {
           published?: boolean | null
           registration_mode?: string | null
           registration_open_on?: string | null
-          registration_redirect_url?: string | null
           seats_taken?: number | null
           session_schedule?: Json | null
           silver_capacity_w1?: number | null
