@@ -5,11 +5,14 @@ import { isSpotPricingActive } from "@/lib/spot-pricing";
 const PUBLIC_COLS =
   "id,kind,name,description,banner_url,banner_path,banner_video_path,banner_gif_path,event_date,event_time,venue,city,instructor,duration,capacity,seats_taken,price_inr,registration_open_on,category,style,published,silver_seat_enabled,silver_seat_price,allow_single,allow_both,both_price,workshop1_name,workshop2_name,silver_capacity_w1,silver_capacity_w2,session_schedule,registration_mode,whatsapp_number,spot_registration_enabled,spot_price_inr,registration_redirect_url,created_at";
 
-const LEGACY_PUBLIC_COLS = PUBLIC_COLS.replace(",session_schedule", "").replace(",registration_mode", "").replace(",whatsapp_number", "");
-const NO_MODE_PUBLIC_COLS = PUBLIC_COLS.replace(",registration_mode", "").replace(",whatsapp_number", "");
-const NO_WA_PUBLIC_COLS = PUBLIC_COLS.replace(",whatsapp_number", "");
-const NO_SPOT_PUBLIC_COLS = PUBLIC_COLS.replace(",spot_registration_enabled,spot_price_inr", "");
-const NO_REDIRECT_PUBLIC_COLS = PUBLIC_COLS.replace(",registration_redirect_url", "");
+const OPTIONAL_PUBLIC_DEFAULTS: Record<string, unknown> = {
+  session_schedule: [],
+  registration_mode: "online",
+  whatsapp_number: null,
+  spot_registration_enabled: false,
+  spot_price_inr: null,
+  registration_redirect_url: null,
+};
 const BANNER_TTL = 60 * 60 * 24 * 7;
 
 function publicClient() {
@@ -66,40 +69,30 @@ async function selectPrograms(kind?: string, id?: string) {
     return query;
   };
 
-  let result = await run(PUBLIC_COLS);
-  if (result.error?.code === "42703" && result.error.message?.includes("registration_redirect_url")) {
-    result = await run(NO_REDIRECT_PUBLIC_COLS);
-    if (result.data) {
-      result.data = result.data.map((row: any) => ({ ...row, registration_redirect_url: null }));
-    }
+  let columns = PUBLIC_COLS.split(",");
+  const omitted = new Set<string>();
+  let result = await run(columns.join(","));
+
+  // Published deployments can briefly use an older public view while a newer
+  // app bundle already requests additive fields. Retry without each missing
+  // optional field, including when several additions are absent at once.
+  while (result.error?.code === "42703") {
+    const missing = Object.keys(OPTIONAL_PUBLIC_DEFAULTS).find((column) =>
+      result.error?.message?.includes(column),
+    );
+    if (!missing || omitted.has(missing)) break;
+    omitted.add(missing);
+    columns = columns.filter((column) => column !== missing);
+    result = await run(columns.join(","));
   }
-  if (result.error?.code === "42703" && result.error.message?.includes("spot_")) {
-    result = await run(NO_SPOT_PUBLIC_COLS);
-    if (result.data) {
-      result.data = result.data.map((row: any) => ({
-        ...row,
-        spot_registration_enabled: false,
-        spot_price_inr: null,
-      }));
-    }
-  }
-  if (result.error?.code === "42703" && result.error.message?.includes("whatsapp_number")) {
-    result = await run(NO_WA_PUBLIC_COLS);
-    if (result.data) {
-      result.data = result.data.map((row: any) => ({ ...row, whatsapp_number: null }));
-    }
-  }
-  if (result.error?.code === "42703" && result.error.message?.includes("registration_mode")) {
-    result = await run(NO_MODE_PUBLIC_COLS);
-    if (result.data) {
-      result.data = result.data.map((row: any) => ({ ...row, registration_mode: "online" }));
-    }
-  }
-  if (result.error?.code === "42703" && result.error.message?.includes("session_schedule")) {
-    result = await run(LEGACY_PUBLIC_COLS);
-    if (result.data) {
-      result.data = result.data.map((row: any) => ({ ...row, session_schedule: [], registration_mode: "online" }));
-    }
+
+  if (result.data && omitted.size) {
+    result.data = result.data.map((row: any) => {
+      const defaults = Object.fromEntries(
+        [...omitted].map((column) => [column, OPTIONAL_PUBLIC_DEFAULTS[column]]),
+      );
+      return { ...row, ...defaults };
+    });
   }
   return result;
 }
