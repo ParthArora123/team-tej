@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789664479227,
+      "tag": "0000_add_workshop_registration_redirect_url",
+      "breakpoints": true
+    }
+  ]
+}
