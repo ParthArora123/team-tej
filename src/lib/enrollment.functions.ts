@@ -546,7 +546,7 @@ const workshopSchema = z.object({
       });
     }
   }
-  if (val.registration_mode !== "whatsapp" && !String(val.bank_account_holder ?? "").trim()) {
+  if (!redirectUrl && val.registration_mode !== "whatsapp" && !String(val.bank_account_holder ?? "").trim()) {
     ctx.addIssue({
       code: z.ZodIssueCode.too_small,
       minimum: 2,
@@ -556,7 +556,7 @@ const workshopSchema = z.object({
       message: "Bank account holder name is required for online payment.",
     });
   }
-  if (val.registration_mode === "whatsapp") {
+  if (!redirectUrl && val.registration_mode === "whatsapp") {
     const digits = String(val.whatsapp_number ?? "").replace(/\D/g, "");
     if (!/^[0-9]{10}$/.test(digits)) {
       ctx.addIssue({

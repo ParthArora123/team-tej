@@ -462,7 +462,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enter a valid HTTP or HTTPS registration redirect URL.");
       return;
     }
-    if (f.registration_mode === "whatsapp" && !/^[0-9]{10}$/.test(String(f.whatsapp_number ?? "").replace(/\D/g, ""))) {
+    if (!normalizeRegistrationRedirectUrl(f.registration_redirect_url) && f.registration_mode === "whatsapp" && !/^[0-9]{10}$/.test(String(f.whatsapp_number ?? "").replace(/\D/g, ""))) {
       toast.error("Enter a valid 10-digit WhatsApp number for WhatsApp registration.");
       return;
     }
@@ -806,7 +806,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           </FieldRow>
           <FieldRow label="Bank Account Holder Name *">
             <In placeholder="Enter bank account holder name (e.g. Tejas D Dhoke)"
-              v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })} required />
+              v={f.bank_account_holder} on={(v) => setF({ ...f, bank_account_holder: v })}
+              required={!normalizeRegistrationRedirectUrl(f.registration_redirect_url)} />
           </FieldRow>
           <p className="text-[11px] text-muted-foreground">UPI ID stored encrypted. Holder name is shown below the UPI ID on the payment page so students can verify the recipient before paying.</p>
           {!f.id && !payerDefaults && (
@@ -840,7 +841,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           v={f.whatsapp_number}
           on={(v) => setF({ ...f, whatsapp_number: sanitizePhone(v) })}
           maxLength={10}
-          required
+          required={!normalizeRegistrationRedirectUrl(f.registration_redirect_url)}
         />
       </FieldRow>
       <p className="text-[11px] text-muted-foreground">
