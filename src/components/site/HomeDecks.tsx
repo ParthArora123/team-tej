@@ -8,6 +8,7 @@ import { playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo } from "@
 import { pickVideoSource } from "@/lib/video-source";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 import { effectiveSinglePrice } from "@/lib/spot-pricing";
+import { openRegistrationRedirect } from "@/lib/registration-redirect";
 
 function ReelVideo({
   src,
@@ -204,7 +205,9 @@ export function WorkshopDeck({ workshops }: { workshops: any[] }) {
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {workshops.map((w) => (
-          <WorkshopCard key={w.id} w={w} onRegister={(ws) => setSel(toEnroll(ws))} />
+          <WorkshopCard key={w.id} w={w} onRegister={(ws) => {
+            if (!openRegistrationRedirect(ws.registration_redirect_url)) setSel(toEnroll(ws));
+          }} />
         ))}
       </div>
       <EnrollDialog klass={sel} onClose={() => setSel(null)} />

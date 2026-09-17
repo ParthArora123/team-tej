@@ -510,6 +510,7 @@ const workshopSchema = z.object({
   style: z.string().optional(),
   published: z.boolean().default(false),
   registration_mode: z.enum(["online", "whatsapp"]).default("online"),
+  registration_redirect_url: z.string().trim().max(2048).optional().or(z.literal("")).nullable(),
   whatsapp_number: z.string().max(20).optional().or(z.literal("")).nullable(),
   spot_registration_enabled: z.boolean().optional(),
   spot_price_inr: z.number().int().min(0).optional().nullable(),
@@ -532,7 +533,20 @@ const workshopSchema = z.object({
   // show a UPI/payment step, so no payee name needs to be collected.
   bank_account_holder: z.string().max(120).optional().or(z.literal("")),
 }).superRefine((val, ctx) => {
-  if (val.registration_mode !== "whatsapp" && !String(val.bank_account_holder ?? "").trim()) {
+  const redirectUrl = String(val.registration_redirect_url ?? "").trim();
+  if (redirectUrl) {
+    try {
+      const parsed = new URL(redirectUrl);
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") throw new Error("Unsupported protocol");
+    } catch {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["registration_redirect_url"],
+        message: "Enter a valid HTTP or HTTPS registration redirect URL.",
+      });
+    }
+  }
+  if (!redirectUrl && val.registration_mode !== "whatsapp" && !String(val.bank_account_holder ?? "").trim()) {
     ctx.addIssue({
       code: z.ZodIssueCode.too_small,
       minimum: 2,
@@ -542,7 +556,7 @@ const workshopSchema = z.object({
       message: "Bank account holder name is required for online payment.",
     });
   }
-  if (val.registration_mode === "whatsapp") {
+  if (!redirectUrl && val.registration_mode === "whatsapp") {
     const digits = String(val.whatsapp_number ?? "").replace(/\D/g, "");
     if (!/^[0-9]{10}$/.test(digits)) {
       ctx.addIssue({
@@ -591,6 +605,7 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
         .map((s) => ({ time: (s.time ?? "").trim(), name: (s.name ?? "").trim() }))
         .filter((s) => s.time || s.name),
       registration_mode: rest.registration_mode === "whatsapp" ? "whatsapp" : "online",
+      registration_redirect_url: rest.registration_redirect_url?.trim() || null,
       whatsapp_number: rest.registration_mode === "whatsapp"
         ? String(rest.whatsapp_number ?? "").replace(/\D/g, "").slice(0, 10) || null
         : null,
@@ -706,7 +721,7 @@ export const adminListWorkshops = createServerFn({ method: "GET" })
       "allow_single", "allow_both", "both_price", "workshop1_name", "workshop2_name",
       "silver_capacity_w1", "silver_capacity_w2", "venue_address", "maps_url",
       "latitude", "longitude", "session_schedule", "registration_mode", "whatsapp_number",
-      "spot_registration_enabled", "spot_price_inr",
+      "spot_registration_enabled", "spot_price_inr", "registration_redirect_url",
     ].join(", ")).order("created_at", { ascending: false });
     if (error) throw error;
     // Payment details are intentionally not returned by this list endpoint.
