@@ -509,7 +509,7 @@ const workshopSchema = z.object({
   category: z.string().optional(),
   style: z.string().optional(),
   published: z.boolean().default(false),
-  registration_mode: z.enum(["online", "whatsapp"]).default("online"),
+  registration_mode: z.enum(["online", "whatsapp", "external"]).default("online"),
   whatsapp_number: z.string().max(20).optional().or(z.literal("")).nullable(),
   registration_redirect_url: z.string().trim().url("Enter a valid registration redirect URL.")
     .refine((value) => value.startsWith("https://") || value.startsWith("http://"), {
@@ -544,7 +544,14 @@ const workshopSchema = z.object({
       });
     }
   }
-  const usesInternalRegistration = !val.registration_redirect_url?.trim();
+  if (val.registration_mode === "external" && !val.registration_redirect_url?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["registration_redirect_url"],
+      message: "Enter a Registration Redirect URL for External Link registration.",
+    });
+  }
+  const usesInternalRegistration = val.registration_mode === "online";
   if (usesInternalRegistration && val.spot_registration_enabled && (!val.spot_price_inr || val.spot_price_inr <= 0)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -583,7 +590,7 @@ export const adminSaveWorkshop = createServerFn({ method: "POST" })
       session_schedule: (rest.session_schedule ?? [])
         .map((s) => ({ time: (s.time ?? "").trim(), name: (s.name ?? "").trim() }))
         .filter((s) => s.time || s.name),
-      registration_mode: rest.registration_mode === "whatsapp" ? "whatsapp" : "online",
+      registration_mode: rest.registration_mode,
       whatsapp_number: rest.registration_mode === "whatsapp"
         ? String(rest.whatsapp_number ?? "").replace(/\D/g, "").slice(0, 10) || null
         : null,

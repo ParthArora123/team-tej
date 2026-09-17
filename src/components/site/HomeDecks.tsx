@@ -79,6 +79,11 @@ function ReelVideo({
 
 function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void }) {
   const hasImage = !!w.banner_url;
+  const isExternalMode = w.registration_mode === "external";
+  const redirectUrl = isExternalMode
+    ? getRegistrationRedirectUrl(w.registration_redirect_url)
+    : null;
+  const externalRegistrationUnavailable = isExternalMode && !redirectUrl;
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1">
@@ -169,15 +174,16 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
             </Link>
             <button
               type="button"
+              disabled={externalRegistrationUnavailable}
+              title={externalRegistrationUnavailable ? "External registration link is not configured." : undefined}
               onClick={() => {
-                const redirectUrl = getRegistrationRedirectUrl(w.registration_redirect_url);
                 if (redirectUrl) {
                   window.location.assign(redirectUrl);
                   return;
                 }
                 onRegister(w);
               }}
-              className="inline-flex items-center rounded-full bg-primary px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground transition-all hover:opacity-90"
+              className="inline-flex items-center rounded-full bg-primary px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
             >
               Register
             </button>
