@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Calendar, MapPin, User, Users, Clock, Sparkles, Ticket } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
 import { idbGet, idbSet } from "@/lib/idb-cache";
 
 const WORKSHOPS_CACHE_KEY = "programs:workshop";
@@ -90,7 +89,7 @@ function WorkshopsPage() {
   const [loaded, setLoaded] = useState(false);
 
   const load = () => {
-    cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
+    fetchPrograms({ data: { kind: "workshop" } })
       .then((fresh: any) => {
         setRows(sortWorkshopsByDateDesc(fresh ?? []));
         void idbSet(WORKSHOPS_CACHE_KEY, fresh);
@@ -108,11 +107,8 @@ function WorkshopsPage() {
       }
     });
     load();
-    // Refocus should show live seat counts, so bypass the cache here.
-    const onFocus = () => {
-      invalidateCachedCall("programs:workshop");
-      load();
-    };
+    // Refocus should show newly created workshops and live seat counts.
+    const onFocus = () => load();
     window.addEventListener("focus", onFocus);
     return () => {
       cancelled = true;
