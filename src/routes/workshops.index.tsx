@@ -7,6 +7,7 @@ import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
 import { idbGet, idbSet } from "@/lib/idb-cache";
 
 const WORKSHOPS_CACHE_KEY = "programs:workshop";
+const WORKSHOPS_CACHE_VERSION = "2";
 
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
@@ -93,7 +94,7 @@ function WorkshopsPage() {
     cachedCall("programs:workshop", () => fetchPrograms({ data: { kind: "workshop" } }))
       .then((fresh: any) => {
         setRows(sortWorkshopsByDateDesc(fresh ?? []));
-        void idbSet(WORKSHOPS_CACHE_KEY, fresh);
+        void idbSet(WORKSHOPS_CACHE_KEY, fresh, WORKSHOPS_CACHE_VERSION);
       })
       .catch(() => {})
       .finally(() => setLoaded(true));
@@ -101,7 +102,10 @@ function WorkshopsPage() {
   useEffect(() => {
     // Cache-first: paint the last known list instantly, then revalidate.
     let cancelled = false;
-    idbGet<any[]>(WORKSHOPS_CACHE_KEY, { maxAgeMs: 24 * 60 * 60_000 }).then((cached) => {
+    idbGet<any[]>(WORKSHOPS_CACHE_KEY, {
+      maxAgeMs: 24 * 60 * 60_000,
+      version: WORKSHOPS_CACHE_VERSION,
+    }).then((cached) => {
       if (!cancelled && cached?.length) {
         setRows((current) => (current.length ? current : sortWorkshopsByDateDesc(cached)));
         setLoaded(true);
