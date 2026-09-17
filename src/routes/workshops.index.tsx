@@ -14,6 +14,7 @@ import { listPrograms } from "@/lib/catalog.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 import { sortWorkshopsByDateDesc } from "@/lib/workshop-order";
 import { effectiveSinglePrice } from "@/lib/spot-pricing";
+import { getRegistrationRedirectUrl } from "@/lib/registration-redirect";
 
 import { WorkshopHero } from "@/components/site/WorkshopHero";
 import { WorkshopGallery } from "@/components/site/WorkshopGallery";
@@ -162,6 +163,25 @@ function WorkshopsPage() {
             const full = seatsLeft === 0;
             const silverPrice = r.silver_seat_price ?? 1000;
             const scarcity = seatsLeft != null && seatsLeft <= 5 && !full;
+            const isExternalMode = r.registration_mode === "external";
+            const redirectUrl = isExternalMode
+              ? getRegistrationRedirectUrl(r.registration_redirect_url)
+              : null;
+            const externalRegistrationUnavailable = isExternalMode && !redirectUrl;
+            const toEnroll = (): EnrollClass => ({
+              id: r.id,
+              name: r.name,
+              price: effectiveSinglePrice(r),
+              duration: r.duration ?? "",
+              silverSeatEnabled: !!r.silver_seat_enabled,
+              silverSeatPrice: r.silver_seat_price ?? 1000,
+              allowSingle: r.allow_single !== false,
+              allowBoth: !!r.allow_both,
+              bothPrice: r.both_price ?? null,
+              workshop1Name: r.workshop1_name ?? null,
+              workshop2Name: r.workshop2_name ?? null,
+              eventTime: r.event_time ?? null,
+            });
             return (
                 <div
                   key={r.id}
@@ -222,10 +242,31 @@ function WorkshopsPage() {
                           ₹{effectiveSinglePrice(r).toLocaleString("en-IN")}
                         </p>
                       </div>
-                      <Link to="/workshops/$id" params={{ id: r.id }}
-                        className="px-5 py-2.5 rounded-xl border border-border/70 text-sm hover:bg-muted/60 backdrop-blur transition-colors">
-                        Details
-                      </Link>
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <Link to="/workshops/$id" params={{ id: r.id }}
+                          className="px-4 py-2.5 rounded-xl border border-border/70 text-sm hover:bg-muted/60 backdrop-blur transition-colors">
+                          Details
+                        </Link>
+                        <button
+                          type="button"
+                          disabled={full || externalRegistrationUnavailable}
+                          title={externalRegistrationUnavailable ? "External registration link is not configured." : undefined}
+                          onClick={() => {
+                            if (isExternalMode) {
+                              if (redirectUrl) window.location.assign(redirectUrl);
+                              return;
+                            }
+                            if (r.registration_mode === "whatsapp") {
+                              window.location.assign(`/workshops/${r.id}`);
+                              return;
+                            }
+                            setSel(toEnroll());
+                          }}
+                          className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45"
+                        >
+                          {full ? "Sold Out" : externalRegistrationUnavailable ? "Unavailable" : "Register Now"}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
