@@ -942,7 +942,7 @@ function WorkshopDetailPage() {
         </section>
       )}
 
-      <section className="relative py-14 md:py-24">
+      {!registrationRedirectUrl && <section className="relative py-14 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Event Logistics" title="Gathering Details" />
           <div className="mt-8 md:mt-14 grid md:grid-cols-3 gap-4 md:gap-6">
@@ -979,7 +979,7 @@ function WorkshopDetailPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {sessions.length > 0 && !isWhatsappMode && (
         <section className="relative py-14 md:py-24">

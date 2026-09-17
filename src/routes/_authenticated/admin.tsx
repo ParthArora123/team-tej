@@ -593,6 +593,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         <In
           type="url"
           inputMode="url"
+          pattern="https?://.*"
           placeholder="https://www.shorofficial.in/hub/classes/66"
           v={f.registration_redirect_url}
           on={(v) => setF({ ...f, registration_redirect_url: v })}
