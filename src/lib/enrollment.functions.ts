@@ -532,20 +532,8 @@ const workshopSchema = z.object({
   })).max(20).optional().nullable(),
   upi_id: z.string().max(120).optional().or(z.literal("")),
   clear_upi: z.boolean().optional(),
-  // Only required for the online-payment flow; WhatsApp-mode workshops never
-  // show a UPI/payment step, so no payee name needs to be collected.
   bank_account_holder: z.string().max(120).optional().or(z.literal("")),
 }).superRefine((val, ctx) => {
-  if (val.registration_mode !== "whatsapp" && !String(val.bank_account_holder ?? "").trim()) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.too_small,
-      minimum: 2,
-      type: "string",
-      inclusive: true,
-      path: ["bank_account_holder"],
-      message: "Bank account holder name is required for online payment.",
-    });
-  }
   if (val.registration_mode === "whatsapp") {
     const digits = String(val.whatsapp_number ?? "").replace(/\D/g, "");
     if (!/^[0-9]{10}$/.test(digits)) {
