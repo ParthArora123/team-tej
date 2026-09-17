@@ -168,7 +168,14 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
             </Link>
             <button
               type="button"
-              onClick={() => onRegister(w)}
+              onClick={() => {
+                const redirectUrl = String(w.registration_redirect_url ?? "").trim();
+                if (redirectUrl) {
+                  window.location.assign(redirectUrl);
+                  return;
+                }
+                onRegister(w);
+              }}
               className="inline-flex items-center rounded-full bg-primary px-3.5 py-2 text-[11px] font-semibold uppercase tracking-wider text-primary-foreground transition-all hover:opacity-90"
             >
               Register

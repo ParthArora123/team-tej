@@ -704,6 +704,7 @@ function WorkshopDetailPage() {
   // single-workshop events; fall back to the program title otherwise.
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const isWhatsappMode = (program as any).registration_mode === "whatsapp";
+  const registrationRedirectUrl = String((program as any).registration_redirect_url ?? "").trim();
   const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, (program as any).event_date, (program as any).city, (program as any).whatsapp_number) : null;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0
     ? configuredNames.map((name, index) => {
@@ -745,6 +746,10 @@ function WorkshopDetailPage() {
   // a WhatsApp chat pre-filled with the workshop name. Online mode keeps the
   // existing scroll-to-form behaviour untouched.
   const handleRegisterClick = () => {
+    if (registrationRedirectUrl) {
+      window.location.assign(registrationRedirectUrl);
+      return;
+    }
     if (isWhatsappMode) {
       if (registerWaUrl) window.open(registerWaUrl, "_blank", "noopener,noreferrer");
       return;
@@ -1132,6 +1137,10 @@ function WorkshopDetailPage() {
               type="button"
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
               onClick={() => {
+                if (registrationRedirectUrl) {
+                  window.location.assign(registrationRedirectUrl);
+                  return;
+                }
                 scrollToRegister();
                 setTimeout(() => {
                   window.dispatchEvent(new CustomEvent("enroll:add-silver", { detail: { programId: program.id, which: "w1" } }));
@@ -1251,7 +1260,16 @@ function WorkshopDetailPage() {
       <section id="register" className="relative py-24 scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Secure Your Seat" title="Register Now" />
-          {isWhatsappMode ? (
+          {registrationRedirectUrl ? (
+            <div className="mt-12 max-w-xl mx-auto">
+              <a
+                href={registrationRedirectUrl}
+                className="group relative flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-5 text-base font-black tracking-wide uppercase text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Continue to registration
+              </a>
+            </div>
+          ) : isWhatsappMode ? (
             <>
               <p className="mt-4 text-center text-primary/60 text-sm max-w-xl mx-auto">
                 Tap below to chat with us on WhatsApp — we'll confirm your seat and share the payment details there.
