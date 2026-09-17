@@ -457,7 +457,8 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!f.allow_single && !f.allow_both) {
+    const usesInternalRegistration = f.registration_destination === "online";
+    if (usesInternalRegistration && !f.allow_single && !f.allow_both) {
       toast.error("Enable at least one registration option (Single or Both).");
       return;
     }
@@ -481,7 +482,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         return;
       }
     }
-    if (f.spot_registration_enabled && (!f.spot_price_inr || Number(f.spot_price_inr) <= 0)) {
+    if (usesInternalRegistration && f.spot_registration_enabled && (!f.spot_price_inr || Number(f.spot_price_inr) <= 0)) {
       toast.error("Enter a valid On-the-Spot amount greater than ₹0.");
       return;
     }
@@ -689,7 +690,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       {f.spot_registration_enabled && (
         <>
           <FieldRow label="On-the-Spot Amount (₹)">
-            <In type="number" min="1" required placeholder="Enter On-the-Spot amount" v={f.spot_price_inr} on={(v) => setF({ ...f, spot_price_inr: v })} />
+            <In type="number" min="1" required={f.registration_destination === "online"} placeholder="Enter On-the-Spot amount" v={f.spot_price_inr} on={(v) => setF({ ...f, spot_price_inr: v })} />
           </FieldRow>
           <p className="text-[11px] text-muted-foreground">Used only on the workshop date. The original Single Workshop Price stays unchanged.</p>
         </>

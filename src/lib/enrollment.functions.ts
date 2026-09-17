@@ -544,7 +544,8 @@ const workshopSchema = z.object({
       });
     }
   }
-  if (val.spot_registration_enabled && (!val.spot_price_inr || val.spot_price_inr <= 0)) {
+  const usesInternalRegistration = !val.registration_redirect_url?.trim();
+  if (usesInternalRegistration && val.spot_registration_enabled && (!val.spot_price_inr || val.spot_price_inr <= 0)) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["spot_price_inr"],
