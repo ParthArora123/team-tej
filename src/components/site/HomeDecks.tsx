@@ -79,10 +79,11 @@ function ReelVideo({
 
 function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void }) {
   const hasImage = !!w.banner_url;
-  const isExternalMode = w.registration_mode === "external";
-  const redirectUrl = isExternalMode
-    ? getRegistrationRedirectUrl(w.registration_redirect_url)
-    : null;
+  const redirectUrl = getRegistrationRedirectUrl(w.registration_redirect_url);
+  // Older published workshop feeds may expose the redirect URL before they
+  // expose the newer "external" mode value. A valid saved URL is therefore
+  // also sufficient to identify the existing External registration choice.
+  const isExternalMode = w.registration_mode === "external" || !!redirectUrl;
   const externalRegistrationUnavailable = isExternalMode && !redirectUrl;
 
   return (

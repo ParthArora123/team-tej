@@ -705,10 +705,10 @@ function WorkshopDetailPage() {
   // single-workshop events; fall back to the program title otherwise.
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const isWhatsappMode = (program as any).registration_mode === "whatsapp";
-  const isExternalMode = (program as any).registration_mode === "external";
-  const registrationRedirectUrl = isExternalMode
-    ? getRegistrationRedirectUrl((program as any).registration_redirect_url)
-    : null;
+  const registrationRedirectUrl = getRegistrationRedirectUrl((program as any).registration_redirect_url);
+  // Support workshops saved while External mode was represented by its URL
+  // alone, before the public feed exposed the explicit mode value.
+  const isExternalMode = (program as any).registration_mode === "external" || !!registrationRedirectUrl;
   const externalRegistrationUnavailable = isExternalMode && !registrationRedirectUrl;
   const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, (program as any).event_date, (program as any).city, (program as any).whatsapp_number) : null;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0

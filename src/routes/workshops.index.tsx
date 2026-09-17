@@ -7,7 +7,7 @@ import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
 import { idbGet, idbSet } from "@/lib/idb-cache";
 
 const WORKSHOPS_CACHE_KEY = "programs:workshop";
-const WORKSHOPS_CACHE_VERSION = "2";
+const WORKSHOPS_CACHE_VERSION = "3";
 
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
@@ -163,10 +163,10 @@ function WorkshopsPage() {
             const full = seatsLeft === 0;
             const silverPrice = r.silver_seat_price ?? 1000;
             const scarcity = seatsLeft != null && seatsLeft <= 5 && !full;
-            const isExternalMode = r.registration_mode === "external";
-            const redirectUrl = isExternalMode
-              ? getRegistrationRedirectUrl(r.registration_redirect_url)
-              : null;
+            const redirectUrl = getRegistrationRedirectUrl(r.registration_redirect_url);
+            // Keep workshops saved during the rollout working when the public
+            // feed has the URL but still returns the older mode value.
+            const isExternalMode = r.registration_mode === "external" || !!redirectUrl;
             const externalRegistrationUnavailable = isExternalMode && !redirectUrl;
             const toEnroll = (): EnrollClass => ({
               id: r.id,
