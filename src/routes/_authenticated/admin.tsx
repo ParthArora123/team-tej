@@ -506,7 +506,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         registration_mode: f.registration_destination,
         whatsapp_number: f.registration_destination === "whatsapp" ? String(f.whatsapp_number ?? "").replace(/\D/g, "").slice(0, 10) : "",
         registration_redirect_url: redirectUrl || null,
-        bank_account_holder: f.registration_mode === "whatsapp" ? (f.bank_account_holder || "") : f.bank_account_holder,
+        bank_account_holder: f.registration_destination === "whatsapp" ? (f.bank_account_holder || "") : f.bank_account_holder,
         price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
         silver_seat_price: f.silver_seat_enabled ? Number(f.silver_seat_price || 1000) : 1000,
