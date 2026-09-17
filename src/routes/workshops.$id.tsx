@@ -706,7 +706,6 @@ function WorkshopDetailPage() {
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const isWhatsappMode = (program as any).registration_mode === "whatsapp";
   const isExternalMode = (program as any).registration_mode === "external";
-  const usesDirectRegistration = isWhatsappMode || isExternalMode;
   const registrationRedirectUrl = isExternalMode
     ? getRegistrationRedirectUrl((program as any).registration_redirect_url)
     : null;
@@ -748,8 +747,9 @@ function WorkshopDetailPage() {
     void el.offsetWidth;
     el.classList.add("register-flash");
   };
-  // Direct registration modes skip the online form. Their only difference is
-  // the final destination: WhatsApp opens chat; External uses its saved URL.
+  // In WhatsApp mode, "Register Now" skips the online form entirely and opens
+  // a WhatsApp chat pre-filled with the workshop name. Online mode keeps the
+  // existing scroll-to-form behaviour untouched.
   const handleRegisterClick = () => {
     if (isExternalMode) {
       if (registrationRedirectUrl) window.location.assign(registrationRedirectUrl);
@@ -989,7 +989,7 @@ function WorkshopDetailPage() {
         </div>
       </section>
 
-      {sessions.length > 0 && !usesDirectRegistration && (
+      {sessions.length > 0 && !isWhatsappMode && !isExternalMode && (
         <section className="relative py-14 md:py-24">
           <div className="max-w-4xl mx-auto px-5 sm:px-6">
             <SectionHeader eyebrow="Class Timings" title="Session Schedule" />
@@ -1026,7 +1026,7 @@ function WorkshopDetailPage() {
 
 
 
-      {!usesDirectRegistration && <section className="relative py-14 md:py-24">
+      {!isWhatsappMode && !isExternalMode && <section className="relative py-14 md:py-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />
 
@@ -1262,33 +1262,53 @@ function WorkshopDetailPage() {
       <section id="register" className="relative py-24 scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Secure Your Seat" title="Register Now" />
-          {usesDirectRegistration ? (
+          {isExternalMode ? (
             <>
               <p className="mt-4 text-center text-primary/60 text-sm max-w-xl mx-auto">
-                {isWhatsappMode
-                  ? "Tap below to chat with us on WhatsApp — we'll confirm your seat and share the payment details there."
-                  : "Tap below to continue to this workshop's registration page."}
+                Tap below to continue to this workshop's registration page.
               </p>
               <div className="mt-12 max-w-xl mx-auto">
                 {full ? (
                   <div className="text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70">
                     This workshop is sold out.
                   </div>
-                ) : (isWhatsappMode ? registerWaUrl : registrationRedirectUrl) ? (
+                ) : registrationRedirectUrl ? (
                   <a
-                    href={(isWhatsappMode ? registerWaUrl : registrationRedirectUrl) ?? undefined}
-                    target={isWhatsappMode ? "_blank" : undefined}
-                    rel={isWhatsappMode ? "noreferrer" : undefined}
-                    className="group relative flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-5 text-base font-black tracking-wide uppercase text-primary-foreground transition-transform hover:scale-[1.02]"
+                    href={registrationRedirectUrl}
+                    className="group relative flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-5 text-base font-black tracking-wide uppercase text-primary-foreground shadow-[0_20px_60px_-10px_rgba(231,223,206,0.55)] hover:scale-[1.02] transition-transform"
                   >
-                    {isWhatsappMode && <WhatsAppIcon size={22} />}
-                    {isWhatsappMode ? "Register via WhatsApp" : "Register Now"}
+                    Register Now
                   </a>
                 ) : (
                   <div className="text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70 text-sm">
-                    {isWhatsappMode
-                      ? "WhatsApp registration isn't set up yet — please reach out via the contact details above."
-                      : "External registration isn't set up yet — please reach out via the contact details above."}
+                    External registration isn't set up yet — please reach out via the contact details above.
+                  </div>
+                )}
+              </div>
+            </>
+          ) : isWhatsappMode ? (
+            <>
+              <p className="mt-4 text-center text-primary/60 text-sm max-w-xl mx-auto">
+                Tap below to chat with us on WhatsApp — we'll confirm your seat and share the payment details there.
+              </p>
+              <div className="mt-12 max-w-xl mx-auto">
+                {full ? (
+                  <div className="text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70">
+                    This workshop is sold out.
+                  </div>
+                ) : registerWaUrl ? (
+                  <a
+                    href={registerWaUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group relative flex items-center justify-center gap-3 rounded-2xl bg-[#25D366] px-8 py-5 text-base font-black tracking-wide uppercase text-white shadow-[0_20px_60px_-10px_rgba(37,211,102,0.55)] hover:scale-[1.02] transition-transform"
+                  >
+                    <WhatsAppIcon size={22} />
+                    Register via WhatsApp
+                  </a>
+                ) : (
+                  <div className="text-center rounded-2xl border border-primary/30 bg-jet/60 p-10 text-primary/70 text-sm">
+                    WhatsApp registration isn't set up yet — please reach out via the contact details above.
                   </div>
                 )}
               </div>
