@@ -331,6 +331,7 @@ const emptyWs = () => ({
   registration_open_on: todayISO(),
   category: "", style: "", published: true,
   registration_mode: "online" as "online" | "whatsapp",
+  registration_destination: "online" as "online" | "whatsapp" | "external",
   whatsapp_number: "",
   registration_redirect_url: "",
   silver_seat_enabled: true,
@@ -401,6 +402,9 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       category: r.category ?? "",
       style: r.style ?? "", published: !!r.published,
       registration_mode: r.registration_mode === "whatsapp" ? "whatsapp" : "online",
+      registration_destination: r.registration_redirect_url
+        ? "external"
+        : r.registration_mode === "whatsapp" ? "whatsapp" : "online",
       whatsapp_number: r.whatsapp_number ?? "",
       registration_redirect_url: r.registration_redirect_url ?? "",
       silver_seat_enabled: !!r.silver_seat_enabled,
@@ -461,7 +465,13 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enter a valid 10-digit WhatsApp number for WhatsApp registration.");
       return;
     }
-    const redirectUrl = String(f.registration_redirect_url ?? "").trim();
+    const redirectUrl = f.registration_destination === "external"
+      ? String(f.registration_redirect_url ?? "").trim()
+      : "";
+    if (f.registration_destination === "external" && !redirectUrl) {
+      toast.error("Enter a Registration Redirect URL for External Link registration.");
+      return;
+    }
     if (redirectUrl) {
       try {
         const parsed = new URL(redirectUrl);
@@ -573,18 +583,38 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
 
   const secRegistration = (
     <div className="space-y-3">
-      <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
-        <label className="flex items-start gap-2 text-sm font-medium cursor-pointer">
-          <input type="checkbox" className="mt-0.5" checked={f.registration_mode === "whatsapp"}
-            onChange={(e) => setF({ ...f, registration_mode: e.target.checked ? "whatsapp" : "online" })} />
-          <span>
-            Register via WhatsApp instead of online payment
-            <span className="block text-[11px] font-normal text-muted-foreground">
-              Unchecked: students register and pay online (UPI QR + proof upload) — the current flow.
-              Checked: the "Register Now" button sends students straight to WhatsApp with a pre-filled message; no online payment form is shown.
-            </span>
-          </span>
-        </label>
+      <div>
+        <p className="mb-2 text-xs font-medium">Registration Method</p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3" role="radiogroup" aria-label="Registration Method">
+          {([
+            { value: "online", label: "Online", desc: "Registration and payment form" },
+            { value: "whatsapp", label: "WhatsApp", desc: "Open a WhatsApp chat" },
+            { value: "external", label: "External Link", desc: "Open another registration page" },
+          ] as const).map((option) => {
+            const selected = f.registration_destination === option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                onClick={() => setF({
+                  ...f,
+                  registration_destination: option.value,
+                  registration_mode: option.value === "whatsapp" ? "whatsapp" : "online",
+                  registration_redirect_url: option.value === "external" ? f.registration_redirect_url : "",
+                })}
+                className={`min-h-20 rounded-lg border p-3 text-left transition-colors ${selected ? "border-primary bg-primary/10" : "border-border bg-muted/30 hover:bg-muted/60"}`}
+              >
+                <span className="flex items-center gap-2 text-sm font-semibold">
+                  <span className={`h-3.5 w-3.5 rounded-full border ${selected ? "border-primary bg-primary ring-2 ring-primary/20" : "border-muted-foreground"}`} />
+                  {option.label}
+                </span>
+                <span className="mt-1 block text-[11px] font-normal text-muted-foreground">{option.desc}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <FieldRow label="Registration Open Date">
@@ -594,17 +624,22 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           <In type="number" placeholder="Enter maximum participants" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
         </FieldRow>
       </div>
-      <FieldRow label="Registration Redirect URL (optional)">
-        <In
-          type="url"
-          placeholder="https://example.com/register"
-          v={f.registration_redirect_url}
-          on={(v) => setF({ ...f, registration_redirect_url: v })}
-        />
-      </FieldRow>
-      <p className="text-[11px] text-muted-foreground">
-        If provided, users will be redirected to this URL when they click Register Now for this workshop.
-      </p>
+      {f.registration_destination === "external" && (
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3">
+          <FieldRow label="Registration Redirect URL">
+            <In
+              type="url"
+              placeholder="https://example.com/register"
+              v={f.registration_redirect_url}
+              on={(v) => setF({ ...f, registration_redirect_url: v })}
+              required
+            />
+          </FieldRow>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Users who click Register Now will open this registration page in the same tab.
+          </p>
+        </div>
+      )}
     </div>
   );
 
@@ -866,7 +901,9 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         <SummaryRow label="On-the-spot" value={f.spot_registration_enabled && f.spot_price_inr ? `₹${f.spot_price_inr}` : "Off"} />
         <SummaryRow label="Silver Seat" value={f.silver_seat_enabled ? `₹${f.silver_seat_price || 1000}` : "Off"} />
         <SummaryRow label="Both workshops" value={f.allow_both && f.both_price ? `₹${f.both_price}` : "Not configured"} />
-        <SummaryRow label="Registration" value={f.registration_mode === "whatsapp" ? `WhatsApp · ${f.whatsapp_number || "—"}` : "Online payment"} />
+        <SummaryRow label="Registration" value={f.registration_destination === "external"
+          ? `External Link · ${f.registration_redirect_url || "—"}`
+          : f.registration_mode === "whatsapp" ? `WhatsApp · ${f.whatsapp_number || "—"}` : "Online payment"} />
         <SummaryRow label="Registration redirect" value={f.registration_redirect_url?.trim() || "Internal registration flow"} />
       </div>
       {f.banner_preview && (
@@ -888,9 +925,11 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
     { id: "offers", label: "Offers / Combined", desc: "Both-workshops pass configuration", done: !f.allow_both || Number(f.both_price) > 0, node: secOffers },
     { id: "media", label: "Media", desc: "Banner, video, GIF and gallery", done: !!f.banner_preview, node: secMedia },
     { id: "location", label: "Location", desc: "Venue and city", done: !!(f.venue || f.city), node: secLocation },
-    ...(f.registration_mode === "whatsapp"
+    ...(f.registration_destination === "whatsapp"
       ? [{ id: "whatsapp", label: "WhatsApp", desc: "Recipient number for registrations", done: /^[0-9]{10}$/.test(String(f.whatsapp_number ?? "")), node: secWhatsapp } as FormSection]
-      : [{ id: "payment", label: "Payment · UPI", desc: "UPI ID and account holder", done: !!(f.bank_account_holder || (!f.id && payerDefaults)), node: secPayment } as FormSection]),
+      : f.registration_destination === "online"
+        ? [{ id: "payment", label: "Payment · UPI", desc: "UPI ID and account holder", done: !!(f.bank_account_holder || (!f.id && payerDefaults)), node: secPayment } as FormSection]
+        : []),
     { id: "preview", label: "Preview & Publish", desc: "Review everything before saving", done: true, node: secPreview },
   ];
 
