@@ -8,6 +8,7 @@ import { playHomepageVideo, prepareHomepageVideo, releaseHomepageVideo } from "@
 import { pickVideoSource } from "@/lib/video-source";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
 import { effectiveSinglePrice } from "@/lib/spot-pricing";
+import { getRegistrationRedirectUrl } from "@/lib/registration-redirect";
 
 function ReelVideo({
   src,
@@ -169,7 +170,7 @@ function WorkshopCard({ w, onRegister }: { w: any; onRegister: (w: any) => void 
             <button
               type="button"
               onClick={() => {
-                const redirectUrl = String(w.registration_redirect_url ?? "").trim();
+                const redirectUrl = getRegistrationRedirectUrl(w.registration_redirect_url);
                 if (redirectUrl) {
                   window.location.assign(redirectUrl);
                   return;

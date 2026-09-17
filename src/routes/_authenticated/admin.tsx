@@ -568,17 +568,6 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           </select>
         </FieldRow>
       </div>
-      <FieldRow label="Registration Redirect URL (optional)">
-        <In
-          type="url"
-          placeholder="https://example.com/register"
-          v={f.registration_redirect_url}
-          on={(v) => setF({ ...f, registration_redirect_url: v })}
-        />
-      </FieldRow>
-      <p className="text-[11px] text-muted-foreground">
-        If provided, users will be redirected to this URL when they click Register Now for this workshop.
-      </p>
     </div>
   );
 
@@ -605,6 +594,17 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
           <In type="number" placeholder="Enter maximum participants" v={f.capacity} on={(v) => setF({ ...f, capacity: v })} />
         </FieldRow>
       </div>
+      <FieldRow label="Registration Redirect URL (optional)">
+        <In
+          type="url"
+          placeholder="https://example.com/register"
+          v={f.registration_redirect_url}
+          on={(v) => setF({ ...f, registration_redirect_url: v })}
+        />
+      </FieldRow>
+      <p className="text-[11px] text-muted-foreground">
+        If provided, users will be redirected to this URL when they click Register Now for this workshop.
+      </p>
     </div>
   );
 

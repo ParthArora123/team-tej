@@ -12,6 +12,7 @@ import { getProgram } from "@/lib/catalog.functions";
 import { listWorkshopMedia } from "@/lib/workshop-media.functions";
 import { getSiteContent } from "@/lib/site-content.functions";
 import { EnrollDialog, type EnrollClass } from "@/components/site/EnrollDialog";
+import { getRegistrationRedirectUrl } from "@/lib/registration-redirect";
 import { getProgramPricing, type ProgramPricing } from "@/lib/pricing-tiers.functions";
 import { isSpotPricingActive } from "@/lib/spot-pricing";
 import { AnimatedCounter } from "@/components/site/AnimatedCounter";
@@ -704,7 +705,7 @@ function WorkshopDetailPage() {
   // single-workshop events; fall back to the program title otherwise.
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const isWhatsappMode = (program as any).registration_mode === "whatsapp";
-  const registrationRedirectUrl = String((program as any).registration_redirect_url ?? "").trim();
+  const registrationRedirectUrl = getRegistrationRedirectUrl((program as any).registration_redirect_url);
   const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, (program as any).event_date, (program as any).city, (program as any).whatsapp_number) : null;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0
     ? configuredNames.map((name, index) => {
