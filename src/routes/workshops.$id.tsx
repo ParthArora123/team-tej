@@ -705,7 +705,11 @@ function WorkshopDetailPage() {
   // single-workshop events; fall back to the program title otherwise.
   const displayName = !allowBoth && w1Configured ? w1Configured : program.name;
   const isWhatsappMode = (program as any).registration_mode === "whatsapp";
-  const registrationRedirectUrl = getRegistrationRedirectUrl((program as any).registration_redirect_url);
+  const isExternalMode = (program as any).registration_mode === "external";
+  const registrationRedirectUrl = isExternalMode
+    ? getRegistrationRedirectUrl((program as any).registration_redirect_url)
+    : null;
+  const externalRegistrationUnavailable = isExternalMode && !registrationRedirectUrl;
   const registerWaUrl = isWhatsappMode ? buildRegisterWaUrl(displayName, (program as any).event_date, (program as any).city, (program as any).whatsapp_number) : null;
   const sessions: { time: string; name: string }[] = configuredNames.length > 0
     ? configuredNames.map((name, index) => {
@@ -747,8 +751,8 @@ function WorkshopDetailPage() {
   // a WhatsApp chat pre-filled with the workshop name. Online mode keeps the
   // existing scroll-to-form behaviour untouched.
   const handleRegisterClick = () => {
-    if (registrationRedirectUrl) {
-      window.location.assign(registrationRedirectUrl);
+    if (isExternalMode) {
+      if (registrationRedirectUrl) window.location.assign(registrationRedirectUrl);
       return;
     }
     if (isWhatsappMode) {
@@ -859,11 +863,12 @@ function WorkshopDetailPage() {
             <div className="mt-8 flex flex-wrap gap-4">
               <button
                 onClick={handleRegisterClick}
-                disabled={full}
+                disabled={full || externalRegistrationUnavailable}
+                title={externalRegistrationUnavailable ? "External registration link is not configured." : undefined}
                 className="group relative inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-b from-primary via-primary to-accent text-primary-foreground text-sm font-black tracking-widest uppercase shadow-[0_20px_60px_-10px_rgba(231,223,206,0.6)] hover:scale-[1.03] transition-transform disabled:opacity-40 disabled:hover:scale-100"
               >
                 {isWhatsappMode ? <WhatsAppIcon size={16} /> : <Sparkles size={16} />}
-                {full ? "Sold Out" : "Register Now"}
+                {full ? "Sold Out" : externalRegistrationUnavailable ? "Registration Unavailable" : "Register Now"}
               </button>
               <button
                 onClick={() => scrollTo("countdown")}
@@ -1138,8 +1143,8 @@ function WorkshopDetailPage() {
               type="button"
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}
               onClick={() => {
-                if (registrationRedirectUrl) {
-                  window.location.assign(registrationRedirectUrl);
+                if (isExternalMode) {
+                  if (registrationRedirectUrl) window.location.assign(registrationRedirectUrl);
                   return;
                 }
                 scrollToRegister();
@@ -1261,7 +1266,7 @@ function WorkshopDetailPage() {
       <section id="register" className="relative py-24 scroll-mt-24">
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Secure Your Seat" title="Register Now" />
-          {registrationRedirectUrl ? (
+          {isExternalMode && registrationRedirectUrl ? (
             <div className="mt-12 max-w-xl mx-auto">
               <a
                 href={registrationRedirectUrl}
@@ -1269,6 +1274,10 @@ function WorkshopDetailPage() {
               >
                 Continue to registration
               </a>
+            </div>
+          ) : isExternalMode ? (
+            <div className="mt-12 max-w-xl mx-auto rounded-2xl border border-primary/30 bg-jet/60 p-10 text-center text-sm text-primary/70">
+              External registration is not available yet. Please contact us for assistance.
             </div>
           ) : isWhatsappMode ? (
             <>

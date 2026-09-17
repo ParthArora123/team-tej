@@ -330,7 +330,7 @@ const emptyWs = () => ({
   duration: "", capacity: "", price_inr: "",
   registration_open_on: todayISO(),
   category: "", style: "", published: true,
-  registration_mode: "online" as "online" | "whatsapp",
+  registration_mode: "online" as "online" | "whatsapp" | "external",
   registration_destination: "online" as "online" | "whatsapp" | "external",
   whatsapp_number: "",
   registration_redirect_url: "",
@@ -401,8 +401,10 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       registration_open_on: r.registration_open_on ?? todayISO(),
       category: r.category ?? "",
       style: r.style ?? "", published: !!r.published,
-      registration_mode: r.registration_mode === "whatsapp" ? "whatsapp" : "online",
-      registration_destination: r.registration_redirect_url
+      registration_mode: r.registration_mode === "external"
+        ? "external"
+        : r.registration_mode === "whatsapp" ? "whatsapp" : "online",
+      registration_destination: r.registration_mode === "external" || r.registration_redirect_url
         ? "external"
         : r.registration_mode === "whatsapp" ? "whatsapp" : "online",
       whatsapp_number: r.whatsapp_number ?? "",
@@ -462,7 +464,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
       toast.error("Enable at least one registration option (Single or Both).");
       return;
     }
-    if (f.registration_mode === "whatsapp" && !/^[0-9]{10}$/.test(String(f.whatsapp_number ?? "").replace(/\D/g, ""))) {
+    if (f.registration_destination === "whatsapp" && !/^[0-9]{10}$/.test(String(f.whatsapp_number ?? "").replace(/\D/g, ""))) {
       toast.error("Enter a valid 10-digit WhatsApp number for WhatsApp registration.");
       return;
     }
@@ -501,10 +503,10 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
     try {
       await onSave({ data: {
         ...f,
-        registration_mode: f.registration_mode === "whatsapp" ? "whatsapp" : "online",
-        whatsapp_number: f.registration_mode === "whatsapp" ? String(f.whatsapp_number ?? "").replace(/\D/g, "").slice(0, 10) : "",
+        registration_mode: f.registration_destination,
+        whatsapp_number: f.registration_destination === "whatsapp" ? String(f.whatsapp_number ?? "").replace(/\D/g, "").slice(0, 10) : "",
         registration_redirect_url: redirectUrl || null,
-        bank_account_holder: f.registration_mode === "whatsapp" ? (f.bank_account_holder || "") : f.bank_account_holder,
+        bank_account_holder: f.registration_destination === "whatsapp" ? (f.bank_account_holder || "") : f.bank_account_holder,
         price_inr: Number(f.price_inr),
         capacity: f.capacity ? Number(f.capacity) : undefined,
         silver_seat_price: f.silver_seat_enabled ? Number(f.silver_seat_price || 1000) : 1000,
@@ -602,7 +604,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
                 onClick={() => setF({
                   ...f,
                   registration_destination: option.value,
-                  registration_mode: option.value === "whatsapp" ? "whatsapp" : "online",
+                  registration_mode: option.value,
                   registration_redirect_url: option.value === "external" ? f.registration_redirect_url : "",
                 })}
                 className={`min-h-20 rounded-lg border p-3 text-left transition-colors ${selected ? "border-primary bg-primary/10" : "border-border bg-muted/30 hover:bg-muted/60"}`}
@@ -904,7 +906,7 @@ function WorkshopsTab({ rows, onSave, onDel, onPub, reload }: any) {
         <SummaryRow label="Both workshops" value={f.allow_both && f.both_price ? `₹${f.both_price}` : "Not configured"} />
         <SummaryRow label="Registration" value={f.registration_destination === "external"
           ? `External Link · ${f.registration_redirect_url || "—"}`
-          : f.registration_mode === "whatsapp" ? `WhatsApp · ${f.whatsapp_number || "—"}` : "Online payment"} />
+          : f.registration_destination === "whatsapp" ? `WhatsApp · ${f.whatsapp_number || "—"}` : "Online payment"} />
         <SummaryRow label="Registration redirect" value={f.registration_redirect_url?.trim() || "Internal registration flow"} />
       </div>
       {f.banner_preview && (
