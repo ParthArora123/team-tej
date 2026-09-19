@@ -1030,26 +1030,44 @@ function WorkshopDetailPage() {
         <div className="max-w-6xl mx-auto px-6">
           <SectionHeader eyebrow="Choose Your Pass" title="Registration Options" />
 
-          {tier && !spotActive && (
+          {pricing && pricing.tiers.length > 0 && !spotActive && (
             <motion.div
               initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="mt-10 mx-auto max-w-2xl rounded-2xl border border-primary/45 bg-gradient-to-r from-primary/12 to-primary/5 px-5 py-4 text-center backdrop-blur-md"
+              className="mt-10 mx-auto max-w-3xl rounded-2xl border border-primary/45 bg-gradient-to-r from-primary/12 to-primary/5 px-4 py-5 backdrop-blur-md sm:px-5"
             >
-              <p className="text-[10px] tracking-[0.32em] uppercase text-primary/80">
-                {tier.label || "Current Offer"}
+              <p className="text-center text-[10px] tracking-[0.32em] uppercase text-primary/80">
+                Pricing Tiers
               </p>
-              <p className="mt-2 text-sm text-primary">
-                Applicable price right now: <strong>₹{singlePrice.toLocaleString("en-IN")}</strong>
-                {allowSingle && allowBoth && bothPrice > 0 && (
-                  <> · Both workshops <strong>₹{bothPrice.toLocaleString("en-IN")}</strong></>
-                )}
-              </p>
-              {tier.remaining > 0 ? (
-                <p className="mt-1 text-xs text-primary/70">
-                  Only {tier.remaining} {tier.remaining === 1 ? "registration" : "registrations"} left at this price — the price increases after that.
+              <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {pricing.tiers.map((savedTier) => {
+                  const active = savedTier.id === tier?.id;
+                  return (
+                    <div
+                      key={savedTier.id}
+                      className={`rounded-xl border px-4 py-3 text-center ${active ? "border-primary bg-primary/10" : "border-primary/20 bg-background/20"}`}
+                    >
+                      <p className="text-xs font-semibold text-primary">
+                        {savedTier.label || `Tier ${savedTier.sort_order + 1}`}
+                      </p>
+                      <p className="mt-1 text-lg font-bold text-primary">
+                        ₹{Number(savedTier.price_inr).toLocaleString("en-IN")}
+                      </p>
+                      {savedTier.both_price != null && Number(savedTier.both_price) > 0 && (
+                        <p className="mt-0.5 text-[11px] text-primary/70">
+                          Both workshops ₹{Number(savedTier.both_price).toLocaleString("en-IN")}
+                        </p>
+                      )}
+                      {active && <p className="mt-1 text-[10px] font-semibold uppercase text-primary/80">Current price</p>}
+                    </div>
+                  );
+                })}
+              </div>
+              {tier && (
+                <p className="mt-3 text-center text-xs text-primary/70">
+                  {tier.remaining > 0
+                    ? `${tier.remaining} ${tier.remaining === 1 ? "registration" : "registrations"} left at the current price.`
+                    : "Final pricing tier is now active."}
                 </p>
-              ) : (
-                <p className="mt-1 text-xs text-primary/70">Final pricing tier is now active.</p>
               )}
             </motion.div>
           )}
