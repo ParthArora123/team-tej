@@ -7,7 +7,7 @@ import { cachedCall, invalidateCachedCall } from "@/lib/public-data-cache";
 import { idbGet, idbSet } from "@/lib/idb-cache";
 
 const WORKSHOPS_CACHE_KEY = "programs:workshop";
-const WORKSHOPS_CACHE_VERSION = "3";
+const WORKSHOPS_CACHE_VERSION = "4";
 
 import { CardSkeleton } from "@/components/site/Skeletons";
 import { listPrograms } from "@/lib/catalog.functions";
