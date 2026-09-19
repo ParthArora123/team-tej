@@ -40,21 +40,40 @@ async function signBucketPath(bucket: string, key: string | null | undefined) {
 async function decorateBanners(rows: any[]): Promise<any[]> {
   if (!rows.length) return [];
   return Promise.all(
-    rows.map(async (row) => ({
-      ...row,
-      // Workshop-day temporary override; the stored price is never modified.
-      original_price_inr: row.price_inr,
-      price_inr: isSpotPricingActive(row) ? Number(row.spot_price_inr) : row.price_inr,
-      banner_url:
-        row.banner_url || (await signBucketPath("workshop-images", row.banner_path)),
-      banner_video_url: await signBucketPath("workshop-videos", row.banner_video_path),
-      // Optimized 720p H.264 sibling (see src/lib/video-variants.ts); null when absent.
-      banner_video_url_mobile: await signBucketPath(
-        "workshop-videos",
-        mobileVariantKey(row.banner_video_path),
-      ),
-      banner_gif_url: await signBucketPath("workshop-images", row.banner_gif_path),
-    })),
+    rows.map(async (row) => {
+      const spotActive = isSpotPricingActive(row);
+      const [{ data: pricing }, bannerUrl, bannerVideoUrl, bannerVideoUrlMobile, bannerGifUrl] =
+        await Promise.all([
+          spotActive
+            ? Promise.resolve({ data: null })
+            : publicClient().rpc("get_program_pricing", { _program_id: row.id }),
+          row.banner_url
+            ? Promise.resolve(row.banner_url)
+            : signBucketPath("workshop-images", row.banner_path),
+          signBucketPath("workshop-videos", row.banner_video_path),
+          signBucketPath("workshop-videos", mobileVariantKey(row.banner_video_path)),
+          signBucketPath("workshop-images", row.banner_gif_path),
+        ]);
+      const currentTier = pricing?.current ?? null;
+
+      return {
+        ...row,
+        // Workshop-day pricing still has priority; otherwise public cards use
+        // the tier selected from the live registration count.
+        original_price_inr: row.price_inr,
+        price_inr: spotActive
+          ? Number(row.spot_price_inr)
+          : Number(currentTier?.price_inr ?? row.price_inr),
+        both_price: spotActive
+          ? row.both_price
+          : currentTier?.both_price ?? row.both_price,
+        banner_url: bannerUrl,
+        banner_video_url: bannerVideoUrl,
+        // Optimized 720p H.264 sibling (see src/lib/video-variants.ts); null when absent.
+        banner_video_url_mobile: bannerVideoUrlMobile,
+        banner_gif_url: bannerGifUrl,
+      };
+    }),
   );
 }
 
