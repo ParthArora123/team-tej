@@ -243,7 +243,14 @@ function AdminPage() {
       
 
 
-      {tab === "students" && <StudentsTab rows={enrs} onDelete={deleteEnrollment} reload={reload} />}
+      {tab === "students" && (
+        <StudentsTab
+          rows={enrs}
+          workshops={workshops.filter((w: any) => (w.kind ?? "workshop") === "workshop")}
+          onDelete={deleteEnrollment}
+          reload={reload}
+        />
+      )}
 
 
       {tab === "team" && <TeamTab />}
@@ -1116,7 +1123,7 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
   );
 }
 
-function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; reload: () => Promise<void> }) {
+function StudentsTab({ rows, workshops, onDelete, reload }: { rows: any[]; workshops: any[]; onDelete: any; reload: () => Promise<void> }) {
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [prog, setProg] = useState<string>("all");
@@ -1133,7 +1140,13 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
 
 
 
-  const programs = Array.from(new Set(rows.map((r) => r.program?.name).filter(Boolean))) as string[];
+  const programs = Array.from(
+    new Map(
+      workshops
+        .filter((workshop) => workshop?.id && workshop?.name)
+        .map((workshop) => [workshop.id, { id: workshop.id as string, name: workshop.name as string }]),
+    ).values(),
+  );
 
   // The Workshop column shows the program/workshop title only
   // (e.g. "6th sept Pune Workshop By Tejas Dinesh Dhoke"), never the
@@ -1162,7 +1175,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
   // belong to the program being filtered.
   const songs = Array.from(new Set(
     rows
-      .filter((r) => prog === "all" || r.program?.name === prog)
+      .filter((r) => prog === "all" || r.program_id === prog)
       .flatMap(songNamesFor),
   )) as string[];
 
@@ -1182,7 +1195,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
 
   const filtered = rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
-    if (prog !== "all" && r.program?.name !== prog) return false;
+    if (prog !== "all" && r.program_id !== prog) return false;
     // "both" = registrations covering both configured songs; otherwise a
     // specific song name matches any registration that includes that song.
     if (song === "both") {
@@ -1354,7 +1367,7 @@ function StudentsTab({ rows, onDelete, reload }: { rows: any[]; onDelete: any; r
         <select value={prog} onChange={(e) => { setProg(e.target.value); setSong("all"); }}
           className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
           <option value="all">All workshops</option>
-          {programs.map((p) => <option key={p} value={p} className="truncate">{p}</option>)}
+          {programs.map((p) => <option key={p.id} value={p.id} className="truncate">{p.name}</option>)}
         </select>
         <select value={song} onChange={(e) => setSong(e.target.value)} disabled={songs.length === 0}
           className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm disabled:opacity-50">
