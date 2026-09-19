@@ -1175,14 +1175,21 @@ function StudentsTab({ rows, workshops, onDelete, reload }: { rows: any[]; works
     return [w1, w2].filter(Boolean);
   };
 
-  // Song filter options are scoped to the currently selected workshop (or all
-  // workshops, if none is chosen) so the list never shows songs that don't
-  // belong to the program being filtered.
-  const songs = Array.from(new Set(
-    rows
+  // Build song options from every saved workshop as well as existing
+  // registrations. This keeps newly configured songs available before the
+  // workshop receives its first participant.
+  const selectedWorkshops = prog === "all"
+    ? workshops
+    : workshops.filter((workshop) => workshop.id === prog);
+  const songs = Array.from(new Set([
+    ...selectedWorkshops.flatMap((workshop) => [
+      String(workshop.workshop1_name ?? "").trim(),
+      String(workshop.workshop2_name ?? "").trim(),
+    ]),
+    ...rows
       .filter((r) => prog === "all" || r.program_id === prog)
       .flatMap(songNamesFor),
-  )) as string[];
+  ].filter(Boolean))).sort((a, b) => a.localeCompare(b));
 
   const formatRegistration = (r: any) => {
     const type = r.registration_type === "both" ? "Both" : "Single";
