@@ -1370,8 +1370,10 @@ function StudentsTab({ rows, workshops, onDelete, reload }: { rows: any[]; works
   return (
     <div className="mt-8">
       <div className="mb-4 space-y-3">
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone, ticket…"
-          className="w-full min-w-0 rounded-lg border border-border bg-muted px-3 py-2 text-sm" />
+        <FilterPicklist label="Search">
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone, ticket…"
+            className="w-full min-w-0 rounded-lg border border-border bg-muted px-3 py-2 text-sm" />
+        </FilterPicklist>
 
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
           <FilterPicklist label="Workshop">
