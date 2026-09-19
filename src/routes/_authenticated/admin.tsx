@@ -1129,6 +1129,8 @@ function StudentsTab({ rows, workshops, onDelete, reload }: { rows: any[]; works
   const [prog, setProg] = useState<string>("all");
   const [song, setSong] = useState<string>("all");
   const [silver, setSilver] = useState<string>("all");
+  const [participantType, setParticipantType] = useState<string>("all");
+  const [workshopType, setWorkshopType] = useState<string>("all");
   const [toDelete, setToDelete] = useState<any>(null);
   const [deleting, setDeleting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -1142,11 +1144,14 @@ function StudentsTab({ rows, workshops, onDelete, reload }: { rows: any[]; works
 
   const programs = Array.from(
     new Map(
-      workshops
+      [
+        ...workshops,
+        ...rows.map((row) => row.program).filter(Boolean),
+      ]
         .filter((workshop) => workshop?.id && workshop?.name)
         .map((workshop) => [workshop.id, { id: workshop.id as string, name: workshop.name as string }]),
     ).values(),
-  );
+  ).sort((a, b) => a.name.localeCompare(b.name));
 
   // The Workshop column shows the program/workshop title only
   // (e.g. "6th sept Pune Workshop By Tejas Dinesh Dhoke"), never the
@@ -1196,6 +1201,10 @@ function StudentsTab({ rows, workshops, onDelete, reload }: { rows: any[]; works
   const filtered = rows.filter((r) => {
     if (status !== "all" && r.status !== status) return false;
     if (prog !== "all" && r.program_id !== prog) return false;
+    if (participantType === "single" && (r.participant_count ?? 1) !== 1) return false;
+    if (participantType === "multiple" && (r.participant_count ?? 1) < 2) return false;
+    if (workshopType === "single" && r.registration_type === "both") return false;
+    if (workshopType === "both" && r.registration_type !== "both") return false;
     // "both" = registrations covering both configured songs; otherwise a
     // specific song name matches any registration that includes that song.
     if (song === "both") {
@@ -1353,43 +1362,67 @@ function StudentsTab({ rows, workshops, onDelete, reload }: { rows: any[]; works
 
   return (
     <div className="mt-8">
-      <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center">
+      <div className="mb-4 space-y-3">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, email, phone, ticket…"
-          className="w-full sm:flex-1 min-w-0 px-3 py-2 rounded-lg bg-muted border border-border text-sm" />
-        <select value={status} onChange={(e) => setStatus(e.target.value)}
-          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
-          <option value="all">All statuses</option>
-          <option value="awaiting_payment">Awaiting payment</option>
-          <option value="payment_submitted">Payment submitted</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="rejected">Rejected</option>
-        </select>
-        <select value={prog} onChange={(e) => { setProg(e.target.value); setSong("all"); }}
-          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
-          <option value="all">All workshops</option>
-          {programs.map((p) => <option key={p.id} value={p.id} className="truncate">{p.name}</option>)}
-        </select>
-        <select value={song} onChange={(e) => setSong(e.target.value)} disabled={songs.length === 0}
-          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm disabled:opacity-50">
-          <option value="all">All songs</option>
-          {songs.map((s) => <option key={s} value={s} className="truncate">{s}</option>)}
-          {songs.length === 2 && <option value="both">Both songs</option>}
-        </select>
-        <select value={silver} onChange={(e) => setSilver(e.target.value)}
-          className="w-full sm:flex-1 min-w-0 truncate px-3 py-2 rounded-lg bg-muted border border-border text-sm">
-          <option value="all">All seats</option>
-          <option value="silver">Silver Seat</option>
-        </select>
-        <button onClick={exportCsv} disabled={expanded.length === 0}
-          className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-40">
-          Export to Excel ({expanded.length})
-        </button>
-        {selected.size > 0 && (
-          <button onClick={() => setBulkConfirm(true)}
-            className="w-full sm:w-auto shrink-0 px-4 py-2 rounded-lg bg-destructive text-destructive-foreground text-sm">
-            Delete selected ({selected.size})
-          </button>
-        )}
+          className="w-full min-w-0 rounded-lg border border-border bg-muted px-3 py-2 text-sm" />
+
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
+          <FilterPicklist label="Workshop">
+            <select value={prog} onChange={(e) => { setProg(e.target.value); setSong("all"); }} className="w-full min-w-0 truncate rounded-lg border border-border bg-muted px-3 py-2 text-sm">
+              <option value="all">All Workshops</option>
+              {programs.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </FilterPicklist>
+          <FilterPicklist label="Participant Type">
+            <select value={participantType} onChange={(e) => setParticipantType(e.target.value)} className="w-full min-w-0 rounded-lg border border-border bg-muted px-3 py-2 text-sm">
+              <option value="all">All Participant Types</option>
+              <option value="single">Single Participant</option>
+              <option value="multiple">Multiple Participants</option>
+            </select>
+          </FilterPicklist>
+          <FilterPicklist label="Workshop Type">
+            <select value={workshopType} onChange={(e) => setWorkshopType(e.target.value)} className="w-full min-w-0 rounded-lg border border-border bg-muted px-3 py-2 text-sm">
+              <option value="all">All Workshop Types</option>
+              <option value="single">Single Workshop</option>
+              <option value="both">Both Workshops</option>
+            </select>
+          </FilterPicklist>
+          <FilterPicklist label="Silver Seat">
+            <select value={silver} onChange={(e) => setSilver(e.target.value)} className="w-full min-w-0 rounded-lg border border-border bg-muted px-3 py-2 text-sm">
+              <option value="all">All Seats</option>
+              <option value="silver">Silver Seat</option>
+            </select>
+          </FilterPicklist>
+          <FilterPicklist label="Payment Status">
+            <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full min-w-0 rounded-lg border border-border bg-muted px-3 py-2 text-sm">
+              <option value="all">All Payment Statuses</option>
+              <option value="awaiting_payment">Awaiting Payment</option>
+              <option value="payment_submitted">Payment Submitted</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </FilterPicklist>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <FilterPicklist label="Song">
+            <select value={song} onChange={(e) => setSong(e.target.value)} disabled={songs.length === 0} className="w-full min-w-0 truncate rounded-lg border border-border bg-muted px-3 py-2 text-sm disabled:opacity-50">
+              <option value="all">All Songs</option>
+              {songs.map((s) => <option key={s} value={s}>{s}</option>)}
+              {songs.length === 2 && <option value="both">Both Songs</option>}
+            </select>
+          </FilterPicklist>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-end">
+            <button onClick={exportCsv} disabled={expanded.length === 0} className="w-full shrink-0 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-40 sm:w-auto">
+              Export to Excel ({expanded.length})
+            </button>
+            {selected.size > 0 && (
+              <button onClick={() => setBulkConfirm(true)} className="w-full shrink-0 rounded-lg bg-destructive px-4 py-2 text-sm text-destructive-foreground sm:w-auto">
+                Delete selected ({selected.size})
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-border bg-card">
@@ -1497,6 +1530,15 @@ function StudentsTab({ rows, workshops, onDelete, reload }: { rows: any[]; works
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  );
+}
+
+function FilterPicklist({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="min-w-0">
+      <span className="mb-1 block text-xs font-medium text-muted-foreground">{label}</span>
+      {children}
+    </label>
   );
 }
 
